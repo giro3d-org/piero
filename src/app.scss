@@ -1,0 +1,51 @@
+$position-values: (
+  0: 0,
+  20: 20%,
+  25: 25%,
+  50: 50%,
+  75: 75%,
+  80: 80%,
+  100: 100%
+);
+
+@import "bootstrap/scss/bootstrap";
+$bootstrap-icons-font-dir: '../node_modules/bootstrap-icons/font/fonts';
+@import "bootstrap-icons/font/bootstrap-icons";
+
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/utilities";
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#layers a.link-secondary {
+  margin-left: 0.5em;
+}
+
+#layers a.link-dark {
+  margin-right: 0.5em;
+}
+
+$utilities: map-merge($utilities,
+    ("max-width": (property: max-width,
+        class: mw,
+        values: (25: 25%, 50: 50%, 75: 75%, 100: 100%)),
+      "max-height": (property: max-height,
+        class: mh,
+        values: (25: 25%, 50: 50%, 75: 75%, 100: 100%)),
+      "viewport-width": (property: width,
+        class: vw,
+        values: (25: 25vw, 50: 50vw, 75: 75vw, 100: 100vw)),
+      "min-viewport-width": (property: min-width,
+        class: min-vw,
+        values: (25: 25vw, 50: 50vw, 75: 75vw, 100: 100vw)),
+      "viewport-height": (property: height,
+        class: vh,
+        values: (25: 25vh, 50: 50vh, 75: 75vh, 100: 100vh)),
+      "min-viewport-height": (property: min-height,
+        class: min-vh,
+        values: (25: 25vh, 50: 50vh, 75: 75vh, 100: 100vh)),
+    ));
+
+@import "bootstrap/scss/utilities/api";

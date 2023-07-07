@@ -1,0 +1,14 @@
+pages:
+    stage: build
+    image: node:lts-alpine
+    script:
+        - npm i
+        - npm run lint
+        - npm run build
+        - mv dist public
+    artifacts:
+        paths:
+            - public
+        name: "$CI_COMMIT_REF_SLUG"
+    only:
+        - main
