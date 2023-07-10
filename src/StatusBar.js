@@ -61,6 +61,9 @@ function bind(_instance, _layerManager, radius = 1) {
     const coordinates = document.getElementById('coordinates');
 
     instance.domElement.addEventListener('mousemove', e => {
+        tooltip.classList.add('d-none');
+        coordinates.classList.add('d-none');
+
         const picked = layerManager.getObjectAt(e);
         if (picked !== null) {
             const { layer, point } = picked;
@@ -73,21 +76,31 @@ function bind(_instance, _layerManager, radius = 1) {
                     e.clientX, e.clientY,
                 );
                 popper.update();
-            } else {
-                tooltip.classList.add('d-none');
             }
 
             coordinates.classList.remove('d-none');
             coordinates.textContent = `x: ${point.x.toFixed(2)}, y: ${point.y.toFixed(2)}, z: ${point.z.toFixed(2)}`;
         } else {
-            tooltip.classList.add('d-none');
+            const pickedOnMap = instance.pickObjectsAt(e, { limit: 1, radius }).at(0);
+            if (pickedOnMap) {
+                const point = pickedOnMap.point;
+                const coord = pickedOnMap.coord;
+                const parentMap = pickedOnMap.layer;
+                const tile = pickedOnMap.object;
 
-            const picked2 = instance.pickObjectsAt(e, { limit: 1, radius }).at(0);
-            if (picked2) {
+                const feature = parentMap.getVectorFeaturesAtCoordinate(coord, 10, tile).at(0);
+                if (feature) {
+                    tooltip.textContent = `${feature.layer.id}`;
+                    tooltip.classList.remove('d-none');
+
+                    virtualElement.getBoundingClientRect = generateGetBoundingClientRect(
+                        e.clientX, e.clientY,
+                    );
+                    popper.update();
+                }
+
                 coordinates.classList.remove('d-none');
-                coordinates.textContent = `x: ${picked2.point.x.toFixed(2)}, y: ${picked2.point.y.toFixed(2)}, z: ${picked2.point.z.toFixed(2)}`;
-            } else {
-                coordinates.classList.add('d-none');
+                coordinates.textContent = `x: ${point.x.toFixed(2)}, y: ${point.y.toFixed(2)}, z: ${point.z.toFixed(2)}`;
             }
         }
     });
