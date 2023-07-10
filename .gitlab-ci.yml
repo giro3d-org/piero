@@ -4,7 +4,9 @@ pages:
     script:
         - npm i
         - npm run lint
-        - npm run build
+        # for some reason, optimization removes useful stuff...
+        # see https://github.com/parcel-bundler/parcel/issues/7622
+        - npm run build -- --no-optimize
         - mv dist public
     artifacts:
         paths:
