@@ -14,10 +14,12 @@ import {
     Object3D,
 } from 'three';
 import CameraControls from 'camera-controls';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 /* eslint-disable jsdoc/valid-types */
 /**
  * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('@giro3d/giro3d/core/geographic/Extent').default} Extent
  */
 /* eslint-enable */
 
@@ -179,6 +181,21 @@ class Camera extends EventDispatcher {
         // Dispatch events so giro3d and giro3dservice gets notified
         this.controls.dispatchEvent({ type: 'update' });
         return res;
+    }
+
+    /**
+     * Sets initial position of camera to view an extent.
+     *
+     * @param {Extent} extent Extent to look at
+     * @param {number} [altitude=4000] Altitude of camera
+     */
+    setInitialPosition(extent, altitude = 4000) {
+        const cameraPosition = new Coordinates(
+            'EPSG:2154',
+            extent.west(), extent.south(), altitude,
+        ).xyz();
+        const center = extent.center().xyz();
+        this.lookAt(cameraPosition, center, false);
     }
 
     /**

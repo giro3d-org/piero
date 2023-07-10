@@ -4,6 +4,7 @@ import { Box3, Vector3 } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
+import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
 import { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
 
 import IFC from './IFC.js';
@@ -327,9 +328,13 @@ document.getElementById('annotation-drop').addEventListener('drop', async e => {
     await processFiles(files, true, { projection: 'EPSG:4326', isAnnotation: true });
 });
 
+const extent = new Extent('EPSG:2154', 836545, 846996, 6513414, 6526230);
+layerManager.createMap(extent);
+camera.setInitialPosition(extent);
+
 processFiles([las], false, { projection: 'EPSG:2154' })
     .then(() => Promise.allSettled([
-        processFiles([cityjson], true, { projection: 'EPSG:2154' }),
+        processFiles([cityjson], false, { projection: 'EPSG:2154' }),
         // processFiles([ifc], false, {
         //     at: new Vector3(841900.7811846591, 6517809.405693541, 167),
         // }),
