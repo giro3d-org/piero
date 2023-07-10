@@ -9,10 +9,33 @@ import Measure from './Measure.js';
 /* eslint-disable jsdoc/valid-types */
 /**
  * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('@giro3d/giro3d/interactions/Drawing.js').default} Drawing
+ * @typedef {import('three').Face} Face
+ * @typedef {import('three').Object3D} Object3D
+ * @typedef {import('ol/Feature.js').default} Feature
  * @typedef {import('./LayerManager.js').default} LayerManager
+ * @typedef {import('./LayerManager.js').Dataset} Dataset
  * @typedef {import('./DrawingTools.js').default} DrawingTools
  */
 /* eslint-enable */
+
+/**
+ * Picked object
+ *
+ * @typedef {object} ShowResult
+ * @property {Dataset|string} layer Layer picked
+ * @property {Object3D} rootobj Parent Object3D picked (directly created by dataset)
+ * @property {Object3D} object Object3D picked
+ * @property {Vector3} point Point picked
+ * @property {?Drawing} drawing Drawing object, if any (may be null)
+ * @property {number} distance Distance from camera
+ * @property {?number} distanceToRay Distance to ray when raycasting, if any (may be null or
+ * undefined)
+ * @property {?number} index Index from raycasting, if any (may be null or undefined)
+ * @property {?Face} face Face from raycasting, if any (may be null or undefined)
+ * @property {?number} faceIndex Face index from raycasting, if any (may be null or undefined)
+ * @property {?Feature} feature OL Feature, if any (may be null, or undefined)
+ */
 
 Chart.register(Colors, BarController, CategoryScale, LinearScale, BarElement, Legend);
 
@@ -42,7 +65,31 @@ class AttributePanel {
 
         this.instance.domElement.addEventListener('click', e => {
             if (!this.isDrawing) {
-                this.showFor(this.layerManager.getObjectAt(e));
+                const picked = this.layerManager.getObjectAt(e);
+                if (picked) {
+                    this.showFor(picked);
+                    return;
+                }
+
+                // Should return us somethinf on the map
+                const pickedOnMap = this.instance.pickObjectsAt(e, { limit: 1, radius: 1 }).at(0);
+                if (pickedOnMap && pickedOnMap.layer?.type === 'Map') {
+                    const coord = pickedOnMap.coord;
+                    const parentMap = pickedOnMap.layer;
+                    const tile = pickedOnMap.object;
+
+                    const feature = parentMap.getVectorFeaturesAtCoordinate(coord, 10, tile).at(0);
+                    if (feature) {
+                        this.showFor({
+                            layer: feature.layer,
+                            feature: feature.feature,
+                            rootobj: parentMap.object3d,
+                        });
+                        return;
+                    }
+                }
+
+                this.showFor(null);
             }
         });
         this.layerManager.addEventListener('annotation', e => {
@@ -118,19 +165,21 @@ class AttributePanel {
     /**
      * Show info on a picked object.
      *
-     * @param {object} pickedObject Picked object (can be `null`)
+     * @param {ShowResult} pickedObject Picked object (can be `null`)
      */
     showFor(pickedObject) {
         console.log('showFor', pickedObject);
-        if (pickedObject != null) {
+        if (pickedObject) {
             const {
-                layer, rootobj, drawing, object,
+                layer, rootobj, drawing, object, feature,
             } = pickedObject;
             const attributes = [
                 ['Id', rootobj.uuid],
             ];
             if (layer?.filename) {
                 attributes.push(['Belongs to', layer.filename]);
+            } else if (layer.type === 'ColorLayer') {
+                attributes.push(['Belongs to', layer.id]);
             }
 
             const bbox = new Box3();
@@ -160,7 +209,7 @@ class AttributePanel {
             let area;
             let perimeter;
             let minmax;
-            if (drawing !== null) {
+            if (drawing) {
                 perimeter = Measure.getPerimeter(drawing);
                 minmax = Measure.getMinMaxAltitudes(drawing);
                 area = Measure.getArea(drawing);
@@ -187,6 +236,15 @@ class AttributePanel {
                 attributes.push(['LoD', geometry.lod]);
                 const surface = geometry.semantics.surfaces[cityjsonInfo.surfaceTypeIndex];
                 attributes.push(['Surface type', surface.type]);
+            }
+            if (feature) {
+                if (feature.getId() !== undefined) {
+                    attributes.push(['fid', feature.getId()]);
+                }
+                for (const [key, value] of Object.entries(feature.getProperties())) {
+                    if (key === 'geometry' || key === 'geometryProperty') continue;
+                    attributes.push([key, value]);
+                }
             }
             // if (rootobj.ifcManager && faceIndex) {
             //     this.highlightIfc(rootobj, faceIndex);
