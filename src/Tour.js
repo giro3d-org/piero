@@ -35,7 +35,7 @@ const displayProgress = () => {
 tour.addStep({
     id: 'example-step',
     title: 'Welcome!',
-    text: 'Welcome to this sample application.<br/>We will guide you through the different features.',
+    text: 'Welcome to this Giro3D sample application.<br/>We will guide you through the different features.',
     cancelIcon: { enabled: true, label: 'Exit tutorial' },
     buttons: buttonsOptions,
     when: {
@@ -45,7 +45,20 @@ tour.addStep({
 
 tour.addStep({
     id: 'view',
-    text: 'Here you can view your data. Click to move the camera. Right-click to rotate around a point.',
+    text: 'Here you can view your data.<br/>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.<br/>This sample application adds experimental support for CityJSON and IFC files.',
+    buttons: buttonsOptions,
+    attachTo: {
+        element: '#viewerDiv',
+        on: 'right',
+    },
+    when: {
+        show: displayProgress,
+    },
+});
+
+tour.addStep({
+    id: 'navigate',
+    text: 'This application integrates <a href="https://github.com/yomotsu/camera-controls">camera-controls</a>, a camera control for three.js.<br/>Click to move the camera. Right-click to rotate around a point. Scroll to zoom in or out.',
     buttons: buttonsOptions,
     attachTo: {
         element: '#viewerDiv',
@@ -71,14 +84,14 @@ tour.addStep({
 tour.addStep({
     id: 'layers',
     text: 'From here, you can access the different objects displayed, or remove them. Click on a layer name to zoom to it.',
-    // buttons: buttonsOptions,
+    buttons: buttonsOptions,
     attachTo: {
         element: '#layer-list',
         on: 'bottom',
     },
     when: {
         show: () => {
-            if (document.getElementById('layer-list').length === 0) {
+            if (document.getElementById('layer-list').children.length === 0) {
                 tour.back();
                 return;
             }
@@ -98,6 +111,7 @@ tour.addStep({
 tour.addStep({
     id: 'attributes',
     text: 'Click on a feature to see its info',
+    buttons: buttonsOptions,
     attachTo: {
         element: '#viewerDiv',
         on: 'right',
@@ -139,8 +153,21 @@ tour.addStep({
 
 tour.addStep({
     id: 'adddata',
-    text: 'You can add your own data from your computer by dragging the file into this page',
+    text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and GeoJSON features.',
     buttons: buttonsOptions,
+    when: {
+        show: displayProgress,
+    },
+});
+
+tour.addStep({
+    id: 'overlays',
+    text: 'Giro3D supports overlaying layers on top of maps; we\'have added some for Lyon.',
+    buttons: buttonsOptions,
+    attachTo: {
+        element: '#overlays-list-container',
+        on: 'right',
+    },
     when: {
         show: displayProgress,
     },
@@ -149,6 +176,10 @@ tour.addStep({
 tour.addStep({
     id: 'measure',
     text: 'You can annotate any data displayed',
+    buttons: [
+        { text: 'Next', action: () => document.getElementById('measure-polygon').click() },
+        { text: 'Exit', action: tour.cancel, secondary: true },
+    ],
     attachTo: {
         element: '#measurement > div',
         on: 'left',
