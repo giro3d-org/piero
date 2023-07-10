@@ -23,6 +23,13 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource.js';
 
+/* eslint-disable jsdoc/valid-types */
+/**
+ * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('./Camera').default} Camera
+ */
+/* eslint-enable */
+
 const drawnFaceMaterial = new MeshBasicMaterial({
     color: 0x433C73,
     opacity: 0.2,
@@ -87,7 +94,16 @@ const MAPPROVIDERS = {
 
 const mapboxkey = 'pk.eyJ1IjoidG11Z3VldCIsImEiOiJjam80c2ZjaDgwMm9wM3ZtYnk5ZHJ2MHdhIn0.fVxG4S6FeU9NZhkpkLLlsA';
 
+/**
+ * Manages Giro3d layers and 3D objects
+ */
 class LayerManager extends EventDispatcher {
+    /**
+     * Creates a new layer manager.
+     *
+     * @param {Instance} instance Giro3D instance.
+     * @param {Camera} camera Camera instance
+     */
     constructor(instance, camera) {
         super();
         this.instance = instance;
@@ -409,8 +425,7 @@ class LayerManager extends EventDispatcher {
         document.getElementById('snapToObject').appendChild(snapToOption);
 
         const bbox = obj.getBoundingBox();
-        const dataExtent = Extent.fromBox3(this.instance.referenceCrs, bbox)
-            .withRelativeMargin(4, 4);
+        const dataExtent = Extent.fromBox3(this.instance.referenceCrs, bbox).withRelativeMargin(4);
         if (this.baseMap !== null) {
             const newExtent = this.baseMap.extent.clone();
             if (!dataExtent.isInside(newExtent)) {
@@ -456,7 +471,12 @@ class LayerManager extends EventDispatcher {
         });
 
         if (this.sets.size === 0) {
-            this.deleteMap();
+            this.baseMap.removeLayer(this.imageryLayer);
+            this.baseMap.removeLayer(this.elevationLayer);
+            Array.from(this.overlayLayers.values())
+                .forEach(layer => this.baseMap.removeLayer(layer));
+            this.instance.remove(this.baseMap);
+            this.baseMap = null;
         }
     }
 

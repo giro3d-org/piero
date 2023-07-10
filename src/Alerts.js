@@ -1,3 +1,11 @@
+/**
+ * Displays an alert in the UI.
+ *
+ * @param {string} message Message to display
+ * @param {string} className Alert classname (see https://getbootstrap.com/docs/5.3/components/alerts/#examples)
+ * @param {boolean} [fadeOut=false] Automatically fades out after 5 seconds.
+ * @returns {object} Object with btn and dismiss properties
+ */
 function showAlert(message, className = 'danger', fadeOut = false) {
     const alert = document.createElement('div');
     alert.className = `alert alert-${className} alert-dismissible fade show`;

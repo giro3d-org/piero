@@ -6,6 +6,13 @@ import { crsToUnit, UNIT } from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import { DRAWTOOL_EVENT_TYPE } from '@giro3d/giro3d/interactions/DrawTool.js';
 import Measure from './Measure.js';
 
+/* eslint-disable jsdoc/valid-types */
+/**
+ * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('./LayerManager.js').default} LayerManager
+ */
+/* eslint-enable */
+
 Chart.register(Colors, BarController, CategoryScale, LinearScale, BarElement, Legend);
 
 const toUnit = instance => {
@@ -17,7 +24,16 @@ const toUnit = instance => {
     }
 };
 
+/**
+ * Attribute panel, used to display some info on click.
+ */
 class AttributePanel {
+    /**
+     * Initialises the attribute panel.
+     *
+     * @param {Instance} instance Giro3D instance
+     * @param {LayerManager} layerManager Layer manager instance
+     */
     constructor(instance, layerManager) {
         this.instance = instance;
         this.layerManager = layerManager;
