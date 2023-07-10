@@ -10,8 +10,8 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import PointCloud from '@giro3d/giro3d/core/Points.js';
 import PointsMaterial, { MODE } from '@giro3d/giro3d/renderer/PointsMaterial.js';
-import Alerts from './Alerts.js';
-import StatusBar from './StatusBar.js';
+import Alerts from '../Alerts.js';
+import StatusBar from '../StatusBar.js';
 
 export default {
     async loadGeospatial(instance, id, url, loader, options, field) {

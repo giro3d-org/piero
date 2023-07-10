@@ -1,7 +1,7 @@
 import { CityJSONLoader, CityJSONWorkerParser } from 'cityjson-threejs-loader';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-import Projections from './Projections.js';
+import Projections from '../Projections.js';
 
 export default {
     loadString(instance, id, str, options = {}) {

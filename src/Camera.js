@@ -14,7 +14,7 @@ import {
     Object3D,
 } from 'three';
 import CameraControls from 'camera-controls';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 
 /* eslint-disable jsdoc/valid-types */
 /**

@@ -1,5 +1,5 @@
 {
-    "include": ["src/*"],
+    "include": ["src/*.js", "src/**/*.js"],
     "compilerOptions": {
         "target": "es6",
         "allowJs": true,

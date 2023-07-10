@@ -104,6 +104,8 @@ module.exports = {
         'prefer-destructuring': 'off',
         'no-bitwise': 'off', // we DO manipulate bits often enough, making this irrelevant
         'max-classes-per-file': 'off', // for me, if we export only one, I don't see the wrong here
+
+        'jsdoc/valid-types': 'off', // does not work well with typescript
     },
     globals: {
         __DEBUG__: false,

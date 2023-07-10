@@ -1,7 +1,7 @@
 import { Vector3, Box3, Group } from 'three';
 import { IFCLoader } from 'three/examples/jsm/loaders/IFCLoader.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-import Alerts from './Alerts.js';
+import Alerts from '../Alerts.js';
 
 const ifcLoader = new IFCLoader();
 ifcLoader.ifcManager.setWasmPath('../../../../../../');

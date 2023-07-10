@@ -1,5 +1,5 @@
 import {
-    Box3, LineBasicMaterial, MeshBasicMaterial, PointsMaterial, EventDispatcher,
+    Box3, LineBasicMaterial, MeshBasicMaterial, PointsMaterial, EventDispatcher, Object3D, Vector3,
 } from 'three';
 import Giro3dMap from '@giro3d/giro3d/entities/Map.js';
 import TileWMS from 'ol/source/TileWMS.js';
@@ -23,12 +23,35 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource.js';
 
-/* eslint-disable jsdoc/valid-types */
 /**
  * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('three').Face} Face
  * @typedef {import('./Camera').default} Camera
  */
-/* eslint-enable */
+
+/**
+ * Wrapper for our datasets.
+ *
+ * @typedef {object} Dataset
+ * @property {Entity3D} obj Object wrapped
+ * @property {string} filename Original filename used to upload/download data.
+ */
+
+/**
+ * Picked object
+ *
+ * @typedef {object} PickResult
+ * @property {Dataset} layer Layer picked
+ * @property {Entity3D} rootobj Object picked
+ * @property {Vector3} point Point picked
+ * @property {?Drawing} drawing Drawing object, if any (may be null)
+ * @property {number} distance Distance from camera
+ * @property {?number} distanceToRay Distance to ray when raycasting, if any (may be null or
+ * undefined)
+ * @property {?number} index Index from raycasting, if any (may be null or undefined)
+ * @property {?Face} face Face from raycasting, if any (may be null or undefined)
+ * @property {?number} faceIndex Face index from raycasting, if any (may be null or undefined)
+ */
 
 const drawnFaceMaterial = new MeshBasicMaterial({
     color: 0x433C73,
@@ -46,6 +69,12 @@ const drawnPointMaterial = new PointsMaterial({
     size: 100,
 });
 
+/**
+ * Creates a point to be added via CSS2DRenderer.
+ *
+ * @param {number} index Index of the point
+ * @returns {HTMLElement} Point
+ */
 function point2DFactory(index) {
     const pt = document.createElement('div');
     pt.style.position = 'absolute';
@@ -63,6 +92,14 @@ function point2DFactory(index) {
     return pt;
 }
 
+/**
+ * Creates a main link for the panel
+ *
+ * @param {string} text Content of the link
+ * @param {string} title Tooltip title
+ * @param {(this: HTMLAnchorElement, ev: MouseEvent) => any} clickHandler onClick event handler
+ * @returns {HTMLElement} Link element
+ */
 function createLink(text, title, clickHandler) {
     const link = document.createElement('a');
     link.setAttribute('href', '#');
@@ -73,6 +110,16 @@ function createLink(text, title, clickHandler) {
     return link;
 }
 
+/**
+ * Creates a secondary link (i.e. button) for the panel.
+ *
+ * @param {string} iconName Icon name (cf. https://icons.getbootstrap.com/#icons, e.g. `bi-trash`)
+ * @param {string} title Tooltip title
+ * @param {(this: HTMLAnchorElement, ev: MouseEvent) => any} clickHandler onClick event handler
+ * @param {?string} [className=''] Additional class names
+ * @param {?string} [linkType='secondary'] Link type, use `dark` or `secondary`
+ * @returns {HTMLElement} Link element
+ */
 function createButtonLink(iconName, title, clickHandler, className = '', linkType = 'secondary') {
     const link = document.createElement('a');
     link.setAttribute('href', '#');
@@ -87,12 +134,20 @@ function createButtonLink(iconName, title, clickHandler, className = '', linkTyp
     return link;
 }
 
+/**
+ * Available map providers
+ */
 const MAPPROVIDERS = {
+    /** IGN */
     IGN: 'ign',
+    /** MAPBOX */
     MAPBOX: 'mapbox',
 };
 
-const mapboxkey = 'pk.eyJ1IjoidG11Z3VldCIsImEiOiJjam80c2ZjaDgwMm9wM3ZtYnk5ZHJ2MHdhIn0.fVxG4S6FeU9NZhkpkLLlsA';
+/**
+ * Mapbox key
+ */
+const mapboxkey = 'pk.eyJ1IjoidG11Z3VldCIsImEiOiJjbGJ4dTNkOW0wYWx4M25ybWZ5YnpicHV6In0.KhDJ7W5N3d1z3ArrsDjX_A';
 
 /**
  * Manages Giro3d layers and 3D objects
@@ -106,14 +161,20 @@ class LayerManager extends EventDispatcher {
      */
     constructor(instance, camera) {
         super();
+        /** @type {Instance} */
         this.instance = instance;
         this.camera = camera;
+        /** @type {Map<string, Dataset>} */
         this.sets = new Map();
-        this.annotations = [];
+        /** @type {Giro3dMap} */
         this.baseMap = null;
+        /** @type {string} */
         this.mapProvider = MAPPROVIDERS.IGN;
+        /** @type {ColorLayer} */
         this.imageryLayer = null;
+        /** @type {ElevationLayer} */
         this.elevationLayer = null;
+        /** @type {Map<string, ColorLayer>} */
         this.overlayLayers = new Map();
 
         const baseMapElement = document.getElementById('basemap');
@@ -122,23 +183,32 @@ class LayerManager extends EventDispatcher {
             const newExtent = this.baseMap.extent.withRelativeMargin(0.5);
             this.createMap(newExtent);
         });
-        baseMapElement.querySelector('.layer-provider-link').addEventListener('click', () => {
-            if (this.mapProvider === MAPPROVIDERS.IGN) {
-                this.mapProvider = MAPPROVIDERS.MAPBOX;
-            } else {
-                this.mapProvider = MAPPROVIDERS.IGN;
-            }
-            this.baseMap.removeLayer(this.imageryLayer);
-            this.baseMap.removeLayer(this.elevationLayer);
-            this.imageryLayer = null;
-            this.elevationLayer = null;
-            this.baseMap.addLayer(this.getImageryLayer());
-            this.baseMap.addLayer(this.getElevationLayer());
-            this.instance.notifyChange(this.baseMap);
-            this.dispatchEvent({ type: 'map-changed' });
-        });
+        if (this.instance.referenceCrs !== 'EPSG:3857') {
+            baseMapElement.querySelector('.layer-provider-link').remove();
+        } else {
+            baseMapElement.querySelector('.layer-provider-link').addEventListener('click', () => {
+                if (this.mapProvider === MAPPROVIDERS.IGN) {
+                    this.mapProvider = MAPPROVIDERS.MAPBOX;
+                } else {
+                    this.mapProvider = MAPPROVIDERS.IGN;
+                }
+                this.baseMap.removeLayer(this.imageryLayer);
+                this.baseMap.removeLayer(this.elevationLayer);
+                this.imageryLayer = null;
+                this.elevationLayer = null;
+                this.baseMap.addLayer(this.getImageryLayer());
+                this.baseMap.addLayer(this.getElevationLayer());
+                this.instance.notifyChange(this.baseMap);
+                this.dispatchEvent({ type: 'map-changed' });
+            });
+        }
     }
 
+    /**
+     * Gets imagery layer for Giro3D; creates it if needed.
+     *
+     * @returns {ColorLayer} Imagery layer
+     */
     getImageryLayer() {
         if (this.imageryLayer) {
             return this.imageryLayer;
@@ -178,6 +248,11 @@ class LayerManager extends EventDispatcher {
         return this.imageryLayer;
     }
 
+    /**
+     * Gets elevation layer for Giro3D; creates it if needed
+     *
+     * @returns {ElevationLayer} Elevation layer
+     */
     getElevationLayer() {
         if (this.elevationLayer) {
             return this.elevationLayer;
@@ -230,7 +305,12 @@ class LayerManager extends EventDispatcher {
         return this.elevationLayer;
     }
 
-    registerVectorLayer(layer) {
+    /**
+     * Adds a Layer as overlay in the UI.
+     *
+     * @param {ColorLayer} layer Layer to add as overlay
+     */
+    registerOverlayLayer(layer) {
         this.overlayLayers.set(layer.id, layer);
         document.querySelector(`#overlay-${layer.id} .layer-toggle-visible-link`).addEventListener('click', () => {
             const btn = document.querySelector(`#overlay-${layer.id} a.layer-toggle-visible-link i`);
@@ -244,8 +324,14 @@ class LayerManager extends EventDispatcher {
             layer.visible = !layer.visible;
             this.instance.notifyChange(this.baseMap);
         });
+        return this;
     }
 
+    /**
+     * Gets overlays for Giro3D; creates them if needed
+     *
+     * @returns {Map<string, ColorLayer>} List of overlays
+     */
     getVectorLayers() {
         // if (this.instance.referenceCrs === 'EPSG:4326') {
         //     const riversLayer = new ColorLayer(
@@ -287,7 +373,7 @@ class LayerManager extends EventDispatcher {
                     }),
                 },
             );
-            this.registerVectorLayer(geoJsonLayer);
+            this.registerOverlayLayer(geoJsonLayer);
         }
 
         if (!this.overlayLayers.has('kml')) {
@@ -307,7 +393,7 @@ class LayerManager extends EventDispatcher {
                     }),
                 },
             );
-            this.registerVectorLayer(kmlLayer);
+            this.registerOverlayLayer(kmlLayer);
         }
 
         if (!this.overlayLayers.has('gpx')) {
@@ -327,7 +413,7 @@ class LayerManager extends EventDispatcher {
                     }),
                 },
             );
-            this.registerVectorLayer(gpxLayer);
+            this.registerOverlayLayer(gpxLayer);
         }
 
         if (!this.overlayLayers.has('gml')) {
@@ -344,7 +430,6 @@ class LayerManager extends EventDispatcher {
                             // This assumes pixelRatio of resolution is 1 and that the CRS
                             // is in meters.
                             // If true, 10 / resolution corresponds to 10 meters
-                            return new Style({
                             image: new RegularShape({
                                 // Radius of 5m
                                 radius: Math.max(2.5 / resolution, 2),
@@ -361,14 +446,20 @@ class LayerManager extends EventDispatcher {
                     }),
                 },
             );
-            this.registerVectorLayer(gmlLayer);
+            this.registerOverlayLayer(gmlLayer);
         }
 
         return this.overlayLayers;
     }
 
+    /**
+     * Creates/Updates current map to match the extent provided.
+     *
+     * @param {Extent} extent Extent to cover
+     */
     createMap(extent) {
         if (this.baseMap) {
+            // Already exists, we want to change the extent of the current map
             // FIXME: flash of content, probably blocked by https://gitlab.com/giro3d/giro3d/-/issues/323
             this.baseMap.removeLayer(this.imageryLayer);
             this.baseMap.removeLayer(this.elevationLayer);
@@ -399,48 +490,60 @@ class LayerManager extends EventDispatcher {
         this.dispatchEvent({ type: 'map-changed' });
     }
 
-    toggleSetVisibility(obj) {
-        const btn = document.querySelector(`#layer-${obj.id} a.layer-toggle-visible-link i`);
-        if (obj.visible) {
+    /**
+     * Toggles visibility of an entity (dataset, annotation, overlay, etc.) in Giro3D.
+     *
+     * @param {Entity3D} entity Entity
+     */
+    toggleSetVisibility(entity) {
+        const btn = document.querySelector(`#layer-${entity.id} a.layer-toggle-visible-link i`);
+        if (entity.visible) {
             btn.classList.remove('bi-eye');
             btn.classList.add('bi-eye-slash');
         } else {
             btn.classList.add('bi-eye');
             btn.classList.remove('bi-eye-slash');
         }
-        obj.visible = !obj.visible;
-        this.instance.notifyChange(obj);
+        entity.visible = !entity.visible;
+        this.instance.notifyChange(entity);
     }
 
-    addSet(obj, filename) {
-        this.sets.set(obj.id, { obj, filename });
+    /**
+     * Adds an entity as a dataset in the UI.
+     * Expands the map if needed this dataset is not already included in the map's extent.
+     *
+     * @param {Entity3D} entity Entity
+     * @param {string} filename Filename
+     */
+    addSet(entity, filename) {
+        this.sets.set(entity.id, { obj: entity, filename });
 
         const newItem = document.createElement('li');
-        newItem.setAttribute('id', `layer-${obj.id}`);
+        newItem.setAttribute('id', `layer-${entity.id}`);
         newItem.className = 'list-group-item';
 
-        newItem.appendChild(createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(obj), 'layer-toggle-visible-link', 'dark'));
-        newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(obj.object3d)));
-        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(obj), 'layer-delete-link'));
+        newItem.appendChild(createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark'));
+        newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d)));
+        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
 
         document.getElementById('layer-list').appendChild(newItem);
         document.getElementById('layers').classList.remove('d-none');
 
         const snapToOption = document.createElement('option');
-        snapToOption.setAttribute('value', obj.id);
+        snapToOption.setAttribute('value', entity.id);
         snapToOption.textContent = filename;
         document.getElementById('snapToObject').appendChild(snapToOption);
 
-        const bbox = obj.getBoundingBox();
-        const dataExtent = Extent.fromBox3(this.instance.referenceCrs, bbox).withRelativeMargin(4);
+        const bbox = entity.getBoundingBox();
+        const dataExtent = Extent.fromBox3(this.instance.referenceCrs, bbox).withRelativeMargin(2);
         if (this.baseMap !== null) {
             const newExtent = this.baseMap.extent.clone();
             if (!dataExtent.isInside(newExtent)) {
                 newExtent.expandByPoint(
-                    new Coordinates(this.instance.referenceCrs, bbox.min.x, bbox.min.y),
+                    new Coordinates(this.instance.referenceCrs, dataExtent._values[0], dataExtent._values[2]),
                 );
                 newExtent.expandByPoint(
-                    new Coordinates(this.instance.referenceCrs, bbox.max.x, bbox.max.y),
+                    new Coordinates(this.instance.referenceCrs, dataExtent._values[1], dataExtent._values[3]),
                 );
                 this.createMap(newExtent);
             }
@@ -449,30 +552,40 @@ class LayerManager extends EventDispatcher {
         }
     }
 
-    addAnnotationSet(obj) {
-        const filename = `annotation-${obj.id}`;
-        this.sets.set(obj.id, { obj, filename });
+    /**
+     * Adds an entity as annotation in the UI.
+     *
+     * @param {Entity3D} entity Entity
+     */
+    addAnnotationSet(entity) {
+        const filename = `annotation-${entity.id}`;
+        this.sets.set(entity.id, { obj: entity, filename });
 
         const newItem = document.createElement('li');
-        newItem.setAttribute('id', `layer-${obj.id}`);
+        newItem.setAttribute('id', `layer-${entity.id}`);
         newItem.className = 'list-group-item';
 
-        newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(obj.object3d)));
-        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(obj), 'layer-delete-link'));
-        newItem.appendChild(createButtonLink('bi-file-earmark-arrow-down', 'Download this annotation', () => this.downloadAnnotation(obj), 'layer-download-link'));
+        newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d)));
+        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
+        newItem.appendChild(createButtonLink('bi-file-earmark-arrow-down', 'Download this annotation', () => this.downloadAnnotation(entity), 'layer-download-link'));
 
         document.getElementById('annotation-list').appendChild(newItem);
         document.getElementById('layers').classList.remove('d-none');
     }
 
-    deleteSet(obj) {
-        document.getElementById(`layer-${obj.id}`).remove();
-        this.sets.delete(obj.id);
-        this.instance.remove(obj.object3d);
+    /**
+     * Deletes an entity from the UI
+     *
+     * @param {Entity3D} entity Entity
+     */
+    deleteSet(entity) {
+        document.getElementById(`layer-${entity.id}`).remove();
+        this.sets.delete(entity.id);
+        this.instance.remove(entity.object3d);
 
         const select = document.getElementById('snapToObject');
         Array.from(select.children).forEach(v => {
-            if (v.getAttribute('value') === obj.id) {
+            if (v.getAttribute('value') === entity.id) {
                 select.removeChild(v);
             }
         });
@@ -487,6 +600,13 @@ class LayerManager extends EventDispatcher {
         }
     }
 
+    /**
+     * Creates a new annotation from GeoJSON data.
+     *
+     * @param {object} geojson GeoJSON geometry
+     * @param {?boolean} [add=true] If true, adds to Giro3D scene.
+     * @returns {Entity3D} Entity created
+     */
     addAnnotation(geojson, add = true) {
         const o = new Drawing(this.instance, {
             faceMaterial: drawnFaceMaterial,
@@ -508,8 +628,15 @@ class LayerManager extends EventDispatcher {
         return annotation;
     }
 
-    downloadAnnotation(obj) {
-        const annotation = obj.object3d;
+    /**
+     * Tells the browser to download an annotation as GeoJSON data.
+     *
+     * @param {Entity3D} entity Entity to download
+     */
+    downloadAnnotation(entity) {
+        /** @type {Drawing} */
+        // @ts-ignore
+        const annotation = entity.object3d;
         const nbPoints = annotation.coordinates.length / 3;
         const coords = [];
         const coordinates = new Coordinates(this.instance.referenceCrs);
@@ -565,10 +692,20 @@ class LayerManager extends EventDispatcher {
         URL.revokeObjectURL(blobUrl);
     }
 
+    /**
+     * Gets the datasets & annotations as Object3D.
+     *
+     * @returns {Object3D[]} Datasets as Object3D
+     */
     getObjects3d() {
         return Array.from(this.sets.values()).map(v => v.obj.object3d);
     }
 
+    /**
+     * Gets bounding box of all datasets & annotations.
+     *
+     * @returns {Box3} Bounding box of all datasets.
+     */
     getBoundingBox() {
         const bbox = new Box3();
         const bbox2 = new Box3();
@@ -579,13 +716,23 @@ class LayerManager extends EventDispatcher {
         return bbox;
     }
 
+    /**
+     * Gets the closest dataset object from where the user clicked.
+     * Does **NOT** pick on the base map!
+     *
+     * @param {MouseEvent} e Mouse event
+     * @param {number} radius Radius - the smaller, the faster and more precise (but
+     * may return nothing)
+     * @returns {PickResult|null} Result or null if notthing found
+     */
     getObjectAt(e, radius = 1) {
         const picked = this.instance.pickObjectsAt(e, {
             radius,
             where: this.getObjects3d(),
         })
             .filter(p => p.layer === null)
-            .sort((a, b) => (a.distance - b.distance)).at(0);
+            .sort((a, b) => (a.distance - b.distance))
+            .at(0);
 
         let layer = null;
         let rootobj = null;
@@ -613,22 +760,35 @@ class LayerManager extends EventDispatcher {
         return null;
     }
 
+    /**
+     * Returns whether there are datasets registered or not.
+     *
+     * @returns {boolean} `true` if at least 1 dataset added.
+     */
     hasData() {
         return this.sets.size > 0;
     }
 
+    /**
+     * Returns whether a dataset is registered.
+     *
+     * @param {string} id Id
+     * @returns {boolean} `true` if dataset is added
+     */
     has(id) {
         if (id === 'basemap') return this.baseMap !== null;
         return this.sets.has(id);
     }
 
+    /**
+     * Returns a registered dataset
+     *
+     * @param {string} id Id
+     * @returns {Dataset|Giro3dMap|undefined} Dataset, basemap, or undefined if not found
+     */
     get(id) {
         if (id === 'basemap') return this.baseMap;
         return this.sets.get(id);
-    }
-
-    setBasemap(map) {
-        this.baseMap = map;
     }
 }
 

@@ -10,6 +10,7 @@ import Measure from './Measure.js';
 /**
  * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
  * @typedef {import('./LayerManager.js').default} LayerManager
+ * @typedef {import('./DrawingTools.js').default} DrawingTools
  */
 /* eslint-enable */
 
@@ -53,6 +54,11 @@ class AttributePanel {
         });
     }
 
+    /**
+     * Binds the panel to drawingTool to display info while drawing.
+     *
+     * @param {DrawingTools} drawingTools Drawing tools instance
+     */
     bindToDrawingTools(drawingTools) {
         const genShowFor = () => ({
             layer: 'annotation',
@@ -109,6 +115,11 @@ class AttributePanel {
     //     }
     // }
 
+    /**
+     * Show info on a picked object.
+     *
+     * @param {object} pickedObject Picked object (can be `null`)
+     */
     showFor(pickedObject) {
         console.log('showFor', pickedObject);
         if (pickedObject != null) {

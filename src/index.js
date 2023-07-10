@@ -7,9 +7,9 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
 import { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
 
-import IFC from './IFC.js';
-import Loadersgl from './Loadersgl.js';
-import CityJSON from './CityJSON.js';
+import IFC from './loaders/IFC.js';
+import Loadersgl from './loaders/Loadersgl.js';
+import CityJSON from './loaders/CityJSON.js';
 import Camera from './Camera.js';
 import Lighting from './Lighting.js';
 import StatusBar from './StatusBar.js';
