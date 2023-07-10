@@ -338,12 +338,19 @@ class LayerManager extends EventDispatcher {
                         data: 'https://3d.oslandia.com/lyon/adr_voie_lieu.adrbornefontaine_latest.gml',
                         dataProjection: 'EPSG:4171',
                         format: new GML32(),
-                        style: new Style({
+                        style: (feature, resolution) => new Style({
+                            // Adapt size to resolution, so the shape takes approximately
+                            // always the same size, and in meters :)
+                            // This assumes pixelRatio of resolution is 1 and that the CRS
+                            // is in meters.
+                            // If true, 10 / resolution corresponds to 10 meters
+                            return new Style({
                             image: new RegularShape({
-                                radius: 3,
+                                // Radius of 5m
+                                radius: Math.max(2.5 / resolution, 2),
                                 points: 4,
                                 stroke: new Stroke({
-                                    width: 1,
+                                    width: 1 / resolution,
                                     color: [255, 255, 255, 1],
                                 }),
                                 fill: new Fill({
