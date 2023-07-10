@@ -11,8 +11,15 @@ import {
     Raycaster,
     MathUtils,
     EventDispatcher,
+    Object3D,
 } from 'three';
 import CameraControls from 'camera-controls';
+
+/* eslint-disable jsdoc/valid-types */
+/**
+ * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ */
+/* eslint-enable */
 
 CameraControls.install({
     THREE: {
@@ -29,7 +36,15 @@ CameraControls.install({
     },
 });
 
+/**
+ * Wraps Camera-controls into Giro3D
+ */
 class Camera extends EventDispatcher {
+    /**
+     * Creates new Camera-controls and bind them to Giro3D.
+     *
+     * @param {Instance} instance Giro3D instance
+     */
     constructor(instance) {
         super();
         this.instance = instance;
@@ -100,6 +115,9 @@ class Camera extends EventDispatcher {
         }));
     }
 
+    /**
+     * Binds keyboard keys to camera-controls
+     */
     bindKeys() {
         // Add some controls on keyboard
         const keys = {
@@ -142,6 +160,15 @@ class Camera extends EventDispatcher {
         });
     }
 
+    /**
+     * Executes an interaction with animation.
+     *
+     * Required to call this instead of calling directly camera-controls because
+     * of how Giro3D mainloop works.
+     *
+     * @param {Function} callback Interacition to execute
+     * @returns {Promise} Resolves when interaction is done
+     */
     executeInteraction(callback) {
         // Execute the interaction
         const res = callback() ?? Promise.resolve();
@@ -154,19 +181,43 @@ class Camera extends EventDispatcher {
         return res;
     }
 
+    /**
+     * Sets the camera to look at a position.
+     *
+     * @param {Vector3} position Position of the camera
+     * @param {Vector3} lookAt Posiiton to look at
+     * @param {boolean} [enableTransition=false] Enables transition
+     * @returns {Promise} Resolves when interaction is done
+     */
     lookAt(position, lookAt, enableTransition = false) {
-        this.executeInteraction(() => this.controls.setLookAt(
+        return this.executeInteraction(() => this.controls.setLookAt(
             position.x, position.y, position.z, lookAt.x, lookAt.y, lookAt.z, enableTransition,
         ));
     }
 
-    goToBox(bbox, enableTransition = true, options = {
+    /**
+     * Looks to a bounding box or Object3D.
+     *
+     * @param {Box3|Object3D} obj Bounding box or Object to look at
+     * @param {boolean} [enableTransition=true] Enables transition
+     * @param {object} options Camera-controls' fitToBox options
+     * @returns {Promise} Resolves when interaction is done
+     */
+    goToBox(obj, enableTransition = true, options = {
         paddingTop: 10, paddingLeft: 10, paddingBottom: 10, paddingRight: 10,
     }) {
-        if (bbox instanceof Box3) {
-            bbox.min.z = Math.max(bbox.min.z, 0);
-            bbox.max.z = Math.min(bbox.max.z, 2000);
+        // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
+        let bbox = new Box3();
+        if (obj instanceof Box3) {
+            bbox = obj.clone();
+        } else if (obj instanceof Object3D) {
+            bbox.setFromObject(obj);
+        } else {
+            throw new Error('obj should be instanceof Box3 or Object3D');
         }
+        bbox.min.z = Math.max(bbox.min.z, 0);
+        bbox.max.z = Math.min(bbox.max.z, 2000);
+
         return this.executeInteraction(() => this.controls.fitToBox(
             bbox, enableTransition, options,
         ));
