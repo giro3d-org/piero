@@ -182,37 +182,36 @@ class AttributePanel {
                 attributes.push(['Belongs to', layer.id]);
             }
 
-            const bbox = new Box3();
-            const size = new Vector3();
-            const center = new Vector3();
-            bbox.setFromObject(rootobj);
-            bbox.getCenter(center);
-            bbox.getSize(size);
+            if (object) {
+                const bbox = new Box3();
+                const size = new Vector3();
+                const center = new Vector3();
+                bbox.setFromObject(object);
+                bbox.getCenter(center);
+                bbox.getSize(size);
 
-            attributes.push([
-                'At',
-                [
-                    center.x.toFixed(2),
-                    center.y.toFixed(2),
-                    center.z.toFixed(2),
-                ],
-            ]);
-            attributes.push([
-                'Size',
-                [
-                    `${size.x.toFixed(2)}${toUnit(this.instance)}`,
-                    `${size.y.toFixed(2)}${toUnit(this.instance)}`,
-                    `${size.z.toFixed(2)}${toUnit(this.instance)}`,
-                ],
-            ]);
+                attributes.push([
+                    'At',
+                    [
+                        center.x.toFixed(2),
+                        center.y.toFixed(2),
+                        center.z.toFixed(2),
+                    ],
+                ]);
+                attributes.push([
+                    'Size',
+                    [
+                        `${size.x.toFixed(2)}${toUnit(this.instance)}`,
+                        `${size.y.toFixed(2)}${toUnit(this.instance)}`,
+                        `${size.z.toFixed(2)}${toUnit(this.instance)}`,
+                    ],
+                ]);
+            }
 
-            let area;
-            let perimeter;
-            let minmax;
             if (drawing) {
-                perimeter = Measure.getPerimeter(drawing);
-                minmax = Measure.getMinMaxAltitudes(drawing);
-                area = Measure.getArea(drawing);
+                const perimeter = Measure.getPerimeter(drawing);
+                const minmax = Measure.getMinMaxAltitudes(drawing);
+                const area = Measure.getArea(drawing);
                 if (area !== null) {
                     attributes.push(['Area', `${area.toFixed(2)}${toUnit(this.instance)}²`]);
                 }
@@ -246,6 +245,20 @@ class AttributePanel {
                     attributes.push([key, value]);
                 }
             }
+            if (object?.userData) {
+                if (layer?.obj?.type === 'FeatureCollection') {
+                    attributes.push(['fid', object.userData.id]);
+                    for (const [key, value] of Object.entries(object.userData.properties)) {
+                        if (key === 'geometry' || key === 'bbox') continue;
+                        attributes.push([key, value]);
+                    }
+                } else {
+                    for (const [key, value] of Object.entries(object.userData)) {
+                        if (key === 'geometry' || key === 'geometryProperty') continue;
+                        attributes.push([key, value]);
+                    }
+                }
+            }
             // if (rootobj.ifcManager && faceIndex) {
             //     this.highlightIfc(rootobj, faceIndex);
             // }
@@ -253,7 +266,7 @@ class AttributePanel {
             document.getElementById('attributes').innerHTML = `<table class="table table-striped table-hover table-sm" id="attributes-table">
     <tbody>
     ${attributes.map(([title, value]) => {
-        let str = `<tr><th>${title}</th>`;
+        let str = `<tr><th>${title.replaceAll('_', ' ')}</th>`;
         if (Array.isArray(value)) {
             str += `<td>${value[0]}</td><td>${value[1]}</td><td>${value[2]}</td>`;
         } else {
