@@ -1,11 +1,18 @@
 // eslint-disable-next-line no-unused-vars
 import * as bootstrap from 'bootstrap';
-import { Box3, Vector3 } from 'three';
+import { Box3, Vector3, MeshLambertMaterial, sRGBEncoding } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
 import { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
+import Tiles3D from '@giro3d/giro3d/entities/Tiles3D.js';
+import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource.js';
+import VectorSource from 'ol/source/Vector.js';
+import GeoJSON from 'ol/format/GeoJSON.js';
+import { createXYZ } from 'ol/tilegrid.js';
+import { tile } from 'ol/loadingstrategy.js';
+import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection.js';
 
 import IFC from './loaders/IFC.js';
 import Loadersgl from './loaders/Loadersgl.js';
@@ -24,7 +31,7 @@ import Skybox from './Skybox.js';
 
 /* eslint-disable import/first, import/order, import/no-unresolved, no-unused-vars */
 // If you want to embed local data
-import ifc from 'url:./data/AC20-FZK-Haus.ifc';
+import ifc from 'url:./data/19_rue_Marc_Antoine_Petit.ifc';
 /* eslint-enable */
 const las = 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69-extracted.laz';
 const cityjson = 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json';
@@ -64,7 +71,7 @@ const layerManager = new LayerManager(instance, camera);
 const picking = new Picking(instance, layerManager);
 camera.pickObjectsAt = e => picking.getPointAt(e);
 const drawTools = new DrawingTools(instance, camera, layerManager, picking);
-StatusBar.bind(instance, layerManager);
+StatusBar.bind(instance, layerManager, camera);
 const attributePanel = new AttributePanel(instance, layerManager);
 attributePanel.bindToDrawingTools(drawTools);
 
@@ -113,16 +120,18 @@ const processFile = async (file, options = {}) => {
         }
         case 'las': {
             obj = await Loadersgl.loadLas(instance, filename, file, options);
-            const bbox = obj.getBoundingBox();
+            const bbox = new Box3();
             const tmpVec3 = new Vector3();
+            obj.getBoundingBox(bbox);
             bbox.getCenter(tmpVec3);
             z = tmpVec3.z;
             break;
         }
         case 'csv': {
             obj = await Loadersgl.loadCsv(instance, filename, file, options);
-            const bbox = obj.getBoundingBox();
+            const bbox = new Box3();
             const tmpVec3 = new Vector3();
+            obj.getBoundingBox(bbox);
             bbox.getCenter(tmpVec3);
             z = tmpVec3.z;
             break;
@@ -226,13 +235,12 @@ const processFiles = async (files, zoomTo = true, options = {}) => {
 
     const objs = [];
     const bbox = new Box3();
-    let bbox2 = new Box3();
+    const bbox2 = new Box3();
     settled.filter(p => p.status === 'fulfilled').forEach(p => {
         const { obj, filename } = p.value;
         if (Array.isArray(obj)) {
             obj.forEach(o => {
-                bbox2 = o.getBoundingBox();
-                console.log(filename, bbox2.max.z);
+                o.getBoundingBox(bbox2);
                 bbox.union(bbox2);
                 if (options?.isAnnotation) {
                     layerManager.addAnnotationSet(o);
@@ -242,8 +250,7 @@ const processFiles = async (files, zoomTo = true, options = {}) => {
                 objs.push(o);
             });
         } else {
-            bbox2 = obj.getBoundingBox();
-            console.log(filename, bbox2.max.z);
+            obj.getBoundingBox(bbox2);
             bbox.union(bbox2);
             if (options?.isAnnotation) {
                 layerManager.addAnnotationSet(obj);
@@ -330,13 +337,72 @@ document.getElementById('annotation-drop').addEventListener('drop', async e => {
 
 const extent = new Extent('EPSG:2154', 836545, 846996, 6513414, 6526230);
 layerManager.createMap(extent);
-camera.setInitialPosition(extent);
+camera.lookAt(
+    new Vector3(841601.5, 6516696.7, 3387.7),
+    new Vector3(841777.5, 6518175.8, 39.2),
+    false,
+);
 
 processFiles([las], false, { projection: 'EPSG:2154' })
     .then(() => Promise.allSettled([
         processFiles([cityjson], false, { projection: 'EPSG:2154' }),
-        // processFiles([ifc], false, {
-        //     at: new Vector3(841900.7811846591, 6517809.405693541, 167),
-        // }),
-    ]));
+        processFiles([ifc], false, {
+            // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
+        }),
+    ])).then(() => {
+        const vectorSource = new VectorSource({
+            format: new GeoJSON(),
+            url: function url(e) {
+                return (
+                    'https://wxs.ign.fr/topographie/geoportail/wfs'
+                    // 'https://download.data.grandlyon.com/wfs/rdata'
+                    + '?SERVICE=WFS'
+                    + '&VERSION=2.0.0'
+                    + '&request=GetFeature'
+                    + '&typename=BDTOPO_V3:batiment'
+                    + '&outputFormat=application/json'
+                    + '&SRSNAME=EPSG:2154'
+                    + '&startIndex=0'
+                    + '&bbox=' + e.join(',') + ',EPSG:2154'
+                );
+            },
+            strategy: tile(createXYZ({ tileSize: 512 })),
+        });
+
+        const feat = new FeatureCollection('test', {
+            source: vectorSource,
+            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
+            material: new MeshLambertMaterial(),
+            extrude: (feat) => {
+                const hauteur = -feat.getProperties().hauteur;
+                if (Number.isNaN(hauteur)) {
+                    return null;
+                } else {
+                    return hauteur;
+                }
+            },
+            color: (feat) => {
+                if (feat.usage_1 === 'Résidentiel') {
+                    return '#9d9484';
+                } else if (feat.usage_1 === 'Commercial et services') {
+                    return '#b0ffa7';
+                }
+                return '#FFFFFF';
+
+            },
+            onMeshCreated: (mesh) => {
+                // hide this particular mesh because we have a ifc for this
+                if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
+                    || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
+                    mesh.visible = false;
+                }
+            },
+            minLevel: 11,
+            maxLevel: 11,
+        });
+
+        instance.add(feat);
+    });
 Tour.start(instance, layerManager, camera, drawTools);
+
+instance.mainLoop.gfxEngine.renderer.outputEncoding = sRGBEncoding;

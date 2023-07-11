@@ -622,7 +622,8 @@ class LayerManager extends EventDispatcher {
         snapToOption.textContent = filename;
         document.getElementById('snapToObject').appendChild(snapToOption);
 
-        const bbox = entity.getBoundingBox();
+        const bbox = new Box3();
+        entity.getBoundingBox(bbox);
         const dataExtent = Extent.fromBox3(this.instance.referenceCrs, bbox).withRelativeMargin(2);
         if (this.baseMap !== null) {
             const newExtent = this.baseMap.extent.clone();

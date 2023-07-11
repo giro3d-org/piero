@@ -1,5 +1,53 @@
+import { Vector3 } from 'three';
 import { createPopper } from '@popperjs/core';
 import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop.js';
+
+const VIEW_PARAM = 'view';
+const tmpVec3 = new Vector3();
+
+let instance;
+let layerManager;
+let camera;
+let isLoading = false;
+let total = 0;
+let loaded = 0;
+let pending = 0;
+let urlTimeout;
+
+function processUrl(url) {
+    const pov = new URL(url).searchParams.get(VIEW_PARAM);
+    if (pov) {
+        try {
+            const [x, y, z, tx, ty, tz] = pov.split(',').map(s => Number.parseFloat(s));
+
+            camera.lookAt(
+                new Vector3(x, y, z),
+                new Vector3(tx, ty, tz),
+                false,
+            );
+        } finally {
+            instance.notifyChange();
+        }
+    }
+}
+
+function updateUrl() {
+    const url = new URL(document.URL);
+    url.searchParams.delete(VIEW_PARAM);
+
+    function round10(n) {
+        return Math.round(n * 10) / 10;
+    }
+
+    const cam = instance.camera.camera3D.position;
+    camera.controls.getTarget(tmpVec3);
+
+    const pov = `${round10(cam.x)},${round10(cam.y)},${round10(cam.z)},${round10(tmpVec3.x)},${round10(tmpVec3.y)},${round10(tmpVec3.z)}`;
+
+    url.searchParams.append(VIEW_PARAM, pov);
+
+    window.history.replaceState({}, null, url.toString());
+}
 
 function generateGetBoundingClientRect(x = 0, y = 0) {
     return () => ({
@@ -12,20 +60,14 @@ function generateGetBoundingClientRect(x = 0, y = 0) {
     });
 }
 
-let instance;
-let layerManager;
-let isLoading = false;
-let total = 0;
-let loaded = 0;
-let pending = 0;
-
 let loading = document.getElementById('loading');
 let progress = document.getElementById('loading-progress');
 let progressBar = document.getElementById('loading-progress-bar');
 
-function bind(_instance, _layerManager, radius = 1) {
+function bind(_instance, _layerManager, _camera, radius = 1) {
     instance = _instance;
     layerManager = _layerManager;
+    camera = _camera;
 
     const virtualElement = {
         getBoundingClientRect: generateGetBoundingClientRect(),
@@ -105,6 +147,7 @@ function bind(_instance, _layerManager, radius = 1) {
         }
     });
 
+    processUrl(document.URL);
     instance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, updateProgressBar);
 }
 
@@ -120,6 +163,11 @@ function setIsLoading(_isLoading, p) {
 }
 
 function updateProgressBar() {
+    if (urlTimeout) {
+        clearTimeout(urlTimeout);
+    }
+    urlTimeout = setTimeout(updateUrl, 50);
+
     if (pending === 0) {
         total = 0;
         loaded = 0;

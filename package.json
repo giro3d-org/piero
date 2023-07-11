@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@giro3d/giro3d": "^0.26.0",
+    "@giro3d/giro3d": "file:../giro3d/giro3d-giro3d-0.26.0.tgz",
     "@loaders.gl/core": "^3.4.5",
     "@loaders.gl/csv": "^3.4.5",
     "@loaders.gl/geopackage": "^3.4.5",
