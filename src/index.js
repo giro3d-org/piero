@@ -196,6 +196,7 @@ loader.processFiles(instance, layerManager, camera, [las], false, { projection: 
             maxLevel: 11,
         });
 
+        layerManager.addSet(feat, 'BDTOPO_V3:batiment');
         instance.add(feat);
     });
 Tour.start(instance, layerManager, camera, drawTools);

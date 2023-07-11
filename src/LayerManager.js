@@ -604,10 +604,10 @@ class LayerManager extends EventDispatcher {
      * @param {string} filename Filename
      */
     addSet(entity, filename) {
-        this.sets.set(entity.id, { obj: entity, filename });
+        this.sets.set(entity.object3d.uuid, { obj: entity, filename });
 
         const newItem = document.createElement('li');
-        newItem.setAttribute('id', `layer-${entity.id}`);
+        newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
         newItem.className = 'list-group-item';
 
         newItem.appendChild(createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark'));
@@ -618,7 +618,7 @@ class LayerManager extends EventDispatcher {
         document.getElementById('layers').classList.remove('d-none');
 
         const snapToOption = document.createElement('option');
-        snapToOption.setAttribute('value', entity.id);
+        snapToOption.setAttribute('value', entity.object3d.uuid);
         snapToOption.textContent = filename;
         document.getElementById('snapToObject').appendChild(snapToOption);
 
@@ -647,11 +647,11 @@ class LayerManager extends EventDispatcher {
      * @param {Entity3D} entity Entity
      */
     addAnnotationSet(entity) {
-        const filename = `annotation-${entity.id}`;
-        this.sets.set(entity.id, { obj: entity, filename });
+        const filename = `annotation-${entity.object3d.uuid}`;
+        this.sets.set(entity.object3d.uuid, { obj: entity, filename });
 
         const newItem = document.createElement('li');
-        newItem.setAttribute('id', `layer-${entity.id}`);
+        newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
         newItem.className = 'list-group-item';
 
         newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d)));
@@ -668,13 +668,13 @@ class LayerManager extends EventDispatcher {
      * @param {Entity3D} entity Entity
      */
     deleteSet(entity) {
-        document.getElementById(`layer-${entity.id}`).remove();
+        document.getElementById(`layer-${entity.object3d.uuid}`).remove();
         this.sets.delete(entity.id);
         this.instance.remove(entity.object3d);
 
         const select = document.getElementById('snapToObject');
         Array.from(select.children).forEach(v => {
-            if (v.getAttribute('value') === entity.id) {
+            if (v.getAttribute('value') === entity.object3d.uuid) {
                 select.removeChild(v);
             }
         });
@@ -818,8 +818,7 @@ class LayerManager extends EventDispatcher {
         const picked = this.instance.pickObjectsAt(e, {
             radius,
             where: this.getObjects3d(),
-        })
-            .filter(p => p.layer === null)
+        }).filter(p => p.layer === null || p.layer.type !== 'Map')
             .sort((a, b) => (a.distance - b.distance))
             .at(0);
 

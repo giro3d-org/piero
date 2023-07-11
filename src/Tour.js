@@ -121,7 +121,7 @@ tour.addStep({
             callback = e => {
                 const picked = instance
                     .pickObjectsAt(e, { radius: 1, where: layerManager.getObjects3d() })
-                    .filter(p => p.layer === null)
+                    .filter(p => p.layer === null || p.layer.type !== 'Map')
                     .sort((a, b) => (a.distance - b.distance))
                     .at(0);
                 if (picked !== undefined) {
