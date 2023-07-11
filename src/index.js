@@ -1,22 +1,15 @@
 // eslint-disable-next-line no-unused-vars
 import * as bootstrap from 'bootstrap';
-import { Box3, Vector3, MeshLambertMaterial, sRGBEncoding } from 'three';
+import { Vector3, MeshLambertMaterial, sRGBEncoding } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
-import { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
-import Tiles3D from '@giro3d/giro3d/entities/Tiles3D.js';
-import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import { createXYZ } from 'ol/tilegrid.js';
 import { tile } from 'ol/loadingstrategy.js';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection.js';
 
-import IFC from './loaders/IFC.js';
-import Loadersgl from './loaders/Loadersgl.js';
-import CityJSON from './loaders/CityJSON.js';
 import Camera from './Camera.js';
 import Lighting from './Lighting.js';
 import StatusBar from './StatusBar.js';
@@ -26,8 +19,8 @@ import DrawingTools from './DrawingTools.js';
 import LayerManager from './LayerManager.js';
 import Picking from './Picking.js';
 import Projections from './Projections.js';
-import Alerts from './Alerts.js';
 import Skybox from './Skybox.js';
+import loader from './loaders/loader.js';
 
 /* eslint-disable import/first, import/order, import/no-unresolved, no-unused-vars */
 // If you want to embed local data
@@ -50,7 +43,7 @@ Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46
 // eslint-disable-next-line max-len
 // Instance.registerCRS("EPSG:2950","+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +towgs84=-0.991,1.9072,0.5129,-1.25033e-07,-4.6785e-08,-5.6529e-08,0 +units=m +no_defs +type=crs");
 
-let z;
+const z = 180;
 
 const instance = new Instance(document.getElementById('viewerDiv'), {
     crs: 'EPSG:2154',
@@ -79,204 +72,6 @@ layerManager.addEventListener('map-changed', () => {
     drawTools.setSnapping();
 });
 
-const processFile = async (file, options = {}) => {
-    let filename = null;
-    let filetype = null;
-
-    if (file instanceof File) {
-        filename = file.name;
-    } else {
-        const urlobject = new URL(file);
-        filename = urlobject.pathname.split('/').at(-1);
-    }
-
-    if (filename.endsWith('.gpkg')) {
-        filetype = 'gpkg';
-    } else if (filename.endsWith('.laz') || filename.endsWith('.las')) {
-        filetype = 'las';
-    } else if (filename.endsWith('.csv')) {
-        filetype = 'csv';
-    } else if (filename.endsWith('.json')) {
-        filetype = 'cityjson';
-    } else if (filename.endsWith('.geojson')) {
-        filetype = 'geojson';
-    } else if (filename.endsWith('.ifc')) {
-        filetype = 'ifc';
-    }
-
-    if (!(file instanceof File) && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')) {
-        file = await fetch(file);
-    }
-
-    if (filetype === null) {
-        throw new Error('File not supported');
-    }
-
-    let obj = null;
-    switch (filetype) {
-        case 'gpkg': {
-            obj = await Loadersgl.loadGeoPackage(instance, filename, file, { z, ...options });
-            break;
-        }
-        case 'las': {
-            obj = await Loadersgl.loadLas(instance, filename, file, options);
-            const bbox = new Box3();
-            const tmpVec3 = new Vector3();
-            obj.getBoundingBox(bbox);
-            bbox.getCenter(tmpVec3);
-            z = tmpVec3.z;
-            break;
-        }
-        case 'csv': {
-            obj = await Loadersgl.loadCsv(instance, filename, file, options);
-            const bbox = new Box3();
-            const tmpVec3 = new Vector3();
-            obj.getBoundingBox(bbox);
-            bbox.getCenter(tmpVec3);
-            z = tmpVec3.z;
-            break;
-        }
-        case 'cityjson': {
-            const str = await file.text();
-            obj = await CityJSON.loadString(instance, filename, str, options);
-            break;
-        }
-        case 'ifc': {
-            let at;
-            if (options.at) {
-                at = options.at.clone();
-            } else {
-                at = new Vector3();
-                camera.controls.getTarget(at);
-            }
-            obj = await IFC.loadIfc(instance, filename, file, at, options);
-            break;
-        }
-        case 'geojson': {
-            const json = JSON.parse(await file.text());
-            const coordinatesWgs84 = new Coordinates('EPSG:4326');
-            const coordinates = new Coordinates(instance.referenceCrs);
-            switch (json.geometry.type) {
-                case GEOMETRY_TYPE.POINT: {
-                    coordinatesWgs84.set(
-                        'EPSG:4326',
-                        json.geometry.coordinates[0],
-                        json.geometry.coordinates[1],
-                        json.geometry.coordinates[2],
-                    );
-                    coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                    json.geometry.coordinates[0] = coordinates._values[0];
-                    json.geometry.coordinates[1] = coordinates._values[1];
-                    json.geometry.coordinates[2] = coordinates._values[2];
-                    break;
-                }
-                case GEOMETRY_TYPE.LINE:
-                case GEOMETRY_TYPE.MULTIPOINT: {
-                    for (let i = 0; i < json.geometry.coordinates.length; i += 1) {
-                        coordinatesWgs84.set(
-                            'EPSG:4326',
-                            json.geometry.coordinates[i][0],
-                            json.geometry.coordinates[i][1],
-                            json.geometry.coordinates[i][2],
-                        );
-                        coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[i][0] = coordinates._values[0];
-                        json.geometry.coordinates[i][1] = coordinates._values[1];
-                        json.geometry.coordinates[i][2] = coordinates._values[2];
-                    }
-                    break;
-                }
-                case GEOMETRY_TYPE.POLYGON: {
-                    for (let i = 0; i < json.geometry.coordinates[0].length; i += 1) {
-                        coordinatesWgs84.set(
-                            'EPSG:4326',
-                            json.geometry.coordinates[0][i][0],
-                            json.geometry.coordinates[0][i][1],
-                            json.geometry.coordinates[0][i][2],
-                        );
-                        coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[0][i][0] = coordinates._values[0];
-                        json.geometry.coordinates[0][i][1] = coordinates._values[1];
-                        json.geometry.coordinates[0][i][2] = coordinates._values[2];
-                    }
-                    break;
-                }
-                default:
-                    throw new Error('Geometry not supported');
-            }
-            obj = layerManager.addAnnotation(json.geometry, false);
-            break;
-        }
-        default:
-            throw new Error('File not supported');
-    }
-    if (obj !== null) {
-        instance.add(obj.object3d);
-    }
-
-    return { filename, obj };
-};
-
-const processFiles = async (files, zoomTo = true, options = {}) => {
-    const promises = [];
-    StatusBar.addTask(files.length);
-
-    const hasData = layerManager.hasData();
-
-    files.forEach(file => {
-        const p = processFile(file, options);
-        promises.push(p);
-        p.finally(() => {
-            StatusBar.doneTask();
-        });
-    });
-
-    const settled = await Promise.allSettled(promises);
-
-    const objs = [];
-    const bbox = new Box3();
-    const bbox2 = new Box3();
-    settled.filter(p => p.status === 'fulfilled').forEach(p => {
-        const { obj, filename } = p.value;
-        if (Array.isArray(obj)) {
-            obj.forEach(o => {
-                o.getBoundingBox(bbox2);
-                bbox.union(bbox2);
-                if (options?.isAnnotation) {
-                    layerManager.addAnnotationSet(o);
-                } else {
-                    layerManager.addSet(o, filename);
-                }
-                objs.push(o);
-            });
-        } else {
-            obj.getBoundingBox(bbox2);
-            bbox.union(bbox2);
-            if (options?.isAnnotation) {
-                layerManager.addAnnotationSet(obj);
-            } else {
-                layerManager.addSet(obj, filename);
-            }
-            objs.push(obj);
-        }
-    });
-
-    settled.filter(p => p.status === 'rejected').forEach(p => {
-        console.warn('Could not load file', p.reason);
-        Alerts.showAlert(`Could not load file: ${p.reason}`);
-    });
-
-    if (zoomTo) {
-        if (!bbox.isEmpty()) {
-            await camera.goToBox(bbox, hasData);
-        } else {
-            Alerts.showAlert('No data to show', 'warning');
-        }
-    }
-
-    return objs;
-};
-
 document.body.addEventListener('dragover', e => {
     e.preventDefault();
 });
@@ -303,7 +98,7 @@ document.body.addEventListener('drop', async e => {
 
     const projection = window.prompt('Projection?', instance.referenceCrs);
     await Projections.loadProjCrsIfNeeded(projection);
-    await processFiles(files, true, { projection });
+    await loader.processFiles(instance, layerManager, camera, files, true, { projection, z });
 });
 
 document.getElementById('annotation-drop').addEventListener('dragover', e => {
@@ -332,7 +127,7 @@ document.getElementById('annotation-drop').addEventListener('drop', async e => {
         });
     }
 
-    await processFiles(files, true, { projection: 'EPSG:4326', isAnnotation: true });
+    await loader.processFiles(instance, layerManager, camera, files, true, { projection: 'EPSG:4326', isAnnotation: true, z });
 });
 
 const extent = new Extent('EPSG:2154', 836545, 846996, 6513414, 6526230);
@@ -343,10 +138,10 @@ camera.lookAt(
     false,
 );
 
-processFiles([las], false, { projection: 'EPSG:2154' })
+loader.processFiles(instance, layerManager, camera, [las], false, { projection: 'EPSG:2154', z })
     .then(() => Promise.allSettled([
-        processFiles([cityjson], false, { projection: 'EPSG:2154' }),
-        processFiles([ifc], false, {
+        loader.processFiles(instance, layerManager, camera, [cityjson], false, { projection: 'EPSG:2154', z }),
+        loader.processFiles(instance, layerManager, camera, [ifc], false, {
             // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
         }),
     ])).then(() => {
