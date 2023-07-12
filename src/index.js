@@ -149,7 +149,7 @@ loader.processFiles(instance, layerManager, camera, [las], false, { projection: 
             format: new GeoJSON(),
             url: function url(e) {
                 return (
-                    'https://wxs.ign.fr/topographie/geoportail/wfs'
+                    `${'https://wxs.ign.fr/topographie/geoportail/wfs'
                     // 'https://download.data.grandlyon.com/wfs/rdata'
                     + '?SERVICE=WFS'
                     + '&VERSION=2.0.0'
@@ -158,7 +158,7 @@ loader.processFiles(instance, layerManager, camera, [las], false, { projection: 
                     + '&outputFormat=application/json'
                     + '&SRSNAME=EPSG:2154'
                     + '&startIndex=0'
-                    + '&bbox=' + e.join(',') + ',EPSG:2154'
+                    + '&bbox='}${e.join(',')},EPSG:2154`
                 );
             },
             strategy: tile(createXYZ({ tileSize: 512 })),
@@ -168,24 +168,24 @@ loader.processFiles(instance, layerManager, camera, [las], false, { projection: 
             source: vectorSource,
             extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
             material: new MeshLambertMaterial(),
-            extrude: (feat) => {
-                const hauteur = -feat.getProperties().hauteur;
+            extrude: feature => {
+                const hauteur = -feature.getProperties().hauteur;
                 if (Number.isNaN(hauteur)) {
                     return null;
-                } else {
-                    return hauteur;
                 }
+                return hauteur;
             },
-            color: (feat) => {
-                if (feat.usage_1 === 'Résidentiel') {
-                    return '#9d9484';
-                } else if (feat.usage_1 === 'Commercial et services') {
-                    return '#b0ffa7';
+            style: feature => {
+                const properties = feature.getProperties();
+                let color = '#FFFFFF';
+                if (properties.usage_1 === 'Résidentiel') {
+                    color = '#9d9484';
+                } else if (properties.usage_1 === 'Commercial et services') {
+                    color = '#b0ffa7';
                 }
-                return '#FFFFFF';
-
+                return { color };
             },
-            onMeshCreated: (mesh) => {
+            onMeshCreated: mesh => {
                 // hide this particular mesh because we have a ifc for this
                 if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
                     || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
