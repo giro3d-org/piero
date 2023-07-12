@@ -24,8 +24,9 @@ import loader from './loaders/loader.js';
 
 /* eslint-disable import/first, import/order, import/no-unresolved, no-unused-vars */
 // If you want to embed local data
-import ifc from 'url:./data/19_rue_Marc_Antoine_Petit.ifc';
+// import ifc from 'url:./data/19_rue_Marc_Antoine_Petit.ifc';
 /* eslint-enable */
+const ifc = 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc';
 const las = 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69-extracted.laz';
 const cityjson = 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json';
 
