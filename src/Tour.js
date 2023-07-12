@@ -45,7 +45,7 @@ tour.addStep({
 
 tour.addStep({
     id: 'view',
-    text: 'Here you can view your data.<br/>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.<br/>This sample application adds experimental support for CityJSON and IFC files.',
+    text: 'Here you can view your data.<br/>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.<br/>This sample application adds support for CityJSON and IFC files.',
     buttons: buttonsOptions,
     attachTo: {
         element: '#viewerDiv',
@@ -119,12 +119,8 @@ tour.addStep({
     when: {
         show: () => {
             callback = e => {
-                const picked = instance
-                    .pickObjectsAt(e, { radius: 1, where: layerManager.getObjects3d() })
-                    .filter(p => p.layer === null || p.layer.type !== 'Map')
-                    .sort((a, b) => (a.distance - b.distance))
-                    .at(0);
-                if (picked !== undefined) {
+                const picked = layerManager.getFirstFeatureAt(e);
+                if (picked) {
                     tour.next();
                 }
             };
@@ -140,10 +136,10 @@ tour.addStep({
 
 tour.addStep({
     id: 'attributes2',
-    text: 'Here you can see details on the object you clicked',
+    text: 'Here you can see details on the feature you selected',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#attributes > table',
+        element: '#attributes',
         on: 'left',
     },
     when: {
@@ -175,7 +171,7 @@ tour.addStep({
 
 tour.addStep({
     id: 'measure',
-    text: 'You can annotate any data displayed',
+    text: 'You can annotate any data displayed using Giro3D native tools',
     buttons: [
         { text: 'Next', action: () => document.getElementById('measure-polygon').click() },
         { text: 'Exit', action: tour.cancel, secondary: true },

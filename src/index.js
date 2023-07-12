@@ -73,12 +73,21 @@ layerManager.addEventListener('map-changed', () => {
     drawTools.setSnapping();
 });
 
-document.body.addEventListener('dragover', e => {
+const dropZone = document.getElementById('main-container');
+
+dropZone.addEventListener('dragover', e => {
     e.preventDefault();
+    dropZone.classList.add('border', 'border-success', 'border-5');
 });
 
-document.body.addEventListener('drop', async e => {
+dropZone.addEventListener('dragleave', e => {
     e.preventDefault();
+    dropZone.classList.remove('border', 'border-success', 'border-5');
+});
+
+dropZone.addEventListener('drop', async e => {
+    e.preventDefault();
+    dropZone.classList.remove('border', 'border-success', 'border-5');
     const files = [];
 
     if (e.dataTransfer.items) {
@@ -98,18 +107,29 @@ document.body.addEventListener('drop', async e => {
     }
 
     const projection = window.prompt('Projection?', instance.referenceCrs);
-    await Projections.loadProjCrsIfNeeded(projection);
-    await loader.processFiles(instance, layerManager, camera, files, true, { projection, z });
+    if (projection) {
+        await Projections.loadProjCrsIfNeeded(projection);
+        await loader.processFiles(instance, layerManager, camera, files, true, { projection, z });
+    }
 });
 
-document.getElementById('annotation-drop').addEventListener('dragover', e => {
+const annotationDropZone = document.getElementById('annotation-drop');
+
+annotationDropZone.addEventListener('dragover', e => {
     e.preventDefault();
     e.stopImmediatePropagation();
+    annotationDropZone.classList.add('border', 'border-success', 'border-2');
 });
 
-document.getElementById('annotation-drop').addEventListener('drop', async e => {
+annotationDropZone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    annotationDropZone.classList.remove('border', 'border-success', 'border-2');
+});
+
+annotationDropZone.addEventListener('drop', async e => {
     e.preventDefault();
     e.stopImmediatePropagation();
+    annotationDropZone.classList.remove('border', 'border-success', 'border-2');
     const files = [];
 
     if (e.dataTransfer.items) {

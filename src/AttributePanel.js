@@ -65,28 +65,10 @@ class AttributePanel {
 
         this.instance.domElement.addEventListener('click', e => {
             if (!this.isDrawing) {
-                const picked = this.layerManager.getObjectAt(e);
+                const picked = this.layerManager.getFirstFeatureAt(e);
                 if (picked) {
                     this.showFor(picked);
                     return;
-                }
-
-                // Should return us somethinf on the map
-                const pickedOnMap = this.instance.pickObjectsAt(e, { limit: 1, radius: 1 }).at(0);
-                if (pickedOnMap && pickedOnMap.layer?.type === 'Map') {
-                    const coord = pickedOnMap.coord;
-                    const parentMap = pickedOnMap.layer;
-                    const tile = pickedOnMap.object;
-
-                    const feature = parentMap.getVectorFeaturesAtCoordinate(coord, 10, tile).at(0);
-                    if (feature) {
-                        this.showFor({
-                            layer: feature.layer,
-                            feature: feature.feature,
-                            rootobj: parentMap.object3d,
-                        });
-                        return;
-                    }
                 }
 
                 this.showFor(null);
@@ -191,7 +173,7 @@ class AttributePanel {
                 bbox.getSize(size);
 
                 attributes.push([
-                    'At',
+                    'Center',
                     [
                         center.x.toFixed(2),
                         center.y.toFixed(2),

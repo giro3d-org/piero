@@ -615,7 +615,6 @@ class LayerManager extends EventDispatcher {
         newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
 
         document.getElementById('layer-list').appendChild(newItem);
-        document.getElementById('layers').classList.remove('d-none');
 
         const snapToOption = document.createElement('option');
         snapToOption.setAttribute('value', entity.object3d.uuid);
@@ -659,7 +658,6 @@ class LayerManager extends EventDispatcher {
         newItem.appendChild(createButtonLink('bi-file-earmark-arrow-down', 'Download this annotation', () => this.downloadAnnotation(entity), 'layer-download-link'));
 
         document.getElementById('annotation-list').appendChild(newItem);
-        document.getElementById('layers').classList.remove('d-none');
     }
 
     /**
@@ -845,6 +843,39 @@ class LayerManager extends EventDispatcher {
                 drawing,
             };
         }
+        return null;
+    }
+
+    getVectorFeatureAt(e, radius = 1) {
+        const pickedOnMap = this.instance.pickObjectsAt(e, { limit: 1, radius }).at(0);
+        if (pickedOnMap && pickedOnMap.layer?.type === 'Map') {
+            const coord = pickedOnMap.coord;
+            const parentMap = pickedOnMap.layer;
+            const tile = pickedOnMap.object;
+
+            const feature = parentMap.getVectorFeaturesAtCoordinate(coord, 10, tile).at(0);
+            if (feature) {
+                return {
+                    layer: feature.layer,
+                    feature: feature.feature,
+                    rootobj: parentMap.object3d,
+                };
+            }
+        }
+        return null;
+    }
+
+    getFirstFeatureAt(e, radius = 1) {
+        const picked = this.getObjectAt(e, radius);
+        if (picked) {
+            return picked;
+        }
+
+        const pickedOnMap = this.getVectorFeatureAt(e, radius);
+        if (pickedOnMap) {
+            return pickedOnMap;
+        }
+
         return null;
     }
 
