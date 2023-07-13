@@ -155,12 +155,12 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
 
     const objs = [];
     const bbox = new Box3();
-    const bbox2 = new Box3();
+    let bbox2;
     settled.filter(p => p.status === 'fulfilled').forEach(p => {
         const { obj, filename } = p.value;
         if (Array.isArray(obj)) {
             obj.forEach(o => {
-                o.getBoundingBox(bbox2);
+                bbox2 = o.getBoundingBox();
                 bbox.union(bbox2);
                 if (options?.isAnnotation) {
                     layerManager.addAnnotationSet(o);
@@ -170,7 +170,7 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
                 objs.push(o);
             });
         } else {
-            obj.getBoundingBox(bbox2);
+            bbox2 = obj.getBoundingBox();
             bbox.union(bbox2);
             if (options?.isAnnotation) {
                 layerManager.addAnnotationSet(obj);
@@ -188,7 +188,7 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
 
     if (zoomTo) {
         if (!bbox.isEmpty()) {
-            await camera.goToBox(bbox, hasData);
+            await camera.lookTopDownAt(bbox, hasData);
         } else {
             Alerts.showAlert('No data to show', 'warning');
         }

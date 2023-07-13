@@ -266,7 +266,7 @@ class LayerManager extends EventDispatcher {
         this.overlayLayers = new Map();
 
         const baseMapElement = document.getElementById('basemap');
-        baseMapElement.querySelector('.layer-link').addEventListener('click', () => this.camera.goToBox(this.baseMap.getBoundingBox()));
+        baseMapElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
         baseMapElement.querySelector('.layer-expand-link').addEventListener('click', () => {
             const newExtent = this.baseMap.extent.withRelativeMargin(0.5);
             this.createMap(newExtent);
@@ -615,7 +615,7 @@ class LayerManager extends EventDispatcher {
 
         const btn = createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark');
         newItem.appendChild(btn);
-        const link = createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d));
+        const link = createLink(filename, 'Zoom on this layer', () => this.camera.lookTopDownAt(entity));
         newItem.appendChild(link);
         newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
 
@@ -674,7 +674,6 @@ class LayerManager extends EventDispatcher {
         } else if (this.baseMap) {
             const newExtent = this.baseMap.extent.clone();
             if (!dataExtent.equals(newExtent) && !dataExtent.isInside(newExtent)) {
-                console.log('extend map', filename, this.baseMap, newExtent._values, dataExtent._values);
                 newExtent.union(dataExtent);
                 this.createMap(newExtent);
             }

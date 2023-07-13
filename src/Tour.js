@@ -82,29 +82,28 @@ tour.addStep({
 });
 
 tour.addStep({
+    id: 'overlays',
+    text: 'Giro3D supports overlaying layers on top of maps; we\'have added some using different file formats.',
+    buttons: buttonsOptions,
+    attachTo: {
+        element: '#overlays-list-container',
+        on: 'right',
+    },
+    when: {
+        show: displayProgress,
+    },
+});
+
+tour.addStep({
     id: 'layers',
-    text: 'From here, you can access the different objects displayed, or remove them. Click on a layer name to zoom to it.',
+    text: 'From the Layers panel, you can access the 3D objects displayed, toggle their visibility, and remove them.<br/>Most objects leverage Giro3D\'s adaptive resolution to optimize their display.',
     buttons: buttonsOptions,
     attachTo: {
         element: '#layer-list',
-        on: 'bottom',
+        on: 'right',
     },
     when: {
-        show: () => {
-            if (document.getElementById('layer-list').children.length === 0) {
-                tour.back();
-                return;
-            }
-            callback = () => tour.next();
-            Array.from(document.getElementById('layer-list').getElementsByClassName('layer-delete-link')).forEach(e => e.classList.add('pe-none'));
-            Array.from(document.getElementById('layer-list').getElementsByClassName('layer-link')).forEach(e => e.addEventListener('click', callback));
-            displayProgress();
-        },
-        hide: () => {
-            Array.from(document.getElementById('layer-list').getElementsByClassName('layer-delete-link')).forEach(e => e.classList.remove('pe-none'));
-            Array.from(document.getElementById('layer-list').getElementsByClassName('layer-link')).forEach(e => e.removeEventListener('click', callback));
-            callback = null;
-        },
+        show: displayProgress,
     },
 });
 
@@ -151,19 +150,6 @@ tour.addStep({
     id: 'adddata',
     text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and GeoJSON features.',
     buttons: buttonsOptions,
-    when: {
-        show: displayProgress,
-    },
-});
-
-tour.addStep({
-    id: 'overlays',
-    text: 'Giro3D supports overlaying layers on top of maps; we\'have added some for Lyon.',
-    buttons: buttonsOptions,
-    attachTo: {
-        element: '#overlays-list-container',
-        on: 'right',
-    },
     when: {
         show: displayProgress,
     },

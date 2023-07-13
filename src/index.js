@@ -158,8 +158,8 @@ annotationDropZone.addEventListener('drop', async e => {
 const extent = new Extent('EPSG:2154', 836545, 846996, 6513414, 6526230);
 layerManager.createMap(extent);
 camera.lookAt(
-    new Vector3(841601.5, 6516696.7, 3387.7),
-    new Vector3(841777.5, 6518175.8, 39.2),
+    new Vector3(841623.9, 6517692.9, 435.4),
+    new Vector3(841889.3, 6517785.3, 166.9),
     false,
 );
 

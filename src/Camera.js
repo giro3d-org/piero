@@ -15,6 +15,7 @@ import {
 } from 'three';
 import CameraControls from 'camera-controls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 /* eslint-disable jsdoc/valid-types */
 /**
@@ -227,6 +228,13 @@ class Camera extends EventDispatcher {
         let bbox = new Box3();
         if (obj instanceof Box3) {
             bbox = obj.clone();
+        } else if (obj instanceof Entity3D) {
+            bbox = obj.getBoundingBox();
+            if (bbox.isEmpty() && obj.extent) {
+                // In case object is hidden
+                bbox = obj.extent.toBox3(0, 200);
+                // TODO: clamp to extent of map!
+            }
         } else if (obj instanceof Object3D) {
             bbox.setFromObject(obj);
         } else {
@@ -238,6 +246,13 @@ class Camera extends EventDispatcher {
         return this.executeInteraction(() => this.controls.fitToBox(
             bbox, enableTransition, options,
         ));
+    }
+
+    lookTopDownAt(obj, enableTransition = true) {
+        return this.executeInteraction(async () => {
+            await this.controls.rotateTo(0, 0, enableTransition);
+            this.goToBox(obj, enableTransition);
+        });
     }
 }
 
