@@ -236,7 +236,7 @@ class AttributePanel {
                     }
                 } else {
                     for (const [key, value] of Object.entries(object.userData)) {
-                        if (key === 'geometry' || key === 'geometryProperty') continue;
+                        if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata') continue;
                         attributes.push([key, value]);
                     }
                 }
