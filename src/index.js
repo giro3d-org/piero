@@ -174,25 +174,6 @@ const lidarHdTiles = [
 loader.processFiles(instance, layerManager, camera, [ifc], false, {
     // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
 }).then(() => {
-    loader.processFiles(instance, layerManager, camera, lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`), false, { visible: false });
-
-    lidarHdTiles.forEach(t => {
-        const pointcloud = new Tiles3D(
-            `pointcloud-${t}`,
-            new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`),
-            {
-                material: new PointsMaterial({
-                    size: 1,
-                    mode: MODE.ELEVATION,
-                }),
-            },
-        );
-        pointcloud.visible = false;
-
-        layerManager.addSet(pointcloud, t);
-        instance.add(pointcloud);
-    });
-
     const vectorSource = new VectorSource({
         format: new GeoJSON(),
         url: function url(e) {
@@ -245,7 +226,25 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
     });
 
     layerManager.addSet(feat, 'BDTOPO_V3:batiment');
-    instance.add(feat);
+    instance.add(feat).then(() => {
+        loader.processFiles(instance, layerManager, camera, lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`), false, { visible: false });
+
+        lidarHdTiles.forEach(t => {
+            const pointcloud = new Tiles3D(
+                `pointcloud-${t}`,
+                new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`),
+                {
+                    material: new PointsMaterial({
+                        size: 1,
+                        mode: MODE.ELEVATION,
+                    }),
+                },
+            );
+            pointcloud.visible = false;
+
+            layerManager.addSet(pointcloud, t);
+        });
+    });
 });
 Tour.start(instance, layerManager, camera, drawTools);
 

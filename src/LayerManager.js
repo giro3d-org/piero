@@ -587,6 +587,9 @@ class LayerManager extends EventDispatcher {
      * @param {Entity3D} entity Entity
      */
     toggleSetVisibility(entity) {
+        if (this.instance.getObjects(e => e.id === entity.id).length === 0) {
+            this.instance.add(entity);
+        }
         const li = document.getElementById(`layer-${entity.object3d.uuid}`);
         const btn = li.querySelector('a.layer-toggle-visible-link i');
         const goto = li.querySelector('a.layer-link');
