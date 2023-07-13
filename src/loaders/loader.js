@@ -122,6 +122,9 @@ const processFile = async (instance, layerManager, file, options = {}) => {
         default:
             throw new Error('File not supported');
     }
+    if (!(options?.visible ?? true)) {
+        obj.visible = false;
+    }
     if (obj !== null) {
         instance.add(obj.object3d);
     }

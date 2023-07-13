@@ -9,6 +9,9 @@ import GeoJSON from 'ol/format/GeoJSON.js';
 import { createXYZ } from 'ol/tilegrid.js';
 import { tile } from 'ol/loadingstrategy.js';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection.js';
+import Tiles3D from '@giro3d/giro3d/entities/Tiles3D.js';
+import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource.js';
+import PointsMaterial, { MODE } from '@giro3d/giro3d/renderer/PointsMaterial.js';
 
 import Camera from './Camera.js';
 import Lighting from './Lighting.js';
@@ -159,67 +162,91 @@ camera.lookAt(
     false,
 );
 
-loader.processFiles(instance, layerManager, camera, [las], false, { projection: 'EPSG:2154', z })
-    .then(() => Promise.allSettled([
-        loader.processFiles(instance, layerManager, camera, [cityjson], false, { projection: 'EPSG:2154', z }),
-        loader.processFiles(instance, layerManager, camera, [ifc], false, {
-            // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
-        }),
-    ])).then(() => {
-        const vectorSource = new VectorSource({
-            format: new GeoJSON(),
-            url: function url(e) {
-                return (
-                    `${'https://wxs.ign.fr/topographie/geoportail/wfs'
-                    // 'https://download.data.grandlyon.com/wfs/rdata'
-                    + '?SERVICE=WFS'
-                    + '&VERSION=2.0.0'
-                    + '&request=GetFeature'
-                    + '&typename=BDTOPO_V3:batiment'
-                    + '&outputFormat=application/json'
-                    + '&SRSNAME=EPSG:2154'
-                    + '&startIndex=0'
-                    + '&bbox='}${e.join(',')},EPSG:2154`
-                );
-            },
-            strategy: tile(createXYZ({ tileSize: 512 })),
-        });
+const lidarHdTiles = [
+    'Semis_2021_0841_6518_LA93_IGN69',
+    'Semis_2021_0841_6519_LA93_IGN69',
+    'Semis_2021_0841_6520_LA93_IGN69',
+    'Semis_2021_0841_6521_LA93_IGN69',
+    'Semis_2021_0842_6520_LA93_IGN69',
+    'Semis_2021_0842_6521_LA93_IGN69',
+];
 
-        const feat = new FeatureCollection('test', {
-            source: vectorSource,
-            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
-            material: new MeshLambertMaterial(),
-            extrude: feature => {
-                const hauteur = -feature.getProperties().hauteur;
-                if (Number.isNaN(hauteur)) {
-                    return null;
-                }
-                return hauteur;
-            },
-            style: feature => {
-                const properties = feature.getProperties();
-                let color = '#FFFFFF';
-                if (properties.usage_1 === 'Résidentiel') {
-                    color = '#9d9484';
-                } else if (properties.usage_1 === 'Commercial et services') {
-                    color = '#b0ffa7';
-                }
-                return { color };
-            },
-            onMeshCreated: mesh => {
-                // hide this particular mesh because we have a ifc for this
-                if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
-                    || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
-                    mesh.visible = false;
-                }
-            },
-            minLevel: 11,
-            maxLevel: 11,
-        });
+loader.processFiles(instance, layerManager, camera, [ifc], false, {
+    // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
+}).then(() => {
+    loader.processFiles(instance, layerManager, camera, lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`), false, { visible: false });
 
-        layerManager.addSet(feat, 'BDTOPO_V3:batiment');
-        instance.add(feat);
+    lidarHdTiles.forEach(t => {
+        const pointcloud = new Tiles3D(
+            `pointcloud-${t}`,
+            new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`),
+            {
+                material: new PointsMaterial({
+                    size: 1,
+                    mode: MODE.ELEVATION,
+                }),
+            },
+        );
+        pointcloud.visible = false;
+
+        layerManager.addSet(pointcloud, t);
+        instance.add(pointcloud);
     });
+
+    const vectorSource = new VectorSource({
+        format: new GeoJSON(),
+        url: function url(e) {
+            return (
+                `${'https://wxs.ign.fr/topographie/geoportail/wfs'
+                // 'https://download.data.grandlyon.com/wfs/rdata'
+                + '?SERVICE=WFS'
+                + '&VERSION=2.0.0'
+                + '&request=GetFeature'
+                + '&typename=BDTOPO_V3:batiment'
+                + '&outputFormat=application/json'
+                + '&SRSNAME=EPSG:2154'
+                + '&startIndex=0'
+                + '&bbox='}${e.join(',')},EPSG:2154`
+            );
+        },
+        strategy: tile(createXYZ({ tileSize: 512 })),
+    });
+
+    const feat = new FeatureCollection('test', {
+        source: vectorSource,
+        extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
+        material: new MeshLambertMaterial(),
+        extrude: feature => {
+            const hauteur = -feature.getProperties().hauteur;
+            if (Number.isNaN(hauteur)) {
+                return null;
+            }
+            return hauteur;
+        },
+        style: feature => {
+            const properties = feature.getProperties();
+            let color = '#FFFFFF';
+            if (properties.usage_1 === 'Résidentiel') {
+                color = '#9d9484';
+            } else if (properties.usage_1 === 'Commercial et services') {
+                color = '#b0ffa7';
+            }
+            return { color };
+        },
+        onMeshCreated: mesh => {
+            // hide this particular mesh because we have a ifc for this
+            if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
+                || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
+                mesh.visible = false;
+            }
+        },
+        minLevel: 11,
+        maxLevel: 11,
+    });
+
+    layerManager.addSet(feat, 'BDTOPO_V3:batiment');
+    instance.add(feat);
+});
 Tour.start(instance, layerManager, camera, drawTools);
 
 instance.mainLoop.gfxEngine.renderer.outputEncoding = sRGBEncoding;

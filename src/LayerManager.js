@@ -401,11 +401,14 @@ class LayerManager extends EventDispatcher {
     registerOverlayLayer(layer) {
         this.overlayLayers.set(layer.id, layer);
         document.querySelector(`#overlay-${layer.id} .layer-toggle-visible-link`).addEventListener('click', () => {
-            const btn = document.querySelector(`#overlay-${layer.id} a.layer-toggle-visible-link i`);
+            const li = document.getElementById(`overlay-${layer.id}`);
+            const btn = li.querySelector('a.layer-toggle-visible-link i');
             if (layer.visible) {
+                li.classList.add('list-group-item-secondary');
                 btn.classList.remove('bi-eye');
                 btn.classList.add('bi-eye-slash');
             } else {
+                li.classList.remove('list-group-item-secondary');
                 btn.classList.add('bi-eye');
                 btn.classList.remove('bi-eye-slash');
             }
@@ -584,16 +587,43 @@ class LayerManager extends EventDispatcher {
      * @param {Entity3D} entity Entity
      */
     toggleSetVisibility(entity) {
-        const btn = document.querySelector(`#layer-${entity.id} a.layer-toggle-visible-link i`);
+        const li = document.getElementById(`layer-${entity.object3d.uuid}`);
+        const btn = li.querySelector('a.layer-toggle-visible-link i');
+        const goto = li.querySelector('a.layer-link');
         if (entity.visible) {
+            goto.classList.add('pe-none');
+            li.classList.add('list-group-item-secondary');
             btn.classList.remove('bi-eye');
             btn.classList.add('bi-eye-slash');
         } else {
+            goto.classList.remove('pe-none');
+            li.classList.remove('list-group-item-secondary');
             btn.classList.add('bi-eye');
             btn.classList.remove('bi-eye-slash');
         }
         entity.visible = !entity.visible;
         this.instance.notifyChange(entity);
+    }
+
+    _createListItem(entity, filename) {
+        const newItem = document.createElement('li');
+        newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
+        newItem.className = 'list-group-item py-0 px-1';
+
+        const btn = createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark');
+        newItem.appendChild(btn);
+        const link = createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d));
+        newItem.appendChild(link);
+        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
+
+        if (!entity.visible) {
+            const btnIcon = btn.querySelector('i');
+            link.classList.add('pe-none');
+            newItem.classList.add('list-group-item-secondary');
+            btnIcon.classList.add('bi-eye-slash');
+            btnIcon.classList.remove('bi-eye');
+        }
+        return newItem;
     }
 
     /**
@@ -606,14 +636,7 @@ class LayerManager extends EventDispatcher {
     addSet(entity, filename) {
         this.sets.set(entity.object3d.uuid, { obj: entity, filename });
 
-        const newItem = document.createElement('li');
-        newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
-        newItem.className = 'list-group-item';
-
-        newItem.appendChild(createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark'));
-        newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d)));
-        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
-
+        const newItem = this._createListItem(entity, filename);
         document.getElementById('layer-list').appendChild(newItem);
 
         const snapToOption = document.createElement('option');
@@ -621,18 +644,15 @@ class LayerManager extends EventDispatcher {
         snapToOption.textContent = filename;
         document.getElementById('snapToObject').appendChild(snapToOption);
 
-        const bbox = new Box3();
-        entity.getBoundingBox(bbox);
+        const bbox = entity.getBoundingBox();
         const dataExtent = Extent.fromBox3(this.instance.referenceCrs, bbox).withRelativeMargin(2);
-        if (this.baseMap !== null) {
+        if (dataExtent._values.some(v => !Number.isFinite(v))) {
+            console.warn(`File ${filename} has invalid bounding box/extent`, bbox, dataExtent);
+        } else if (this.baseMap) {
             const newExtent = this.baseMap.extent.clone();
-            if (!dataExtent.isInside(newExtent)) {
-                newExtent.expandByPoint(
-                    new Coordinates(this.instance.referenceCrs, dataExtent._values[0], dataExtent._values[2]),
-                );
-                newExtent.expandByPoint(
-                    new Coordinates(this.instance.referenceCrs, dataExtent._values[1], dataExtent._values[3]),
-                );
+            if (!dataExtent.equals(newExtent) && !dataExtent.isInside(newExtent)) {
+                console.log('extend map', filename, this.baseMap, newExtent._values, dataExtent._values);
+                newExtent.union(dataExtent);
                 this.createMap(newExtent);
             }
         } else {
@@ -649,12 +669,7 @@ class LayerManager extends EventDispatcher {
         const filename = `annotation-${entity.object3d.uuid}`;
         this.sets.set(entity.object3d.uuid, { obj: entity, filename });
 
-        const newItem = document.createElement('li');
-        newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
-        newItem.className = 'list-group-item';
-
-        newItem.appendChild(createLink(filename, 'Zoom on this layer', () => this.camera.goToBox(entity.object3d)));
-        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
+        const newItem = this._createListItem(entity, filename);
         newItem.appendChild(createButtonLink('bi-file-earmark-arrow-down', 'Download this annotation', () => this.downloadAnnotation(entity), 'layer-download-link'));
 
         document.getElementById('annotation-list').appendChild(newItem);
