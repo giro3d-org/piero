@@ -33,12 +33,14 @@ const processFile = async (instance, layerManager, file, options = {}) => {
         filetype = 'ifc';
     }
 
-    if (!(file instanceof File) && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')) {
-        file = await fetch(file);
-    }
-
     if (filetype === null) {
         throw new Error('File not supported');
+    }
+
+    const alert = Alerts.showAlert(`Loading ${filename}...`, 'info');
+
+    if (!(file instanceof File) && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')) {
+        file = await fetch(file);
     }
 
     let obj = null;
@@ -122,6 +124,8 @@ const processFile = async (instance, layerManager, file, options = {}) => {
         default:
             throw new Error('File not supported');
     }
+    alert.dismiss();
+
     const visible = options?.visible ?? true;
     if (!visible) {
         obj.visible = false;

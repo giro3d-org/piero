@@ -2,11 +2,13 @@ import { CityJSONLoader, CityJSONWorkerParser } from 'cityjson-threejs-loader';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Projections from '../Projections.js';
+import Alerts from '../Alerts.js';
 
 export default {
     loadString(instance, id, str, options = {}) {
         return new Promise(resolve => {
             const json = JSON.parse(str);
+            const alert = Alerts.showAlert(`Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`, 'info');
             const parser = new CityJSONWorkerParser();
             const loader = new CityJSONLoader(parser);
 
@@ -14,6 +16,7 @@ export default {
             parser.onComplete = () => {
                 loader.scene.updateMatrix();
                 loader.scene.updateMatrixWorld(true);
+                alert.dismiss();
                 resolve(new Entity3D(loader.scene.uuid, loader.scene));
             };
 

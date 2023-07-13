@@ -24,6 +24,7 @@ import Picking from './Picking.js';
 import Projections from './Projections.js';
 import Skybox from './Skybox.js';
 import loader from './loaders/loader.js';
+import Alerts from './Alerts.js';
 
 /* eslint-disable import/first, import/order, import/no-unresolved, no-unused-vars */
 // If you want to embed local data
@@ -174,6 +175,8 @@ const lidarHdTiles = [
 loader.processFiles(instance, layerManager, camera, [ifc], false, {
     // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
 }).then(() => {
+    const alert = Alerts.showAlert('Loading BDTOPO_V3:batiment...', 'info');
+
     const vectorSource = new VectorSource({
         format: new GeoJSON(),
         url: function url(e) {
@@ -193,7 +196,7 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
         strategy: tile(createXYZ({ tileSize: 512 })),
     });
 
-    const feat = new FeatureCollection('test', {
+    const feat = new FeatureCollection('BDTOPO_V3', {
         source: vectorSource,
         extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
         material: new MeshLambertMaterial(),
@@ -227,6 +230,8 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
 
     layerManager.addSet(feat, 'BDTOPO_V3:batiment');
     instance.add(feat).then(() => {
+        alert.dismiss();
+
         loader.processFiles(
             instance,
             layerManager,
@@ -242,7 +247,7 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
                 new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`),
                 {
                     material: new PointsMaterial({
-                        size: 1,
+                        size: 2,
                         mode: MODE.ELEVATION,
                     }),
                 },
