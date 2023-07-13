@@ -636,11 +636,31 @@ class LayerManager extends EventDispatcher {
      * @param {Entity3D} entity Entity
      * @param {string} filename Filename
      */
-    addSet(entity, filename) {
+    addSet(entity, filename, group = null) {
         this.sets.set(entity.object3d.uuid, { obj: entity, filename });
 
         const newItem = this._createListItem(entity, filename);
-        document.getElementById('layer-list').appendChild(newItem);
+        let parent;
+        if (group) {
+            parent = document.getElementById(`layer-group-${group}`);
+            if (parent === null) {
+                const groupcontainer = document.createElement('div');
+                groupcontainer.className = 'list-group-item py-0 px-1';
+
+                const groupname = document.createElement('span');
+                groupname.innerText = group;
+                groupcontainer.appendChild(groupname);
+
+                parent = document.createElement('ul');
+                parent.id = `layer-group-${group}`;
+                groupcontainer.appendChild(parent);
+
+                document.getElementById('layer-list').appendChild(groupcontainer);
+            }
+        } else {
+            parent = document.getElementById('layer-list');
+        }
+        parent.appendChild(newItem);
 
         const snapToOption = document.createElement('option');
         snapToOption.setAttribute('value', entity.object3d.uuid);

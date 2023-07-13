@@ -165,10 +165,10 @@ camera.lookAt(
 const lidarHdTiles = [
     'Semis_2021_0841_6518_LA93_IGN69',
     'Semis_2021_0841_6519_LA93_IGN69',
-    'Semis_2021_0841_6520_LA93_IGN69',
-    'Semis_2021_0841_6521_LA93_IGN69',
-    'Semis_2021_0842_6520_LA93_IGN69',
-    'Semis_2021_0842_6521_LA93_IGN69',
+    // 'Semis_2021_0841_6520_LA93_IGN69',
+    // 'Semis_2021_0841_6521_LA93_IGN69',
+    // 'Semis_2021_0842_6520_LA93_IGN69',
+    // 'Semis_2021_0842_6521_LA93_IGN69',
 ];
 
 loader.processFiles(instance, layerManager, camera, [ifc], false, {
@@ -227,7 +227,14 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
 
     layerManager.addSet(feat, 'BDTOPO_V3:batiment');
     instance.add(feat).then(() => {
-        loader.processFiles(instance, layerManager, camera, lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`), false, { visible: false });
+        loader.processFiles(
+            instance,
+            layerManager,
+            camera,
+            lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`),
+            false,
+            { visible: false, group: 'CityJSON' },
+        );
 
         lidarHdTiles.forEach(t => {
             const pointcloud = new Tiles3D(
@@ -242,7 +249,7 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
             );
             pointcloud.visible = false;
 
-            layerManager.addSet(pointcloud, t);
+            layerManager.addSet(pointcloud, t, 'LIDAR-HD');
         });
     });
 });

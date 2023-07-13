@@ -161,7 +161,7 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
                 if (options?.isAnnotation) {
                     layerManager.addAnnotationSet(o);
                 } else {
-                    layerManager.addSet(o, filename);
+                    layerManager.addSet(o, filename, options?.group);
                 }
                 objs.push(o);
             });
@@ -171,7 +171,7 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
             if (options?.isAnnotation) {
                 layerManager.addAnnotationSet(obj);
             } else {
-                layerManager.addSet(obj, filename);
+                layerManager.addSet(obj, filename, options?.group);
             }
             objs.push(obj);
         }
