@@ -575,7 +575,7 @@ class LayerManager extends EventDispatcher {
                             // If true, 10 / resolution corresponds to 10 meters
                             image: new RegularShape({
                                 // Radius of 5m
-                                radius: Math.max(2.5 / resolution, 2),
+                                radius: 2.5 / resolution,
                                 points: 4,
                                 stroke: new Stroke({
                                     width: 1 / resolution,
