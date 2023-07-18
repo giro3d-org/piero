@@ -273,29 +273,30 @@ class LayerManager extends EventDispatcher {
         this.progressbars.set('basemap', document.getElementById('basemap-progress'));
         const baseMapElement = document.getElementById('basemap');
         baseMapElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
-        baseMapElement.querySelector('.layer-expand-link').addEventListener('click', () => {
-            const newExtent = this.baseMap.extent.withRelativeMargin(0.5);
-            this.createMap(newExtent);
-        });
-        if (this.instance.referenceCrs !== 'EPSG:3857') {
-            baseMapElement.querySelector('.layer-provider-link').remove();
-        } else {
-            baseMapElement.querySelector('.layer-provider-link').addEventListener('click', () => {
-                if (this.mapProvider === MAPPROVIDERS.IGN) {
-                    this.mapProvider = MAPPROVIDERS.MAPBOX;
-                } else {
-                    this.mapProvider = MAPPROVIDERS.IGN;
-                }
-                this.baseMap.removeLayer(this.imageryLayer);
-                this.baseMap.removeLayer(this.elevationLayer);
-                this.imageryLayer = null;
-                this.elevationLayer = null;
-                this.baseMap.addLayer(this.getImageryLayer());
-                this.baseMap.addLayer(this.getElevationLayer());
-                this.instance.notifyChange(this.baseMap);
-                this.dispatchEvent({ type: 'map-changed' });
-            });
-        }
+        baseMapElement.querySelector('.layer-expand-link').remove();
+        // baseMapElement.querySelector('.layer-expand-link').addEventListener('click', () => {
+        //     const newExtent = this.baseMap.extent.withRelativeMargin(0.5);
+        //     this.createMap(newExtent);
+        // });
+        // if (this.instance.referenceCrs !== 'EPSG:3857') {
+        baseMapElement.querySelector('.layer-provider-link').remove();
+        // } else {
+        //     baseMapElement.querySelector('.layer-provider-link').addEventListener('click', () => {
+        //         if (this.mapProvider === MAPPROVIDERS.IGN) {
+        //             this.mapProvider = MAPPROVIDERS.MAPBOX;
+        //         } else {
+        //             this.mapProvider = MAPPROVIDERS.IGN;
+        //         }
+        //         this.baseMap.removeLayer(this.imageryLayer);
+        //         this.baseMap.removeLayer(this.elevationLayer);
+        //         this.imageryLayer = null;
+        //         this.elevationLayer = null;
+        //         this.baseMap.addLayer(this.getImageryLayer());
+        //         this.baseMap.addLayer(this.getElevationLayer());
+        //         this.instance.notifyChange(this.baseMap);
+        //         this.dispatchEvent({ type: 'map-changed' });
+        //     });
+        // }
 
         this.instance.addFrameRequester(
             MAIN_LOOP_EVENTS.UPDATE_END, this._updateProgress.bind(this),
