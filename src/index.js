@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import * as bootstrap from 'bootstrap';
+import autoComplete from '@tarekraafat/autocomplete.js';
 import { Vector3, MeshLambertMaterial, sRGBEncoding } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
@@ -89,6 +90,51 @@ attributePanel.bindToDrawingTools(drawTools);
 
 layerManager.addEventListener('map-changed', () => {
     drawTools.setSnapping();
+});
+
+const autoCompleteJS = new autoComplete({
+    selector: '#autoComplete',
+    placeHolder: 'Search for a place...',
+    threshold: 3,
+    debounce: 300, // 300ms debounce
+    data: {
+        src: async query => {
+            const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`);
+            const data = await source.json();
+            console.log(data, data.features);
+            return data.features.map(f => f.properties);
+        },
+        keys: ['label'],
+    },
+    resultsList: {
+        element: (list, data) => {
+            if (!data.results.length) {
+                const message = document.createElement('div');
+                message.setAttribute('class', 'no_result');
+                message.innerHTML = `<span>No results found for "${data.query}"</span>`;
+                list.prepend(message);
+            }
+        },
+        noResults: true,
+    },
+    resultItem: {
+        highlight: true,
+    },
+    // Trust what we get from the query
+    searchEngine: (query, record) => record,
+});
+
+document.getElementById('autoComplete').addEventListener('selection', event => {
+    const selection = event.detail.selection.value;
+    const coords = new Coordinates('EPSG:2154', selection.x, selection.y);
+    const extent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 100, 100);
+    const newExtent = extent.as(instance.referenceCrs);
+    if (!newExtent.equals(layerManager.baseMap.extent) && !newExtent.isInside(layerManager.baseMap.extent)) {
+        const newMapExtent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 10000, 10000);
+        layerManager.createMap(newMapExtent);
+    }
+    const bbox3 = newExtent.toBox3(0, 200);
+    camera.lookTopDownAt(bbox3);
 });
 
 const dropZone = document.getElementById('main-container');

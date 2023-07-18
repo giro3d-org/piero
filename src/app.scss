@@ -27,6 +27,12 @@ body {
   margin-right: 0.5em;
 }
 
+.autoComplete_wrapper {
+    width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
 $utilities: map-merge($utilities,
     ("max-width": (property: max-width,
         class: mw,

@@ -7,6 +7,7 @@
     <title>Giro3D Sample Application</title>
     <link rel="stylesheet" href="app.scss" />
     <link rel="stylesheet" href="../node_modules/shepherd.js/dist/css/shepherd.css" />
+    <link rel="stylesheet" href="../node_modules/@tarekraafat/autocomplete.js/dist/css/autoComplete.02.css" />
 </head>
 
 <body>
@@ -150,9 +151,13 @@
         <div id="coordinates" class="px-1 position-absolute bottom-0 text-secondary bg-light" style="right: 25vw"></div>
         <div id="tooltip" class="px-1 text-secondary bg-light d-none">Hello</div>
         <div class="bg-light mh-100 d-flex flex-column vw-25">
+            <div id="geocoding" class="pt-2">
+                <input id="autoComplete" class="form-control" style="width: 100% !important;" type="search" dir="ltr" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" maxlength="2048" tabindex="1"/>
+            </div>
+            <hr />
             <div id="attributes" class="flex-grow-1 overflow-auto"></div>
             <hr />
-            <div id="measurement">
+            <div id="measurement" class="pb-2">
                 <div class="d-flex flex-row">
                     <button id="measure-line" type="button" class="btn btn-outline-secondary flex-fill mx-2">Measure
                         with
