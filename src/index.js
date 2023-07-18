@@ -170,15 +170,15 @@ annotationDropZone.addEventListener('drop', async e => {
 });
 
 const extent = new Extent('EPSG:2154', 795689, 903507, 6493201, 6543980);
-const baseMap = layerManager.createMap(extent);
+layerManager.createMap(extent);
 setTimeout(() => {
-    if (baseMap.loading && Math.abs(baseMap.progress - 2 / 3) < 0.1) {
+    if (layerManager.elevationLayer.loading && layerManager.elevationLayer.progress < 0.1) {
         const link = document.createElement('a');
         link.setAttribute('href', './?crs=EPSG%3A3946');
         link.textContent = 'Map is taking longer to load; do you want to switch provider?';
         Alerts.showAlert(link);
     }
-}, 10000);
+}, 5000);
 camera.lookAt(
     new Vector3().fromArray(
         new Coordinates('EPSG:2154', 841623.9, 6517692.9, 435.4).as(instance.referenceCrs)._values,
