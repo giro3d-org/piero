@@ -174,7 +174,7 @@ const baseMap = layerManager.createMap(extent);
 setTimeout(() => {
     if (baseMap.loading && Math.abs(baseMap.progress - 2 / 3) < 0.1) {
         const link = document.createElement('a');
-        link.setAttribute('href', '/?crs=EPSG%3A3946');
+        link.setAttribute('href', './?crs=EPSG%3A3946');
         link.textContent = 'Map is taking longer to load; do you want to switch provider?';
         Alerts.showAlert(link);
     }
