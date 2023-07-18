@@ -225,15 +225,6 @@ setTimeout(() => {
         Alerts.showAlert(link);
     }
 }, 5000);
-camera.lookAt(
-    new Vector3().fromArray(
-        new Coordinates('EPSG:2154', 841623.9, 6517692.9, 435.4).as(instance.referenceCrs)._values,
-    ),
-    new Vector3().fromArray(
-        new Coordinates('EPSG:2154', 841889.3, 6517785.3, 166.9).as(instance.referenceCrs)._values,
-    ),
-    false,
-);
 
 const lidarHdTiles = [
     'Semis_2021_0841_6518_LA93_IGN69',

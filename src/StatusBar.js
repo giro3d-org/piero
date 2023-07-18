@@ -1,6 +1,7 @@
 import { Vector3 } from 'three';
 import { createPopper } from '@popperjs/core';
 import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop.js';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 
 const VIEW_PARAM = 'view';
 const tmpVec3 = new Vector3();
@@ -14,6 +15,18 @@ let loaded = 0;
 let pending = 0;
 let urlTimeout;
 
+function defaultLookAt() {
+    camera.lookAt(
+        new Vector3().fromArray(
+            new Coordinates('EPSG:2154', 841623.9, 6517692.9, 435.4).as(instance.referenceCrs)._values,
+        ),
+        new Vector3().fromArray(
+            new Coordinates('EPSG:2154', 841889.3, 6517785.3, 166.9).as(instance.referenceCrs)._values,
+        ),
+        false,
+    );
+}
+
 function processUrl(url) {
     const pov = new URL(url).searchParams.get(VIEW_PARAM);
     if (pov) {
@@ -25,9 +38,13 @@ function processUrl(url) {
                 new Vector3(tx, ty, tz),
                 false,
             );
+        } catch {
+            defaultLookAt();
         } finally {
             instance.notifyChange();
         }
+    } else {
+        defaultLookAt();
     }
 }
 
