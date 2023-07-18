@@ -85,17 +85,24 @@
                 </h2>
                 <div id="basemap-list-container" class="accordion-collapse collapse show">
                     <ul id="basemap-list" class="list-group list-group-flush">
-                        <li id="basemap" class="list-group-item py-0 px-1">
-                            <a href="#" title="Zoom on this layer"
-                                class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
-                                Base map
-                            </a>
-                            <a href="#" title="Expand this layer"
-                                class="link-secondary link-opacity-50 link-opacity-100-hover layer-expand-link"><i
-                                    class="bi bi-arrows-angle-expand"></i></a>
-                            <a href="#" title="Change provider"
-                                class="link-secondary link-opacity-50 link-opacity-100-hover layer-provider-link"><i
-                                    class="bi bi-braces-asterisk"></i></a>
+                        <li id="basemap" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <a href="#" title="Zoom on this layer"
+                                    class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
+                                    Base map
+                                </a>
+                                <a href="#" title="Expand this layer"
+                                    class="link-secondary link-opacity-50 link-opacity-100-hover layer-expand-link"><i
+                                        class="bi bi-arrows-angle-expand"></i></a>
+                                <a href="#" title="Change provider"
+                                    class="link-secondary link-opacity-50 link-opacity-100-hover layer-provider-link"><i
+                                        class="bi bi-braces-asterisk"></i></a>
+                            </div>
+                            <span id="basemap-progress" class="badge bg-info">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </span>
                         </li>
                     </ul>
                 </div>
@@ -114,7 +121,7 @@
         <div id="loading-progress" class="progress position-absolute start-0 top-0 end-0" style="height: 4px"
             role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0"
             aria-valuemax="100">
-            <div id="loading-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+            <div id="loading-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info"
                 style="width: 75%"></div>
         </div>
         <div id="coordinates" class="px-1 position-absolute bottom-0 text-secondary bg-light" style="right: 25vw"></div>

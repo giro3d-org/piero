@@ -1,6 +1,7 @@
 import {
     Box3, LineBasicMaterial, MeshBasicMaterial, PointsMaterial, EventDispatcher, Object3D, Vector3,
 } from 'three';
+import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop.js';
 import Giro3dMap from '@giro3d/giro3d/entities/Map.js';
 import TileWMS from 'ol/source/TileWMS.js';
 import XYZ from 'ol/source/XYZ.js';
@@ -254,6 +255,8 @@ class LayerManager extends EventDispatcher {
         this.camera = camera;
         /** @type {Map<string, Dataset>} */
         this.sets = new Map();
+        /** @type {Map<string, HTMLElement>} */
+        this.progressbars = new Map();
         /** @type {Giro3dMap} */
         this.baseMap = null;
         /** @type {string} */
@@ -265,6 +268,7 @@ class LayerManager extends EventDispatcher {
         /** @type {Map<string, ColorLayer>} */
         this.overlayLayers = new Map();
 
+        this.progressbars.set('basemap', document.getElementById('basemap-progress'));
         const baseMapElement = document.getElementById('basemap');
         baseMapElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
         baseMapElement.querySelector('.layer-expand-link').addEventListener('click', () => {
@@ -289,6 +293,27 @@ class LayerManager extends EventDispatcher {
                 this.instance.notifyChange(this.baseMap);
                 this.dispatchEvent({ type: 'map-changed' });
             });
+        }
+
+        this.instance.addFrameRequester(
+            MAIN_LOOP_EVENTS.UPDATE_END, this._updateProgress.bind(this),
+        );
+    }
+
+    _updateProgress() {
+        if (this.baseMap && !this.baseMap.loading) {
+            this.progressbars.get('basemap').classList.add('d-none');
+        } else {
+            this.progressbars.get('basemap').classList.remove('d-none');
+        }
+
+        for (const [uuid, dataset] of this.sets) {
+            const p = this.progressbars.get(uuid);
+            if (dataset.obj.loading) {
+                p.classList.remove('d-none');
+            } else {
+                p.classList.add('d-none');
+            }
         }
     }
 
@@ -611,13 +636,27 @@ class LayerManager extends EventDispatcher {
     _createListItem(entity, filename) {
         const newItem = document.createElement('li');
         newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
-        newItem.className = 'list-group-item py-0 px-1';
+        newItem.className = 'list-group-item py-0 px-1 d-flex justify-content-between align-items-start';
+
+        const itemContainer = document.createElement('div');
+        itemContainer.className = 'ms-2 me-auto';
 
         const btn = createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark');
-        newItem.appendChild(btn);
+        itemContainer.appendChild(btn);
         const link = createLink(filename, 'Zoom on this layer', () => this.camera.lookTopDownAt(entity));
-        newItem.appendChild(link);
-        newItem.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
+        itemContainer.appendChild(link);
+        itemContainer.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
+
+        newItem.appendChild(itemContainer);
+
+        const progressBadge = document.createElement('span');
+        progressBadge.className = 'badge bg-info d-none';
+        progressBadge.id = `layer-progress-${entity.object3d.uuid}`;
+        progressBadge.innerHTML = `
+<div class="spinner-border spinner-border-sm" role="status">
+    <span class="visually-hidden">Loading...</span>
+</div>`;
+        newItem.appendChild(progressBadge);
 
         if (!entity.visible) {
             const btnIcon = btn.querySelector('i');
@@ -661,6 +700,7 @@ class LayerManager extends EventDispatcher {
             parent = document.getElementById('layer-list');
         }
         parent.appendChild(newItem);
+        this.progressbars.set(entity.object3d.uuid, document.getElementById(`layer-progress-${entity.object3d.uuid}`));
 
         const snapToOption = document.createElement('option');
         snapToOption.setAttribute('value', entity.object3d.uuid);
@@ -695,6 +735,7 @@ class LayerManager extends EventDispatcher {
         newItem.appendChild(createButtonLink('bi-file-earmark-arrow-down', 'Download this annotation', () => this.downloadAnnotation(entity), 'layer-download-link'));
 
         document.getElementById('annotation-list').appendChild(newItem);
+        this.progressbars.set(entity.object3d.uuid, document.getElementById(`layer-progress-${entity.object3d.uuid}`));
     }
 
     /**
@@ -703,8 +744,9 @@ class LayerManager extends EventDispatcher {
      * @param {Entity3D} entity Entity
      */
     deleteSet(entity) {
+        this.sets.delete(entity.object3d.uuid);
+        this.progressbars.delete(entity.object3d.uuid);
         document.getElementById(`layer-${entity.object3d.uuid}`).remove();
-        this.sets.delete(entity.id);
         this.instance.remove(entity.object3d);
 
         const select = document.getElementById('snapToObject');
