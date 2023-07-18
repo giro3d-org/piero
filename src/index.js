@@ -169,7 +169,7 @@ annotationDropZone.addEventListener('drop', async e => {
     await loader.processFiles(instance, layerManager, camera, files, true, { projection: 'EPSG:4326', isAnnotation: true, z });
 });
 
-const extent = new Extent('EPSG:2154', 836545, 846996, 6513414, 6526230);
+const extent = new Extent('EPSG:2154', 795689, 903507, 6493201, 6543980);
 const baseMap = layerManager.createMap(extent);
 setTimeout(() => {
     if (baseMap.loading && Math.abs(baseMap.progress - 2 / 3) < 0.1) {
