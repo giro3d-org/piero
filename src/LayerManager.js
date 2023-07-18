@@ -226,11 +226,13 @@ function createButtonLink(iconName, title, clickHandler, className = '', linkTyp
 /**
  * Available map providers
  */
-const MAPPROVIDERS = {
+export const MAPPROVIDERS = {
     /** IGN */
     IGN: 'ign',
     /** MAPBOX */
     MAPBOX: 'mapbox',
+    /** GRANDLYON */
+    GRANDLYON: 'grandlyon',
 };
 
 /**
@@ -347,6 +349,17 @@ class LayerManager extends EventDispatcher {
                     crossOrigin: 'anonymous',
                 });
                 break;
+            case MAPPROVIDERS.GRANDLYON:
+                source = new TileWMS({
+                    url: 'https://download.data.grandlyon.com/wms/grandlyon',
+                    projection: this.instance.referenceCrs,
+                    params: {
+                        LAYERS: ['Ortho2018_Dalle_unique_8cm_CC46'],
+                        FORMAT: 'image/jpeg',
+                    },
+                    version: '1.3.0',
+                });
+                break;
             default:
                 throw new Error(`Provider ${this.mapProvider} not supported`);
         }
@@ -397,6 +410,19 @@ class LayerManager extends EventDispatcher {
                     crossOrigin: 'anonymous',
                 });
                 interpretation = Interpretation.MapboxTerrainRGB;
+                break;
+            case MAPPROVIDERS.GRANDLYON:
+                source = new TileWMS({
+                    url: 'https://download.data.grandlyon.com/wms/grandlyon',
+                    projection: this.instance.referenceCrs,
+                    crossOrigin: 'anonymous',
+                    params: {
+                        LAYERS: ['MNT2018_Altitude_2m'],
+                        FORMAT: 'image/jpeg',
+                    },
+                    version: '1.3.0',
+                });
+                interpretation = Interpretation.ScaleToMinMax(149, 621);
                 break;
             default:
                 throw new Error(`Provider ${this.mapProvider} not supported`);
@@ -583,6 +609,9 @@ class LayerManager extends EventDispatcher {
                 .forEach(layer => this.baseMap.removeLayer(layer));
             this.instance.remove(this.baseMap);
         }
+        if (extent.crs() !== this.instance.referenceCrs) {
+            extent = extent.as(this.instance.referenceCrs);
+        }
 
         this.baseMap = new Giro3dMap('map', {
             extent,
@@ -604,6 +633,8 @@ class LayerManager extends EventDispatcher {
 
         this.instance.notifyChange(this.baseMap);
         this.dispatchEvent({ type: 'map-changed' });
+
+        return this.baseMap;
     }
 
     /**

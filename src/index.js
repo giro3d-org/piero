@@ -4,6 +4,7 @@ import { Vector3, MeshLambertMaterial, sRGBEncoding } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import { createXYZ } from 'ol/tilegrid.js';
@@ -19,7 +20,7 @@ import StatusBar from './StatusBar.js';
 import AttributePanel from './AttributePanel.js';
 import Tour from './Tour.js';
 import DrawingTools from './DrawingTools.js';
-import LayerManager from './LayerManager.js';
+import LayerManager, { MAPPROVIDERS } from './LayerManager.js';
 import Picking from './Picking.js';
 import Projections from './Projections.js';
 import Skybox from './Skybox.js';
@@ -33,6 +34,12 @@ import Alerts from './Alerts.js';
 const ifc = 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc';
 const las = 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69-extracted.laz';
 const cityjson = 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json';
+
+const crsParam = new URL(document.URL).searchParams.get('crs');
+let CRS = 'EPSG:2154';
+if (crsParam !== null) {
+    CRS = crsParam;
+}
 
 Instance.registerCRS('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs');
 Instance.registerCRS('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs +type=crs');
@@ -51,7 +58,7 @@ Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46
 const z = 180;
 
 const instance = new Instance(document.getElementById('viewerDiv'), {
-    crs: 'EPSG:2154',
+    crs: CRS,
     renderer: {
         clearColor: 0xcccccc,
     },
@@ -65,6 +72,13 @@ const camera = new Camera(instance);
 camera.bindKeys();
 
 const layerManager = new LayerManager(instance, camera);
+if (CRS === 'EPSG:2154') {
+    layerManager.mapProvider = MAPPROVIDERS.IGN;
+} else if (CRS === 'EPSG:3946') {
+    layerManager.mapProvider = MAPPROVIDERS.GRANDLYON;
+} else {
+    layerManager.mapProvider = MAPPROVIDERS.MAPBOX;
+}
 
 const picking = new Picking(instance, layerManager);
 camera.pickObjectsAt = e => picking.getPointAt(e);
@@ -156,10 +170,22 @@ annotationDropZone.addEventListener('drop', async e => {
 });
 
 const extent = new Extent('EPSG:2154', 836545, 846996, 6513414, 6526230);
-layerManager.createMap(extent);
+const baseMap = layerManager.createMap(extent);
+setTimeout(() => {
+    if (baseMap.loading && Math.abs(baseMap.progress - 2 / 3) < 0.1) {
+        const link = document.createElement('a');
+        link.setAttribute('href', '/?crs=EPSG%3A3946');
+        link.textContent = 'Map is taking longer to load; do you want to switch provider?';
+        Alerts.showAlert(link);
+    }
+}, 10000);
 camera.lookAt(
-    new Vector3(841623.9, 6517692.9, 435.4),
-    new Vector3(841889.3, 6517785.3, 166.9),
+    new Vector3().fromArray(
+        new Coordinates('EPSG:2154', 841623.9, 6517692.9, 435.4).as(instance.referenceCrs)._values,
+    ),
+    new Vector3().fromArray(
+        new Coordinates('EPSG:2154', 841889.3, 6517785.3, 166.9).as(instance.referenceCrs)._values,
+    ),
     false,
 );
 
@@ -175,72 +201,78 @@ const lidarHdTiles = [
 loader.processFiles(instance, layerManager, camera, [ifc], false, {
     // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
 }).then(() => {
-    const alert = Alerts.showAlert('Loading BDTOPO_V3:batiment...', 'info');
+    if (CRS === 'EPSG:2154') {
+        const alert = Alerts.showAlert('Loading BDTOPO_V3:batiment...', 'info', true);
 
-    const vectorSource = new VectorSource({
-        format: new GeoJSON(),
-        url: function url(e) {
-            return (
-                `${'https://wxs.ign.fr/topographie/geoportail/wfs'
-                // 'https://download.data.grandlyon.com/wfs/rdata'
-                + '?SERVICE=WFS'
-                + '&VERSION=2.0.0'
-                + '&request=GetFeature'
-                + '&typename=BDTOPO_V3:batiment'
-                + '&outputFormat=application/json'
-                + '&SRSNAME=EPSG:2154'
-                + '&startIndex=0'
-                + '&bbox='}${e.join(',')},EPSG:2154`
-            );
-        },
-        strategy: tile(createXYZ({ tileSize: 512 })),
-    });
+        const vectorSource = new VectorSource({
+            format: new GeoJSON(),
+            url: function url(e) {
+                return (
+                    `${'https://wxs.ign.fr/topographie/geoportail/wfs'
+                    // 'https://download.data.grandlyon.com/wfs/rdata'
+                    + '?SERVICE=WFS'
+                    + '&VERSION=2.0.0'
+                    + '&request=GetFeature'
+                    + '&typename=BDTOPO_V3:batiment'
+                    + '&outputFormat=application/json'
+                    + '&SRSNAME=EPSG:2154'
+                    + '&startIndex=0'
+                    + '&bbox='}${e.join(',')},EPSG:2154`
+                );
+            },
+            strategy: tile(createXYZ({ tileSize: 512 })),
+        });
 
-    const feat = new FeatureCollection('BDTOPO_V3', {
-        source: vectorSource,
-        extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
-        material: new MeshLambertMaterial(),
-        extrude: feature => {
-            const hauteur = -feature.getProperties().hauteur;
-            if (Number.isNaN(hauteur)) {
-                return null;
-            }
-            return hauteur;
-        },
-        style: feature => {
-            const properties = feature.getProperties();
-            let color = '#FFFFFF';
-            if (properties.usage_1 === 'Résidentiel') {
-                color = '#9d9484';
-            } else if (properties.usage_1 === 'Commercial et services') {
-                color = '#b0ffa7';
-            }
-            return { color };
-        },
-        onMeshCreated: mesh => {
-            // hide this particular mesh because we have a ifc for this
-            if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
-                || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
-                mesh.visible = false;
-            }
-        },
-        minLevel: 11,
-        maxLevel: 11,
-    });
+        const feat = new FeatureCollection('BDTOPO_V3', {
+            source: vectorSource,
+            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
+            material: new MeshLambertMaterial(),
+            extrude: feature => {
+                const hauteur = -feature.getProperties().hauteur;
+                if (Number.isNaN(hauteur)) {
+                    return null;
+                }
+                return hauteur;
+            },
+            style: feature => {
+                const properties = feature.getProperties();
+                let color = '#FFFFFF';
+                if (properties.usage_1 === 'Résidentiel') {
+                    color = '#9d9484';
+                } else if (properties.usage_1 === 'Commercial et services') {
+                    color = '#b0ffa7';
+                }
+                return { color };
+            },
+            onMeshCreated: mesh => {
+                // hide this particular mesh because we have a ifc for this
+                if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
+                    || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
+                    mesh.visible = false;
+                }
+            },
+            minLevel: 11,
+            maxLevel: 11,
+        });
 
-    layerManager.addSet(feat, 'BDTOPO_V3:batiment');
-    instance.add(feat).then(() => {
-        alert.dismiss();
+        layerManager.addSet(feat, 'BDTOPO_V3:batiment');
+        instance.add(feat).then(() => {
+            alert.dismiss();
+        });
+    } else {
+        Alerts.showAlert('Skipping BDTOPO_V3:batiment (unsupported with this CRS)', 'warning');
+    }
 
-        loader.processFiles(
-            instance,
-            layerManager,
-            camera,
-            lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`),
-            false,
-            { visible: false, group: 'CityJSON' },
-        );
+    loader.processFiles(
+        instance,
+        layerManager,
+        camera,
+        lidarHdTiles.map(t => `https://3d.oslandia.com/lyon/${t}.city.json`),
+        false,
+        { visible: false, group: 'CityJSON' },
+    );
 
+    if (CRS === 'EPSG:2154') {
         lidarHdTiles.forEach(t => {
             const pointcloud = new Tiles3D(
                 `pointcloud-${t}`,
@@ -256,7 +288,9 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
 
             layerManager.addSet(pointcloud, t, 'LIDAR-HD');
         });
-    });
+    } else {
+        Alerts.showAlert('Skipping LIDAR-HD tiles (unsupported with this CRS)', 'warning', true);
+    }
 });
 Tour.start(instance, layerManager, camera, drawTools);
 
