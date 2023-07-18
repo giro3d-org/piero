@@ -239,6 +239,7 @@ export const MAPPROVIDERS = {
  * Mapbox key
  */
 const mapboxkey = 'pk.eyJ1IjoidG11Z3VldCIsImEiOiJjbGJ4dTNkOW0wYWx4M25ybWZ5YnpicHV6In0.KhDJ7W5N3d1z3ArrsDjX_A';
+const omniscalekey = 'giro3d-c0673f3a';
 
 /**
  * Manages Giro3d layers and 3D objects
@@ -265,38 +266,54 @@ class LayerManager extends EventDispatcher {
         this.mapProvider = MAPPROVIDERS.IGN;
         /** @type {ColorLayer} */
         this.imageryLayer = null;
+        /** @type {ColorLayer} */
+        this.osmLayer = null;
         /** @type {ElevationLayer} */
         this.elevationLayer = null;
         /** @type {Map<string, ColorLayer>} */
         this.overlayLayers = new Map();
 
-        this.progressbars.set('basemap', document.getElementById('basemap-progress'));
-        const baseMapElement = document.getElementById('basemap');
-        baseMapElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
-        baseMapElement.querySelector('.layer-expand-link').remove();
-        // baseMapElement.querySelector('.layer-expand-link').addEventListener('click', () => {
-        //     const newExtent = this.baseMap.extent.withRelativeMargin(0.5);
-        //     this.createMap(newExtent);
-        // });
-        // if (this.instance.referenceCrs !== 'EPSG:3857') {
-        baseMapElement.querySelector('.layer-provider-link').remove();
-        // } else {
-        //     baseMapElement.querySelector('.layer-provider-link').addEventListener('click', () => {
-        //         if (this.mapProvider === MAPPROVIDERS.IGN) {
-        //             this.mapProvider = MAPPROVIDERS.MAPBOX;
-        //         } else {
-        //             this.mapProvider = MAPPROVIDERS.IGN;
-        //         }
-        //         this.baseMap.removeLayer(this.imageryLayer);
-        //         this.baseMap.removeLayer(this.elevationLayer);
-        //         this.imageryLayer = null;
-        //         this.elevationLayer = null;
-        //         this.baseMap.addLayer(this.getImageryLayer());
-        //         this.baseMap.addLayer(this.getElevationLayer());
-        //         this.instance.notifyChange(this.baseMap);
-        //         this.dispatchEvent({ type: 'map-changed' });
-        //     });
-        // }
+        this.progressbars.set('imagery', document.getElementById('imagery-progress'));
+        const imageryElement = document.getElementById('imagery');
+        imageryElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
+
+        this.progressbars.set('osm', document.getElementById('osm-progress'));
+        const osmElement = document.getElementById('osm');
+        osmElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
+
+        this.progressbars.set('elevation', document.getElementById('elevation-progress'));
+
+        document.querySelector('#imagery .layer-toggle-visible-link').addEventListener('click', () => {
+            const li = document.getElementById('imagery');
+            const btn = li.querySelector('a.layer-toggle-visible-link i');
+            if (this.imageryLayer.visible) {
+                li.classList.add('list-group-item-secondary');
+                btn.classList.remove('bi-eye');
+                btn.classList.add('bi-eye-slash');
+            } else {
+                li.classList.remove('list-group-item-secondary');
+                btn.classList.add('bi-eye');
+                btn.classList.remove('bi-eye-slash');
+            }
+            this.imageryLayer.visible = !this.imageryLayer.visible;
+            this.instance.notifyChange(this.baseMap);
+        });
+
+        document.querySelector('#osm .layer-toggle-visible-link').addEventListener('click', () => {
+            const li = document.getElementById('osm');
+            const btn = li.querySelector('a.layer-toggle-visible-link i');
+            if (this.osmLayer.visible) {
+                li.classList.add('list-group-item-secondary');
+                btn.classList.remove('bi-eye');
+                btn.classList.add('bi-eye-slash');
+            } else {
+                li.classList.remove('list-group-item-secondary');
+                btn.classList.add('bi-eye');
+                btn.classList.remove('bi-eye-slash');
+            }
+            this.osmLayer.visible = !this.osmLayer.visible;
+            this.instance.notifyChange(this.baseMap);
+        });
 
         this.instance.addFrameRequester(
             MAIN_LOOP_EVENTS.UPDATE_END, this._updateProgress.bind(this),
@@ -304,10 +321,22 @@ class LayerManager extends EventDispatcher {
     }
 
     _updateProgress() {
-        if (this.baseMap && !this.baseMap.loading) {
-            this.progressbars.get('basemap').classList.add('d-none');
+        if (this.osmLayer && !this.osmLayer.loading) {
+            this.progressbars.get('osm').classList.add('d-none');
         } else {
-            this.progressbars.get('basemap').classList.remove('d-none');
+            this.progressbars.get('osm').classList.remove('d-none');
+        }
+
+        if (this.imageryLayer && !this.imageryLayer.loading) {
+            this.progressbars.get('imagery').classList.add('d-none');
+        } else {
+            this.progressbars.get('imagery').classList.remove('d-none');
+        }
+
+        if (this.elevationLayer && !this.elevationLayer.loading) {
+            this.progressbars.get('elevation').classList.add('d-none');
+        } else {
+            this.progressbars.get('elevation').classList.remove('d-none');
         }
 
         for (const [uuid, dataset] of this.sets) {
@@ -372,7 +401,40 @@ class LayerManager extends EventDispatcher {
                 source: giro3dsource,
             },
         );
+        this.imageryLayer.visible = false;
+
         return this.imageryLayer;
+    }
+
+    /**
+     * Gets OSM layer for Giro3D; creates it if needed.
+     *
+     * @returns {ColorLayer} Imagery layer
+     */
+    getOSMLayer() {
+        if (this.osmLayer) {
+            return this.osmLayer;
+        }
+
+        const source = new TileWMS({
+            url: `https://maps.omniscale.net/v2/${omniscalekey}/style.default/map`,
+            projection: this.instance.referenceCrs,
+            params: {
+                FORMAT: 'image/png',
+                SRS: this.instance.referenceCrs,
+            },
+            version: '1.3.0',
+        });
+
+        const giro3dsource = new TiledImageSource({ source });
+        this.osmLayer = new ColorLayer(
+            'osm',
+            {
+                source: giro3dsource,
+            },
+        );
+
+        return this.osmLayer;
     }
 
     /**
@@ -605,6 +667,7 @@ class LayerManager extends EventDispatcher {
             // Already exists, we want to change the extent of the current map
             // FIXME: flash of content, probably blocked by https://gitlab.com/giro3d/giro3d/-/issues/323
             this.baseMap.removeLayer(this.imageryLayer);
+            this.baseMap.removeLayer(this.osmLayer);
             this.baseMap.removeLayer(this.elevationLayer);
             Array.from(this.overlayLayers.values())
                 .forEach(layer => this.baseMap.removeLayer(layer));
@@ -625,6 +688,7 @@ class LayerManager extends EventDispatcher {
 
         // Create our imagery and elevation layers
         this.baseMap.addLayer(this.getImageryLayer());
+        this.baseMap.addLayer(this.getOSMLayer());
         this.baseMap.addLayer(this.getElevationLayer());
 
         this.getVectorLayers().forEach((layer, id) => {

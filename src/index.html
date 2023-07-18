@@ -85,20 +85,43 @@
                 </h2>
                 <div id="basemap-list-container" class="accordion-collapse collapse show">
                     <ul id="basemap-list" class="list-group list-group-flush">
-                        <li id="basemap" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start">
+                        <li id="osm" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start">
                             <div class="ms-2 me-auto">
+                                <a href="#" title="Hide this layer" class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i class="bi bi-eye"></i></a>
                                 <a href="#" title="Zoom on this layer"
                                     class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
-                                    Base map
+                                    OpenStreetMap
                                 </a>
-                                <a href="#" title="Expand this layer"
-                                    class="link-secondary link-opacity-50 link-opacity-100-hover layer-expand-link"><i
-                                        class="bi bi-arrows-angle-expand"></i></a>
-                                <a href="#" title="Change provider"
-                                    class="link-secondary link-opacity-50 link-opacity-100-hover layer-provider-link"><i
-                                        class="bi bi-braces-asterisk"></i></a>
                             </div>
-                            <span id="basemap-progress" class="badge bg-info">
+                            <span id="osm-progress" class="badge bg-info">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </span>
+                        </li>
+                        <li id="imagery" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start list-group-item-secondary">
+                            <div class="ms-2 me-auto">
+                                <a href="#" title="Hide this layer" class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i class="bi bi-eye-slash"></i></a>
+                                <a href="#" title="Zoom on this layer"
+                                    class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
+                                    Imagery
+                                </a>
+                            </div>
+                            <span id="imagery-progress" class="badge bg-info">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </span>
+                        </li>
+                        <li id="elevation" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <a href="#" title="Hide this layer" class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link pe-none"><i class="bi bi-eye"></i></a>
+                                <a href="#" title="Zoom on this layer"
+                                    class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
+                                    Elevation
+                                </a>
+                            </div>
+                            <span id="elevation-progress" class="badge bg-info">
                                 <div class="spinner-border spinner-border-sm" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
