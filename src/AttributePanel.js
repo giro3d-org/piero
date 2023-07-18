@@ -1,4 +1,4 @@
-import { Box3, Vector3 } from 'three';
+import { Box3, Vector3, MeshBasicMaterial } from 'three';
 import {
     Chart, Colors, BarController, CategoryScale, LinearScale, BarElement, Legend,
 } from 'chart.js';
@@ -119,31 +119,6 @@ class AttributePanel {
         });
     }
 
-    // highlightIfc(obj, faceIndex) {
-    //     const geometry = obj.geometry;
-
-    //     const indexAttribute = geometry.getIndex();
-    //     const positionAttribute = geometry.getAttribute('position');
-
-    //     const indices = indexAttribute.array;
-    //     const positions = positionAttribute.array;
-
-    //     const vertexIndex1 = indices[faceIndex * 3];
-    //     const vertexIndex2 = indices[faceIndex * 3 + 1];
-    //     const vertexIndex3 = indices[faceIndex * 3 + 2];
-
-    //     const highlightMaterial = new MeshBasicMaterial({ color: 0xff0000 });
-    //     const faceGroupIndex = geometry.groups.findIndex(
-    //         group => group.start <= faceIndex && group.start + group.count > faceIndex
-    //     );
-    //     if (faceGroupIndex !== -1) {
-    //         const materialIndex = geometry.groups[faceGroupIndex].materialIndex;
-    //         obj.material[materialIndex] = highlightMaterial;
-    //         obj.material.needsUpdate = true;
-    //         this.instance.notifyChange(obj);
-    //     }
-    // }
-
     /**
      * Show info on a picked object.
      *
@@ -241,9 +216,24 @@ class AttributePanel {
                     }
                 }
             }
-            // if (rootobj.ifcManager && faceIndex) {
-            //     this.highlightIfc(rootobj, faceIndex);
-            // }
+            if (rootobj.ifcManager && pickedObject.faceIndex) {
+                const expressId = rootobj.ifcManager.getExpressId(rootobj.geometry, pickedObject.faceIndex);
+                const properties = rootobj.ifcManager.getItemProperties(rootobj.modelID, expressId);
+                const propertySets = rootobj.ifcManager.getPropertySets(rootobj.modelID, expressId);
+
+                if (properties) {
+                    for (const [key, value] of Object.entries(properties)) {
+                        if (value?.value != null) {
+                            attributes.push([key, value.value]);
+                        }
+                    }
+                }
+
+                if (propertySets) {
+                    const value = propertySets.map(o => o.Name.value).join(', ');
+                    attributes.push(['Property Sets', value]);
+                }
+            }
 
             document.getElementById('attributes').innerHTML = `<table class="table table-striped table-hover table-sm" id="attributes-table">
     <tbody>
