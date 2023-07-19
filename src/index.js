@@ -103,6 +103,21 @@ const autoCompleteJS = new autoComplete({
         src: async query => {
             const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`);
             const data = await source.json();
+
+            const lng = [];
+            const lat = [];
+
+            data.features.forEach(feature => {
+                lng.push(feature.geometry.coordinates[0]);
+                lat.push(feature.geometry.coordinates[1]);
+            });
+
+            const requestAltitude = await fetch(`https://wxs.ign.fr/calcul/alti/rest/elevation.json?lon=${lng.join('|')}&lat=${lat.join('|')}&zonly=true`);
+            const altitude = await requestAltitude.json();
+            altitude.elevations.forEach((value, i) => {
+                data.features[i].properties.z = value;
+            });
+
             return data.features.map(f => f.properties);
         },
         keys: ['label'],
@@ -136,7 +151,7 @@ document.getElementById('autoComplete').addEventListener('selection', event => {
         newExtent.union(locationExtent);
         layerManager.createMap(newExtent);
     }
-    const bbox3 = newExtent.toBox3(0, 200);
+    const bbox3 = newExtent.toBox3(selection.z, selection.z + 200);
     camera.lookTopDownAt(bbox3, false);
 });
 
