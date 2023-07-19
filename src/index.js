@@ -246,7 +246,7 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
     // at: new Vector3(841900.7811846591, 6517809.405693541, 167),
 }).then(() => {
     if (CRS === 'EPSG:2154') {
-        const alert = Alerts.showAlert('Loading BDTOPO_V3:batiment...', 'info', true);
+        const alert = Alerts.showAlert('Loading BDTOPO_V3:batiment...', null, true);
 
         const vectorSource = new VectorSource({
             format: new GeoJSON(),

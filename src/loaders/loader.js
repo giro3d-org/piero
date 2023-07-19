@@ -37,7 +37,7 @@ const processFile = async (instance, layerManager, file, options = {}) => {
         throw new Error('File not supported');
     }
 
-    const alert = Alerts.showAlert(`Loading ${filename}...`, 'info');
+    const alert = Alerts.showAlert(`Loading ${filename}...`, null);
 
     if (!(file instanceof File) && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')) {
         file = await fetch(file);

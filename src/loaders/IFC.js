@@ -13,7 +13,7 @@ ifcLoader.ifcManager.setWasmPath('../../../../../../');
 export default {
     async loadIfc(instance, id, file, at) {
         const buffer = await file.arrayBuffer();
-        const alert = Alerts.showAlert(`Loaded ${id}; processing ${buffer.byteLength} bytes...`, 'info');
+        const alert = Alerts.showAlert(`Loaded ${id}; processing ${buffer.byteLength} bytes...`, null);
 
         const ifcModel = await ifcLoader.parse(buffer);
         ifcModel.name = 'ifcModel';

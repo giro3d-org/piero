@@ -8,7 +8,7 @@ export default {
     loadString(instance, id, str, options = {}) {
         return new Promise(resolve => {
             const json = JSON.parse(str);
-            const alert = Alerts.showAlert(`Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`, 'info');
+            const alert = Alerts.showAlert(`Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`, null);
             const parser = new CityJSONWorkerParser();
             const loader = new CityJSONLoader(parser);
 
