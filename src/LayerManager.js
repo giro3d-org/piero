@@ -248,6 +248,12 @@ class LayerManager extends EventDispatcher {
             this.instance.notifyChange(this.baseMap);
         });
 
+        document.querySelector('#imagery .form-range').addEventListener('input', e => {
+            const val = parseInt(e.target.value, 10);
+            this.imageryLayer.opacity = val / 100;
+            this.instance.notifyChange(this.baseMap);
+        });
+
         document.querySelector('#osm .layer-toggle-visible-link').addEventListener('click', () => {
             const li = document.getElementById('osm');
             if (this.osmLayer.visible) {
@@ -258,6 +264,12 @@ class LayerManager extends EventDispatcher {
                 li.classList.add('layer-visible');
             }
             this.osmLayer.visible = !this.osmLayer.visible;
+            this.instance.notifyChange(this.baseMap);
+        });
+
+        document.querySelector('#osm .form-range').addEventListener('input', e => {
+            const val = parseInt(e.target.value, 10);
+            this.osmLayer.opacity = val / 100;
             this.instance.notifyChange(this.baseMap);
         });
 
@@ -516,6 +528,12 @@ class LayerManager extends EventDispatcher {
             }
 
             this.reorderLayers();
+        });
+
+        document.querySelector(`#overlay-${layer.id} .form-range`).addEventListener('input', e => {
+            const val = parseInt(e.target.value, 10);
+            layer.opacity = val / 100;
+            this.instance.notifyChange(this.baseMap);
         });
 
         return this;

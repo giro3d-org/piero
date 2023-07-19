@@ -119,6 +119,11 @@ li.layers-list-item a.layer-move-down-link i {
     @extend .bi-arrow-down;
 }
 
+li.layers-list-item .form-range {
+    @extend .form-control;
+    width: 100px;
+}
+
 .layers-list-progress {
     @extend .badge;
     @extend .bg-info;
