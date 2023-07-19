@@ -109,6 +109,16 @@ li.layers-list-item.layer-hidden {
     @extend .list-group-item-secondary;
 }
 
+li.layers-list-item a.layer-move-up-link i {
+    @extend .bi;
+    @extend .bi-arrow-up;
+}
+
+li.layers-list-item a.layer-move-down-link i {
+    @extend .bi;
+    @extend .bi-arrow-down;
+}
+
 .layers-list-progress {
     @extend .badge;
     @extend .bg-info;

@@ -472,7 +472,64 @@ class LayerManager extends EventDispatcher {
             layer.visible = !layer.visible;
             this.instance.notifyChange(this.baseMap);
         });
+
+        document.querySelector(`#overlay-${layer.id} .layer-move-up-link`).addEventListener('click', () => {
+            const li = document.getElementById(`overlay-${layer.id}`);
+
+            const parent = li.parentElement;
+            const previous = li.previousElementSibling;
+
+            if (li.nextElementSibling === null) {
+                // Moved from bottom
+                li.querySelector('.layer-move-down-link').classList.remove('pe-none');
+                previous.querySelector('.layer-move-down-link').classList.add('pe-none');
+            }
+
+            parent.insertBefore(li, previous);
+
+            if (li.previousElementSibling === null) {
+                // Moved to top
+                li.querySelector('.layer-move-up-link').classList.add('pe-none');
+                li.nextElementSibling.querySelector('.layer-move-up-link').classList.remove('pe-none');
+            }
+
+            this.reorderLayers();
+        });
+
+        document.querySelector(`#overlay-${layer.id} .layer-move-down-link`).addEventListener('click', () => {
+            const li = document.getElementById(`overlay-${layer.id}`);
+            const parent = li.parentElement;
+            const next = li.nextElementSibling.nextElementSibling;
+
+            if (li.previousElementSibling === null) {
+                // Moved from top
+                li.querySelector('.layer-move-up-link').classList.remove('pe-none');
+                li.nextElementSibling.querySelector('.layer-move-up-link').classList.add('pe-none');
+            }
+
+            parent.insertBefore(li, next);
+
+            if (li.nextElementSibling === null) {
+                // Moved to bottom
+                li.querySelector('.layer-move-down-link').classList.add('pe-none');
+                li.previousElementSibling.querySelector('.layer-move-down-link').classList.remove('pe-none');
+            }
+
+            this.reorderLayers();
+        });
+
         return this;
+    }
+
+    reorderLayers() {
+        const overlays = Array.from(
+            document.querySelectorAll('#overlays-list .layers-list-item').values(),
+        )
+            .map(i => this.overlayLayers.get(i.id.replace('overlay-', '')));
+        const basemaps = [this.osmLayer, this.imageryLayer];
+        const colorlayers = overlays.concat(basemaps);
+
+        this.baseMap.sortColorLayers((a, b) => colorlayers.indexOf(b) - colorlayers.indexOf(a));
     }
 
     /**
@@ -600,6 +657,85 @@ class LayerManager extends EventDispatcher {
         return this.overlayLayers;
     }
 
+    getOverlayLayers() {
+        if (!this.overlayLayers.has('adrzae')) {
+            const adrzae = new ColorLayer(
+                'adrzae',
+                {
+                    source: new TiledImageSource({
+                        source: new TileWMS({
+                            url: 'https://download.data.grandlyon.com/wms/grandlyon',
+                            projection: this.instance.referenceCrs,
+                            params: {
+                                LAYERS: ['adr_voie_lieu.adrzae'],
+                                FORMAT: 'image/png',
+                            },
+                            version: '1.3.0',
+                        }),
+                    }),
+                },
+            );
+            this.registerOverlayLayer(adrzae);
+        }
+        if (!this.overlayLayers.has('lyvchantier')) {
+            const lyvchantier = new ColorLayer(
+                'lyvchantier',
+                {
+                    source: new TiledImageSource({
+                        source: new TileWMS({
+                            url: 'https://download.data.grandlyon.com/wms/rdata',
+                            projection: this.instance.referenceCrs,
+                            params: {
+                                LAYERS: ['lyv_lyvia.lyvchantier'],
+                                FORMAT: 'image/png',
+                            },
+                            version: '1.3.0',
+                        }),
+                    }),
+                },
+            );
+            this.registerOverlayLayer(lyvchantier);
+        }
+        if (!this.overlayLayers.has('MNC_class_2022_INT1U')) {
+            const MNC_class_2022_INT1U = new ColorLayer(
+                'MNC_class_2022_INT1U',
+                {
+                    source: new TiledImageSource({
+                        source: new TileWMS({
+                            url: 'https://download.data.grandlyon.com/wms/rdata',
+                            projection: this.instance.referenceCrs,
+                            params: {
+                                LAYERS: ['MNC_class_2022_INT1U'],
+                                FORMAT: 'image/png',
+                            },
+                            version: '1.3.0',
+                        }),
+                    }),
+                },
+            );
+            this.registerOverlayLayer(MNC_class_2022_INT1U);
+        }
+        if (!this.overlayLayers.has('telfibreripthd_1')) {
+            const telfibreripthd_1 = new ColorLayer(
+                'telfibreripthd_1',
+                {
+                    source: new TiledImageSource({
+                        source: new TileWMS({
+                            url: 'https://download.data.grandlyon.com/wms/rdata',
+                            projection: this.instance.referenceCrs,
+                            params: {
+                                LAYERS: ['tel_telecom.telfibreripthd_1'],
+                                FORMAT: 'image/png',
+                            },
+                            version: '1.3.0',
+                        }),
+                    }),
+                },
+            );
+            this.registerOverlayLayer(telfibreripthd_1);
+        }
+    }
+
     /**
      * Creates/Updates current map to match the extent provided.
      *
@@ -634,10 +770,13 @@ class LayerManager extends EventDispatcher {
         this.baseMap.addLayer(this.getOSMLayer());
         this.baseMap.addLayer(this.getElevationLayer());
 
+        this.getOverlayLayers();
         this.getVectorLayers().forEach((layer, id) => {
             layer.visible = document.getElementById(`overlay-${id}`).classList.contains('layer-visible');
             this.baseMap.addLayer(layer);
         });
+
+        this.reorderLayers();
 
         this.instance.notifyChange(this.baseMap);
         this.dispatchEvent({ type: 'map-changed' });
@@ -734,6 +873,7 @@ class LayerManager extends EventDispatcher {
      *
      * @param {Entity3D} entity Entity
      * @param {string} filename Filename
+     * @param group
      */
     addSet(entity, filename, group = null) {
         this.sets.set(entity.object3d.uuid, { obj: entity, filename });
