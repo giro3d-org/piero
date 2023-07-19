@@ -6,18 +6,28 @@ let camera;
 let drawing;
 let callback;
 
-const tour = new Shepherd.Tour({
+const mainTour = new Shepherd.Tour({
     useModalOverlay: true,
+    tourName: 'main',
 });
+const navigatingTour = new Shepherd.Tour({
+    useModalOverlay: true,
+    tourName: 'navigating',
+});
+const analyzingTour = new Shepherd.Tour({
+    useModalOverlay: true,
+    tourName: 'analyzing',
+});
+
 const buttonsOptions = [
-    { text: 'Next', action: tour.next },
-    { text: 'Exit', action: tour.cancel, secondary: true },
+    { text: 'Next', action: () => Shepherd.activeTour.next() },
+    { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
 ];
 
 const displayProgress = () => {
-    const currentStep = Shepherd.activeTour?.getCurrentStep();
-    const currentStepElement = currentStep?.getElement();
-    const content = currentStepElement?.querySelector('.shepherd-text');
+    const currentStep = Shepherd.activeTour.getCurrentStep();
+    const currentStepElement = currentStep.getElement();
+    const content = currentStepElement.querySelector('.shepherd-text');
 
     const progress = document.createElement('div');
     progress.className = 'progress mt-3';
@@ -26,24 +36,40 @@ const displayProgress = () => {
 
     const progressbar = document.createElement('div');
     progressbar.className = 'progress-bar bg-success';
-    progressbar.style.width = `${100 * (Shepherd.activeTour?.steps.indexOf(currentStep) / Shepherd.activeTour?.steps.length)}%`;
+    progressbar.style.width = `${100 * (Shepherd.activeTour.steps.indexOf(currentStep) / Shepherd.activeTour.steps.length)}%`;
 
     progress.appendChild(progressbar);
     content.appendChild(progress);
 };
 
-tour.addStep({
+mainTour.addStep({
     id: 'example-step',
     title: 'Welcome!',
-    text: 'Welcome to this Giro3D sample application.<br/>We will guide you through the different features.',
+    text: 'Welcome to this Giro3D sample application.<br/>We can guide you through the different features.<br/>',
     cancelIcon: { enabled: true, label: 'Exit tutorial' },
-    buttons: buttonsOptions,
+    buttons: [
+        {
+            text: 'Navigating',
+            action: () => {
+                Shepherd.activeTour.complete();
+                navigatingTour.show(0);
+            },
+        },
+        {
+            text: 'Analyzing data',
+            action: () => {
+                Shepherd.activeTour.complete();
+                analyzingTour.show(0);
+            },
+        },
+        { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
+    ],
     when: {
         show: displayProgress,
     },
 });
 
-tour.addStep({
+navigatingTour.addStep({
     id: 'view',
     text: 'Here you can view your data.<br/>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.<br/>This sample application adds support for CityJSON and IFC files.',
     buttons: buttonsOptions,
@@ -56,7 +82,7 @@ tour.addStep({
     },
 });
 
-tour.addStep({
+navigatingTour.addStep({
     id: 'navigate',
     text: 'This application integrates <a href="https://github.com/yomotsu/camera-controls">camera-controls</a>, a camera control for three.js.<br/>Click to move the camera. Right-click to rotate around a point. Scroll to zoom in or out.',
     buttons: buttonsOptions,
@@ -69,7 +95,7 @@ tour.addStep({
             let nbEvents = 0;
             callback = () => {
                 nbEvents += 1;
-                if (nbEvents > 2) { tour.next(); }
+                if (nbEvents > 2) { Shepherd.activeTour.next(); }
             };
             camera.addEventListener('interaction-end', callback);
             displayProgress();
@@ -81,35 +107,107 @@ tour.addStep({
     },
 });
 
-tour.addStep({
+navigatingTour.addStep({
+    id: 'basemaps',
+    text: 'Giro3D supports multiple layers drapped onto an elevation layer. You can toggle basemaps as you wish.',
+    buttons: buttonsOptions,
+    attachTo: {
+        element: '#menu-container',
+        on: 'right',
+    },
+    when: {
+        show: () => {
+            const link = document.getElementById('menu-basemaps-link');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+            displayProgress();
+        },
+    },
+});
+
+navigatingTour.addStep({
     id: 'overlays',
     text: 'Giro3D supports overlaying layers on top of maps; we\'have added some using different file formats.',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#overlays-list-container',
+        element: '#menu-container',
         on: 'right',
     },
     when: {
-        show: displayProgress,
+        show: () => {
+            const link = document.getElementById('menu-overlays-link');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+            displayProgress();
+        },
     },
 });
 
-tour.addStep({
+navigatingTour.addStep({
     id: 'layers',
-    text: 'From the Layers panel, you can access the 3D objects displayed, toggle their visibility, and remove them.<br/>Most objects leverage Giro3D\'s adaptive resolution to optimize their display.',
+    text: 'From the Datasets panel, you can access the 3D objects displayed, toggle their visibility, and remove them.<br/>Most objects leverage Giro3D\'s adaptive resolution to optimize their display.',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#layer-list',
+        element: '#menu-container',
         on: 'right',
+    },
+    when: {
+        show: () => {
+            const link = document.getElementById('menu-datasets-link');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+            displayProgress();
+        },
+    },
+});
+
+navigatingTour.addStep({
+    id: 'adddata',
+    text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and GeoJSON features.',
+    buttons: buttonsOptions,
+    attachTo: {
+        element: '#datasets-drop-zone',
+        on: 'right',
+    },
+    when: {
+        show: () => {
+            const link = document.getElementById('menu-datasets-link');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+            displayProgress();
+        },
+    },
+});
+
+navigatingTour.addStep({
+    id: 'widgets',
+    text: 'Giro3D is highly extensible. Here we added a widget to search and navigate to locations based on the French addresses API.',
+    buttons: [
+        {
+            text: 'Analyzing data',
+            action: () => {
+                Shepherd.activeTour.complete();
+                analyzingTour.show(0);
+            },
+        },
+        { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
+    ],
+    attachTo: {
+        element: '#tools',
+        on: 'left-start',
     },
     when: {
         show: displayProgress,
     },
 });
 
-tour.addStep({
+analyzingTour.addStep({
     id: 'attributes',
-    text: 'Click on a feature to see its info',
+    text: 'Click on a feature to see its info. Clickable features display a tooltip when hovered.',
     buttons: buttonsOptions,
     attachTo: {
         element: '#viewerDiv',
@@ -120,7 +218,7 @@ tour.addStep({
             callback = e => {
                 const picked = layerManager.getFirstFeatureAt(e);
                 if (picked) {
-                    tour.next();
+                    Shepherd.activeTour.next();
                 }
             };
             instance.domElement.addEventListener('click', callback);
@@ -133,7 +231,7 @@ tour.addStep({
     },
 });
 
-tour.addStep({
+analyzingTour.addStep({
     id: 'attributes2',
     text: 'Here you can see details on the feature you selected',
     buttons: buttonsOptions,
@@ -146,21 +244,12 @@ tour.addStep({
     },
 });
 
-tour.addStep({
-    id: 'adddata',
-    text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and GeoJSON features.',
-    buttons: buttonsOptions,
-    when: {
-        show: displayProgress,
-    },
-});
-
-tour.addStep({
+analyzingTour.addStep({
     id: 'measure',
     text: 'You can annotate any data displayed using Giro3D native tools',
     buttons: [
         { text: 'Next', action: () => document.getElementById('measure-polygon').click() },
-        { text: 'Exit', action: tour.cancel, secondary: true },
+        { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
     ],
     attachTo: {
         element: '#measurement > div',
@@ -168,7 +257,7 @@ tour.addStep({
     },
     when: {
         show: () => {
-            callback = () => tour.next();
+            callback = () => Shepherd.activeTour.next();
             document.getElementById('measure-line').addEventListener('click', callback);
             document.getElementById('measure-polygon').addEventListener('click', callback);
             displayProgress();
@@ -181,7 +270,7 @@ tour.addStep({
     },
 });
 
-tour.addStep({
+analyzingTour.addStep({
     id: 'measure2',
     text: 'Click to define points',
     attachTo: {
@@ -191,13 +280,13 @@ tour.addStep({
     when: {
         show: () => {
             if (drawing.drawTool.state !== 'active') {
-                tour.back();
+                Shepherd.activeTour.back();
                 return;
             }
             let nbPoints = 0;
             callback = () => {
                 nbPoints += 1;
-                if (nbPoints > 2) { tour.next(); }
+                if (nbPoints > 2) { Shepherd.activeTour.next(); }
             };
             drawing.drawTool.addEventListener('add', callback);
             displayProgress();
@@ -209,7 +298,7 @@ tour.addStep({
     },
 });
 
-tour.addStep({
+analyzingTour.addStep({
     id: 'measure3',
     text: 'Right-click to end the shape',
     attachTo: {
@@ -219,10 +308,10 @@ tour.addStep({
     when: {
         show: () => {
             if (drawing.drawTool.state !== 'active') {
-                tour.back();
+                Shepherd.activeTour.back();
                 return;
             }
-            callback = () => tour.next();
+            callback = () => Shepherd.activeTour.next();
             drawing.drawTool.addEventListener('end', callback);
             displayProgress();
         },
@@ -233,37 +322,59 @@ tour.addStep({
     },
 });
 
-tour.addStep({
+analyzingTour.addStep({
     id: 'annotations',
     text: 'You can download your annotations as GeoJSON files. You can also upload your own by dragging them into this panel.',
     attachTo: {
-        element: '#annotation-drop',
+        element: '#annotation-list-container',
         on: 'right',
     },
     buttons: [
-        { text: 'Done!', action: tour.complete },
+        { text: 'Done!', action: () => Shepherd.activeTour.complete() },
     ],
     when: {
-        show: displayProgress,
+        show: () => {
+            const link = document.getElementById('menu-annotations-link');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+            displayProgress();
+        },
     },
 });
 
 const markSkiptour = () => {
     const url = new URL(document.URL);
-    url.searchParams.delete('tour');
-    url.searchParams.set('skipTour', '');
+    url.searchParams.delete('tourStep');
+    url.searchParams.set('tour', 'none');
     window.history.replaceState({}, null, url.toString());
 };
 
 const markTour = current => {
     const url = new URL(document.URL);
-    url.searchParams.set('tour', current.step.id);
+    console.log(current);
+    let tourName = 'main';
+    if (current.tour.id.startsWith('navigating')) {
+        tourName = 'navigating';
+    } else if (current.tour.id.startsWith('analyzing')) {
+        tourName = 'analyzing';
+    }
+    url.searchParams.set('tour', tourName);
+    url.searchParams.set('tourStep', current.step.id);
     window.history.replaceState({}, null, url.toString());
 };
 
-tour.on('cancel', markSkiptour);
-tour.on('complete', markSkiptour);
-tour.on('show', markTour);
+mainTour.on('cancel', markSkiptour);
+mainTour.on('complete', markSkiptour);
+mainTour.on('show', markTour);
+
+navigatingTour.on('cancel', markSkiptour);
+navigatingTour.on('complete', markSkiptour);
+navigatingTour.on('show', markTour);
+
+analyzingTour.on('cancel', markSkiptour);
+analyzingTour.on('complete', markSkiptour);
+analyzingTour.on('show', markTour);
 
 export default {
     start(_instance, _layerManager, _camera, _drawing) {
@@ -273,10 +384,16 @@ export default {
         drawing = _drawing;
 
         const url = new URL(document.URL);
-        const skipTour = url.searchParams.get('skipTour');
-        if (skipTour === null) {
-            const tourStep = url.searchParams.get('tour') ?? 0;
-            tour.show(tourStep);
+        const tour = url.searchParams.get('tour') ?? 'main';
+        if (tour !== 'none') {
+            const tourStep = url.searchParams.get('tourStep') ?? 0;
+            if (tour === 'navigating') {
+                navigatingTour.show(tourStep);
+            } else if (tour === 'analyzing') {
+                analyzingTour.show(tourStep);
+            } else {
+                mainTour.show(tourStep);
+            }
         }
     },
 };

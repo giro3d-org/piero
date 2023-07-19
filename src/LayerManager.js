@@ -182,48 +182,6 @@ function point2DFactory(index) {
 }
 
 /**
- * Creates a main link for the panel
- *
- * @param {string} text Content of the link
- * @param {string} title Tooltip title
- * @param {(this: HTMLAnchorElement, ev: MouseEvent) => any} clickHandler onClick event handler
- * @returns {HTMLElement} Link element
- */
-function createLink(text, title, clickHandler) {
-    const link = document.createElement('a');
-    link.setAttribute('href', '#');
-    link.setAttribute('title', title);
-    link.textContent = text;
-    link.className = 'layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover';
-    link.addEventListener('click', clickHandler);
-    return link;
-}
-
-/**
- * Creates a secondary link (i.e. button) for the panel.
- *
- * @param {string} iconName Icon name (cf. https://icons.getbootstrap.com/#icons, e.g. `bi-trash`)
- * @param {string} title Tooltip title
- * @param {(this: HTMLAnchorElement, ev: MouseEvent) => any} clickHandler onClick event handler
- * @param {?string} [className=''] Additional class names
- * @param {?string} [linkType='secondary'] Link type, use `dark` or `secondary`
- * @returns {HTMLElement} Link element
- */
-function createButtonLink(iconName, title, clickHandler, className = '', linkType = 'secondary') {
-    const link = document.createElement('a');
-    link.setAttribute('href', '#');
-    link.setAttribute('title', title);
-    link.className = `link-${linkType} link-opacity-50 link-opacity-100-hover ${className}`;
-    link.addEventListener('click', clickHandler);
-
-    const icon = document.createElement('i');
-    icon.className = `bi ${iconName}`;
-    link.appendChild(icon);
-
-    return link;
-}
-
-/**
  * Available map providers
  */
 export const MAPPROVIDERS = {
@@ -274,26 +232,17 @@ class LayerManager extends EventDispatcher {
         this.overlayLayers = new Map();
 
         this.progressbars.set('imagery', document.getElementById('imagery-progress'));
-        const imageryElement = document.getElementById('imagery');
-        imageryElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
-
         this.progressbars.set('osm', document.getElementById('osm-progress'));
-        const osmElement = document.getElementById('osm');
-        osmElement.querySelector('.layer-link').addEventListener('click', () => this.camera.lookTopDownAt(this.baseMap));
-
         this.progressbars.set('elevation', document.getElementById('elevation-progress'));
 
         document.querySelector('#imagery .layer-toggle-visible-link').addEventListener('click', () => {
             const li = document.getElementById('imagery');
-            const btn = li.querySelector('a.layer-toggle-visible-link i');
             if (this.imageryLayer.visible) {
-                li.classList.add('list-group-item-secondary');
-                btn.classList.remove('bi-eye');
-                btn.classList.add('bi-eye-slash');
+                li.classList.add('layer-hidden');
+                li.classList.remove('layer-visible');
             } else {
-                li.classList.remove('list-group-item-secondary');
-                btn.classList.add('bi-eye');
-                btn.classList.remove('bi-eye-slash');
+                li.classList.remove('layer-hidden');
+                li.classList.add('layer-visible');
             }
             this.imageryLayer.visible = !this.imageryLayer.visible;
             this.instance.notifyChange(this.baseMap);
@@ -301,15 +250,12 @@ class LayerManager extends EventDispatcher {
 
         document.querySelector('#osm .layer-toggle-visible-link').addEventListener('click', () => {
             const li = document.getElementById('osm');
-            const btn = li.querySelector('a.layer-toggle-visible-link i');
             if (this.osmLayer.visible) {
-                li.classList.add('list-group-item-secondary');
-                btn.classList.remove('bi-eye');
-                btn.classList.add('bi-eye-slash');
+                li.classList.add('layer-hidden');
+                li.classList.remove('layer-visible');
             } else {
-                li.classList.remove('list-group-item-secondary');
-                btn.classList.add('bi-eye');
-                btn.classList.remove('bi-eye-slash');
+                li.classList.remove('layer-hidden');
+                li.classList.add('layer-visible');
             }
             this.osmLayer.visible = !this.osmLayer.visible;
             this.instance.notifyChange(this.baseMap);
@@ -516,15 +462,12 @@ class LayerManager extends EventDispatcher {
         this.overlayLayers.set(layer.id, layer);
         document.querySelector(`#overlay-${layer.id} .layer-toggle-visible-link`).addEventListener('click', () => {
             const li = document.getElementById(`overlay-${layer.id}`);
-            const btn = li.querySelector('a.layer-toggle-visible-link i');
             if (layer.visible) {
-                li.classList.add('list-group-item-secondary');
-                btn.classList.remove('bi-eye');
-                btn.classList.add('bi-eye-slash');
+                li.classList.add('layer-hidden');
+                li.classList.remove('layer-visible');
             } else {
-                li.classList.remove('list-group-item-secondary');
-                btn.classList.add('bi-eye');
-                btn.classList.remove('bi-eye-slash');
+                li.classList.remove('layer-hidden');
+                li.classList.add('layer-visible');
             }
             layer.visible = !layer.visible;
             this.instance.notifyChange(this.baseMap);
@@ -692,7 +635,7 @@ class LayerManager extends EventDispatcher {
         this.baseMap.addLayer(this.getElevationLayer());
 
         this.getVectorLayers().forEach((layer, id) => {
-            layer.visible = document.querySelector(`#overlay-${id} .layer-toggle-visible-link i`).classList.contains('bi-eye');
+            layer.visible = document.getElementById(`overlay-${id}`).classList.contains('layer-visible');
             this.baseMap.addLayer(layer);
         });
 
@@ -712,54 +655,75 @@ class LayerManager extends EventDispatcher {
             this.instance.add(entity);
         }
         const li = document.getElementById(`layer-${entity.object3d.uuid}`);
-        const btn = li.querySelector('a.layer-toggle-visible-link i');
-        const goto = li.querySelector('a.layer-link');
         if (entity.visible) {
-            goto.classList.add('pe-none');
-            li.classList.add('list-group-item-secondary');
-            btn.classList.remove('bi-eye');
-            btn.classList.add('bi-eye-slash');
+            li.classList.add('layer-hidden');
+            li.classList.remove('layer-visible');
         } else {
-            goto.classList.remove('pe-none');
-            li.classList.remove('list-group-item-secondary');
-            btn.classList.add('bi-eye');
-            btn.classList.remove('bi-eye-slash');
+            li.classList.remove('layer-hidden');
+            li.classList.add('layer-visible');
         }
         entity.visible = !entity.visible;
         this.instance.notifyChange(entity);
     }
 
-    _createListItem(entity, filename) {
+    _createListItem(entity, filename, downloadable = false) {
         const newItem = document.createElement('li');
         newItem.setAttribute('id', `layer-${entity.object3d.uuid}`);
-        newItem.className = 'list-group-item py-0 px-1 d-flex justify-content-between align-items-start';
+        newItem.className = 'layers-list-item';
 
         const itemContainer = document.createElement('div');
-        itemContainer.className = 'ms-2 me-auto';
+        itemContainer.className = 'layers-list-name';
 
-        const btn = createButtonLink('bi-eye', 'Hide this layer', () => this.toggleSetVisibility(entity), 'layer-toggle-visible-link', 'dark');
-        itemContainer.appendChild(btn);
-        const link = createLink(filename, 'Zoom on this layer', () => this.camera.lookTopDownAt(entity));
+        const hideBtnLink = document.createElement('a');
+        hideBtnLink.setAttribute('href', '#');
+        hideBtnLink.setAttribute('title', 'Hide this layer');
+        hideBtnLink.className = 'link-left layer-toggle-visible-link';
+        hideBtnLink.addEventListener('click', () => this.toggleSetVisibility(entity));
+        hideBtnLink.innerHTML = '<i></i>';
+
+        const link = document.createElement('a');
+        link.setAttribute('href', '#');
+        link.setAttribute('title', 'Zoom on this layer');
+        link.className = 'layer-link';
+        link.addEventListener('click', () => this.camera.lookTopDownAt(entity));
+        link.textContent = filename;
         itemContainer.appendChild(link);
-        itemContainer.appendChild(createButtonLink('bi-trash', 'Delete this layer', () => this.deleteSet(entity), 'layer-delete-link'));
 
-        newItem.appendChild(itemContainer);
+        const deleteBtnLink = document.createElement('a');
+        deleteBtnLink.setAttribute('href', '#');
+        deleteBtnLink.setAttribute('title', 'Delete this layer');
+        deleteBtnLink.className = 'link-right layer-delete-link';
+        deleteBtnLink.addEventListener('click', () => this.deleteSet(entity));
+        deleteBtnLink.innerHTML = '<i class="bi bi-trash"></i>';
 
         const progressBadge = document.createElement('span');
-        progressBadge.className = 'badge bg-info d-none';
+        progressBadge.className = 'layers-list-progress';
         progressBadge.id = `layer-progress-${entity.object3d.uuid}`;
         progressBadge.innerHTML = `
-<div class="spinner-border spinner-border-sm" role="status">
+<div class="spinner" role="status">
     <span class="visually-hidden">Loading...</span>
 </div>`;
+
+        newItem.appendChild(hideBtnLink);
+        newItem.appendChild(itemContainer);
+
+        if (downloadable) {
+            const downloadBtnLink = document.createElement('a');
+            downloadBtnLink.setAttribute('href', '#');
+            downloadBtnLink.setAttribute('title', 'Download this annotation');
+            downloadBtnLink.className = 'link-right layer-download-link';
+            downloadBtnLink.addEventListener('click', () => this.downloadAnnotation(entity));
+            downloadBtnLink.innerHTML = '<i class="bi bi-file-earmark-arrow-down"></i>';
+            newItem.appendChild(downloadBtnLink);
+        }
+
+        newItem.appendChild(deleteBtnLink);
         newItem.appendChild(progressBadge);
 
         if (!entity.visible) {
-            const btnIcon = btn.querySelector('i');
-            link.classList.add('pe-none');
-            newItem.classList.add('list-group-item-secondary');
-            btnIcon.classList.add('bi-eye-slash');
-            btnIcon.classList.remove('bi-eye');
+            newItem.classList.add('layer-hidden');
+        } else {
+            newItem.classList.add('layer-visible');
         }
         return newItem;
     }
@@ -779,7 +743,7 @@ class LayerManager extends EventDispatcher {
         if (group) {
             parent = document.getElementById(`layer-group-${group}`);
             if (parent === null) {
-                const groupcontainer = document.createElement('div');
+                const groupcontainer = document.createElement('li');
                 groupcontainer.className = 'list-group-item py-0 px-1';
 
                 const groupname = document.createElement('span');
@@ -827,9 +791,7 @@ class LayerManager extends EventDispatcher {
         const filename = `annotation-${entity.object3d.uuid}`;
         this.sets.set(entity.object3d.uuid, { obj: entity, filename });
 
-        const newItem = this._createListItem(entity, filename);
-        newItem.appendChild(createButtonLink('bi-file-earmark-arrow-down', 'Download this annotation', () => this.downloadAnnotation(entity), 'layer-download-link'));
-
+        const newItem = this._createListItem(entity, filename, true);
         document.getElementById('annotation-list').appendChild(newItem);
         this.progressbars.set(entity.object3d.uuid, document.getElementById(`layer-progress-${entity.object3d.uuid}`));
     }
@@ -843,7 +805,10 @@ class LayerManager extends EventDispatcher {
         this.sets.delete(entity.object3d.uuid);
         this.progressbars.delete(entity.object3d.uuid);
         document.getElementById(`layer-${entity.object3d.uuid}`).remove();
-        this.instance.remove(entity.object3d);
+        this.instance.remove(entity);
+        if (typeof entity.dispose === 'function') {
+            entity.dispose();
+        }
 
         const select = document.getElementById('snapToObject');
         Array.from(select.children).forEach(v => {

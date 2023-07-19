@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import * as bootstrap from 'bootstrap';
 import autoComplete from '@tarekraafat/autocomplete.js';
-import { Vector3, MeshLambertMaterial, sRGBEncoding } from 'three';
+import { MeshLambertMaterial, sRGBEncoding } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
@@ -56,7 +56,7 @@ Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46
 // eslint-disable-next-line max-len
 // Instance.registerCRS("EPSG:2950","+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +towgs84=-0.991,1.9072,0.5129,-1.25033e-07,-4.6785e-08,-5.6529e-08,0 +units=m +no_defs +type=crs");
 
-const z = 180;
+const z = 200;
 
 const instance = new Instance(document.getElementById('viewerDiv'), {
     crs: CRS,
@@ -137,21 +137,24 @@ document.getElementById('autoComplete').addEventListener('selection', event => {
     camera.lookTopDownAt(bbox3);
 });
 
-const dropZone = document.getElementById('main-container');
+const dropZone = document.getElementById('datasets-drop-zone');
 
 dropZone.addEventListener('dragover', e => {
     e.preventDefault();
-    dropZone.classList.add('border', 'border-success', 'border-5');
+    dropZone.classList.remove('border-3');
+    dropZone.classList.add('border-success', 'border-5', 'bg-light');
 });
 
 dropZone.addEventListener('dragleave', e => {
     e.preventDefault();
-    dropZone.classList.remove('border', 'border-success', 'border-5');
+    dropZone.classList.add('border-3');
+    dropZone.classList.remove('border-success', 'border-5', 'bg-light');
 });
 
 dropZone.addEventListener('drop', async e => {
     e.preventDefault();
-    dropZone.classList.remove('border', 'border-success', 'border-5');
+    dropZone.classList.add('border-3');
+    dropZone.classList.remove('border-success', 'border-5', 'bg-light');
     const files = [];
 
     if (e.dataTransfer.items) {
@@ -177,23 +180,26 @@ dropZone.addEventListener('drop', async e => {
     }
 });
 
-const annotationDropZone = document.getElementById('annotation-drop');
+const annotationDropZone = document.getElementById('annotation-drop-zone');
 
 annotationDropZone.addEventListener('dragover', e => {
     e.preventDefault();
     e.stopImmediatePropagation();
-    annotationDropZone.classList.add('border', 'border-success', 'border-2');
+    annotationDropZone.classList.remove('border-3');
+    annotationDropZone.classList.add('border-success', 'border-5', 'bg-light');
 });
 
 annotationDropZone.addEventListener('dragleave', e => {
     e.preventDefault();
-    annotationDropZone.classList.remove('border', 'border-success', 'border-2');
+    annotationDropZone.classList.add('border-3');
+    annotationDropZone.classList.remove('border-success', 'border-5', 'bg-light');
 });
 
 annotationDropZone.addEventListener('drop', async e => {
     e.preventDefault();
     e.stopImmediatePropagation();
-    annotationDropZone.classList.remove('border', 'border-success', 'border-2');
+    annotationDropZone.classList.add('border-3');
+    annotationDropZone.classList.remove('border-success', 'border-5', 'bg-light');
     const files = [];
 
     if (e.dataTransfer.items) {
@@ -218,13 +224,13 @@ annotationDropZone.addEventListener('drop', async e => {
 const extent = new Extent('EPSG:2154', 795689, 903507, 6493201, 6543980);
 layerManager.createMap(extent);
 setTimeout(() => {
-    if (layerManager.elevationLayer.loading && layerManager.elevationLayer.progress < 0.1) {
+    if (layerManager.elevationLayer.loading && layerManager.elevationLayer.progress == 0) {
         const link = document.createElement('a');
         link.setAttribute('href', './?crs=EPSG%3A3946');
         link.textContent = 'Map is taking longer to load; do you want to switch provider?';
         Alerts.showAlert(link);
     }
-}, 5000);
+}, 10000);
 
 const lidarHdTiles = [
     'Semis_2021_0841_6518_LA93_IGN69',

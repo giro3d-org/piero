@@ -131,7 +131,7 @@ const processFile = async (instance, layerManager, file, options = {}) => {
         obj.visible = false;
     }
     if (obj !== null && visible) {
-        instance.add(obj.object3d);
+        instance.add(obj);
     }
 
     return { filename, obj };

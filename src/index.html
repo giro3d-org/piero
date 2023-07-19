@@ -12,133 +12,113 @@
 
 <body>
     <div id="main-container" class="d-flex flew-row position-absolute top-0 bottom-0 start-0 end-0 p-0 m-0">
-        <div id="viewerDiv" class="flex-grow-1 h-100 p-0 m-0"></div>
-        <!-- <div id="panelDiv" class="position-absolute top-0 left-0 mh-100 overflow-auto"></div> -->
-        <div id="layers" class="position-absolute top-0 left-0 mh-100 mw-25 overflow-auto bg-light p-0 accordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button py-1" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#layer-list-container" aria-expanded="true"
-                        aria-controls="layer-list-container">
-                        Layers
-                    </button>
-                </h2>
-                <div id="layer-list-container" class="accordion-collapse collapse show">
-                    <ul id="layer-list" class="list-group list-group-flush"></ul>
-                </div>
-            </div>
-            <div class="accordion-item" id="annotation-drop">
-                <h2 class="accordion-header">
-                    <button class="accordion-button py-1" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#annotation-list-container" aria-expanded="true"
-                        aria-controls="annotation-list-container">
-                        Annotations
-                    </button>
-                </h2>
-                <div id="annotation-list-container" class="accordion-collapse collapse show">
-                    <ul id="annotation-list" class="list-group list-group-flush"></ul>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button py-1" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#overlays-list-container" aria-expanded="true"
-                        aria-controls="overlays-list-container">
-                        Overlays
-                    </button>
-                </h2>
-                <div id="overlays-list-container" class="accordion-collapse collapse show">
-                    <ul id="overlays-list" class="list-group list-group-flush">
-                        <li id="overlay-gml" class="list-group-item py-0 px-1">
-                            <a href="#" title="Hide this overlay"
-                                class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i
-                                    class="bi bi-eye"></i></a>
-                            Fontaines (gml)
-                        </li>
-                        <li id="overlay-gpx" class="list-group-item py-0 px-1">
-                            <a href="#" title="Hide this overlay"
-                                class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i
-                                    class="bi bi-eye"></i></a>
-                            Footpath (gpx)
-                        </li>
-                        <li id="overlay-kml" class="list-group-item py-0 px-1">
-                            <a href="#" title="Hide this overlay"
-                                class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i
-                                    class="bi bi-eye"></i></a>
-                            Sytral lines (kml)
-                        </li>
-                        <li id="overlay-geojson" class="list-group-item py-0 px-1">
-                            <a href="#" title="Hide this overlay"
-                                class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i
-                                    class="bi bi-eye"></i></a>
-                            Canopée (geojson)
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button py-1" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#basemap-list-container" aria-expanded="true"
-                        aria-controls="basemap-list-container">
-                        Basemaps
-                    </button>
-                </h2>
-                <div id="basemap-list-container" class="accordion-collapse collapse show">
-                    <ul id="basemap-list" class="list-group list-group-flush">
-                        <li id="osm" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start">
-                            <div class="ms-2 me-auto">
-                                <a href="#" title="Hide this layer" class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i class="bi bi-eye"></i></a>
-                                <a href="#" title="Zoom on this layer"
-                                    class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
-                                    OpenStreetMap
-                                </a>
-                            </div>
-                            <span id="osm-progress" class="badge bg-info">
-                                <div class="spinner-border spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </span>
-                        </li>
-                        <li id="imagery" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start list-group-item-secondary">
-                            <div class="ms-2 me-auto">
-                                <a href="#" title="Hide this layer" class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link"><i class="bi bi-eye-slash"></i></a>
-                                <a href="#" title="Zoom on this layer"
-                                    class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
-                                    Imagery
-                                </a>
-                            </div>
-                            <span id="imagery-progress" class="badge bg-info">
-                                <div class="spinner-border spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </span>
-                        </li>
-                        <li id="elevation" class="list-group-item py-0 px-1 d-flex justify-content-between align-items-start">
-                            <div class="ms-2 me-auto">
-                                <a href="#" title="Hide this layer" class="link-dark link-opacity-50 link-opacity-100-hover layer-toggle-visible-link pe-none"><i class="bi bi-eye"></i></a>
-                                <a href="#" title="Zoom on this layer"
-                                    class="layer-link link-underline-success link-underline-opacity-0 link-underline-opacity-75-hover">
-                                    Elevation
-                                </a>
-                            </div>
-                            <span id="elevation-progress" class="badge bg-info">
-                                <div class="spinner-border spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div id="overlay" class="position-absolute top-0 end-0 bg-light d-none">
-            <ul>
-                <li><a href="pg_featureserv/">pg_featureserv</a></li>
-                <li><a href="pg_tileserv/">pg_tileserv</a></li>
-                <li><a href="qgis/courseau/">QGIS server</a></li>
+        <div id="menu-container" class="d-flex flew-row bg-light w-25 border-end">
+            <ul id="menu" class="nav nav-pills flex-column border-end">
+                <li class="nav-item">
+                    <a id="menu-datasets-link" class="nav-link active" href="#" title="Datasets" data-target="#layer-list-container"><i
+                            class="bi bi-database"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a id="menu-basemaps-link" class="nav-link" href="#" title="Basemaps" data-target="#basemap-list-container"><i
+                            class="bi bi-layers"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a id="menu-overlays-link" class="nav-link" href="#" title="Overlays" data-target="#overlays-list-container"><i
+                            class="bi bi-front"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a id="menu-annotations-link" class="nav-link" href="#" title="Annotations" data-target="#annotation-list-container"><i
+                            class="bi bi-rulers"></i></a>
+                </li>
             </ul>
+
+            <div id="layer-list-container" class="menutab">
+                <h2>Datasets</h2>
+                <ul id="layer-list" class="layers-list-group"></ul>
+                <div id="datasets-drop-zone" class="dropzone border-3 mt-5 mx-5 p-5">
+                    Drop file here
+                </div>
+            </div>
+
+            <div id="annotation-list-container" class="menutab d-none">
+                <h2>Annotations</h2>
+                <ul id="annotation-list" class="layers-list-group"></ul>
+                <div id="annotation-drop-zone" class="dropzone border-3 mt-5 mx-5 p-5">
+                    Drop GeoJSON file here
+                </div>
+            </div>
+
+            <div id="overlays-list-container" class="menutab d-none">
+                <h2>Overlays</h2>
+                <ul id="overlays-list" class="layers-list-group">
+                    <li id="overlay-gml" class="layers-list-item layer-visible">
+                        <a href="#" title="Hide this overlay" class="link-left layer-toggle-visible-link"><i></i></a>
+                        <div class="layers-list-name">
+                            Fontaines (gml)
+                        </div>
+                    </li>
+                    <li id="overlay-gpx" class="layers-list-item layer-visible">
+                        <a href="#" title="Hide this overlay" class="link-left layer-toggle-visible-link"><i></i></a>
+                        <div class="layers-list-name">
+                            Footpath (gpx)
+                        </div>
+                    </li>
+                    <li id="overlay-kml" class="layers-list-item layer-visible">
+                        <a href="#" title="Hide this overlay" class="link-left layer-toggle-visible-link"><i></i></a>
+                        <div class="layers-list-name">
+                            Sytral lines (kml)
+                        </div>
+                    </li>
+                    <li id="overlay-geojson" class="layers-list-item layer-visible">
+                        <a href="#" title="Hide this overlay" class="link-left layer-toggle-visible-link"><i></i></a>
+                        <div class="layers-list-name">
+                            Canopée (geojson)
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="basemap-list-container" class="menutab overflow-auto d-none flex-grow-1">
+                <h2>Basemaps</h2>
+                <ul id="basemap-list" class="layers-list-group">
+                    <li id="osm" class="layers-list-item layer-visible">
+                        <a href="#" title="Hide this layer" class="link-left layer-toggle-visible-link"><i></i></a>
+                        <div class="layers-list-name">
+                            OpenStreetMap
+                        </div>
+                        <span id="osm-progress" class="layers-list-progress">
+                            <div class="spinner" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </span>
+                    </li>
+                    <li id="imagery" class="layers-list-item layer-hidden list-group-item-secondary">
+                        <a href="#" title="Hide this layer" class="link-left layer-toggle-visible-link"><i></i></a>
+                        <div class="layers-list-name">
+                            Imagery
+                        </div>
+                        <span id="imagery-progress" class="layers-list-progress">
+                            <div class="spinner" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </span>
+                    </li>
+                    <li id="elevation" class="layers-list-item layer-visible">
+                        <a href="#" title="Hide this layer" class="link-left layer-toggle-visible-link pe-none"><i></i></a>
+                        <div class="layers-list-name">
+                            Elevation
+                        </div>
+                        <span id="elevation-progress" class="layers-list-progress">
+                            <div class="spinner" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </span>
+                    </li>
+                </ul>
+            </div>
         </div>
+
+        <div id="viewerDiv" class="flex-grow-1 h-100 p-0 m-0"></div>
         <div id="loading" class="px-1 position-absolute start-0 bottom-0 text-secondary bg-light d-flex">
             <div>Loading in progress...</div>
         </div>
@@ -150,9 +130,11 @@
         </div>
         <div id="coordinates" class="px-1 position-absolute bottom-0 text-secondary bg-light" style="right: 25vw"></div>
         <div id="tooltip" class="px-1 text-secondary bg-light d-none">Hello</div>
-        <div class="bg-light mh-100 d-flex flex-column vw-25">
+        <div id="tools" class="bg-light mh-100 d-flex flex-column vw-25">
             <div id="geocoding" class="pt-2">
-                <input id="autoComplete" class="form-control" style="width: 100% !important;" type="search" dir="ltr" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" maxlength="2048" tabindex="1"/>
+                <input id="autoComplete" class="form-control" style="width: 100% !important;" type="search" dir="ltr"
+                    spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" maxlength="2048"
+                    tabindex="1" />
             </div>
             <hr />
             <div id="attributes" class="flex-grow-1 overflow-auto"></div>
@@ -187,6 +169,7 @@
     </div>
     <div id="alerts" class="position-absolute top-0 start-20 end-20 d-none"></div>
 
+    <script type="module" src="ui.js"></script>
     <script type="module" src="index.js"></script>
 </body>
 
