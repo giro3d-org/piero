@@ -21,7 +21,7 @@ export default {
 
         const polygons = new Group();
         StatusBar.addTask(features.length);
-        const alert = Alerts.showAlert(`Loaded ${url}; processing ${features.length} features...`, 'info');
+        const alert = Alerts.showAlert(`Loaded ${url}; processing ${features.length} features...`, null);
 
         features.forEach(feature => {
             for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
@@ -88,7 +88,7 @@ export default {
         const data = await load(url, loader, options?.loader);
         const posArray = field(data);
 
-        const alert = Alerts.showAlert(`Loaded ${url}; processing ${posArray.length / 3} points...`, 'info');
+        const alert = Alerts.showAlert(`Loaded ${url}; processing ${posArray.length / 3} points...`, null);
         if (options?.projection && options.projection !== instance.referenceCrs) {
             const coords = new Coordinates(options.projection);
             const coordsReference = new Coordinates(instance.referenceCrs);

@@ -103,7 +103,6 @@ const autoCompleteJS = new autoComplete({
         src: async query => {
             const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`);
             const data = await source.json();
-            console.log(data, data.features);
             return data.features.map(f => f.properties);
         },
         keys: ['label'],
@@ -132,11 +131,13 @@ document.getElementById('autoComplete').addEventListener('selection', event => {
     const extent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 100, 100);
     const newExtent = extent.as(instance.referenceCrs);
     if (!newExtent.equals(layerManager.baseMap.extent) && !newExtent.isInside(layerManager.baseMap.extent)) {
-        const newMapExtent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 10000, 10000);
-        layerManager.createMap(newMapExtent);
+        const newExtent = layerManager.baseMap.extent.clone();
+        const locationExtent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 10000, 10000);
+        newExtent.union(locationExtent);
+        layerManager.createMap(newExtent);
     }
     const bbox3 = newExtent.toBox3(0, 200);
-    camera.lookTopDownAt(bbox3);
+    camera.lookTopDownAt(bbox3, false);
 });
 
 const dropZone = document.getElementById('datasets-drop-zone');
@@ -223,12 +224,13 @@ annotationDropZone.addEventListener('drop', async e => {
     await loader.processFiles(instance, layerManager, camera, files, true, { projection: 'EPSG:4326', isAnnotation: true, z });
 });
 
-const extent = new Extent('EPSG:2154', 795689, 903507, 6493201, 6543980);
+const extent = new Extent('EPSG:2154', -378305.81, 6005281.2, 1320649.57, 7235612.72);
 layerManager.createMap(extent);
 setTimeout(() => {
     if (layerManager.elevationLayer.loading && layerManager.elevationLayer.progress == 0) {
         const link = document.createElement('a');
         link.setAttribute('href', './?crs=EPSG%3A3946');
+        link.className = 'link-body-emphasis';
         link.textContent = 'Map is taking longer to load; do you want to switch provider?';
         Alerts.showAlert(link);
     }

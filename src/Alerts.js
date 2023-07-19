@@ -6,7 +6,7 @@
  * @param {boolean} [fadeOut=false] Automatically fades out after 5 seconds.
  * @returns {object} Object with btn and dismiss properties
  */
-function showAlert(message, className = 'alert', fadeOut = false) {
+function showAlert(message, className = 'danger', fadeOut = false) {
     const alert = document.createElement('div');
     alert.className = `toast show fade ${className !== null ? `text-bg-${className}` : ''}`;
     alert.setAttribute('role', 'alert');

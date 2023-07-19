@@ -230,6 +230,7 @@ class LayerManager extends EventDispatcher {
         this.elevationLayer = null;
         /** @type {Map<string, ColorLayer>} */
         this.overlayLayers = new Map();
+        this.maprev = 0;
 
         this.progressbars.set('imagery', document.getElementById('imagery-progress'));
         this.progressbars.set('osm', document.getElementById('osm-progress'));
@@ -774,7 +775,7 @@ class LayerManager extends EventDispatcher {
             extent = extent.as(this.instance.referenceCrs);
         }
 
-        this.baseMap = new Giro3dMap('map', {
+        this.baseMap = new Giro3dMap(`map${this.maprev++}`, {
             extent,
             hillshading: false,
             segments: 64,
@@ -930,8 +931,8 @@ class LayerManager extends EventDispatcher {
         if (dataExtent._values.some(v => !Number.isFinite(v))) {
             console.warn(`File ${filename} has invalid bounding box/extent`, bbox, dataExtent);
         } else if (this.baseMap) {
-            const newExtent = this.baseMap.extent.clone();
-            if (!dataExtent.equals(newExtent) && !dataExtent.isInside(newExtent)) {
+            if (!dataExtent.equals(this.baseMap.extent) && !dataExtent.isInside(this.baseMap.extent)) {
+                const newExtent = this.baseMap.extent.clone();
                 newExtent.union(dataExtent);
                 this.createMap(newExtent);
             }
