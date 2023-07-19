@@ -25,6 +25,7 @@ import LayerManager, { MAPPROVIDERS } from './LayerManager.js';
 import Picking from './Picking.js';
 import Projections from './Projections.js';
 import Skybox from './Skybox.js';
+import FloodingPlane from './FloodingPlane.js';
 import loader from './loaders/loader.js';
 import Alerts from './Alerts.js';
 import PointsMaterial2 from './PointsMaterial2.js';
@@ -337,5 +338,8 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
     }
 });
 Tour.start(instance, layerManager, camera, drawTools);
+
+const floodingPlane = new FloodingPlane(instance, layerManager);
+floodingPlane.add();
 
 instance.mainLoop.gfxEngine.renderer.outputEncoding = sRGBEncoding;
