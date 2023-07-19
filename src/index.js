@@ -13,7 +13,7 @@ import { tile } from 'ol/loadingstrategy.js';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection.js';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D.js';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource.js';
-import PointsMaterial, { MODE } from '@giro3d/giro3d/renderer/PointsMaterial.js';
+import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial.js';
 
 import Camera from './Camera.js';
 import Lighting from './Lighting.js';
@@ -27,6 +27,7 @@ import Projections from './Projections.js';
 import Skybox from './Skybox.js';
 import loader from './loaders/loader.js';
 import Alerts from './Alerts.js';
+import PointsMaterial2 from './PointsMaterial2.js';
 
 /* eslint-disable import/first, import/order, import/no-unresolved, no-unused-vars */
 // If you want to embed local data
@@ -321,7 +322,7 @@ loader.processFiles(instance, layerManager, camera, [ifc], false, {
                 `pointcloud-${t}`,
                 new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`),
                 {
-                    material: new PointsMaterial({
+                    material: new PointsMaterial2({
                         size: 2,
                         mode: MODE.ELEVATION,
                     }),

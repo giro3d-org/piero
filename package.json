@@ -30,6 +30,7 @@
     "bootstrap-icons": "^1.10.5",
     "camera-controls": "^2.7.0",
     "chart.js": "^4.3.0",
+    "chroma-js": "^2.4.2",
     "cityjson-threejs-loader": "github:tmuguet/cityjson-threejs-loader#giro3d",
     "ol": "^6.15.1",
     "proj4": "^2.9.0",
