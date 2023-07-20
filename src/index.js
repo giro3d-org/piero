@@ -2,6 +2,8 @@
 import * as bootstrap from 'bootstrap';
 import autoComplete from '@tarekraafat/autocomplete.js';
 import { MeshLambertMaterial, sRGBEncoding } from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 // import Inspector from '@giro3d/giro3d/gui/Inspector.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
@@ -497,4 +499,29 @@ bookmarksDropZone.addEventListener('drop', async e => {
     bookmarksDropZone.classList.remove('border-success', 'border-5', 'bg-light');
 
     forEachFile(e, file => importBookmarks(file));
+});
+
+const gltfLoader = new GLTFLoader();
+gltfLoader.load('https://3d.oslandia.com/lyon/stylized_tree.glb', gltf => {
+    gltf.scene.traverse(object => {
+        if (object.isMesh) object.castShadow = true;
+    });
+
+    const model1 = clone(gltf.scene);
+    const model2 = clone(gltf.scene);
+    const model3 = clone(gltf.scene);
+    const models = [model1, model2, model3];
+    models.forEach(model => {
+        model.rotation.x = Math.PI / 2;
+        model.scale.set(10, 10, 10);
+    });
+
+    model1.position.set(841900, 6517814, 167);
+    model2.position.set(841914, 6517789, 167);
+    model3.position.set(841892, 6517800, 167);
+
+    models.forEach(model => {
+        model.updateMatrixWorld();
+        instance.add(model);
+    });
 });
