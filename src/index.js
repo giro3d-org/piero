@@ -77,7 +77,7 @@ const forEachFile = (e, callback) => {
     }
 };
 
-const z = 200;
+const z = 300;
 
 const instance = new Instance(document.getElementById('viewerDiv'), {
     crs: CRS,

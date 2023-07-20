@@ -111,7 +111,7 @@ export default {
             layer: null,
             geometry,
             material: new PointsMaterial2({
-                size: 1,
+                size: 5,
                 mode: MODE.ELEVATION,
             }),
         });
