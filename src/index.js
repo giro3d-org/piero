@@ -367,7 +367,6 @@ const minimap = new Minimap(instance, layerManager);
 const addBookmark = (name, url) => {
     const newBookmark = document.createElement('li');
     newBookmark.setAttribute('data-camera', url);
-    console.log(newBookmark.getAttribute('data-camera'));
     newBookmark.className = 'layers-list-item';
 
     const itemContainer = document.createElement('div');
@@ -383,6 +382,17 @@ const addBookmark = (name, url) => {
     link.textContent = name;
     itemContainer.appendChild(link);
 
+    const shareBtnLink = document.createElement('a');
+    shareBtnLink.setAttribute('href', '#');
+    shareBtnLink.setAttribute('title', 'Share this bookmark');
+    shareBtnLink.className = 'link-right layer-share-link';
+    shareBtnLink.addEventListener('click', () => {
+        document.getElementById('share-url').value = newBookmark.getAttribute('data-camera');
+        const myModal = new bootstrap.Modal(document.getElementById('share-modal'));
+        myModal.show();
+    });
+    shareBtnLink.innerHTML = '<i class="bi bi-share"></i>';
+
     const deleteBtnLink = document.createElement('a');
     deleteBtnLink.setAttribute('href', '#');
     deleteBtnLink.setAttribute('title', 'Delete this bookmark');
@@ -391,6 +401,7 @@ const addBookmark = (name, url) => {
     deleteBtnLink.innerHTML = '<i class="bi bi-trash"></i>';
 
     newBookmark.appendChild(itemContainer);
+    newBookmark.appendChild(shareBtnLink);
     newBookmark.appendChild(deleteBtnLink);
     document.getElementById('bookmarks-list').appendChild(newBookmark);
 };
@@ -400,5 +411,27 @@ document.getElementById('bookmark-add').addEventListener('click', () => {
     addBookmark(name, document.URL);
 });
 
+const shareBtn = document.getElementById('share-button');
+const shareBtnIcon = shareBtn.querySelector('i');
+shareBtn.addEventListener('click', async () => {
+    try {
+        await navigator.clipboard.writeText(document.getElementById('share-url').value);
+        shareBtnIcon.classList.add('bi-clipboard-check-fill');
+        shareBtnIcon.classList.remove('bi-clipboard');
+        setTimeout(() => {
+            shareBtnIcon.classList.remove('bi-clipboard-check-fill');
+            shareBtnIcon.classList.add('bi-clipboard');
+        }, 5000);
+    } catch {
+        console.warn('clipboard write failed');
+    }
+});
+
 addBookmark('19 rue Marc Antoine Petit', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view={"camera"%3A[841869.0743205354%2C6517786.205394194%2C204.10747583149472]%2C"target"%3A[841906.3950787933%2C6517804.048436065%2C176.0875795732584]%2C"focalOffset"%3A[1.3636703768031175%2C-3.119629447381456%2C-0.11613705476322878]}#');
 addBookmark('Montée de Choulans', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view={"camera"%3A[842083.9438746589%2C6517992.044216228%2C685.8589349745077]%2C"target"%3A[841654.6176926389%2C6518507.80727985%2C204.44513613868608]%2C"focalOffset"%3A[-102.21418965477892%2C-68.14245243024948%2C-3.632243002899486]}#');
+
+document.getElementById('share').addEventListener('click', () => {
+    document.getElementById('share-url').value = document.URL;
+    const myModal = new bootstrap.Modal(document.getElementById('share-modal'));
+    myModal.show();
+});

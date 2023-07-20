@@ -250,6 +250,7 @@
                 <ul id="bookmarks-list" class="layers-list-group flex-grow-1"></ul>
                 <hr>
                 <button id="bookmark-add" type="button" class="btn btn-outline-secondary mx-2">Add bookmark</button>
+                <button id="share" type="button" class="btn btn-outline-secondary mx-2">Share view</button>
             </div>
         </div>
 
@@ -280,6 +281,29 @@
         </div>
     </div>
     <div id="toasts" class="toast-container position-absolute bottom-0 end-0 p-3"></div>
+
+    <div id="share-modal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sharing bookmark</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You can use this link to share your boorkmark:</p>
+                    <div class="input-group mb-3">
+                        <input id="share-url" class="form-control" type="text" readonly value="titi">
+                        <button id="share-button" type="button" class="btn-primary">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="ui.js"></script>
     <script type="module" src="index.js"></script>
