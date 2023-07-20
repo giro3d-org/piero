@@ -42,6 +42,10 @@
                     <a id="menu-bookmarks-link" class="nav-link" href="#" title="Bookmarks"
                         data-target="#bookmarks-list-container"><i class="bi bi-bookmarks"></i></a>
                 </li>
+                <li class="nav-item">
+                    <a id="menu-info-link" class="nav-link" href="#" title="About"
+                        data-target="#about-container"><i class="bi bi-info-circle"></i></a>
+                </li>
             </ul>
 
             <div id="layer-list-container" class="menutab">
@@ -255,6 +259,27 @@
                 <div id="bookmarks-drop-zone" class="dropzone border-3 my-2 mx-5 p-2">
                     Import bookmarks
                 </div>
+            </div>
+
+            <div id="about-container" class="menutab d-none d-flex flex-column">
+                <h2>About</h2>
+                <h3 class="mt-3">Contributors</h3>
+                <p><a href="https://gitlab.com/giro3d/giro3d/-/blob/main/CONTRIBUTORS.md">See Giro3D contributors</a></p>
+                <h3>License</h3>
+                <p><a href="https://gitlab.com/giro3d/giro3d-sample-application/-/blob/main/LICENSE">MIT License</a></p>
+                <h3>Credits</h3>
+                <p>Data and services used from:</p>
+                <ul class="flex-grow-1">
+                    <li><a href="https://ign.fr/">IGN</a> (Imagery, Elevation model, LIDAR data, Elevation API)</li>
+                    <li><a href="https://www.grandlyon.com/">Métropole Grand Lyon</a> (Imagery, Elevation model, overlay layers)</li>
+                    <li><a href="https://omniscale.com/">Omniscale</a>, <a href="https://www.openstreetmap.org">OpenStreetMap</a> (Imagery)</li>
+                    <li><a href="https://adresse.data.gouv.fr/">adresse.data.gouv.fr</a> (Geocoding API)</li>
+                    <li><a href="https://cadastre.data.gouv.fr">Données cadastrales ouvertes</a> (Cadastre)</li>
+                    <li><a href="https://oslandia.com">Oslandia</a> (CityJSON reconstructions, overlay layers)</li>
+                    <li><a href="https://sketchfab.com/3d-models/stylized-tree-6d1aeea748f147789004bc03e1930d32">yonimantz</a> (Stylized Tree)</li>
+                </ul>
+                <hr>
+                <button id="tour-restart" type="button" class="btn btn-outline-secondary mx-2">Restart guided tour</button>
             </div>
         </div>
 

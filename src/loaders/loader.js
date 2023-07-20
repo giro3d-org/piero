@@ -1,12 +1,13 @@
-import { Box3 } from 'three';
+import { Box3, Group } from 'three';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
-import { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
+import Drawing, { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
 
 import Alerts from '../Alerts.js';
 import StatusBar from '../StatusBar.js';
 import CityJSON from './CityJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 
 const processFile = async (instance, layerManager, file, options = {}) => {
     let filename = null;
@@ -68,57 +69,127 @@ const processFile = async (instance, layerManager, file, options = {}) => {
         }
         case 'geojson': {
             const json = JSON.parse(await file.text());
-            const coordinatesWgs84 = new Coordinates('EPSG:4326');
-            const coordinates = new Coordinates(instance.referenceCrs);
-            switch (json.geometry.type) {
-                case GEOMETRY_TYPE.POINT: {
-                    coordinatesWgs84.set(
-                        'EPSG:4326',
-                        json.geometry.coordinates[0],
-                        json.geometry.coordinates[1],
-                        json.geometry.coordinates[2],
-                    );
-                    coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                    json.geometry.coordinates[0] = coordinates._values[0];
-                    json.geometry.coordinates[1] = coordinates._values[1];
-                    json.geometry.coordinates[2] = coordinates._values[2];
-                    break;
-                }
-                case GEOMETRY_TYPE.LINE:
-                case GEOMETRY_TYPE.MULTIPOINT: {
-                    for (let i = 0; i < json.geometry.coordinates.length; i += 1) {
+            if (json.geometry) {
+                const coordinatesWgs84 = new Coordinates('EPSG:4326');
+                const coordinates = new Coordinates(instance.referenceCrs);
+                switch (json.geometry.type) {
+                    case GEOMETRY_TYPE.POINT: {
                         coordinatesWgs84.set(
                             'EPSG:4326',
-                            json.geometry.coordinates[i][0],
-                            json.geometry.coordinates[i][1],
-                            json.geometry.coordinates[i][2],
+                            json.geometry.coordinates[0],
+                            json.geometry.coordinates[1],
+                            json.geometry.coordinates[2],
                         );
                         coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[i][0] = coordinates._values[0];
-                        json.geometry.coordinates[i][1] = coordinates._values[1];
-                        json.geometry.coordinates[i][2] = coordinates._values[2];
+                        json.geometry.coordinates[0] = coordinates._values[0];
+                        json.geometry.coordinates[1] = coordinates._values[1];
+                        json.geometry.coordinates[2] = coordinates._values[2];
+                        break;
                     }
-                    break;
-                }
-                case GEOMETRY_TYPE.POLYGON: {
-                    for (let i = 0; i < json.geometry.coordinates[0].length; i += 1) {
-                        coordinatesWgs84.set(
-                            'EPSG:4326',
-                            json.geometry.coordinates[0][i][0],
-                            json.geometry.coordinates[0][i][1],
-                            json.geometry.coordinates[0][i][2],
-                        );
-                        coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[0][i][0] = coordinates._values[0];
-                        json.geometry.coordinates[0][i][1] = coordinates._values[1];
-                        json.geometry.coordinates[0][i][2] = coordinates._values[2];
+                    case GEOMETRY_TYPE.LINE:
+                    case GEOMETRY_TYPE.MULTIPOINT: {
+                        for (let i = 0; i < json.geometry.coordinates.length; i += 1) {
+                            coordinatesWgs84.set(
+                                'EPSG:4326',
+                                json.geometry.coordinates[i][0],
+                                json.geometry.coordinates[i][1],
+                                json.geometry.coordinates[i][2],
+                            );
+                            coordinatesWgs84.as(instance.referenceCrs, coordinates);
+                            json.geometry.coordinates[i][0] = coordinates._values[0];
+                            json.geometry.coordinates[i][1] = coordinates._values[1];
+                            json.geometry.coordinates[i][2] = coordinates._values[2];
+                        }
+                        break;
                     }
-                    break;
+                    case GEOMETRY_TYPE.POLYGON: {
+                        for (let i = 0; i < json.geometry.coordinates[0].length; i += 1) {
+                            coordinatesWgs84.set(
+                                'EPSG:4326',
+                                json.geometry.coordinates[0][i][0],
+                                json.geometry.coordinates[0][i][1],
+                                json.geometry.coordinates[0][i][2],
+                            );
+                            coordinatesWgs84.as(instance.referenceCrs, coordinates);
+                            json.geometry.coordinates[0][i][0] = coordinates._values[0];
+                            json.geometry.coordinates[0][i][1] = coordinates._values[1];
+                            json.geometry.coordinates[0][i][2] = coordinates._values[2];
+                        }
+                        break;
+                    }
+                    default:
+                        throw new Error('Geometry not supported');
                 }
-                default:
-                    throw new Error('Geometry not supported');
+                obj = layerManager.addAnnotation(json.geometry, false);
+            } else {
+                const projectionOrigin = options?.projection ?? 'EPSG:4326';
+                const coordinatesOrigin = new Coordinates(projectionOrigin);
+                const coordinates = new Coordinates(instance.referenceCrs);
+                const group = new Group();
+                const zDefault = options?.z ?? 0;
+
+                json.features.forEach((feature) => {
+                    switch (feature.geometry.type) {
+                        case GEOMETRY_TYPE.POINT: {
+                            // FIXME: THIS IS BROKEN
+                            coordinatesOrigin.set(
+                                projectionOrigin,
+                                feature.geometry.coordinates[0],
+                                feature.geometry.coordinates[1],
+                                feature.geometry.coordinates[2] ?? zDefault,
+                            );
+                            coordinatesOrigin.as(instance.referenceCrs, coordinates);
+                            feature.geometry.coordinates[0] = coordinates._values[0];
+                            feature.geometry.coordinates[1] = coordinates._values[1];
+                            feature.geometry.coordinates[2] = coordinates._values[2];
+                            break;
+                        }
+                        case GEOMETRY_TYPE.LINE:
+                        case GEOMETRY_TYPE.MULTIPOINT: {
+                            for (let i = 0; i < feature.geometry.coordinates.length; i += 1) {
+                                coordinatesOrigin.set(
+                                    projectionOrigin,
+                                    feature.geometry.coordinates[i][0],
+                                    feature.geometry.coordinates[i][1],
+                                    feature.geometry.coordinates[i][2] ?? zDefault,
+                                );
+                                coordinatesOrigin.as(instance.referenceCrs, coordinates);
+                                feature.geometry.coordinates[i][0] = coordinates._values[0];
+                                feature.geometry.coordinates[i][1] = coordinates._values[1];
+                                feature.geometry.coordinates[i][2] = coordinates._values[2];
+                            }
+                            break;
+                        }
+                        case GEOMETRY_TYPE.POLYGON: {
+                            for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
+                                coordinatesOrigin.set(
+                                    projectionOrigin,
+                                    feature.geometry.coordinates[0][i][0],
+                                    feature.geometry.coordinates[0][i][1],
+                                    feature.geometry.coordinates[0][i][2] ?? zDefault,
+                                );
+                                coordinatesOrigin.as(instance.referenceCrs, coordinates);
+                                feature.geometry.coordinates[0][i][0] = coordinates._values[0];
+                                feature.geometry.coordinates[0][i][1] = coordinates._values[1];
+                                feature.geometry.coordinates[0][i][2] = coordinates._values[2];
+                            }
+                            break;
+                        }
+                        default:
+                            return;
+                    }
+
+                    const o = new Drawing(instance, {
+                        minExtrudeDepth: 1,
+                        maxExtrudeDepth: 5,
+                        use3Dpoints: false,
+                    }, feature.geometry);
+                    o.userData = feature.properties;
+                    group.add(o);
+                });
+
+                obj = new Entity3D(group.uuid, group);
             }
-            obj = layerManager.addAnnotation(json.geometry, false);
             break;
         }
         default:

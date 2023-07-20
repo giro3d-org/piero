@@ -525,3 +525,7 @@ gltfLoader.load('https://3d.oslandia.com/lyon/stylized_tree.glb', gltf => {
         instance.add(model);
     });
 });
+
+document.getElementById('tour-restart').addEventListener('click', () => {
+    Tour.restart();
+});

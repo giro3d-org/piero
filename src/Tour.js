@@ -166,7 +166,7 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'adddata',
-    text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and GeoJSON features.',
+    text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.',
     buttons: buttonsOptions,
     attachTo: {
         element: '#datasets-drop-zone',
@@ -400,5 +400,8 @@ export default {
                 mainTour.show(tourStep);
             }
         }
+    },
+    restart() {
+        mainTour.show(0);
     },
 };
