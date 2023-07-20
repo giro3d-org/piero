@@ -677,6 +677,25 @@ class LayerManager extends EventDispatcher {
     }
 
     getOverlayLayers() {
+        if (!this.overlayLayers.has('arbres')) {
+            const arbres = new ColorLayer(
+                'arbres',
+                {
+                    source: new TiledImageSource({
+                        source: new TileWMS({
+                            url: 'https://download.data.grandlyon.com/wms/grandlyon',
+                            projection: this.instance.referenceCrs,
+                            params: {
+                                LAYERS: ['metropole-de-lyon:abr_arbres_alignement.abrarbre'],
+                                FORMAT: 'image/png',
+                            },
+                            version: '1.3.0',
+                        }),
+                    }),
+                },
+            );
+            this.registerOverlayLayer(arbres);
+        }
         if (!this.overlayLayers.has('adrzae')) {
             const adrzae = new ColorLayer(
                 'adrzae',
