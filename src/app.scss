@@ -50,7 +50,6 @@ body {
 .layers-list-group {
     @extend .list-group;
     @extend .list-group-flush;
-    @extend .bg-light;
 }
 
 .layers-list-item {

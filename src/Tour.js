@@ -253,10 +253,15 @@ analyzingTour.addStep({
     ],
     attachTo: {
         element: '#measurement > div',
-        on: 'left',
+        on: 'right',
     },
     when: {
         show: () => {
+            const link = document.getElementById('menu-annotations-link');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+
             callback = () => Shepherd.activeTour.next();
             document.getElementById('measure-line').addEventListener('click', callback);
             document.getElementById('measure-polygon').addEventListener('click', callback);

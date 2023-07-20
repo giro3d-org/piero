@@ -34,6 +34,10 @@
                     <a id="menu-annotations-link" class="nav-link" href="#" title="Annotations"
                         data-target="#annotation-list-container"><i class="bi bi-rulers"></i></a>
                 </li>
+                <li class="nav-item">
+                    <a id="menu-analysis-link" class="nav-link" href="#" title="Analysis"
+                        data-target="#analysis-container"><i class="bi bi-bar-chart-steps"></i></a>
+                </li>
             </ul>
 
             <div id="layer-list-container" class="menutab">
@@ -44,11 +48,39 @@
                 </div>
             </div>
 
-            <div id="annotation-list-container" class="menutab d-none">
+            <div id="annotation-list-container" class="menutab d-none d-flex flex-column">
                 <h2>Annotations</h2>
-                <ul id="annotation-list" class="layers-list-group"></ul>
+                <ul id="annotation-list" class="layers-list-group flex-grow-1"></ul>
                 <div id="annotation-drop-zone" class="dropzone border-3 mt-5 mx-5 p-5">
                     Drop GeoJSON file here
+                </div>
+                <hr>
+                <div id="measurement" class="pb-2">
+                    <div class="d-flex flex-row">
+                        <button id="measure-line" type="button" class="btn btn-outline-secondary flex-fill mx-2">Measure
+                            with
+                            line</button>
+                        <button id="measure-polygon" type="button"
+                            class="btn btn-outline-secondary flex-fill mx-2">Measure
+                            with
+                            polygon</button>
+                    </div>
+                    <form id="measure-options" class="row mx-2 align-items-center">
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="enableSnapTo">
+                                <label class="form-check-label" for="enableSnapTo">
+                                    Snap to
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label class="visually-hidden" for="snapToObject">Snap to object</label>
+                            <select class="form-select" id="snapToObject">
+                                <option value="basemap" selected>Base map</option>
+                            </select>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -171,6 +203,34 @@
                     </li>
                 </ul>
             </div>
+
+            <div id="analysis-container" class="menutab d-none">
+                <h2>Analysis</h2>
+                <div id="flooding" class="mx-2 p-1 border">
+                    <div class="row mb-3 ps-3">
+                        <div class="col-sm-12 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="enableFlooding">
+                            <label class="form-check-label" for="enableFlooding">
+                                Enable flooding plane
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="flooding-altitude-number" class="col-sm-2">Altitude</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <input id="flooding-altitude-range" title="Altitude" type="range" class="form-range"
+                                    min="0" max="500" value="166">
+                                <div class="input-group mb-3">
+                                    <input type="number" class="form-control" id="flooding-altitude-number" value="166">
+                                    <span class="input-group-text">m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="viewerDiv" class="flex-grow-1 h-100 p-0 m-0"></div>
@@ -197,54 +257,6 @@
             </div>
             <hr class="mt-0" />
             <div id="attributes" class="flex-grow-1 overflow-auto"></div>
-            <hr class="mb-0"/>
-            <div id="flooding" class="pt-2 pb-2 bg-body">
-                <form id="flooding-options" class="row mx-2 align-items-center">
-                    <div class="col-sm">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="enableFlooding">
-                            <label class="form-check-label" for="enableFlooding">
-                                Flooding plane
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <input id="flooding-altitude-range" title="Altitude" type="range" class="form-range" min="0"
-                            max="500" value="166">
-                        <div class="input-group mb-3">
-                            <input type="number" class="form-control" id="flooding-altitude-number" value="166">
-                            <span class="input-group-text">m</span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <hr class="mt-0" />
-            <div id="measurement" class="pb-2">
-                <div class="d-flex flex-row">
-                    <button id="measure-line" type="button" class="btn btn-outline-secondary flex-fill mx-2">Measure
-                        with
-                        line</button>
-                    <button id="measure-polygon" type="button" class="btn btn-outline-secondary flex-fill mx-2">Measure
-                        with
-                        polygon</button>
-                </div>
-                <form id="measure-options" class="row mx-2 align-items-center">
-                    <div class="col-sm">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="enableSnapTo">
-                            <label class="form-check-label" for="enableSnapTo">
-                                Snap to
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <label class="visually-hidden" for="snapToObject">Snap to object</label>
-                        <select class="form-select" id="snapToObject">
-                            <option value="basemap" selected>Base map</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
     <div id="toasts" class="toast-container position-absolute bottom-0 end-0 p-3"></div>
