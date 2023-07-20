@@ -29,6 +29,7 @@ import FloodingPlane from './FloodingPlane.js';
 import loader from './loaders/loader.js';
 import Alerts from './Alerts.js';
 import PointsMaterial2 from './PointsMaterial2.js';
+import Minimap from './Minimap.js';
 
 /* eslint-disable import/first, import/order, import/no-unresolved, no-unused-vars */
 // If you want to embed local data
@@ -360,3 +361,5 @@ const floodingPlane = new FloodingPlane(instance, layerManager);
 floodingPlane.add();
 
 instance.mainLoop.gfxEngine.renderer.outputEncoding = sRGBEncoding;
+
+const minimap = new Minimap(instance, layerManager);

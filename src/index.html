@@ -186,7 +186,11 @@
         <div id="coordinates" class="px-1 position-absolute bottom-0 text-secondary bg-light" style="right: 25vw"></div>
         <div id="tooltip" class="px-1 text-secondary bg-light d-none">Hello</div>
         <div id="tools" class="bg-light border-start mh-100 d-flex flex-column vw-25">
-            <div id="geocoding" class="pt-2 bg-body pb-3">
+            <div id="minimap-container">
+                <div id="minimap" style="width: 100%; height: 200px;"></div>
+            </div>
+            <hr class="mt-0 mb-0" />
+            <div id="geocoding" class="pt-3 bg-body pb-3">
                 <input id="autoComplete" class="form-control" style="width: 100% !important;" type="search" dir="ltr"
                     spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off" maxlength="2048"
                     tabindex="1" />
