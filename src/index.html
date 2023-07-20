@@ -38,6 +38,10 @@
                     <a id="menu-analysis-link" class="nav-link" href="#" title="Analysis"
                         data-target="#analysis-container"><i class="bi bi-bar-chart-steps"></i></a>
                 </li>
+                <li class="nav-item">
+                    <a id="menu-bookmarks-link" class="nav-link" href="#" title="Bookmarks"
+                        data-target="#bookmarks-list-container"><i class="bi bi-bookmarks"></i></a>
+                </li>
             </ul>
 
             <div id="layer-list-container" class="menutab">
@@ -230,6 +234,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div id="bookmarks-list-container" class="menutab d-none d-flex flex-column">
+                <h2>Bookmarks</h2>
+                <ul id="bookmarks-list" class="layers-list-group flex-grow-1"></ul>
+                <hr>
+                <button id="bookmark-add" type="button" class="btn btn-outline-secondary mx-2">Add bookmark</button>
             </div>
         </div>
 

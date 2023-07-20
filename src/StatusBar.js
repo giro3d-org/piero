@@ -31,13 +31,13 @@ function processUrl(url) {
     const pov = new URL(url).searchParams.get(VIEW_PARAM);
     if (pov) {
         try {
-            const [x, y, z, tx, ty, tz] = pov.split(',').map(s => Number.parseFloat(s));
-
-            camera.lookAt(
-                new Vector3(x, y, z),
-                new Vector3(tx, ty, tz),
-                false,
-            );
+            const pos = JSON.parse(pov);
+            camera.executeInteraction(() => {
+                camera.controls.setOrbitPoint(0, 0, 0, false);
+                camera.controls.setLookAt(pos.camera[0], pos.camera[1], pos.camera[2], pos.target[0], pos.target[1], pos.target[2], false);
+                camera.controls.setFocalOffset(pos.focalOffset[0], pos.focalOffset[1], pos.focalOffset[2], false);
+                camera.controls.update(0);
+            });
         } catch {
             defaultLookAt();
         } finally {
@@ -52,14 +52,11 @@ function updateUrl() {
     const url = new URL(document.URL);
     url.searchParams.delete(VIEW_PARAM);
 
-    function round10(n) {
-        return Math.round(n * 10) / 10;
-    }
-
-    const cam = instance.camera.camera3D.position;
-    camera.controls.getTarget(tmpVec3);
-
-    const pov = `${round10(cam.x)},${round10(cam.y)},${round10(cam.z)},${round10(tmpVec3.x)},${round10(tmpVec3.y)},${round10(tmpVec3.z)}`;
+    const pov = JSON.stringify({
+        camera: camera.controls.getPosition().toArray(),
+        target: camera.controls.getTarget().toArray(),
+        focalOffset: camera.controls.getFocalOffset().toArray(),
+    });
 
     url.searchParams.append(VIEW_PARAM, pov);
 
@@ -211,5 +208,5 @@ function doneTask() {
 }
 
 export default {
-    bind, setIsLoading, updateProgressBar, addTask, doneTask,
+    bind, setIsLoading, updateProgressBar, addTask, doneTask, processUrl,
 };

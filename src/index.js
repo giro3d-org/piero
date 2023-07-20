@@ -363,3 +363,42 @@ floodingPlane.add();
 instance.mainLoop.gfxEngine.renderer.outputEncoding = sRGBEncoding;
 
 const minimap = new Minimap(instance, layerManager);
+
+const addBookmark = (name, url) => {
+    const newBookmark = document.createElement('li');
+    newBookmark.setAttribute('data-camera', url);
+    console.log(newBookmark.getAttribute('data-camera'));
+    newBookmark.className = 'layers-list-item';
+
+    const itemContainer = document.createElement('div');
+    itemContainer.className = 'layers-list-name';
+
+    const link = document.createElement('a');
+    link.setAttribute('href', '#');
+    link.setAttribute('title', 'Go to this bookmark');
+    link.className = 'layer-link';
+    link.addEventListener('click', () => {
+        StatusBar.processUrl(newBookmark.getAttribute('data-camera'));
+    });
+    link.textContent = name;
+    itemContainer.appendChild(link);
+
+    const deleteBtnLink = document.createElement('a');
+    deleteBtnLink.setAttribute('href', '#');
+    deleteBtnLink.setAttribute('title', 'Delete this bookmark');
+    deleteBtnLink.className = 'link-right layer-delete-link';
+    deleteBtnLink.addEventListener('click', () => newBookmark.remove());
+    deleteBtnLink.innerHTML = '<i class="bi bi-trash"></i>';
+
+    newBookmark.appendChild(itemContainer);
+    newBookmark.appendChild(deleteBtnLink);
+    document.getElementById('bookmarks-list').appendChild(newBookmark);
+};
+
+document.getElementById('bookmark-add').addEventListener('click', () => {
+    const name = window.prompt('Name of the bookmark?');
+    addBookmark(name, document.URL);
+});
+
+addBookmark('19 rue Marc Antoine Petit', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view={"camera"%3A[841869.0743205354%2C6517786.205394194%2C204.10747583149472]%2C"target"%3A[841906.3950787933%2C6517804.048436065%2C176.0875795732584]%2C"focalOffset"%3A[1.3636703768031175%2C-3.119629447381456%2C-0.11613705476322878]}#');
+addBookmark('Montée de Choulans', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view={"camera"%3A[842083.9438746589%2C6517992.044216228%2C685.8589349745077]%2C"target"%3A[841654.6176926389%2C6518507.80727985%2C204.44513613868608]%2C"focalOffset"%3A[-102.21418965477892%2C-68.14245243024948%2C-3.632243002899486]}#');
