@@ -350,7 +350,7 @@ floodingPlane.add();
 
 instance.mainLoop.gfxEngine.renderer.outputEncoding = sRGBEncoding;
 
-const minimap = new Minimap(instance, layerManager);
+const minimap = new Minimap(instance, layerManager, camera);
 
 const addBookmark = (name, url) => {
     const newBookmark = document.createElement('li');

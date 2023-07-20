@@ -1,5 +1,5 @@
 import {
-    MathUtils, BufferGeometry, LineBasicMaterial, LineSegments,
+    MathUtils, BufferGeometry, LineBasicMaterial, LineSegments, Vector3,
 } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import Giro3dMap from '@giro3d/giro3d/entities/Map.js';
@@ -11,9 +11,10 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer.js';
 const omniscalekey = 'giro3d-c0673f3a';
 
 class Minimap {
-    constructor(instance, layerManager) {
+    constructor(instance, layerManager, camera) {
         this.instance = instance;
         this.layerManager = layerManager;
+        this.camera = camera;
 
         this.minimapInstance = new Instance(document.getElementById('minimap'), {
             crs: this.instance.referenceCrs,
@@ -42,7 +43,7 @@ class Minimap {
 
         this.cube = new LineSegments(
             new BufferGeometry(),
-            new LineBasicMaterial({ color: 0x0000ff, opacity: 1 }),
+            new LineBasicMaterial({ color: 0x0000ff }),
         );
         this.cube.position.set(0, 0, 1);
         this.cube.updateMatrixWorld();
@@ -61,6 +62,12 @@ class Minimap {
         this.instance.addFrameRequester(
             MAIN_LOOP_EVENTS.UPDATE_END, this.update.bind(this),
         );
+
+        this.prevPosition = new Vector3();
+        this.prevTarget = new Vector3();
+
+        this.tmpVec3Position = new Vector3();
+        this.tmpVec3Target = new Vector3();
     }
 
     getMainExtent() {
@@ -69,19 +76,24 @@ class Minimap {
         const topLeft = this.layerManager.baseMap.pickObjectsAt(
             { x: 0, y: 0 },
             { limit: 1, radius: 0 },
-        ).at(0)?.point;
+        ).at(0)?.point ?? new Vector3(-1, 1, -1).unproject(this.instance.camera.camera3D);
         const topRight = this.layerManager.baseMap.pickObjectsAt(
             { x: canvasSize.x - 1, y: 0 },
             { limit: 1, radius: 0 },
-        ).at(0)?.point;
+        ).at(0)?.point ?? new Vector3(1, 1, -1).unproject(this.instance.camera.camera3D);
         const bottomLeft = this.layerManager.baseMap.pickObjectsAt(
             { x: 0, y: canvasSize.y - 1 },
             { limit: 1, radius: 0 },
-        ).at(0)?.point;
+        ).at(0)?.point ?? new Vector3(-1, -1, -1).unproject(this.instance.camera.camera3D);
         const bottomRight = this.layerManager.baseMap.pickObjectsAt(
             { x: canvasSize.x - 1, y: canvasSize.y - 1 },
             { limit: 1, radius: 0 },
-        ).at(0)?.point;
+        ).at(0)?.point ?? new Vector3(1, -1, -1).unproject(this.instance.camera.camera3D);
+
+        if (topLeft) topLeft.z = 1;
+        if (topRight) topRight.z = 1;
+        if (bottomLeft) bottomLeft.z = 1;
+        if (bottomRight) bottomRight.z = 1;
 
         const xMin = Math.min(topLeft?.x, topRight?.x, bottomLeft?.x, bottomRight?.x);
         const xMax = Math.max(topLeft?.x, topRight?.x, bottomLeft?.x, bottomRight?.x);
@@ -93,7 +105,25 @@ class Minimap {
         };
     }
 
+    needsUpdate() {
+        this.camera.controls.getTarget(this.tmpVec3Target);
+        this.camera.controls.getPosition(this.tmpVec3Position);
+
+        if (
+            !this.tmpVec3Position.equals(this.prevPosition)
+            || !this.tmpVec3Target.equals(this.prevTarget)
+        ) {
+            this.prevPosition.copy(this.tmpVec3Position);
+            this.prevTarget.copy(this.tmpVec3Target);
+            return true;
+        }
+
+        return false;
+    }
+
     update() {
+        if (!this.needsUpdate()) return;
+
         const extent = this.getMainExtent();
 
         const centerX = (extent.xMin + extent.xMax) / 2;
