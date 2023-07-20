@@ -59,6 +59,24 @@ Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46
 // eslint-disable-next-line max-len
 // Instance.registerCRS("EPSG:2950","+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +towgs84=-0.991,1.9072,0.5129,-1.25033e-07,-4.6785e-08,-5.6529e-08,0 +units=m +no_defs +type=crs");
 
+const forEachFile = (e, callback) => {
+    if (e.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        [...e.dataTransfer.items].forEach(item => {
+            // If dropped items aren't files, reject them
+            if (item.kind === 'file') {
+                const file = item.getAsFile();
+                callback(file);
+            }
+        });
+    } else {
+        // Use DataTransfer interface to access the file(s)
+        [...e.dataTransfer.files].forEach(file => {
+            callback(file);
+        });
+    }
+};
+
 const z = 200;
 
 const instance = new Instance(document.getElementById('viewerDiv'), {
@@ -175,22 +193,7 @@ dropZone.addEventListener('drop', async e => {
     dropZone.classList.add('border-3');
     dropZone.classList.remove('border-success', 'border-5', 'bg-light');
     const files = [];
-
-    if (e.dataTransfer.items) {
-        // Use DataTransferItemList interface to access the file(s)
-        [...e.dataTransfer.items].forEach(item => {
-            // If dropped items aren't files, reject them
-            if (item.kind === 'file') {
-                const file = item.getAsFile();
-                files.push(file);
-            }
-        });
-    } else {
-        // Use DataTransfer interface to access the file(s)
-        [...e.dataTransfer.files].forEach(file => {
-            files.push(file);
-        });
-    }
+    forEachFile(e, file => files.push(file));
 
     const projection = window.prompt('Projection?', instance.referenceCrs);
     if (projection) {
@@ -220,22 +223,7 @@ annotationDropZone.addEventListener('drop', async e => {
     annotationDropZone.classList.add('border-3');
     annotationDropZone.classList.remove('border-success', 'border-5', 'bg-light');
     const files = [];
-
-    if (e.dataTransfer.items) {
-        // Use DataTransferItemList interface to access the file(s)
-        [...e.dataTransfer.items].forEach(item => {
-            // If dropped items aren't files, reject them
-            if (item.kind === 'file') {
-                const file = item.getAsFile();
-                files.push(file);
-            }
-        });
-    } else {
-        // Use DataTransfer interface to access the file(s)
-        [...e.dataTransfer.files].forEach(file => {
-            files.push(file);
-        });
-    }
+    forEachFile(e, file => files.push(file));
 
     await loader.processFiles(instance, layerManager, camera, files, true, { projection: 'EPSG:4326', isAnnotation: true, z });
 });
@@ -376,7 +364,8 @@ const addBookmark = (name, url) => {
     link.setAttribute('href', '#');
     link.setAttribute('title', 'Go to this bookmark');
     link.className = 'layer-link';
-    link.addEventListener('click', () => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
         StatusBar.processUrl(newBookmark.getAttribute('data-camera'));
     });
     link.textContent = name;
@@ -427,11 +416,85 @@ shareBtn.addEventListener('click', async () => {
     }
 });
 
-addBookmark('19 rue Marc Antoine Petit', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view={"camera"%3A[841869.0743205354%2C6517786.205394194%2C204.10747583149472]%2C"target"%3A[841906.3950787933%2C6517804.048436065%2C176.0875795732584]%2C"focalOffset"%3A[1.3636703768031175%2C-3.119629447381456%2C-0.11613705476322878]}#');
-addBookmark('Montée de Choulans', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view={"camera"%3A[842083.9438746589%2C6517992.044216228%2C685.8589349745077]%2C"target"%3A[841654.6176926389%2C6518507.80727985%2C204.44513613868608]%2C"focalOffset"%3A[-102.21418965477892%2C-68.14245243024948%2C-3.632243002899486]}#');
+addBookmark('Entrée du 19', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841907.9582841829%2C6517787.65521322%2C169.2769810864122%5D%2C%22target%22%3A%5B841905.9107490426%2C6517796.488850237%2C168.92811463287262%5D%2C%22focalOffset%22%3A%5B0.1351798506853955%2C-1.1107277925158936%2C-0.0692478782882926%5D%7D#');
+addBookmark('Dans le 19', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841907.6003244669%2C6517804.267584243%2C169.49371378935163%5D%2C%22target%22%3A%5B841904.9652515985%2C6517800.24380922%2C168.73592572126938%5D%2C%22focalOffset%22%3A%5B-0.30363049587455837%2C0.22468656748455534%2C-0.014673078923675753%5D%7D#');
+addBookmark('Vue sur le garage du 19', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841860.4692259617%2C6517792.984830552%2C191.21411266131565%5D%2C%22target%22%3A%5B841901.2899232162%2C6517810.408867405%2C169.85813324644857%5D%2C%22focalOffset%22%3A%5B0.2949500591331041%2C-3.6008486326489155%2C-0.13268550054589667%5D%7D#');
+addBookmark('Arrière du 19', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841966.6506722774%2C6517864.268691576%2C190.95422252742796%5D%2C%22target%22%3A%5B841913.4352599139%2C6517812.324168317%2C169.15296200564165%5D%2C%22focalOffset%22%3A%5B2.0426879919662166%2C-8.267105061883605%2C-0.4693093363601122%5D%7D#');
+addBookmark('Fondations du 19', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841871.8770916554%2C6517798.538974017%2C155.65424729209084%5D%2C%22target%22%3A%5B841901.7521345608%2C6517804.963136713%2C165.52349038600133%5D%2C%22focalOffset%22%3A%5B1.7327890501628165%2C-0.1845099456196122%2C-0.04731606047529624%5D%7D#');
+addBookmark('Le 19 et ses environs', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841744.9576999792%2C6517718.901091238%2C283.6097874584819%5D%2C%22target%22%3A%5B841901.6182452319%2C6517800.275075872%2C179.14278666426824%5D%2C%22focalOffset%22%3A%5B6.738773819877206%2C-19.858962589364367%2C-1.0748023014785133%5D%7D#');
+addBookmark('Le 19 et le paysage', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B841969.449049433%2C6517752.161582657%2C203.38205913044018%5D%2C%22target%22%3A%5B841866.8800354004%2C6517820.759963989%2C185.57999730110168%5D%2C%22focalOffset%22%3A%5B0.403518238854284%2C-7.241380524293113%2C-0.2111343661354823%5D%7D#');
+addBookmark('Entrée du tunnel de Fourvière', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B842319.2354694218%2C6518423.6514408905%2C982.2764168906542%5D%2C%22target%22%3A%5B841467.6411646309%2C6518689.56648481%2C204.65999610900877%5D%2C%22focalOffset%22%3A%5B-133.00559793804737%2C3.608051492495065%2C-7.503250702104424%5D%7D#');
+addBookmark('Vue Gerland / presqu\'île ZAE', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B843055.3614169422%2C6514043.626172147%2C1742.6153714081702%5D%2C%22target%22%3A%5B842330.1707302815%2C6516692.815461843%2C165.21757514013598%5D%2C%22focalOffset%22%3A%5B-290.32328427637674%2C64.65089483112388%2C-13.99631154495546%5D%7D#');
+addBookmark('Montée des eaux', 'https://giro3d.gitlab.io/giro3d-sample-application/?tour=none&view=%7B%22camera%22%3A%5B842174.999664611%2C6514276.1477145245%2C6860.909402103927%5D%2C%22target%22%3A%5B842286.984712678%2C6518559.138938386%2C133.93685948173655%5D%2C%22focalOffset%22%3A%5B-77.98304235607155%2C165.71519272364185%2C-2.5822836835623093%5D%7D#');
 
 document.getElementById('share').addEventListener('click', () => {
     document.getElementById('share-url').value = document.URL;
     const myModal = new bootstrap.Modal(document.getElementById('share-modal'));
     myModal.show();
+});
+
+document.getElementById('bookmarks-export').addEventListener('click', () => {
+    const bookmarks = [];
+    document.querySelectorAll('#bookmarks-list .layers-list-item').forEach(item => {
+        bookmarks.push({ title: item.querySelector('.layers-list-name a').textContent, url: item.getAttribute('data-camera') });
+    });
+
+    const blob = new Blob([JSON.stringify(bookmarks, null, 2)], {
+        type: 'application/json',
+    });
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = 'bookmarks.json';
+    link.innerHTML = 'Click here to download the file';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(blobUrl);
+});
+
+const importBookmarks = async file => {
+    const str = await file.text();
+    const bookmarks = JSON.parse(str);
+
+    const existingBookmarks = [];
+    document.querySelectorAll('#bookmarks-list .layers-list-item').forEach(item => {
+        existingBookmarks.push(item.querySelector('.layers-list-name a').textContent);
+    });
+
+    let nbImported = 0;
+    let nbSkipped = 0;
+    bookmarks.forEach(bookmark => {
+        if (existingBookmarks.indexOf(bookmark.title) === -1) {
+            addBookmark(bookmark.title, bookmark.url);
+            nbImported++;
+        } else {
+            nbSkipped++;
+        }
+    });
+    Alerts.showAlert(`${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success', true);
+};
+
+const bookmarksDropZone = document.getElementById('bookmarks-drop-zone');
+
+bookmarksDropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    bookmarksDropZone.classList.remove('border-3');
+    bookmarksDropZone.classList.add('border-success', 'border-5', 'bg-light');
+});
+
+bookmarksDropZone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    bookmarksDropZone.classList.add('border-3');
+    bookmarksDropZone.classList.remove('border-success', 'border-5', 'bg-light');
+});
+
+bookmarksDropZone.addEventListener('drop', async e => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    bookmarksDropZone.classList.add('border-3');
+    bookmarksDropZone.classList.remove('border-success', 'border-5', 'bg-light');
+
+    forEachFile(e, file => importBookmarks(file));
 });
