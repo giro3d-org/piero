@@ -285,7 +285,7 @@ class AttributePanel {
                 },
             );
         } else {
-            document.getElementById('attributes').innerHTML = 'No feature found';
+            document.getElementById('attributes').innerHTML = '<p class="m-2">No feature found</p>';
         }
     }
 }
