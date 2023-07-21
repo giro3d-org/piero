@@ -14,7 +14,7 @@ import {
 } from 'ol/style.js';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js';
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer.js';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer.js';
+// import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer.js';
 import BilFormat from '@giro3d/giro3d/formats/BilFormat.js';
 import Interpretation from '@giro3d/giro3d/core/layer/Interpretation.js';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
@@ -24,6 +24,8 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource.js';
 import TileIndex from '@giro3d/giro3d/core/TileIndex.js';
+
+import ElevationLayer2 from './ElevationLayer2';
 
 /**
  * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
@@ -455,7 +457,7 @@ class LayerManager extends EventDispatcher {
             format,
             noDataValue,
         });
-        this.elevationLayer = new ElevationLayer(
+        this.elevationLayer = new ElevationLayer2(
             'elevation',
             {
                 source: giro3dsource,
