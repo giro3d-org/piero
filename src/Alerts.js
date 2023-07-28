@@ -1,10 +1,18 @@
 /**
- * Displays an alert in the UI.
+ * Picked object
+ *
+ * @typedef {object} ToastResult
+ * @property {Function} dismiss Function to call to dismiss the toast
+ */
+
+/**
+ * Displays a toast in the UI.
  *
  * @param {string|HTMLElement} message Message to display
- * @param {string} className Alert classname (see https://getbootstrap.com/docs/5.3/components/alerts/#examples)
+ * @param {?string} [className='danger'] Alert classname (e.g. `danger`, `info`, etc.)
+ * - see https://getbootstrap.com/docs/5.3/helpers/color-background/#with-components)
  * @param {boolean} [fadeOut=false] Automatically fades out after 5 seconds.
- * @returns {object} Object with btn and dismiss properties
+ * @returns {ToastResult} Object
  */
 function showAlert(message, className = 'danger', fadeOut = false) {
     const alert = document.createElement('div');
@@ -33,6 +41,7 @@ function showAlert(message, className = 'danger', fadeOut = false) {
     toasts.appendChild(alert);
 
     const dismiss = () => {
+        /** @type {HTMLElement} */
         const btn = header.querySelector('button.btn-close');
         if (btn) btn.click();
         alert.remove();

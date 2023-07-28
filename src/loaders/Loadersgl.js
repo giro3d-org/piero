@@ -14,14 +14,50 @@ import Alerts from '../Alerts.js';
 import StatusBar from '../StatusBar.js';
 import PointsMaterial2 from '../PointsMaterial2.js';
 
+/* eslint-disable jsdoc/valid-types */
+// @ts-ignore
+/**
+ * @typedef {import('@loaders.gl/loader-utils').Loader} Loader
+ * @typedef {import('@loaders.gl/loader-utils').LoaderOptions} LoaderOptions
+ * @typedef {import('ol/format/GeoJSON.js').GeoJSONObject} GeoJSONObject
+ * @typedef {import('ol/format/GeoJSON.js').GeoJSONFeature} GeoJSONFeature
+ * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('../Camera.js').default} Camera
+ * @typedef {import('../LayerManager.js').default} LayerManager
+ * @typedef {import('./_types.js').SimpleGeoJSONFeature} SimpleGeoJSONFeature
+ */
+/* eslint-enable */
+
+/**
+ * Loadersgl options
+ *
+ * @typedef {object} LoaderglOptions
+ * @property {LoaderOptions} [loader] @loaders.gl options (should not be necessary)
+ * instead of a dataset
+ * @property {number} [z] Altitude where to put the annotations
+ * @property {string} [projection] Projection
+ */
+
 export default {
-    async loadGeospatial(instance, id, url, loader, options, field) {
-        const raw = await load(url, loader, options?.loader);
-        const features = field(raw);
+    /**
+     * Loads a 2.5D file.
+     *
+     * @param {Instance} instance Giro3d instance
+     * @param {string} id Layer id
+     * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+     * @param {Loader} loader loaders.gl Loader
+     * @param {LoaderglOptions} options Options
+     * @param {({any}) => Array<SimpleGeoJSONFeature>} getdata Callback
+     * to transform raw data
+     * @returns {Promise<Entity3D>} Processed entity
+     */
+    async loadGeospatial(instance, id, fileOrUrl, loader, options, getdata) {
+        const raw = await load(fileOrUrl, loader, options?.loader);
+        const features = getdata(raw);
 
         const polygons = new Group();
         StatusBar.addTask(features.length);
-        const alert = Alerts.showAlert(`Loaded ${url}; processing ${features.length} features...`, null);
+        const alert = Alerts.showAlert(`Loaded ${fileOrUrl}; processing ${features.length} features...`, null);
 
         features.forEach(feature => {
             for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
@@ -36,7 +72,9 @@ export default {
             }
 
             if (options?.projection && options.projection !== instance.referenceCrs) {
+                // @ts-ignore - Coordinates are optional
                 const coords = new Coordinates(options.projection);
+                // @ts-ignore - Coordinates are optional
                 const coordsReference = new Coordinates(instance.referenceCrs);
                 for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
                     coords.set(
@@ -52,7 +90,9 @@ export default {
                 }
             }
 
+            // @ts-ignore
             const polygon = new Drawing(instance, {}, feature.geometry);
+            // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
             polygons.add(polygon);
             StatusBar.doneTask();
         });
@@ -60,8 +100,17 @@ export default {
         return new Entity3D(polygons.uuid, polygons);
     },
 
-    loadGeoPackage(instance, id, url, options = {}) {
-        return this.loadGeospatial(instance, id, url, GeoPackageLoader, {
+    /**
+     * Loads a geopackage file.
+     *
+     * @param {Instance} instance Giro3d instance
+     * @param {string} id Layer id
+     * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+     * @param {LoaderglOptions} options Options
+     * @returns {Promise<Entity3D>} Processed entity
+     */
+    loadGeoPackage(instance, id, fileOrUrl, options = {}) {
+        return this.loadGeospatial(instance, id, fileOrUrl, GeoPackageLoader, {
             loader: {
                 gis: { format: 'geojson' },
             },
@@ -75,22 +124,45 @@ export default {
         });
     },
 
-    loadShapefile(instance, id, url, options = {}) {
-        return this.loadGeospatial(instance, id, url, ShapefileLoader, {
+    /**
+     * Loads a shapefile file.
+     *
+     * @param {Instance} instance Giro3d instance
+     * @param {string} id Layer id
+     * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+     * @param {LoaderglOptions} options Options
+     * @returns {Promise<Entity3D>} Processed entity
+     */
+    loadShapefile(instance, id, fileOrUrl, options = {}) {
+        return this.loadGeospatial(instance, id, fileOrUrl, ShapefileLoader, {
             loader: {
                 gis: { format: 'geojson' },
             },
             ...options,
+        // @ts-ignore
         }, r => r.data);
     },
 
-    async loadPointCloud(instance, id, url, loader, options, field) {
-        const data = await load(url, loader, options?.loader);
-        const posArray = field(data);
+    /**
+     * Loads a pointcloud file.
+     *
+     * @param {Instance} instance Giro3d instance
+     * @param {string} id Layer id
+     * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+     * @param {Loader} loader loaders.gl Loader
+     * @param {LoaderglOptions} options Options
+     * @param {({any}) => Float32Array} getdata Callback to transform raw data
+     * @returns {Promise<Entity3D>} Processed entity
+     */
+    async loadPointCloud(instance, id, fileOrUrl, loader, options, getdata) {
+        const data = await load(fileOrUrl, loader, options?.loader);
+        const posArray = getdata(data);
 
-        const alert = Alerts.showAlert(`Loaded ${url}; processing ${posArray.length / 3} points...`, null);
+        const alert = Alerts.showAlert(`Loaded ${fileOrUrl}; processing ${posArray.length / 3} points...`, null);
         if (options?.projection && options.projection !== instance.referenceCrs) {
+            // @ts-ignore
             const coords = new Coordinates(options.projection);
+            // @ts-ignore
             const coordsReference = new Coordinates(instance.referenceCrs);
             for (let i = 0; i < posArray.length / 3; i += 1) {
                 coords.set(
@@ -107,6 +179,7 @@ export default {
         }
         const geometry = new BufferGeometry();
         geometry.setAttribute('position', new BufferAttribute(posArray, 3));
+        // @ts-ignore
         const mypoints = new PointCloud({
             layer: null,
             geometry,
@@ -119,23 +192,44 @@ export default {
         return new Entity3D(mypoints.uuid, mypoints);
     },
 
-    loadLas(instance, id, url, options = {}) {
-        return this.loadPointCloud(instance, id, url, LASLoader, {
+    /**
+     * Loads a LAS/LAZ file.
+     *
+     * @param {Instance} instance Giro3d instance
+     * @param {string} id Layer id
+     * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+     * @param {LoaderglOptions} options Options
+     * @returns {Promise<Entity3D>} Processed entity
+     */
+    loadLas(instance, id, fileOrUrl, options = {}) {
+        return this.loadPointCloud(instance, id, fileOrUrl, LASLoader, {
             loader: {
                 las: { shape: 'columnar-table' },
             },
             ...options,
+        // @ts-ignore
         }, data => data.attributes.POSITION.value);
     },
 
-    loadCsv(instance, id, url, options = {}) {
-        return this.loadPointCloud(instance, id, url, CSVLoader, {
+    /**
+     * Loads a CSV file, with X,Y,Z columns.
+     *
+     * @param {Instance} instance Giro3d instance
+     * @param {string} id Layer id
+     * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+     * @param {LoaderglOptions} options Options
+     * @returns {Promise<Entity3D>} Processed entity
+     */
+    loadCsv(instance, id, fileOrUrl, options = {}) {
+        return this.loadPointCloud(instance, id, fileOrUrl, CSVLoader, {
             loader: {
                 csv: { shape: 'columnar-table' },
             },
             ...options,
         }, data => {
+            // @ts-ignore
             const posArray = new Float32Array(data.length * 3);
+            // @ts-ignore
             for (let i = 0; i < data.length; i += 1) {
                 posArray[i * 3 + 0] = data[i].X;
                 posArray[i * 3 + 1] = data[i].Y;

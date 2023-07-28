@@ -1,22 +1,71 @@
-import { Box3, Group } from 'three';
+import { Box3 } from 'three';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
-import Drawing, { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 
 import Alerts from '../Alerts.js';
 import StatusBar from '../StatusBar.js';
 import CityJSON from './CityJSON.js';
+import GeoJSON from './GeoJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 
-const processFile = async (instance, layerManager, file, options = {}) => {
+/* eslint-disable jsdoc/valid-types */
+/**
+ * @typedef {import('@loaders.gl/loader-utils').LoaderOptions} LoaderOptions
+ * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
+ * @typedef {import('../Camera.js').default} Camera
+ * @typedef {import('../LayerManager.js').default} LayerManager
+ */
+/* eslint-enable */
+
+/**
+ * Processed file results
+ *
+ * @typedef {object} ProcessedFileResult
+ * @property {string} filename Filename (with extension)
+ * @property {Entity3D} obj Entity created
+ */
+
+/**
+ * Options
+ *
+ * @typedef {object} ProcessOptions
+ * @property {string} [projection] Projection
+ * - CityJSON - required if not defined in the file
+ * - GeoJSON - if different from 4326
+ * - Geopackage
+ * @property {Coordinates} [at] Coordinates
+ * - IFC - Coordinates where to place the IFC
+ * @property {number} [z] Altitude
+ * - GeoJSON - altitude where to put the annotations
+ * - Geopackage
+ * @property {boolean} [visible=true] Display this object by default
+ * @property {boolean} [isAnnotation=false] Set to true to add the object as an annotation
+ * @property {string|undefined} [group] Group to put the dataset into (if any)
+ * @property {LoaderOptions} [loader] @loaders.gl options (should not be necessary)
+ * instead of a dataset
+ */
+
+/**
+ * Processes a file and adds it into Giro3d scene.
+ *
+ * @param {Instance} instance Giro3d instance
+ * @param {LayerManager} layerManager Layer manager
+ * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
+ * @param {ProcessOptions} options Options
+ * @returns {Promise<ProcessedFileResult>} Processed entity
+ */
+const processFile = async (instance, layerManager, fileOrUrl, options = {}) => {
+    /** @type {File|Response} */
+    let file = null;
     let filename = null;
     let filetype = null;
 
-    if (file instanceof File) {
-        filename = file.name;
+    if (fileOrUrl instanceof File) {
+        filename = fileOrUrl.name;
+        file = fileOrUrl;
     } else {
-        const urlobject = new URL(file);
+        const urlobject = new URL(fileOrUrl);
         filename = urlobject.pathname.split('/').at(-1);
     }
 
@@ -40,22 +89,24 @@ const processFile = async (instance, layerManager, file, options = {}) => {
 
     const alert = Alerts.showAlert(`Loading ${filename}...`, null);
 
-    if (!(file instanceof File) && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')) {
-        file = await fetch(file);
+    if (!(fileOrUrl instanceof File)
+        && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')
+    ) {
+        file = await fetch(fileOrUrl);
     }
 
     let obj = null;
     switch (filetype) {
         case 'gpkg': {
-            obj = await Loadersgl.loadGeoPackage(instance, filename, file, options);
+            obj = await Loadersgl.loadGeoPackage(instance, filename, fileOrUrl, options);
             break;
         }
         case 'las': {
-            obj = await Loadersgl.loadLas(instance, filename, file, options);
+            obj = await Loadersgl.loadLas(instance, filename, fileOrUrl, options);
             break;
         }
         case 'csv': {
-            obj = await Loadersgl.loadCsv(instance, filename, file, options);
+            obj = await Loadersgl.loadCsv(instance, filename, fileOrUrl, options);
             break;
         }
         case 'cityjson': {
@@ -68,128 +119,8 @@ const processFile = async (instance, layerManager, file, options = {}) => {
             break;
         }
         case 'geojson': {
-            const json = JSON.parse(await file.text());
-            if (json.geometry) {
-                const coordinatesWgs84 = new Coordinates('EPSG:4326');
-                const coordinates = new Coordinates(instance.referenceCrs);
-                switch (json.geometry.type) {
-                    case GEOMETRY_TYPE.POINT: {
-                        coordinatesWgs84.set(
-                            'EPSG:4326',
-                            json.geometry.coordinates[0],
-                            json.geometry.coordinates[1],
-                            json.geometry.coordinates[2],
-                        );
-                        coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[0] = coordinates._values[0];
-                        json.geometry.coordinates[1] = coordinates._values[1];
-                        json.geometry.coordinates[2] = coordinates._values[2];
-                        break;
-                    }
-                    case GEOMETRY_TYPE.LINE:
-                    case GEOMETRY_TYPE.MULTIPOINT: {
-                        for (let i = 0; i < json.geometry.coordinates.length; i += 1) {
-                            coordinatesWgs84.set(
-                                'EPSG:4326',
-                                json.geometry.coordinates[i][0],
-                                json.geometry.coordinates[i][1],
-                                json.geometry.coordinates[i][2],
-                            );
-                            coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                            json.geometry.coordinates[i][0] = coordinates._values[0];
-                            json.geometry.coordinates[i][1] = coordinates._values[1];
-                            json.geometry.coordinates[i][2] = coordinates._values[2];
-                        }
-                        break;
-                    }
-                    case GEOMETRY_TYPE.POLYGON: {
-                        for (let i = 0; i < json.geometry.coordinates[0].length; i += 1) {
-                            coordinatesWgs84.set(
-                                'EPSG:4326',
-                                json.geometry.coordinates[0][i][0],
-                                json.geometry.coordinates[0][i][1],
-                                json.geometry.coordinates[0][i][2],
-                            );
-                            coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                            json.geometry.coordinates[0][i][0] = coordinates._values[0];
-                            json.geometry.coordinates[0][i][1] = coordinates._values[1];
-                            json.geometry.coordinates[0][i][2] = coordinates._values[2];
-                        }
-                        break;
-                    }
-                    default:
-                        throw new Error('Geometry not supported');
-                }
-                obj = layerManager.addAnnotation(json.geometry, false);
-            } else {
-                const projectionOrigin = options?.projection ?? 'EPSG:4326';
-                const coordinatesOrigin = new Coordinates(projectionOrigin);
-                const coordinates = new Coordinates(instance.referenceCrs);
-                const group = new Group();
-                const zDefault = options?.z ?? 0;
-
-                json.features.forEach((feature) => {
-                    switch (feature.geometry.type) {
-                        case GEOMETRY_TYPE.POINT: {
-                            // FIXME: THIS IS BROKEN
-                            coordinatesOrigin.set(
-                                projectionOrigin,
-                                feature.geometry.coordinates[0],
-                                feature.geometry.coordinates[1],
-                                feature.geometry.coordinates[2] ?? zDefault,
-                            );
-                            coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                            feature.geometry.coordinates[0] = coordinates._values[0];
-                            feature.geometry.coordinates[1] = coordinates._values[1];
-                            feature.geometry.coordinates[2] = coordinates._values[2];
-                            break;
-                        }
-                        case GEOMETRY_TYPE.LINE:
-                        case GEOMETRY_TYPE.MULTIPOINT: {
-                            for (let i = 0; i < feature.geometry.coordinates.length; i += 1) {
-                                coordinatesOrigin.set(
-                                    projectionOrigin,
-                                    feature.geometry.coordinates[i][0],
-                                    feature.geometry.coordinates[i][1],
-                                    feature.geometry.coordinates[i][2] ?? zDefault,
-                                );
-                                coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                                feature.geometry.coordinates[i][0] = coordinates._values[0];
-                                feature.geometry.coordinates[i][1] = coordinates._values[1];
-                                feature.geometry.coordinates[i][2] = coordinates._values[2];
-                            }
-                            break;
-                        }
-                        case GEOMETRY_TYPE.POLYGON: {
-                            for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
-                                coordinatesOrigin.set(
-                                    projectionOrigin,
-                                    feature.geometry.coordinates[0][i][0],
-                                    feature.geometry.coordinates[0][i][1],
-                                    feature.geometry.coordinates[0][i][2] ?? zDefault,
-                                );
-                                coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                                feature.geometry.coordinates[0][i][0] = coordinates._values[0];
-                                feature.geometry.coordinates[0][i][1] = coordinates._values[1];
-                                feature.geometry.coordinates[0][i][2] = coordinates._values[2];
-                            }
-                            break;
-                        }
-                        default:
-                            return;
-                    }
-
-                    const o = new Drawing(instance, {
-                        minExtrudeDepth: 1,
-                        maxExtrudeDepth: 5,
-                        use3Dpoints: false,
-                    }, feature.geometry);
-                    o.userData = feature.properties;
-                    group.add(o);
-                });
-
-                obj = new Entity3D(group.uuid, group);
-            }
+            const str = await file.text();
+            obj = await GeoJSON.loadString(instance, layerManager, filename, str, options);
             break;
         }
         default:
@@ -208,6 +139,17 @@ const processFile = async (instance, layerManager, file, options = {}) => {
     return { filename, obj };
 };
 
+/**
+ * Processes multiple files.
+ *
+ * @param {Instance} instance Giro3d instance
+ * @param {LayerManager} layerManager Layer manager
+ * @param {Camera} camera Camera object for zooming into the loaded files
+ * @param {Array<File|string>} files File to load, as objects or URLs
+ * @param {boolean} [zoomTo=true] Zooms into the loaded file once done
+ * @param {ProcessOptions} options Options
+ * @returns {Promise<Array<Entity3D>>} Processed entities
+ */
 const processFiles = async (instance, layerManager, camera, files, zoomTo = true, options = {}) => {
     const promises = [];
     StatusBar.addTask(files.length);
@@ -223,11 +165,20 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
     });
 
     const settled = await Promise.allSettled(promises);
+    // eslint-disable-next-line jsdoc/no-undefined-types
+    /** @type {Array<PromiseFulfilledResult<ProcessedFileResult>>} */
+    // @ts-ignore
+    const fullfilled = settled.filter(p => p.status === 'fulfilled');
+    // eslint-disable-next-line jsdoc/no-undefined-types
+    /** @type {Array<PromiseRejectedResult>} */
+    // @ts-ignore
+    const rejected = settled.filter(p => p.status === 'rejected');
 
     const objs = [];
     const bbox = new Box3();
     let bbox2;
-    settled.filter(p => p.status === 'fulfilled').forEach(p => {
+
+    fullfilled.forEach(p => {
         const { obj, filename } = p.value;
         if (Array.isArray(obj)) {
             obj.forEach(o => {
@@ -252,7 +203,7 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
         }
     });
 
-    settled.filter(p => p.status === 'rejected').forEach(p => {
+    rejected.forEach(p => {
         console.warn('Could not load file', p.reason);
         Alerts.showAlert(`Could not load file: ${p.reason}`);
     });
