@@ -1,57 +1,63 @@
 <script setup>
 import autoComplete from '@tarekraafat/autocomplete.js'
+import { onMounted } from 'vue'
 
-const autoCompleteJS = new autoComplete({
-  selector: '#search-place-autocomplete',
-  placeHolder: 'Search for a place...',
-  threshold: 3,
-  debounce: 300, // 300ms debounce
-  data: {
-    src: async (query) => {
-      const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`)
-      const data = await source.json()
+let autoCompleteControl;
 
-      const lng = []
-      const lat = []
+onMounted(() => {
+    autoCompleteControl = new autoComplete({
+    selector: '#search-place-autocomplete',
+    placeHolder: 'Search for a place...',
+    threshold: 3,
+    debounce: 300, // 300ms debounce
+    data: {
+      src: async (query) => {
+        const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`)
+        const data = await source.json()
 
-      data.features.forEach((feature) => {
-        lng.push(feature.geometry.coordinates[0])
-        lat.push(feature.geometry.coordinates[1])
-      })
+        const lng = []
+        const lat = []
 
-      const requestAltitude = await fetch(
-        `https://wxs.ign.fr/calcul/alti/rest/elevation.json?lon=${lng.join('|')}&lat=${lat.join(
-          '|'
-        )}&zonly=true`
-      )
-      const altitude = await requestAltitude.json()
-      altitude.elevations.forEach((value, i) => {
-        data.features[i].properties.z = value
-      })
+        data.features.forEach((feature) => {
+          lng.push(feature.geometry.coordinates[0])
+          lat.push(feature.geometry.coordinates[1])
+        })
 
-      return data.features.map((f) => f.properties)
+        const requestAltitude = await fetch(
+          `https://wxs.ign.fr/calcul/alti/rest/elevation.json?lon=${lng.join('|')}&lat=${lat.join(
+            '|'
+          )}&zonly=true`
+        )
+        const altitude = await requestAltitude.json()
+        altitude.elevations.forEach((value, i) => {
+          data.features[i].properties.z = value
+        })
+
+        return data.features.map((f) => f.properties)
+      },
+      keys: ['label']
     },
-    keys: ['label']
-  },
-  resultsList: {
-    element: (list, data) => {
-      console.log(data)
-      // if (!data.results.length) {
-      //     const message = document.createElement('div');
-      //     message.setAttribute('class', 'no_result');
-      //     message.innerHTML = `<span>No results found for "${data.query}"</span>`;
-      //     list.prepend(message);
-      // }
+    resultsList: {
+      element: (list, data) => {
+        console.log(data)
+        // TODO
+        // if (!data.results.length) {
+        //     const message = document.createElement('div');
+        //     message.setAttribute('class', 'no_result');
+        //     message.innerHTML = `<span>No results found for "${data.query}"</span>`;
+        //     list.prepend(message);
+        // }
+      },
+      noResults: true
     },
-    noResults: true
-  },
-  resultItem: {
-    highlight: true
-  },
-  // Trust what we get from the query
-  searchEngine: (query, record) => record
+    resultItem: {
+      highlight: true
+    },
+    // Trust what we get from the query
+    searchEngine: (query, record) => record
+  })
 })
-
+// TODO
 // document.getElementById('autoComplete').addEventListener('selection', event => {
 //     const selection = event.detail.selection.value;
 //     const coords = new Coordinates('EPSG:2154', selection.x, selection.y);
@@ -73,7 +79,7 @@ const autoCompleteJS = new autoComplete({
     <div class="input-group mb-3">
       <input
         id="search-place-autocomplete"
-        class="form-control"
+        class="rounded-pill form-control"
         type="search"
         dir="ltr"
         placeholder="Search places..."
@@ -95,6 +101,6 @@ const autoCompleteJS = new autoComplete({
 
 input {
   height: 30pt;
-  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
 }
 </style>
