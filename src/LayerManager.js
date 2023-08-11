@@ -327,8 +327,8 @@ class LayerManager extends EventDispatcher {
                     params: {
                         LAYERS: ['HR.ORTHOIMAGERY.ORTHOPHOTOS'],
                         FORMAT: 'image/jpeg',
+                        VERSION: '1.3.0',
                     },
-                    version: '1.3.0',
                 });
                 break;
             case MAPPROVIDERS.MAPBOX:
@@ -345,8 +345,8 @@ class LayerManager extends EventDispatcher {
                     params: {
                         LAYERS: ['Ortho2018_Dalle_unique_8cm_CC46'],
                         FORMAT: 'image/jpeg',
+                        VERSION: '1.3.0',
                     },
-                    version: '1.3.0',
                 });
                 break;
             default:
@@ -381,8 +381,8 @@ class LayerManager extends EventDispatcher {
             params: {
                 FORMAT: 'image/png',
                 SRS: this.instance.referenceCrs,
+                VERSION: '1.3.0',
             },
-            version: '1.3.0',
         });
 
         const giro3dsource = new TiledImageSource({ source });
@@ -419,8 +419,8 @@ class LayerManager extends EventDispatcher {
                     params: {
                         LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
                         FORMAT: 'image/x-bil;bits=32',
+                        VERSION: '1.3.0',
                     },
-                    version: '1.3.0',
                 });
                 noDataValue = -1000;
                 format = new BilFormat();
@@ -441,8 +441,8 @@ class LayerManager extends EventDispatcher {
                     params: {
                         LAYERS: ['MNT2018_Altitude_2m'],
                         FORMAT: 'image/jpeg',
+                        VERSION: '1.3.0',
                     },
-                    version: '1.3.0',
                 });
                 interpretation = Interpretation.ScaleToMinMax(149, 621);
                 break;
@@ -688,8 +688,8 @@ class LayerManager extends EventDispatcher {
                             params: {
                                 LAYERS: ['metropole-de-lyon:abr_arbres_alignement.abrarbre'],
                                 FORMAT: 'image/png',
+                                VERSION: '1.3.0',
                             },
-                            version: '1.3.0',
                         }),
                     }),
                 },
@@ -707,8 +707,8 @@ class LayerManager extends EventDispatcher {
                             params: {
                                 LAYERS: ['adr_voie_lieu.adrzae'],
                                 FORMAT: 'image/png',
+                                VERSION: '1.3.0',
                             },
-                            version: '1.3.0',
                         }),
                     }),
                 },
@@ -726,8 +726,8 @@ class LayerManager extends EventDispatcher {
                             params: {
                                 LAYERS: ['lyv_lyvia.lyvchantier'],
                                 FORMAT: 'image/png',
+                                VERSION: '1.3.0',
                             },
-                            version: '1.3.0',
                         }),
                     }),
                 },
@@ -745,8 +745,8 @@ class LayerManager extends EventDispatcher {
                             params: {
                                 LAYERS: ['MNC_class_2022_INT1U'],
                                 FORMAT: 'image/png',
+                                VERSION: '1.3.0',
                             },
-                            version: '1.3.0',
                         }),
                     }),
                 },
@@ -764,8 +764,8 @@ class LayerManager extends EventDispatcher {
                             params: {
                                 LAYERS: ['tel_telecom.telfibreripthd_1'],
                                 FORMAT: 'image/png',
+                                VERSION: '1.3.0',
                             },
-                            version: '1.3.0',
                         }),
                     }),
                 },

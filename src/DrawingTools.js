@@ -19,7 +19,7 @@ class DrawingTools {
         this.picking = picking;
 
         this.drawTool = new DrawTool(instance, {
-            pickPointAt: e => picking.getPointAt(e),
+            getPointAt: e => picking.getPointAt(e),
             ...options,
         });
 

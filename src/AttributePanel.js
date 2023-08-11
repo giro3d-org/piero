@@ -1,4 +1,4 @@
-import { Box3, Vector3, MeshBasicMaterial } from 'three';
+import { Box3, Vector3 } from 'three';
 import {
     Chart, Colors, BarController, CategoryScale, LinearScale, BarElement, Legend,
 } from 'chart.js';

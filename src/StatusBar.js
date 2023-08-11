@@ -4,7 +4,6 @@ import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 
 const VIEW_PARAM = 'view';
-const tmpVec3 = new Vector3();
 
 let instance;
 let layerManager;

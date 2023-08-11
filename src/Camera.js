@@ -15,7 +15,7 @@ import {
 } from 'three';
 import CameraControls from 'camera-controls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 
 /* eslint-disable jsdoc/valid-types */
 /**
@@ -55,7 +55,6 @@ class Camera extends EventDispatcher {
         this.instance.controls = this.controls;
 
         this.controls.dollyToCursor = true;
-        this.controls.enableDamping = true;
         this.controls.verticalDragToForward = true;
 
         this.controls.mouseButtons.left = CameraControls.ACTION.TRUCK;

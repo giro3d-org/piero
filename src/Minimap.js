@@ -34,8 +34,8 @@ class Minimap {
                         params: {
                             FORMAT: 'image/png',
                             SRS: this.instance.referenceCrs,
+                            VERSION: '1.3.0',
                         },
-                        version: '1.3.0',
                     }),
                 }),
             },
