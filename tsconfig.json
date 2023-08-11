@@ -1,13 +1,13 @@
 {
-    "include": ["src/*.js", "src/**/*.js"],
+    // "include": ["src/**/*.ts", "src/**/*.js"],
     "compilerOptions": {
-        "target": "es6",
+        "target": "ES2015",
         "allowJs": true,
         "checkJs": true,
         "moduleResolution": "node",
         "alwaysStrict": true,
         "strictNullChecks": false,
-        "emitDeclarationOnly": true,
+        "emitDeclarationOnly": false,
         "declaration": true,
         "removeComments": false
     }

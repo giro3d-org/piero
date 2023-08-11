@@ -1,9 +1,8 @@
 <script setup>
-import { getBasemaps } from '../../controllers/BasemapController'
+import Basemaps from '../controllers/BasemapController'
 import BasemapItem from './BasemapItem.vue'
-import Basemap from '../../types/Basemap'
 
-const basemaps = getBasemaps()
+const basemaps = Basemaps.getBasemaps()
 
 </script>
 
@@ -23,3 +22,4 @@ const basemaps = getBasemaps()
     </ul>
   </div>
 </template>
+../controllers/BasemapController../controllers/BasemapController.s

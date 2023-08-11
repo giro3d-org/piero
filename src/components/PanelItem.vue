@@ -1,6 +1,8 @@
 <script setup>
+import AboutPanel from './panels/AboutPanel.vue';
 import BasemapPanel from './panels/BasemapPanel.vue'
 import DatasetsPanel from './panels/DatasetsPanel.vue'
+import SearchPanel from './panels/SearchPanel.vue';
 
 defineProps({
   /**
@@ -15,14 +17,14 @@ defineProps({
 
 const panels = {}
 
-panels.datasets = { name: 'Datasets', panel: DatasetsPanel }
-panels.basemaps = { name: 'Basemaps', panel: BasemapPanel }
-panels.overlays = { name: 'Overlays', panel: BasemapPanel }
-panels.annotations = { name: 'Annotations', panel: BasemapPanel }
-panels.bookmarks = { name: 'Bookmarks', panel: BasemapPanel }
-panels.analysis = { name: 'Analysis', panel: DatasetsPanel }
-panels.search = { name: 'Search', panel: DatasetsPanel }
-panels.about = { name: 'About', panel: DatasetsPanel }
+panels.datasets = { name: 'Datasets' }
+panels.basemaps = { name: 'Basemaps' }
+panels.overlays = { name: 'Overlays' }
+panels.annotations = { name: 'Annotations' }
+panels.bookmarks = { name: 'Bookmarks' }
+panels.analysis = { name: 'Analysis' }
+panels.search = { name: 'Search' }
+panels.about = { name: 'About' }
 </script>
 
 <template>
@@ -31,6 +33,8 @@ panels.about = { name: 'About', panel: DatasetsPanel }
     <div class="content">
       <DatasetsPanel v-if="selected === 'datasets'" />
       <BasemapPanel v-if="selected === 'basemaps'" />
+      <AboutPanel v-if="selected === 'about'" />
+      <SearchPanel v-if="selected === 'search'" />
     </div>
   </div>
 </template>
@@ -41,7 +45,6 @@ panels.about = { name: 'About', panel: DatasetsPanel }
 }
 
 .content {
-  background-color: red;
   width: 100% auto;
   margin: 1rem;
 }

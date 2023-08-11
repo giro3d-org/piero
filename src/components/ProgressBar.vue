@@ -1,9 +1,6 @@
 <script setup>
 defineProps({
-  /**
-   * The progress percentage (in the [0, 100] range)
-   */
-  percent: {
+  progress: {
     type: Number,
     required: true
   }
@@ -15,13 +12,13 @@ defineProps({
     class="progress"
     role="progressbar"
     aria-label="Progress"
-    :aria-valuenow="{ percent }"
+    :aria-valuenow="progress * 100"
     aria-valuemin="0"
     aria-valuemax="100"
   >
-    <div
+    <div v-if="progress != 1"
       class="progress-bar progress-bar-striped progress-bar-animated"
-      :style="`width: ${percent}%`"
+      :style="`width: ${progress * 100}%`"
     ></div>
   </div>
 </template>

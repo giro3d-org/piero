@@ -4,23 +4,43 @@ import TheMinimap from './components/TheMinimap.vue'
 import The3DView from './components/The3DView.vue'
 import PanelItem from './components/PanelItem.vue'
 import ProgressBar from './components/ProgressBar.vue'
+import Giro3DController from './components/controllers/Giro3DController.js'
+import SearchOverlay from './components/SearchOverlay.vue'
 
 let selectedTool = 'datasets';
+
+function toggleSelectedTool(key) {
+  if (key === selectedTool) {
+      selectedTool = null;
+    } else {
+      selectedTool = key;
+    }
+}
 
 </script>
 
 <template>
   <The3DView class="view" />
-  <TheToolbar class="component toolbar" v-on:selected="v => { selectedTool = v; console.warn(v); $forceUpdate()}" />
+  <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => {
+    toggleSelectedTool(v)
+    $forceUpdate()
+  }" />
   <TheMinimap class="component minimap" />
-  <PanelItem class="component panel" :selected="selectedTool" />
-  <ProgressBar :percent="100" class="loading-indicator" />
+  <PanelItem  v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
+  <ProgressBar :progress="Giro3DController.getProgress()" class="loading-indicator" />
+  <SearchOverlay class="search"/>
 </template>
 
 <style scoped>
 .component {
   background-color: var(--bs-body-bg);
   /* background: var(--color-background); */
+}
+
+.search {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .loading-indicator {
@@ -59,10 +79,11 @@ let selectedTool = 'datasets';
 }
 
 .minimap {
-  width: 20rem;
+  width: 15rem;
   height: 10rem;
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  margin: 0.5rem;
+  bottom: 0;
+  right: 0;
 }
 </style>

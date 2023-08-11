@@ -1,41 +1,46 @@
 <script setup>
 import ToolButton from './ToolButton.vue'
 
+defineProps({
+  active: String
+})
 defineEmits(['selected'])
-</script>
 
+const buttons = [
+  { key: 'datasets', title: 'Datasets', icon: 'bi-database' },
+  { key: 'basemaps', title: 'Basemaps', icon: 'bi-layers' },
+  { key: 'overlays', title: 'Overlays', icon: 'bi-front' },
+  { key: 'annotations', title: 'Annotations', icon: 'bi-rulers' },
+  { key: 'analysis', title: 'Analysis', icon: 'bi-bar-chart-steps' },
+  { key: 'bookmarks', title: 'Bookmarks', icon: 'bi-bookmarks' },
+  { key: 'search', title: 'Search', icon: 'bi-search' },
+  { key: 'about', title: 'About', icon: 'bi-info-circle' }
+]
+</script>
 
 <template>
   <div class="toolbar">
     <ul id="menu" class="nav nav-pills flex-column">
       <li class="nav-item mt-2">
-        <img src="/giro3d_logo_compact.svg" height="48" class="mb-3" />
+        <a href="https://giro3d.org" target="_blank">
+          <img src="/giro3d_logo_compact.svg" height="48" class="mb-3" />
+        </a>
       </li>
 
-      <ToolButton icon="bi-database" title="Datasets" @click="$emit('selected', 'datasets')" />
-      <ToolButton icon="bi-layers" title="Basemaps" @click="$emit('selected', 'basemaps')"/>
-      <ToolButton icon="bi-front" title="Overlays" @click="$emit('selected', 'overlays')"/>
-      <ToolButton icon="bi-rulers" title="Annotations" @click="$emit('selected', 'annotations')"/>
-      <ToolButton icon="bi-bar-chart-steps" title="Analysis" @click="$emit('selected', 'analysis')"/>
-      <ToolButton icon="bi-bookmarks" title="Bookmarks" @click="$emit('selected', 'bookmarks')"/>
-      <ToolButton icon="bi-search" title="Search" @click="$emit('selected', 'search')"/>
-      <ToolButton icon="bi-info-circle" title="About" @click="$emit('selected', 'about')"/>
-
+      <ToolButton
+        v-for="button in buttons"
+        :active="active === button.key"
+        :key="button.key"
+        :title="button.title"
+        :icon="button.icon"
+        @click="$emit('selected', button.key)"
+      />
     </ul>
   </div>
 </template>
 
 <style scoped>
-.toolbar {
-  /* padding: 0.4rem; */
-}
-
 li {
-  /* background-color: var(--color-button);
-  width: 3rem;
-  height: 3rem; */
   margin: 0.2rem;
-  /* border-radius: 0.3rem;
-  border-style: none; */
 }
 </style>
