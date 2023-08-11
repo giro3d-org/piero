@@ -90,7 +90,7 @@ body {
 .layers-list-item {
     @extend .list-group-item;
     @extend .d-flex;
-    @extend .justify-content-between;
+    // @extend .justify-content-between;
     @extend .align-items-start;
     @extend .py-0;
     @extend .px-1;
@@ -151,21 +151,6 @@ li.layers-list-item a.layer-move-up-link i {
 li.layers-list-item a.layer-move-down-link i {
     @extend .bi;
     @extend .bi-arrow-down;
-}
-
-li.layers-list-item .form-range {
-    @extend .form-control;
-    width: 100px;
-}
-
-.layers-list-progress {
-    @extend .badge;
-    @extend .bg-info;
-}
-
-.layers-list-progress > .spinner {
-    @extend .spinner-border;
-    @extend .spinner-border-sm;
 }
 
 .autoComplete_wrapper {

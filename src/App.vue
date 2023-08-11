@@ -1,16 +1,19 @@
 <script setup>
-import TheToolbar from './components/TheToolbar.vue'
+import TheToolbar from './components/toolbar/TheToolbar.vue'
 import TheMinimap from './components/TheMinimap.vue'
 import The3DView from './components/The3DView.vue'
 import PanelItem from './components/PanelItem.vue'
 import ProgressBar from './components/ProgressBar.vue'
+
+let selectedTool = 'datasets';
+
 </script>
 
 <template>
   <The3DView class="view" />
-  <TheToolbar class="component toolbar" />
-  <TheMinimap class="component minimap"/>
-  <PanelItem class="component panel" panel-name="Datasets" />
+  <TheToolbar class="component toolbar" v-on:selected="v => { selectedTool = v; console.warn(v); $forceUpdate()}" />
+  <TheMinimap class="component minimap" />
+  <PanelItem class="component panel" :selected="selectedTool" />
   <ProgressBar :percent="100" class="loading-indicator" />
 </template>
 
@@ -48,18 +51,18 @@ import ProgressBar from './components/ProgressBar.vue'
 }
 
 .toolbar {
-    width: 3.5rem;
-    height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
+  width: 3.5rem;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .minimap {
-    width: 20rem;
-    height: 10rem;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+  width: 20rem;
+  height: 10rem;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
 }
 </style>

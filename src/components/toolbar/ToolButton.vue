@@ -1,21 +1,9 @@
 <script setup>
-defineProps({
-  icon: {
-    type: String,
-    required: true
-  }
-})
+defineProps(['icon', 'title'])
 </script>
 
 <template>
   <li class="nav-item">
-    <a
-      id="menu-basemaps-link"
-      class="nav-link"
-      href="#"
-      title="Basemaps"
-      data-target="#basemap-list-container"
-      ><i :class="['bi', icon]"></i
-    ></a>
+    <a class="nav-link" href="#" :title="title"><i :class="['bi', icon]"></i></a>
   </li>
 </template>
