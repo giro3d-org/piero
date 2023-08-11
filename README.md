@@ -1,11 +1,41 @@
-# Sample Giro3D application
+# giro3d-sample-application
 
-This is a sample application for demonstrating [Giro3D](https://giro3d.org) and its integration in an application.
+This template should help get you started developing with Vue 3 in Vite.
 
-## Running the application
+## Recommended IDE Setup
 
-Once checked out:
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-1. Run `npm i` to install the dependencies
-2. Run `npm run start` to start parcel
-3. The application should be available at <http://localhost:1234>
+## Customize configuration
+
+See [Vite Configuration Reference](https://vitejs.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Run Unit Tests with [Vitest](https://vitest.dev/)
+
+```sh
+npm run test:unit
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
