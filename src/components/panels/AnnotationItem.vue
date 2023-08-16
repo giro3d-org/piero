@@ -1,23 +1,25 @@
 <script setup>
-import OpacitySlider from '../OpacitySlider.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 
-defineProps(['visible', 'name', 'opacity'])
-defineEmits(['update:visible', 'update:move-up'])
+defineProps({
+  visible: Boolean,
+  name: String
+})
+defineEmits(['delete', 'download', 'update:visible'])
 </script>
 
 <template>
   <li class="list-group-item item d-flex">
     <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
-    <a class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
 
-    <OpacitySlider :opacity="opacity" />
+    <a class="title" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
+
     <div class="icons">
-      <a href="#" class="icon" title="Move up" @click="$emit('update:move-up')">
-        <i class="bi bi-arrow-up"></i>
+      <a href="#" class="icon" title="Download..." @click="$emit('download')">
+        <i class="bi bi-download"></i>
       </a>
-      <a href="#" class="icon" title="Move down" @click="$emit('update:move-down')">
-        <i class="bi bi-arrow-down"></i>
+      <a href="#" class="icon" title="Delete" @click="$emit('delete')">
+        <i class="bi bi-trash"></i>
       </a>
     </div>
   </li>
@@ -38,19 +40,22 @@ a:hover {
 
 .icons {
   width: 3rem;
+  display: flex;
 }
 
-.dataset {
+.title {
   white-space: nowrap;
   display: block;
-  width: 60% !important;
+  width: 100% !important;
   margin-left: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .icon {
-  width: 1rem !important;
+  /* width: 1rem !important; */
+  padding-left: 0.4rem;
+  width: 2rem;
   float: right;
   color: rgb(180, 180, 180);
 }

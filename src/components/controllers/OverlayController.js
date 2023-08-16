@@ -1,24 +1,21 @@
 import Overlay from "../../types/Overlay.js"
 
-const datasets = [
-    new Overlay('19_rue_Marc_Antoine_Petit.ifc', 'ifc'),
-    new Overlay('Semis_2021_0841_6518_LA93_IGN69.city.json', 'cityjson'),
-    new Overlay('Semis_2021_0841_6519_LA93_IGN69.city.json', 'cityjson'),
+const overlays = [
+    new Overlay('Arbres d\'alignement'),
+    new Overlay('Prévision de travaux de la Métropole de Lyon'),
+    new Overlay('Zones d\'activités économiques (ZAE)'),
+    new Overlay('Végétation stratifiée 2018'),
+    new Overlay('Réseau fibre'),
+    new Overlay('Fontaines (gml)'),
+    new Overlay('Footpath (gpx)'),
+    new Overlay('Sytral lines (kml)'),
+    new Overlay('Canopée (geojson)'),
 ]
 
-function getDatasets()  {
-    return datasets;
-}
-
-/**
- * @param {Dataset} dataset
- */
-function deleteDataset(dataset) {
-    const index = datasets.indexOf(dataset);
-    datasets.splice(index, 1);
+function getOverlays()  {
+    return overlays;
 }
 
 export default {
-    getDatasets,
-    deleteDataset,
+    getOverlays,
 }

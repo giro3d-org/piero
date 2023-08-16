@@ -1,6 +1,7 @@
 <script setup>
 import Bookmarks from '../controllers/BookmarkController'
 import BookmarkItem from './BookmarkItem.vue'
+import EmptyIndicator from './EmptyIndicator.vue';
 
 const bookmarks = Bookmarks.getBookmarks()
 
@@ -8,6 +9,8 @@ const bookmarks = Bookmarks.getBookmarks()
 
 <template>
   <div>
+    <EmptyIndicator text="No bookmarks" :visible="bookmarks.length === 0" />
+
     <ul class="layers-list-group">
       <BookmarkItem
         v-for="bookmark in bookmarks"

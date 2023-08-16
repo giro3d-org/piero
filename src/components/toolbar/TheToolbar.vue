@@ -13,7 +13,7 @@ const buttons = [
   { key: 'annotations', title: 'Annotations', icon: 'bi-rulers' },
   { key: 'analysis', title: 'Analysis', icon: 'bi-bar-chart-steps' },
   { key: 'bookmarks', title: 'Bookmarks', icon: 'bi-bookmarks' },
-  { key: 'search', title: 'Search', icon: 'bi-search' },
+  // { key: 'search', title: 'Search', icon: 'bi-search' },
   { key: 'about', title: 'About', icon: 'bi-info-circle' }
 ]
 </script>

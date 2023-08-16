@@ -1,8 +1,8 @@
 <script setup>
-import Datasets from '../controllers/DatasetController'
+import Overlays from '../controllers/OverlayController'
 import OverlayItem from './OverlayItem.vue'
 
-const datasets = Datasets.getDatasets()
+const overlays = Overlays.getOverlays()
 
 </script>
 
@@ -10,9 +10,9 @@ const datasets = Datasets.getDatasets()
   <div>
     <ul class="layers-list-group">
       <OverlayItem
-        v-for="layer in datasets"
-        :key="layer.name"
-        :name="layer.name"
+        v-for="item in overlays"
+        :key="item.name"
+        :name="item.name"
       />
     </ul>
   </div>

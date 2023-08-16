@@ -5,6 +5,8 @@ import DatasetPanel from './panels/DatasetPanel.vue'
 import SearchPanel from './panels/SearchPanel.vue';
 import BookmarkPanel from './panels/BookmarkPanel.vue';
 import OverlayPanel from './panels/OverlayPanel.vue';
+import AnalysisPanel from './panels/AnalysisPanel.vue';
+import AnnotationPanel from './panels/AnnotationPanel.vue';
 
 defineProps({
   /**
@@ -39,6 +41,8 @@ panels.about = { name: 'About' }
       <SearchPanel v-if="selected === 'search'" />
       <BookmarkPanel v-if="selected === 'bookmarks'" />
       <OverlayPanel v-if="selected === 'overlays'" />
+      <AnalysisPanel v-if="selected === 'analysis'" />
+      <AnnotationPanel v-if="selected === 'annotations'" />
     </div>
   </div>
 </template>

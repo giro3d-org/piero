@@ -57,7 +57,7 @@ function toggleSelectedTool(key) {
   position: absolute;
   height: 100vh;
   left: 3.5rem;
-  width: 20rem;
+  width: 25rem;
   z-index: 1;
 }
 

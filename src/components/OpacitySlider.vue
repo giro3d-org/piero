@@ -4,7 +4,7 @@ defineProps(['opacity'])
 
 <template>
     <div class="slider">
-      <i title="Transparent" class="bi-x-diamond mx-1"></i>
+      <i title="Transparent" class="bi-x-diamond mx-2"></i>
       <input
         title="Opacity"
         type="range"
@@ -15,6 +15,22 @@ defineProps(['opacity'])
         @input="$emit('update:opacity', $event.target.value)"
         :value="opacity"
       />
-      <i title="Opaque" class="bi-x-diamond-fill mx-1"></i>
+      <i title="Opaque" class="bi-x-diamond-fill mx-2"></i>
     </div>
 </template>
+
+<style scoped>
+.slider {
+  display: flex;
+}
+
+input {
+  display: flex;
+  border-color: lightgray;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+</style>

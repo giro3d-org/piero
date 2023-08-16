@@ -1,5 +1,6 @@
 <script setup>
 import OpacitySlider from '../OpacitySlider.vue';
+import VisibilityControl from '../VisibilityControl.vue';
 
 defineProps(['opacity', 'visible', 'isLoading', 'name'])
 defineEmits(['update:opacity', 'update:visible'])
@@ -7,9 +8,7 @@ defineEmits(['update:opacity', 'update:visible'])
 
 <template>
   <li class="list-group-item d-flex justify-content-between">
-    <a href="#" title="Hide this layer" @click="$emit('update:visible')">
-      <i :class="['bi', 'icon', visible ? 'bi-eye' : 'bi-eye-slash']"></i>
-    </a>
+    <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
     <div class="layer-name">{{ name }}</div>
     <div class="spinner-container">
       <div
@@ -49,9 +48,5 @@ defineEmits(['update:opacity', 'update:visible'])
 .layer-name {
   width: 40%;
   margin-left: 1rem;
-}
-
-.slider {
-  display: flex;
 }
 </style>
