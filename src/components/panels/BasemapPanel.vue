@@ -8,7 +8,7 @@ const basemaps = Basemaps.getBasemaps()
 
 <template>
   <div>
-    <ul id="basemap-list" class="layers-list-group">
+    <ul class="layers-list-group">
       <BasemapItem
         v-for="layer in basemaps"
         :key="layer.name"
@@ -22,4 +22,3 @@ const basemaps = Basemaps.getBasemaps()
     </ul>
   </div>
 </template>
-../controllers/BasemapController../controllers/BasemapController.s

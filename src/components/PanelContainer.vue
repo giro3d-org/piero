@@ -1,8 +1,10 @@
 <script setup>
 import AboutPanel from './panels/AboutPanel.vue';
 import BasemapPanel from './panels/BasemapPanel.vue'
-import DatasetsPanel from './panels/DatasetsPanel.vue'
+import DatasetPanel from './panels/DatasetPanel.vue'
 import SearchPanel from './panels/SearchPanel.vue';
+import BookmarkPanel from './panels/BookmarkPanel.vue';
+import OverlayPanel from './panels/OverlayPanel.vue';
 
 defineProps({
   /**
@@ -31,10 +33,12 @@ panels.about = { name: 'About' }
   <div class="panel">
     <h5 class="title">{{ panels[selected].name }}</h5>
     <div class="content">
-      <DatasetsPanel v-if="selected === 'datasets'" />
+      <DatasetPanel v-if="selected === 'datasets'" />
       <BasemapPanel v-if="selected === 'basemaps'" />
       <AboutPanel v-if="selected === 'about'" />
       <SearchPanel v-if="selected === 'search'" />
+      <BookmarkPanel v-if="selected === 'bookmarks'" />
+      <OverlayPanel v-if="selected === 'overlays'" />
     </div>
   </div>
 </template>
@@ -46,6 +50,7 @@ panels.about = { name: 'About' }
 
 .content {
   width: 100% auto;
+  /* height: 100%; */
   margin: 1rem;
 }
 

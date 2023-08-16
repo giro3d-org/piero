@@ -2,7 +2,7 @@
 import TheToolbar from './components/toolbar/TheToolbar.vue'
 import TheMinimap from './components/TheMinimap.vue'
 import The3DView from './components/The3DView.vue'
-import PanelItem from './components/PanelItem.vue'
+import PanelContainer from './components/PanelContainer.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import Giro3DController from './components/controllers/Giro3DController.js'
 import SearchOverlay from './components/SearchOverlay.vue'
@@ -26,7 +26,7 @@ function toggleSelectedTool(key) {
     $forceUpdate()
   }" />
   <TheMinimap class="component minimap" />
-  <PanelItem  v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
+  <PanelContainer  v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="Giro3DController.getProgress()" class="loading-indicator" />
   <SearchOverlay class="search"/>
 </template>
@@ -57,7 +57,7 @@ function toggleSelectedTool(key) {
   position: absolute;
   height: 100vh;
   left: 3.5rem;
-  width: 30rem;
+  width: 20rem;
   z-index: 1;
 }
 
@@ -74,6 +74,7 @@ function toggleSelectedTool(key) {
   width: 3.5rem;
   height: 100vh;
   position: absolute;
+  background-color: rgb(250, 250, 250);
   top: 0;
   left: 0;
 }

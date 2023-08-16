@@ -1,10 +1,16 @@
 <script setup>
+import OpacitySlider from '../OpacitySlider.vue';
+
 defineProps(['opacity', 'visible', 'isLoading', 'name'])
 defineEmits(['update:opacity', 'update:visible'])
 </script>
 
 <template>
   <li class="list-group-item d-flex justify-content-between">
+    <a href="#" title="Hide this layer" @click="$emit('update:visible')">
+      <i :class="['bi', 'icon', visible ? 'bi-eye' : 'bi-eye-slash']"></i>
+    </a>
+    <div class="layer-name">{{ name }}</div>
     <div class="spinner-container">
       <div
         v-if="isLoading"
@@ -14,25 +20,7 @@ defineEmits(['update:opacity', 'update:visible'])
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-
-    <a href="#" title="Hide this layer" @click="$emit('update:visible')">
-      <i :class="['bi', visible ? 'bi-eye' : 'bi-eye-slash']"></i>
-    </a>
-    <div class="layer-name">{{ name }}</div>
-    <div class="slider">
-      <i class="bi-x-diamond mx-1"></i>
-      <input
-        title="Opacity"
-        type="range"
-        class="form-range"
-        min="0"
-        step="0.01"
-        max="1"
-        @input="$emit('update:opacity', $event.target.value)"
-        :value="opacity"
-      />
-      <i class="bi-x-diamond-fill mx-1"></i>
-    </div>
+    <OpacitySlider :opacity="opacity" />
   </li>
 </template>
 
@@ -44,6 +32,18 @@ defineEmits(['update:opacity', 'update:visible'])
 
 .spinner-container {
   width: 1rem;
+}
+
+.icon {
+  margin-left: 0.2rem;
+  width: 1rem !important;
+  color: rgb(180, 180, 180);
+}
+
+@media (hover: hover) {
+  .icon:hover {
+    color: rgb(75, 75, 75);
+  }
 }
 
 .layer-name {
