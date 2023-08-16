@@ -15,9 +15,9 @@ let currentInstance;
 let giroMap;
 
 const basemaps = [
-    new Basemap('osm', 'OSM', 'color'),
-    new Basemap('imagery', 'Imagery', 'color'),
-    new Basemap('elevation', 'Elevation', 'elevation'),
+    new Basemap({ id: 'osm', name: 'OSM', type: 'color', visible: false }),
+    new Basemap({ id: 'imagery', name: 'Imagery' }),
+    new Basemap({ id: 'elevation', name: 'Elevation', type: 'elevation' }),
 ];
 
 const layers = new Map();
@@ -60,7 +60,7 @@ function loadOSMLayer(map, id) {
         source: new TiledImageSource({ source: new OSM() }),
     });
 
-    layer.visible = true;
+    layer.visible = false;
 
     map.addLayer(layer);
 
