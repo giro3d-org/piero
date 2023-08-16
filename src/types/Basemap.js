@@ -2,11 +2,13 @@ export default class Basemap {
     /**
      * @param {string} name The name of the layer.
      */
-    constructor(name) {
+    constructor(id, name, type) {
+        this.id = id;
         this.name = name;
         this._visible = true;
         this._loading = false;
         this._opacity = 1;
+        this.type = type;
     }
 
     get opacity() {

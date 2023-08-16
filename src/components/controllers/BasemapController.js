@@ -1,5 +1,3 @@
-import { Vector2 } from 'three'
-
 import OSM from 'ol/source/OSM'
 import TileWMS from 'ol/source/TileWMS'
 
@@ -13,17 +11,22 @@ import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer'
 
 import Basemap from "../../types/Basemap"
 
+let currentInstance;
+let giroMap;
+
 const basemaps = [
-    new Basemap('OSM'),
-    new Basemap('Imagery'),
-    new Basemap('Elevation'),
+    new Basemap('osm', 'OSM', 'color'),
+    new Basemap('imagery', 'Imagery', 'color'),
+    new Basemap('elevation', 'Elevation', 'elevation'),
 ];
+
+const layers = new Map();
 
 function getBasemaps() {
     return basemaps;
 }
 
-function loadElevationLayer(map) {
+function loadElevationLayer(map, id) {
     const source = new TileWMS({
         url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
         projection: map.extent.crs(),
@@ -37,18 +40,22 @@ function loadElevationLayer(map) {
     const noDataValue = -1000;
     const format = new BilFormat();
 
-    map.addLayer(new ElevationLayer('elevation', {
+    const layer = new ElevationLayer(id, {
         source: new TiledImageSource({ source, format, noDataValue }),
         extent: map.extent,
         noDataValue,
-    }));
+    });
+
+    map.addLayer(layer);
+
+    return layer;
 }
 
 /**
  * @param {GiroMap} map
  */
-function loadOSMLayer(map) {
-    const layer = new ColorLayer('osm', {
+function loadOSMLayer(map, id) {
+    const layer = new ColorLayer(id, {
         extent: map.extent,
         source: new TiledImageSource({ source: new OSM() }),
     });
@@ -56,9 +63,11 @@ function loadOSMLayer(map) {
     layer.visible = true;
 
     map.addLayer(layer);
+
+    return layer;
 }
 
-function loadImageryLayer(map) {
+function loadImageryLayer(map, id) {
     // Create a WMS imagery layer
     const wmsOthophotoSource = new TiledImageSource({
         source: new TileWMS({
@@ -71,37 +80,66 @@ function loadImageryLayer(map) {
         }),
     });
 
-    const colorLayer = new ColorLayer('imagery', {
+    const colorLayer = new ColorLayer(id, {
         extent: map.extent,
         source: wmsOthophotoSource,
     },
     );
     map.addLayer(colorLayer);
+
+    return colorLayer;
 }
 
 /**
  * @param {Instance} instance
  */
 function loadBasemaps(instance) {
+    currentInstance = instance;
+
     const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(instance.referenceCrs).xyz();
     const extent = Extent.fromCenterAndSize(instance.referenceCrs, { x: center.x, y: center.y }, 30000, 30000);
 
-    const giroMap = new GiroMap('basemaps', {
+    giroMap = new GiroMap('basemaps', {
         extent,
         hillshading: true,
         segments: 128,
+        backgroundColor: 'white',
     })
 
     instance.add(giroMap);
 
-    loadOSMLayer(giroMap);
-    loadElevationLayer(giroMap);
-    loadImageryLayer(giroMap);
+    layers.set('elevation', loadElevationLayer(giroMap, 'elevation'));
+    layers.set('imagery', loadImageryLayer(giroMap, 'imagery'));
+    layers.set('osm', loadOSMLayer(giroMap, 'osm'));
 
     instance.notifyChange();
+}
+
+/**
+ * @param {Basemap} basemap
+ * @param {number} opacity
+ */
+function setOpacity(basemap, opacity) {
+    basemap.opacity = opacity;
+    const layer = layers.get(basemap.id);
+    layer.opacity = opacity;
+    currentInstance.notifyChange(layer);
+}
+
+/**
+ * @param {Basemap} basemap
+ * @param {boolean} visible
+ */
+function setVisibility(basemap, visible) {
+    basemap.visible = visible;
+    const layer = layers.get(basemap.id);
+    layer.visible = visible;
+    currentInstance.notifyChange(layer);
 }
 
 export default {
     getBasemaps,
     loadBasemaps,
+    setOpacity,
+    setVisibility
 }

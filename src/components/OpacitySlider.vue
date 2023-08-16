@@ -1,5 +1,8 @@
 <script setup>
-defineProps(['opacity'])
+defineProps({
+  opacity: Number
+})
+defineEmits(['update:opacity'])
 </script>
 
 <template>

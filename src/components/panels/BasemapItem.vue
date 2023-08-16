@@ -2,7 +2,13 @@
 import OpacitySlider from '../OpacitySlider.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 
-defineProps(['opacity', 'visible', 'isLoading', 'name'])
+defineProps({
+  opacity: Number,
+  visible: Boolean,
+  isLoading: Boolean,
+  hasOpacitySlider: Boolean,
+  name: String,
+})
 defineEmits(['update:opacity', 'update:visible'])
 </script>
 
@@ -19,7 +25,9 @@ defineEmits(['update:opacity', 'update:visible'])
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-    <OpacitySlider :opacity="opacity" />
+    <div class="slider">
+      <OpacitySlider v-if="hasOpacitySlider" :opacity="opacity" v-on:update:opacity="(v) => $emit('update:opacity', v)" />
+    </div>
   </li>
 </template>
 
@@ -27,6 +35,10 @@ defineEmits(['update:opacity', 'update:visible'])
 .main {
   display: flex;
   align-items: start;
+}
+
+.slider {
+  width: 12rem;
 }
 
 .spinner-container {

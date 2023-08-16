@@ -2,8 +2,12 @@
 import OpacitySlider from '../OpacitySlider.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 
-defineProps(['visible', 'name', 'opacity'])
-defineEmits(['update:visible', 'update:move-up'])
+defineProps({
+  visible: Boolean,
+  name: String,
+  opacity: Number
+})
+defineEmits(['update:visible', 'update:opacity', 'update:move-up'])
 </script>
 
 <template>
@@ -11,7 +15,7 @@ defineEmits(['update:visible', 'update:move-up'])
     <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
     <a class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
 
-    <OpacitySlider :opacity="opacity" />
+    <OpacitySlider :opacity="opacity" v-on:update:opacity="(v) => $emit('update:opacity', v)" />
     <div class="icons">
       <a href="#" class="icon" title="Move up" @click="$emit('update:move-up')">
         <i class="bi bi-arrow-up"></i>
