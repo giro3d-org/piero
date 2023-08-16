@@ -101,7 +101,7 @@ function loadBasemaps(instance) {
 
     giroMap = new GiroMap('basemaps', {
         extent,
-        hillshading: true,
+        // hillshading: true,
         segments: 128,
         backgroundColor: 'white',
     })

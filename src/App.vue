@@ -6,29 +6,32 @@ import PanelContainer from './components/PanelContainer.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import Giro3DController from './components/controllers/Giro3DController.js'
 import SearchOverlay from './components/SearchOverlay.vue'
+import { ref } from 'vue'
 
-let selectedTool = 'datasets';
+const selectedTool = ref('datasets');
+const progress = ref(1);
 
-function toggleSelectedTool(key) {
-  if (key === selectedTool) {
-      selectedTool = null;
-    } else {
-      selectedTool = key;
-    }
+function selectPanel(key) {
+  if (key === selectedTool.value) {
+    selectedTool.value = null;
+  } else {
+    selectedTool.value = key;
+  }
 }
+
+Giro3DController.registerCallback(() => {
+  progress.value = Giro3DController.getProgress();
+});
 
 </script>
 
 <template>
   <MainView class="mainview" />
-  <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => {
-    toggleSelectedTool(v)
-    $forceUpdate()
-  }" />
+  <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
-  <PanelContainer  v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
-  <ProgressBar :progress="Giro3DController.getProgress()" class="loading-indicator" />
-  <SearchOverlay class="search"/>
+  <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
+  <ProgressBar :progress="progress" class="loading-indicator" />
+  <SearchOverlay class="search" />
 </template>
 
 <style scoped>

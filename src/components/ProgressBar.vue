@@ -22,3 +22,11 @@ defineProps({
     ></div>
   </div>
 </template>
+
+<script>
+export default {
+  methods: {
+    tick() { this.$forceUpdate() }
+  },
+}
+</script>

@@ -3,8 +3,11 @@ import Instance from '@giro3d/giro3d/core/Instance.js'
 import Camera from './CameraController';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop';
 
 const DEFAULT_CRS = 'EPSG:2154';
+
+const callbacks = [];
 
 /** @type {Instance} */
 let mainInstance;
@@ -40,6 +43,10 @@ function mountGiro3D(div, inspectorDiv) {
         },
     })
 
+    for (const callback of callbacks) {
+        mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, callback);
+    }
+
     const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(mainInstance.referenceCrs);
 
     mainCamera = new Camera(mainInstance, center.xyz());
@@ -63,11 +70,19 @@ function getProgress() {
     return mainInstance?.progress ?? 0;
 }
 
+function registerCallback(callback) {
+    callbacks.push(callback);
+    if (mainInstance) {
+        mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, callback);
+    }
+}
+
 export default {
     mountGiro3D,
     getMainInstance,
     unmountGiro3D,
     getProgress,
     initializeOnce,
+    registerCallback,
     DEFAULT_CRS,
 }
