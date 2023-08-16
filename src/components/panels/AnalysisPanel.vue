@@ -1,21 +1,11 @@
 <script setup>
 import FloodingPlane from './analysis/FloodingPlane.vue'
-
-const floodingPlane = {
-    enabled: false,
-    height: 166,
-};
-
 </script>
 
 <template>
     <div>
         <ul class="layers-list-group">
-
-            <FloodingPlane class="tool" :value="floodingPlane.height" :enable="floodingPlane.enabled"
-                v-on:update:value="(v) => { floodingPlane.height = v; $forceUpdate() }"
-                v-on:update:enable="() => { floodingPlane.enabled = !floodingPlane.enabled; $forceUpdate() }" />
-
+            <FloodingPlane class="tool" />
         </ul>
     </div>
 </template>

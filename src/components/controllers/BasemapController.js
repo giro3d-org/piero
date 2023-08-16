@@ -137,9 +137,14 @@ function setVisibility(basemap, visible) {
     currentInstance.notifyChange(layer);
 }
 
+function getExtent() {
+    return giroMap.extent;
+}
+
 export default {
     getBasemaps,
     loadBasemaps,
     setOpacity,
-    setVisibility
+    setVisibility,
+    getExtent,
 }

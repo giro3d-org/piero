@@ -1,6 +1,22 @@
 <script setup>
-defineProps(['value', 'enable'])
-defineEmits(['update:value', 'update:enable'])
+import { ref } from 'vue';
+import FloodingPlaneController from '../../controllers/FloodingPlaneController'
+
+const floodingPlane = ref({
+    height: 166,
+    visible: false,
+});
+
+function show(visible) {
+    floodingPlane.value.visible = visible;
+    FloodingPlaneController.updatePlane(floodingPlane.value.visible, floodingPlane.value.height);
+  }
+
+function setHeight(height) {
+    floodingPlane.value.height = height;
+    FloodingPlaneController.updatePlane(floodingPlane.value.visible, floodingPlane.value.height);
+}
+
 </script>
 
 <template>
@@ -9,16 +25,16 @@ defineEmits(['update:value', 'update:enable'])
       <div class="form-check form-switch">
         <input
           class="form-check-input"
-          :checked="enable"
+          :checked="floodingPlane.visible"
           type="checkbox"
           role="switch"
           id="enable"
-          @input="$emit('update:enable')"
+          @input="() => show(!floodingPlane.visible)"
         />
         <label class="form-check-label" for="enable">Flooding plane</label>
       </div>
     </h5>
-    <div class="card-body" v-if="enable">
+    <div class="card-body" v-if="floodingPlane.visible">
       <div class="input-group mb-3">
         <label for="flooding-altitude-range" class="form-label">Altitude</label>
         <input
@@ -27,17 +43,19 @@ defineEmits(['update:value', 'update:enable'])
           type="range"
           class="form-range"
           min="0"
+          step="0.1"
           max="500"
-          :value="value"
-          @input="$emit('update:value', $event.target.value)"
+          :value="floodingPlane.height"
+          @input="(event) => setHeight(Number.parseFloat(event.target.value))"
         />
         <div class="input-group mb-3">
           <input
             type="number"
             class="form-control"
             id="flooding-altitude-number"
-            :value="value"
-            @input="$emit('update:value', $event.target.value)"
+            step="0.1"
+            :value="floodingPlane.height"
+            @input="(event) => setHeight(Number.parseFloat(event.target.value))"
           />
           <span class="input-group-text">m</span>
         </div>
