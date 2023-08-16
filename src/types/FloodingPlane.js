@@ -3,7 +3,7 @@ import * as THREE from "three";
 export default class FloodingPlane {
     constructor() {
         this.geometry =  new THREE.PlaneGeometry(1, 1, 1, 1);
-        this.material = new THREE.MeshBasicMaterial({ color: 0x00cccc });
+        this.material = new THREE.MeshBasicMaterial({ color: 0x00aaaa });
         this.object3D = new THREE.Mesh(this.geometry, this.material);
     }
 

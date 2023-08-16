@@ -7,9 +7,11 @@ import ProgressBar from './components/ProgressBar.vue'
 import Giro3DController from './components/controllers/Giro3DController.js'
 import SearchOverlay from './components/SearchOverlay.vue'
 import { ref } from 'vue'
+import StatusBar from './components/StatusBar.vue'
 
 const selectedTool = ref('datasets');
 const progress = ref(1);
+const coordinates = ref({ x: 0, y: 0, z: 0 });
 
 function selectPanel(key) {
   if (key === selectedTool.value) {
@@ -23,10 +25,25 @@ Giro3DController.registerCallback(() => {
   progress.value = Giro3DController.getProgress();
 });
 
+function pick(event) {
+  const picks = Giro3DController.getMainInstance().pickObjectsAt(event, {
+    radius: 1,
+    limit: 1
+  });
+
+  if (picks.length > 0) {
+    const point = picks[0].point;
+    coordinates.value.x = point.x;
+    coordinates.value.y = point.y;
+    coordinates.value.z = point.z;
+  }
+}
+
 </script>
 
 <template>
-  <MainView class="mainview" />
+  <MainView @mousemove="(evt) => pick(evt)" class="mainview" />
+  <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
@@ -40,10 +57,23 @@ Giro3DController.registerCallback(() => {
   /* background: var(--color-background); */
 }
 
+.statusbar {
+  padding: 0.2rem;
+  text-align: center;
+  border-top-left-radius: 0.5rem;
+  box-shadow: -1px -1px 5px rgba(0, 0, 0, 0.1);
+  height: 1.5rem;
+  width: 30rem;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
 .search {
   position: absolute;
   top: 0;
-  right: 0;
+  left: calc(50% - 20rem / 2);
+  width: 20rem;
 }
 
 .loading-indicator {
@@ -87,7 +117,7 @@ Giro3DController.registerCallback(() => {
   height: 10rem;
   position: absolute;
   margin: 0.5rem;
-  bottom: 0;
+  top: 0;
   right: 0;
 }
 </style>
