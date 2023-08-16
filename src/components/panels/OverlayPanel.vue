@@ -13,6 +13,8 @@ const overlays = Overlays.getOverlays()
         v-for="item in overlays"
         :key="item.name"
         :name="item.name"
+        :visible="item.visible"
+        :opacity="item.opacity"
       />
     </ul>
   </div>

@@ -1,7 +1,7 @@
 <script setup>
 import TheToolbar from './components/toolbar/TheToolbar.vue'
-import TheMinimap from './components/TheMinimap.vue'
-import The3DView from './components/The3DView.vue'
+import MinimapView from './components/MinimapView.vue'
+import MainView from './components/MainView.vue'
 import PanelContainer from './components/PanelContainer.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import Giro3DController from './components/controllers/Giro3DController.js'
@@ -20,12 +20,12 @@ function toggleSelectedTool(key) {
 </script>
 
 <template>
-  <The3DView class="view" />
+  <MainView class="mainview" />
   <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => {
     toggleSelectedTool(v)
     $forceUpdate()
   }" />
-  <TheMinimap class="component minimap" />
+  <MinimapView class="component minimap" />
   <PanelContainer  v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="Giro3DController.getProgress()" class="loading-indicator" />
   <SearchOverlay class="search"/>
@@ -61,7 +61,7 @@ function toggleSelectedTool(key) {
   z-index: 1;
 }
 
-.view {
+.mainview {
   position: absolute;
   background-color: cadetblue;
   height: 100vh;
@@ -80,7 +80,7 @@ function toggleSelectedTool(key) {
 }
 
 .minimap {
-  width: 15rem;
+  width: 10rem;
   height: 10rem;
   position: absolute;
   margin: 0.5rem;

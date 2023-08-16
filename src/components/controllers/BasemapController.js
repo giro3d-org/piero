@@ -1,10 +1,17 @@
 import { Vector2 } from 'three'
-import GiroMap from '@giro3d/giro3d/entities/Map.js'
-import Instance from '@giro3d/giro3d/core/Instance.js'
-import Extent from '@giro3d/giro3d/core/geographic/Extent.js'
-import Basemap from "../../types/Basemap"
 
-const DEFAULT_EXTENT = new Extent('EPSG:2154', -378305.81, 6005281.2, 1320649.57, 7235612.72);
+import OSM from 'ol/source/OSM'
+import TileWMS from 'ol/source/TileWMS'
+
+import BilFormat from '@giro3d/giro3d/formats/BilFormat'
+import GiroMap from '@giro3d/giro3d/entities/Map'
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource'
+import Extent from '@giro3d/giro3d/core/geographic/Extent'
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer'
+
+import Basemap from "../../types/Basemap"
 
 const basemaps = [
     new Basemap('OSM'),
@@ -16,19 +23,82 @@ function getBasemaps() {
     return basemaps;
 }
 
+function loadElevationLayer(map) {
+    const source = new TileWMS({
+        url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
+        projection: map.extent.crs(),
+        crossOrigin: 'anonymous',
+        params: {
+            LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
+            FORMAT: 'image/x-bil;bits=32',
+            VERSION: '1.3.0',
+        },
+    });
+    const noDataValue = -1000;
+    const format = new BilFormat();
+
+    map.addLayer(new ElevationLayer('elevation', {
+        source: new TiledImageSource({ source, format, noDataValue }),
+        extent: map.extent,
+        noDataValue,
+    }));
+}
+
+/**
+ * @param {GiroMap} map
+ */
+function loadOSMLayer(map) {
+    const layer = new ColorLayer('osm', {
+        extent: map.extent,
+        source: new TiledImageSource({ source: new OSM() }),
+    });
+
+    layer.visible = true;
+
+    map.addLayer(layer);
+}
+
+function loadImageryLayer(map) {
+    // Create a WMS imagery layer
+    const wmsOthophotoSource = new TiledImageSource({
+        source: new TileWMS({
+            url: 'https://wxs.ign.fr/ortho/geoportail/r/wms',
+            projection: 'EPSG:2154',
+            params: {
+                LAYERS: ['HR.ORTHOIMAGERY.ORTHOPHOTOS'],
+                FORMAT: 'image/jpeg',
+            },
+        }),
+    });
+
+    const colorLayer = new ColorLayer('imagery', {
+        extent: map.extent,
+        source: wmsOthophotoSource,
+    },
+    );
+    map.addLayer(colorLayer);
+}
+
 /**
  * @param {Instance} instance
  */
 function loadBasemaps(instance) {
+    const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(instance.referenceCrs).xyz();
+    const extent = Extent.fromCenterAndSize(instance.referenceCrs, { x: center.x, y: center.y }, 30000, 30000);
+
     const giroMap = new GiroMap('basemaps', {
-        extent: DEFAULT_EXTENT,
+        extent,
+        hillshading: true,
+        segments: 128,
     })
 
     instance.add(giroMap);
 
-    const center = giroMap.extent.center(new Vector2());
-    instance.camera.camera3D.position.set(center.x, center.y, 5000000);
-    instance.camera.camera3D.lookAt(center.x, center.y, 0);
+    loadOSMLayer(giroMap);
+    loadElevationLayer(giroMap);
+    loadImageryLayer(giroMap);
+
+    instance.notifyChange();
 }
 
 export default {

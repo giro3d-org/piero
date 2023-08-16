@@ -1,13 +1,16 @@
 <script setup>
-defineProps(['visible', 'name'])
+import VisibilityControl from '../VisibilityControl.vue';
+
+defineProps({
+  visible: Boolean,
+  name: String
+})
 defineEmits(['delete', 'zoom', 'update:visible'])
 </script>
 
 <template>
   <li class="list-group-item item d-flex">
-    <a href="#" title="Hide this dataset" @click="$emit('update:visible')">
-      <i :class="['bi', 'icon', visible ? 'bi-eye' : 'bi-eye-slash']"></i>
-    </a>
+    <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
     <a class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
     <div class="icons">
       <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">

@@ -7,7 +7,7 @@ let autoCompleteControl;
 onMounted(() => {
     autoCompleteControl = new autoComplete({
     selector: '#search-place-autocomplete',
-    placeHolder: 'Search for a place...',
+    placeHolder: 'Search places...',
     threshold: 3,
     debounce: 300, // 300ms debounce
     data: {
@@ -76,7 +76,7 @@ onMounted(() => {
 
 <template>
   <div class="main">
-    <div class="input-group mb-3">
+    <div class="input-group">
       <input
         id="search-place-autocomplete"
         class="rounded-pill form-control"
@@ -96,7 +96,7 @@ onMounted(() => {
 
 <style scoped>
 .main {
-  padding: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 input {

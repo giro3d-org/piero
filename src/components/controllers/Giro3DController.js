@@ -1,6 +1,8 @@
 import Instance from '@giro3d/giro3d/core/Instance.js'
-import Extent from '@giro3d/giro3d/core/geographic/Extent.js'
+// import Inspector from '@giro3d/giro3d/gui/Inspector.js'
 import Camera from './CameraController';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 
 const DEFAULT_CRS = 'EPSG:2154';
 
@@ -38,12 +40,16 @@ function mountGiro3D(div, inspectorDiv) {
         },
     })
 
-    mainCamera = new Camera(mainInstance);
+    const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(mainInstance.referenceCrs);
+
+    mainCamera = new Camera(mainInstance, center.xyz());
     mainCamera.bindKeys();
 
     mainInstance.notifyChange()
 
-    // TODO
+    const extent = Extent.fromCenterAndSize(mainInstance.referenceCrs, { x: center.xyz().x, y: center.xyz().y }, 10000, 10000);
+    mainCamera.setInitialPosition(extent);
+
     // Inspector.attach(inspectorDiv, mainInstance);
 
     return mainInstance
@@ -62,4 +68,6 @@ export default {
     getMainInstance,
     unmountGiro3D,
     getProgress,
+    initializeOnce,
+    DEFAULT_CRS,
 }
