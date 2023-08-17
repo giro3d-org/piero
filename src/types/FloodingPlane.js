@@ -1,15 +1,18 @@
 import * as THREE from "three";
 
+const DEFAULT_HEIGHT = 170;
+
 export default class FloodingPlane {
     constructor() {
         this.geometry =  new THREE.PlaneGeometry(1, 1, 1, 1);
         this.material = new THREE.MeshBasicMaterial({ color: 0x00aaaa });
         this.object3D = new THREE.Mesh(this.geometry, this.material);
+        this.visible = false;
+        this.height = DEFAULT_HEIGHT;
     }
 
     set height(z) {
-        this.object3D.position.setZ(z);
-        this.object3D.updateMatrixWorld();
+        this._height = z;
     }
 
     setPosition(x, y, z, width, height) {
@@ -19,7 +22,7 @@ export default class FloodingPlane {
     }
 
     get height() {
-        return this.object3D.position.z;
+        return this._height;
     }
 
     set visible(v) {

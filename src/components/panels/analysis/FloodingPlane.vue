@@ -2,19 +2,16 @@
 import { ref } from 'vue';
 import FloodingPlaneController from '../../controllers/FloodingPlaneController'
 
-const floodingPlane = ref({
-    height: 166,
-    visible: false,
-});
+const floodingPlane = ref(FloodingPlaneController.getPlane());
 
 function show(visible) {
     floodingPlane.value.visible = visible;
-    FloodingPlaneController.updatePlane(floodingPlane.value.visible, floodingPlane.value.height);
+    FloodingPlaneController.updatePlane();
   }
 
 function setHeight(height) {
     floodingPlane.value.height = height;
-    FloodingPlaneController.updatePlane(floodingPlane.value.visible, floodingPlane.value.height);
+    FloodingPlaneController.updatePlane();
 }
 
 </script>
