@@ -15,6 +15,10 @@ const overlays = Overlays.getOverlays()
         :name="item.name"
         :visible="item.visible"
         :opacity="item.opacity"
+        v-on:update:visible="() => { item.visible = !item.visible; $forceUpdate() }"
+        v-on:update:opacity="(o) => { item.opacity = o; $forceUpdate() }"
+        v-on:update:move-up="() => { item.moveUp(); $forceUpdate() }"
+        v-on:update:move-down="() => { item.moveDown(); $forceUpdate() }"
       />
     </ul>
   </div>

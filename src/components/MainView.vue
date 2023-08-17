@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import BasemapController from './controllers/BasemapController.js'
-import OverlayController from './controllers/OverlayController';
 import MainController from './controllers/MainController'
+import Inspector from '@giro3d/giro3d/gui/Inspector';
 
 const mainView = ref(null);
 const inspectorView = ref(null);
 
 onMounted(() => {
-    MainController.init(mainView.value, inspectorView.value);
+    const mainCtrl = MainController.init(mainView.value);
 
-    // BasemapController.onGiro3DMounted(main);
-    // BasemapController.loadBasemaps(main.mainInstance);
-    // OverlayController.loadOverlays(main.mainInstance);
+    Inspector.attach(inspectorView.value, mainCtrl.mainInstance, { title: 'Main view', width: 300 });
+    // TODO minimap inspector
 })
 
 onUnmounted(() => {
@@ -22,7 +20,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div>
+    <div class="main">
         <div ref="mainView" class="main" id="main-view"></div>
         <div ref="inspectorView" id="inspector" class="position-absolute top-0 start-0 mh-100 overflow-auto"></div>
     </div>

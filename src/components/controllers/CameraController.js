@@ -47,9 +47,8 @@ class Camera extends EventDispatcher {
      * Creates new Camera-controls and bind them to Giro3D.
      *
      * @param {Instance} instance Giro3D instance
-     * @param {Vector3} defaultPosition Default position
      */
-    constructor(instance, defaultPosition) {
+    constructor(instance) {
         super();
         this.instance = instance;
         this.controls = new CameraControls(this.instance.camera.camera3D, this.instance.domElement);

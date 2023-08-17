@@ -196,6 +196,9 @@ li.layers-list-item a.layer-move-down-link i {
   @extend .px-2;
   @extend .w-100;
 }
+.disabled {
+  opacity: 0.5;
+}
 
 .dropzone {
   @extend .text-center;

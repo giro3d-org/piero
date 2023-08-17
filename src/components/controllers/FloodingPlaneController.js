@@ -1,5 +1,4 @@
 import FloodingPlane from "../../types/FloodingPlane";
-import Giro3DController from "./Giro3DController";
 import MainController from "./MainController";
 
 /** @type {FloodingPlane} */
@@ -9,7 +8,7 @@ let instance;
 function getPlane() {
     if (!plane) {
         plane = new FloodingPlane();
-        instance = Giro3DController.getMainInstance();
+        instance = MainController.get().mainInstance;
         instance.add(plane.object3D);
     }
 

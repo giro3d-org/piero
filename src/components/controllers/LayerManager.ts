@@ -10,6 +10,7 @@ import { EventDispatcher } from "three";
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
     private readonly basemap: Map;
+    private readonly overlays: ColorLayer[] = [];
 
     constructor(instance: Instance) {
         super();
@@ -47,5 +48,18 @@ export default class LayerManager extends EventDispatcher {
 
     addBaseLayer(layer: ColorLayer) {
         this.basemap.addLayer(layer);
+    }
+
+    addOverlay(layer: ColorLayer) {
+        this.overlays.push(layer);
+        this.basemap.addLayer(layer);
+    }
+
+    moveOverlayDown(overlay: ColorLayer) {
+        this.basemap.moveLayerDown(overlay);
+    }
+
+    moveOverlayUp(overlay: ColorLayer) {
+        this.basemap.moveLayerUp(overlay);
     }
 }

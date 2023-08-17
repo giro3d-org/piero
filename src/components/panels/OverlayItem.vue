@@ -7,15 +7,15 @@ defineProps({
   name: String,
   opacity: Number
 })
-defineEmits(['update:visible', 'update:opacity', 'update:move-up'])
+defineEmits(['update:visible', 'update:opacity', 'update:move-up', 'update:move-down'])
 </script>
 
 <template>
-  <li class="list-group-item item d-flex">
+  <li :class="['list-group-item', 'item', 'd-flex']">
     <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
-    <a class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
+    <a class="dataset" :class="!visible ? 'disabled' : null" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
 
-    <OpacitySlider :opacity="opacity" v-on:update:opacity="(v) => $emit('update:opacity', v)" />
+    <OpacitySlider :class="!visible ? 'disabled' : null" :opacity="opacity" v-on:update:opacity="(v) => $emit('update:opacity', v)" />
     <div class="icons">
       <a href="#" class="icon" title="Move up" @click="$emit('update:move-up')">
         <i class="bi bi-arrow-up"></i>

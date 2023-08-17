@@ -3,7 +3,6 @@ import * as THREE from "three";
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
 import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
-import Inspector from "@giro3d/giro3d/gui/Inspector"
 import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
 
 import LayerManager from "./LayerManager";
@@ -26,7 +25,7 @@ export default class MainController extends THREE.EventDispatcher {
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
 
-    constructor(domElement: HTMLDivElement, inspectorElement: HTMLDivElement) {
+    constructor(domElement: HTMLDivElement) {
         super();
 
         const crs = DEFAULT_CRS;
@@ -53,8 +52,6 @@ export default class MainController extends THREE.EventDispatcher {
 
         this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.dispatchEvent({ type: 'update' }));
 
-        Inspector.attach(inspectorElement, this.mainInstance, { title: 'Main view', width: 300 });
-
         this.mainInstance.notifyChange();
     }
 
@@ -70,8 +67,8 @@ export default class MainController extends THREE.EventDispatcher {
         initCallbacks.push(callback);
     }
 
-    static init(domElement: HTMLDivElement, inspectorElement: HTMLDivElement) {
-        singleton = new MainController(domElement, inspectorElement);
+    static init(domElement: HTMLDivElement) {
+        singleton = new MainController(domElement);
         initCallbacks.forEach(cb => cb(singleton));
         return singleton;
     }

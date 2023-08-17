@@ -15,7 +15,7 @@ defineEmits(['update:opacity', 'update:visible'])
 <template>
   <li class="list-group-item d-flex justify-content-between">
     <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
-    <div class="layer-name">{{ name }}</div>
+    <div :class="!visible ? 'disabled' : null" class="layer-name">{{ name }}</div>
     <div class="spinner-container">
       <div
         v-if="isLoading"
@@ -26,7 +26,7 @@ defineEmits(['update:opacity', 'update:visible'])
       </div>
     </div>
     <div class="slider">
-      <OpacitySlider v-if="hasOpacitySlider" :opacity="opacity" v-on:update:opacity="(v) => $emit('update:opacity', v)" />
+      <OpacitySlider v-if="hasOpacitySlider" :class="!visible ? 'disabled' : null" :opacity="opacity" v-on:update:opacity="(v) => $emit('update:opacity', v)" />
     </div>
   </li>
 </template>

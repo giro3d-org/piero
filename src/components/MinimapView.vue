@@ -1,6 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import Giro3DController from './controllers/Giro3DController.js'
+import { ref, onMounted } from 'vue'
 import MinimapController from './controllers/MinimapController';
 
 const minimapView = ref(null);
@@ -8,11 +7,6 @@ const minimapView = ref(null);
 onMounted(() => {
     MinimapController.loadMinimap(minimapView.value);
 })
-
-onUnmounted(() => {
-    Giro3DController.unmountGiro3D()
-})
-
 </script>
 
 
