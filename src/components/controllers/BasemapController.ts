@@ -48,7 +48,7 @@ function loadElevationLayer(layerManager: LayerManager, id: string) {
 
     const layer = new ElevationLayer(id, {
         source: new TiledImageSource({ source, format, noDataValue }),
-        extent: layerManager.extent,
+        // extent: layerManager.extent,
         noDataValue,
     });
 
@@ -59,7 +59,7 @@ function loadElevationLayer(layerManager: LayerManager, id: string) {
 
 function loadOSMLayer(layerManager: LayerManager, id: string) {
     const layer = new ColorLayer(id, {
-        extent: layerManager.extent,
+        // extent: layerManager.extent,
         source: new TiledImageSource({ source: new OSM() }),
     });
 
@@ -84,7 +84,7 @@ function loadImageryLayer(layerManager: LayerManager, id: string) {
     });
 
     const colorLayer = new ColorLayer(id, {
-        extent: layerManager.extent,
+        // extent: layerManager.extent,
         source: wmsOthophotoSource,
     },
     );

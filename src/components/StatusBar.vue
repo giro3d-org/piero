@@ -11,7 +11,7 @@ defineProps({
 <template>
     <div>
         <div class="d-flex">
-            <!-- <i class="bi bi-cursor"></i> -->
+            <i class="bi text-secondary bi-cursor-fill"></i>
             <CoordinateFragment :value="x.toFixed(1)" prefix="X:" />
             <CoordinateFragment :value="y.toFixed(1)" prefix="Y:" />
             <CoordinateFragment :value="z.toFixed(0)" prefix="Alt.:" suffix="m" />
@@ -20,6 +20,10 @@ defineProps({
 </template>
 
 <style scoped>
+i {
+    font-size: small;
+
+}
 div {
     margin-left: 1rem;
 }

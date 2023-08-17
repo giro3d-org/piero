@@ -8,6 +8,7 @@ import SearchOverlay from './components/SearchOverlay.vue'
 import { ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
 import MainController from './components/controllers/MainController'
+import ModalOverlay from './components/ModalOverlay.vue'
 
 const selectedTool = ref(null);
 const progress = ref(1);

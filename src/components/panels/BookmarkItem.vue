@@ -1,11 +1,11 @@
 <script setup>
 defineProps(['url', 'name'])
-defineEmits(['delete', 'share'])
+defineEmits(['delete', 'share', 'goto'])
 </script>
 
 <template>
   <li class="list-group-item item d-flex d-flex-end">
-    <a class="bookmark" :href="url">{{ name }}</a>
+    <a class="bookmark" href="#" @click="$emit('goto')">{{ name }}</a>
     <a href="#" class="icon" title="Share this bookmark" @click="$emit('share')">
       <i class="bi bi-share"></i>
     </a>

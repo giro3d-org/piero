@@ -1,8 +1,15 @@
-<script setup>
+<script setup lang="ts">
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import autoComplete from '@tarekraafat/autocomplete.js'
-import { onMounted } from 'vue'
+import { Vector2, Vector3 } from 'three';
+import { onMounted, ref } from 'vue'
+import MainController from './controllers/MainController';
+import { main } from '@popperjs/core';
 
 let autoCompleteControl;
+
+const inputField = ref<HTMLInputElement>(null);
 
 onMounted(() => {
     autoCompleteControl = new autoComplete({
@@ -72,12 +79,37 @@ onMounted(() => {
 //     const bbox3 = newExtent.toBox3(selection.z, selection.z + 200);
 //     camera.lookTopDownAt(bbox3, false);
 // });
+
+MainController.onInit(mainController => {
+  const inputElement = inputField.value as HTMLInputElement;
+  inputElement.addEventListener('selection', event => {
+    const layerManager = mainController.layerManager;
+    const instance = mainController.mainInstance;
+
+    const selection = event.detail.selection.value as Vector3;
+    const extent = Extent.fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 100, 100);
+    const newExtent = extent.as(instance.referenceCrs);
+
+    if (!newExtent.equals(layerManager.extent) && !newExtent.isInside(layerManager.extent)) {
+        const newExtent = layerManager.extent.clone();
+        const center = newExtent.center() as Vector2;
+        const locationExtent = Extent.fromCenterAndSize('EPSG:2154', { x: center.x, y: center.y }, 10000, 10000);
+        newExtent.union(locationExtent);
+        layerManager.setExtent(newExtent);
+    }
+
+    const bbox3 = newExtent.toBox3(selection.z, selection.z + 200);
+    mainController.camera.lookTopDownAt(bbox3, false);
+});
+});
+
 </script>
 
 <template>
   <div class="main">
     <div class="input-group">
       <input
+        ref="inputField"
         id="search-place-autocomplete"
         class="rounded-pill form-control"
         type="search"

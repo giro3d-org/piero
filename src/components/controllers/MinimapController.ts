@@ -138,8 +138,13 @@ class MinimapController {
             this.viewbox.object3D.visible = false;
 
             const xyz = mainCamera.position;
-            minimapCamera.position.set(xyz.x, xyz.y, minimapCamera.position.z);
-            minimapCamera.lookAt(xyz.x, xyz.y + 1, 0);
+            const coordinate = new Coordinates(this.mainInstance.referenceCrs, xyz.x, xyz.y, 0)
+                .as(this.minimapInstance.referenceCrs) as Coordinates;
+
+            const x = coordinate.x();
+            const y = coordinate.y();
+            minimapCamera.position.set(x, y, minimapCamera.position.z);
+            minimapCamera.lookAt(x, y + 1, 0);
         }
 
         this.minimapInstance.notifyChange(this.basemap);

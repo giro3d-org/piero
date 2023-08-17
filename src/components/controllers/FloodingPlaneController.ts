@@ -1,9 +1,10 @@
+import * as THREE from 'three';
+import Instance from "@giro3d/giro3d/core/Instance";
 import FloodingPlane from "../../types/FloodingPlane";
 import MainController from "./MainController";
 
-/** @type {FloodingPlane} */
-let plane;
-let instance;
+let plane: FloodingPlane;
+let instance: Instance;
 
 function getPlane() {
     if (!plane) {
@@ -23,9 +24,10 @@ function updatePlane() {
         instance.add(plane.object3D);
     }
     const extent = main.layerManager.extent;
-    const center = extent.center();
-    const dims = extent.dimensions();
-    plane.setPosition(center.x(), center.y(), plane.height, dims.x, dims.y);
+    const center = extent.center(new THREE.Vector2()) as THREE.Vector2;
+    const dims = extent.dimensions() as THREE.Vector2;
+
+    plane.setPosition(center.x, center.y, plane.height, dims.x, dims.y);
     instance.notifyChange();
 }
 

@@ -9,8 +9,8 @@ import { EventDispatcher } from "three";
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
-    private readonly basemap: Map;
     private readonly overlays: ColorLayer[] = [];
+    private basemap: Map;
 
     constructor(instance: Instance) {
         super();
@@ -20,6 +20,16 @@ export default class LayerManager extends EventDispatcher {
         const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(instance.referenceCrs).xyz();
         const extent = Extent.fromCenterAndSize(instance.referenceCrs, { x: center.x, y: center.y }, 30000, 30000);
 
+        this.createMap(extent);
+    }
+
+    setExtent(extent: Extent) {
+        const layers = this.basemap.getLayers();
+        this.instance.remove(this.basemap);
+        this.createMap(extent, layers);
+    }
+
+    private createMap(extent: Extent, layers?: Layer[]) {
         this.basemap = new Map('basemaps', {
             extent,
             hillshading: {
@@ -29,9 +39,15 @@ export default class LayerManager extends EventDispatcher {
             doubleSided: true,
             segments: 128,
             backgroundColor: 'white',
-        })
+        });
 
-        instance.add(this.basemap);
+        this.instance.add(this.basemap);
+
+        if (layers) {
+            for (const layer of layers) {
+                this.basemap.addLayer(layer);
+            }
+        }
     }
 
     notify(layer: Layer) {

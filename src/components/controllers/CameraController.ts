@@ -16,13 +16,8 @@ import {
 import CameraControls from 'camera-controls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-
-/* eslint-disable jsdoc/valid-types */
-/**
- * @typedef {import('@giro3d/giro3d/core/Instance').default} Instance
- * @typedef {import('@giro3d/giro3d/core/geographic/Extent').default} Extent
- */
-/* eslint-enable */
+import CameraPosition from '../../types/CameraPosition';
+import Instance from '@giro3d/giro3d/core/Instance';
 
 CameraControls.install({
     THREE: {
@@ -43,12 +38,17 @@ CameraControls.install({
  * Wraps Camera-controls into Giro3D
  */
 class Camera extends EventDispatcher {
+    instance: Instance;
+    controls: CameraControls;
+    pickObjectsAt: (e: any) => any;
+    clock: Clock;
+
     /**
      * Creates new Camera-controls and bind them to Giro3D.
      *
-     * @param {Instance} instance Giro3D instance
+     * @param instance Giro3D instance
      */
-    constructor(instance) {
+    constructor(instance: Instance) {
         super();
         this.instance = instance;
         this.controls = new CameraControls(this.instance.camera.camera3D, this.instance.domElement);
@@ -210,6 +210,26 @@ class Camera extends EventDispatcher {
         return this.executeInteraction(() => this.controls.setLookAt(
             position.x, position.y, position.z, lookAt.x, lookAt.y, lookAt.z, enableTransition,
         ));
+    }
+
+    getCameraPosition(): CameraPosition {
+        const controls = this.controls;
+        const cameraPosition = new CameraPosition(new Vector3(), new Vector3(), new Vector3());
+
+        controls.getPosition(cameraPosition.camera);
+        controls.getTarget(cameraPosition.target);
+        controls.getFocalOffset(cameraPosition.focalOffset);
+
+        return cameraPosition;
+    }
+
+    setCamera(pos: CameraPosition) {
+        this.executeInteraction(() => {
+            this.controls.setOrbitPoint(0, 0, 0);
+            this.controls.setLookAt(pos.camera.x, pos.camera.y, pos.camera.z, pos.target.x, pos.target.y, pos.target.z, false);
+            this.controls.setFocalOffset(pos.focalOffset.z, pos.focalOffset.y, pos.focalOffset.z, false);
+            this.controls.update(0);
+        });
     }
 
     /**

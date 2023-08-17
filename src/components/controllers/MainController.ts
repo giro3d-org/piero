@@ -37,14 +37,11 @@ export default class MainController extends THREE.EventDispatcher {
             },
         })
 
-        const center = new Coordinates('EPSG:4326', 4.84, 45.76, 0).as(crs) as Coordinates;
-        const xyz = new THREE.Vector3(center.x(), center.y(), center.z());
-
-        this.camera = new Camera(this.mainInstance, xyz);
+        this.camera = new Camera(this.mainInstance);
         this.camera.bindKeys();
 
-        this.mainInstance.notifyChange();
-
+        const center = new Coordinates('EPSG:4326', 4.84, 45.76, 0).as(crs) as Coordinates;
+        const xyz = new THREE.Vector3(center.x(), center.y(), center.z());
         const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, 10000, 10000);
         this.camera.setInitialPosition(extent);
 
