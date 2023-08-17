@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import TheToolbar from './components/toolbar/TheToolbar.vue'
 import MinimapView from './components/MinimapView.vue'
 import MainView from './components/MainView.vue'
@@ -8,12 +8,13 @@ import Giro3DController from './components/controllers/Giro3DController.js'
 import SearchOverlay from './components/SearchOverlay.vue'
 import { ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
+import MainController from './components/controllers/MainController'
 
 const selectedTool = ref(null);
 const progress = ref(1);
 const coordinates = ref({ x: 0, y: 0, z: 0 });
 
-function selectPanel(key) {
+function selectPanel(key: string) {
   if (key === selectedTool.value) {
     selectedTool.value = null;
   } else {
@@ -21,12 +22,21 @@ function selectPanel(key) {
   }
 }
 
-Giro3DController.registerCallback(() => {
-  progress.value = Giro3DController.getProgress();
-});
+function onGiro3DMounted() {
+  const main = MainController.get();
+  main.addEventListener('update', () => {
+    progress.value = main.mainInstance.progress;
+  })
+}
 
-function pick(event) {
-  const picks = Giro3DController.getMainInstance().pickObjectsAt(event, {
+function pick(event: MouseEvent) {
+  const instance = MainController.get()?.mainInstance;
+
+  if (!instance) {
+    return;
+  }
+
+  const picks = instance.pickObjectsAt(event, {
     radius: 1,
     limit: 1
   });
@@ -42,7 +52,7 @@ function pick(event) {
 </script>
 
 <template>
-  <MainView @mousemove="(evt) => pick(evt)" class="mainview" />
+  <MainView @vnode-mounted="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />

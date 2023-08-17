@@ -1,6 +1,6 @@
 import FloodingPlane from "../../types/FloodingPlane";
-import BasemapController from "./BasemapController";
 import Giro3DController from "./Giro3DController";
+import MainController from "./MainController";
 
 /** @type {FloodingPlane} */
 let plane;
@@ -17,12 +17,13 @@ function getPlane() {
 }
 
 function updatePlane() {
+    const main = MainController.get();
     if (!plane) {
         plane = new FloodingPlane();
-        instance = Giro3DController.getMainInstance();
+        instance = main.mainInstance;
         instance.add(plane.object3D);
     }
-    const extent = BasemapController.getExtent();
+    const extent = main.layerManager.extent;
     const center = extent.center();
     const dims = extent.dimensions();
     plane.setPosition(center.x(), center.y(), plane.height, dims.x, dims.y);

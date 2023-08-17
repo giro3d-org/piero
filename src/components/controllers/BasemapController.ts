@@ -10,9 +10,14 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
 import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer'
 
 import Basemap from "../../types/Basemap"
+import LayerManager from './LayerManager'
+import MainController from './MainController'
 
 let currentInstance;
 let giroMap;
+let controller : BasemapController;
+
+MainController.onInit(ctrl => onGiro3DMounted(ctrl));
 
 const basemaps = [
     new Basemap({ id: 'osm', name: 'OSM', type: 'color', visible: false }),
@@ -26,10 +31,10 @@ function getBasemaps() {
     return basemaps;
 }
 
-function loadElevationLayer(map, id) {
+function loadElevationLayer(layerManager: LayerManager, id: string) {
     const source = new TileWMS({
         url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
-        projection: map.extent.crs(),
+        projection: layerManager.extent.crs(),
         crossOrigin: 'anonymous',
         params: {
             LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
@@ -42,32 +47,29 @@ function loadElevationLayer(map, id) {
 
     const layer = new ElevationLayer(id, {
         source: new TiledImageSource({ source, format, noDataValue }),
-        extent: map.extent,
+        extent: layerManager.extent,
         noDataValue,
     });
 
-    map.addLayer(layer);
+    layerManager.addElevationLayer(layer);
 
     return layer;
 }
 
-/**
- * @param {GiroMap} map
- */
-function loadOSMLayer(map, id) {
+function loadOSMLayer(layerManager: LayerManager, id: string) {
     const layer = new ColorLayer(id, {
-        extent: map.extent,
+        extent: layerManager.extent,
         source: new TiledImageSource({ source: new OSM() }),
     });
 
     layer.visible = false;
 
-    map.addLayer(layer);
+    layerManager.addBaseLayer(layer);
 
     return layer;
 }
 
-function loadImageryLayer(map, id) {
+function loadImageryLayer(layerManager: LayerManager, id: string) {
     // Create a WMS imagery layer
     const wmsOthophotoSource = new TiledImageSource({
         source: new TileWMS({
@@ -81,11 +83,12 @@ function loadImageryLayer(map, id) {
     });
 
     const colorLayer = new ColorLayer(id, {
-        extent: map.extent,
+        extent: layerManager.extent,
         source: wmsOthophotoSource,
     },
     );
-    map.addLayer(colorLayer);
+
+    layerManager.addBaseLayer(colorLayer);
 
     return colorLayer;
 }
@@ -144,10 +147,26 @@ function getExtent() {
     return giroMap.extent;
 }
 
+function onGiro3DMounted(mainController: MainController) {
+    controller = new BasemapController(mainController.layerManager);
+}
+
 export default {
     getBasemaps,
     loadBasemaps,
     setOpacity,
     setVisibility,
     getExtent,
+}
+
+export class BasemapController {
+    private readonly layerManager: LayerManager;
+
+    constructor(layerManager: LayerManager) {
+        this.layerManager = layerManager;
+
+        loadElevationLayer(this.layerManager, 'elevation');
+        loadImageryLayer(this.layerManager, 'imagery');
+        loadOSMLayer(this.layerManager, 'osm');
+    }
 }

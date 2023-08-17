@@ -1,19 +1,22 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import Giro3DController from './controllers/Giro3DController.js'
 import BasemapController from './controllers/BasemapController.js'
+import OverlayController from './controllers/OverlayController';
+import MainController from './controllers/MainController'
 
 const mainView = ref(null);
 const inspectorView = ref(null);
 
 onMounted(() => {
-    const instance = Giro3DController.mountGiro3D(mainView.value, inspectorView.value);
+    MainController.init(mainView.value, inspectorView.value);
 
-    BasemapController.loadBasemaps(instance);
+    // BasemapController.onGiro3DMounted(main);
+    // BasemapController.loadBasemaps(main.mainInstance);
+    // OverlayController.loadOverlays(main.mainInstance);
 })
 
 onUnmounted(() => {
-    Giro3DController.unmountGiro3D()
+    MainController.get().dispose();
 })
 
 </script>
@@ -30,5 +33,4 @@ onUnmounted(() => {
     width: 100%;
     height: 100%;
 }
-
 </style>

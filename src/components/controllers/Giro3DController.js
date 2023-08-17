@@ -8,6 +8,7 @@ import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop';
 const DEFAULT_CRS = 'EPSG:2154';
 
 const callbacks = [];
+const instanceCreatedCallbacks = [];
 
 /** @type {Instance} */
 let mainInstance;
@@ -77,6 +78,16 @@ function registerCallback(callback) {
     }
 }
 
+/**
+ * @param {Function} callback The callback that takes the instance as first argument.
+ */
+function onInstanceCreated(callback) {
+    instanceCreatedCallbacks.push(callback);
+    if (mainInstance) {
+        callback(mainInstance);
+    }
+}
+
 export default {
     mountGiro3D,
     getMainInstance,
@@ -84,5 +95,6 @@ export default {
     getProgress,
     initializeOnce,
     registerCallback,
+    onInstanceCreated,
     DEFAULT_CRS,
 }
