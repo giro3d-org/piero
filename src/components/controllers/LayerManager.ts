@@ -3,6 +3,7 @@ import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
 import ColorLayer from "@giro3d/giro3d/core/layer/ColorLayer";
 import ElevationLayer from "@giro3d/giro3d/core/layer/ElevationLayer";
+import Layer from "@giro3d/giro3d/core/layer/Layer";
 import Map from "@giro3d/giro3d/entities/Map";
 import { EventDispatcher } from "three";
 
@@ -24,11 +25,16 @@ export default class LayerManager extends EventDispatcher {
                 enabled: true,
                 elevationLayersOnly: true,
             },
+            doubleSided: true,
             segments: 128,
             backgroundColor: 'white',
         })
 
         instance.add(this.basemap);
+    }
+
+    notify(layer: Layer) {
+        this.instance.notifyChange(layer);
     }
 
     get extent() {

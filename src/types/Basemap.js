@@ -1,5 +1,8 @@
-export default class Basemap {
+import { EventDispatcher } from "three";
+
+export default class Basemap extends EventDispatcher {
     constructor({ id, name, type = 'color', visible = true }) {
+        super();
         this.id = id;
         this.name = name;
         this._visible = visible;
@@ -14,7 +17,7 @@ export default class Basemap {
 
     set opacity(v) {
         this._opacity = v;
-        console.warn(`opacity-changed (${v})`);
+        this.dispatchEvent({ type: 'opacity' });
     }
 
     get visible() {
@@ -23,7 +26,7 @@ export default class Basemap {
 
     set visible(v) {
         this._visible = v;
-        console.warn(`visible-changed (${v})`);
+        this.dispatchEvent({ type: 'visible' });
     }
 
     get isLoading() {

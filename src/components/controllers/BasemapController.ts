@@ -12,10 +12,11 @@ import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer'
 import Basemap from "../../types/Basemap"
 import LayerManager from './LayerManager'
 import MainController from './MainController'
+import Layer from '@giro3d/giro3d/core/layer/Layer'
 
 let currentInstance;
 let giroMap;
-let controller : BasemapController;
+let controller: BasemapController;
 
 MainController.onInit(ctrl => onGiro3DMounted(ctrl));
 
@@ -161,12 +162,35 @@ export default {
 
 export class BasemapController {
     private readonly layerManager: LayerManager;
+    private readonly layers: Map<string, Layer>;
+
+    onOpacityChanged(basemap: Basemap) {
+        const id = basemap.id;
+        const layer = this.layers.get(id);
+        if (layer.type === 'ColorLayer') {
+            (layer as ColorLayer).opacity = basemap.opacity;
+            this.layerManager.notify(layer);
+        }
+    }
+
+    onVisibilityChanged(basemap: Basemap) {
+        const id = basemap.id;
+        const layer = this.layers.get(id);
+        layer.visible = basemap.visible;
+        this.layerManager.notify(layer);
+    }
 
     constructor(layerManager: LayerManager) {
         this.layerManager = layerManager;
+        this.layers = new Map();
 
-        loadElevationLayer(this.layerManager, 'elevation');
-        loadImageryLayer(this.layerManager, 'imagery');
-        loadOSMLayer(this.layerManager, 'osm');
+        this.layers.set('elevation', loadElevationLayer(this.layerManager, 'elevation'));
+        this.layers.set('imagery', loadImageryLayer(this.layerManager, 'imagery'));
+        this.layers.set('osm', loadOSMLayer(this.layerManager, 'osm'));
+
+        for (const bm of basemaps) {
+            bm.addEventListener('opacity', () => this.onOpacityChanged(bm));
+            bm.addEventListener('visible', () => this.onVisibilityChanged(bm));
+        }
     }
 }

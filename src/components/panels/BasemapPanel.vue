@@ -17,8 +17,8 @@ const basemaps = Basemaps.getBasemaps()
         :isLoading="layer.isLoading"
         :visible="layer.visible"
         :hasOpacitySlider="layer.type === 'color'"
-        v-on:update:visible="() => { Basemaps.setVisibility(layer, !layer.visible); $forceUpdate() }"
-        v-on:update:opacity="(o) => { Basemaps.setOpacity(layer, o); $forceUpdate() }"
+        v-on:update:visible="() => { layer.visible = !layer.visible; $forceUpdate() }"
+        v-on:update:opacity="(o) => { layer.opacity = o; $forceUpdate() }"
       />
     </ul>
   </div>
