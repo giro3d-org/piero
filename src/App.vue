@@ -9,7 +9,7 @@ import SearchOverlay from './components/SearchOverlay.vue'
 import { ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
 
-const selectedTool = ref('datasets');
+const selectedTool = ref(null);
 const progress = ref(1);
 const coordinates = ref({ x: 0, y: 0, z: 0 });
 
@@ -54,7 +54,6 @@ function pick(event) {
 <style scoped>
 .component {
   background-color: var(--bs-body-bg);
-  /* background: var(--color-background); */
 }
 
 .statusbar {
@@ -63,7 +62,6 @@ function pick(event) {
   border-top-left-radius: 0.5rem;
   box-shadow: -1px -1px 5px rgba(0, 0, 0, 0.1);
   height: 1.5rem;
-  width: 30rem;
   position: absolute;
   bottom: 0;
   right: 0;
