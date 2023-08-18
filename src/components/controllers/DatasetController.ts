@@ -9,8 +9,8 @@ import PointCloudMaterial from '../../giro3d/PointCloudMaterial';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
 const lidarHdTiles = [
-    'Semis_2021_0841_6518_LA93_IGN69',
-    'Semis_2021_0841_6519_LA93_IGN69',
+    // 'Semis_2021_0841_6518_LA93_IGN69',
+    // 'Semis_2021_0841_6519_LA93_IGN69',
     'Semis_2021_0841_6520_LA93_IGN69',
     'Semis_2021_0841_6521_LA93_IGN69',
     'Semis_2021_0842_6520_LA93_IGN69',
