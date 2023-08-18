@@ -20,6 +20,6 @@
         </ul>
         <hr>
         <!-- TODO -->
-        <button id="tour-restart" type="button" class="btn btn-primary mx-2">Restart guided tour</button>
+        <button id="tour-restart" type="button" class="btn btn-primary mx-2"><i class="bi bi-arrow-clockwise"></i> Restart guided tour</button>
     </div>
 </template>
