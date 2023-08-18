@@ -49,6 +49,10 @@ export default class MainController extends THREE.EventDispatcher {
 
         this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.dispatchEvent({ type: 'update' }));
 
+        this.mainInstance.renderingOptions.enableEDL = true;
+        this.mainInstance.renderingOptions.enableInpainting = true;
+        this.mainInstance.renderingOptions.enablePointCloudOcclusion = true;
+
         this.mainInstance.notifyChange();
     }
 
