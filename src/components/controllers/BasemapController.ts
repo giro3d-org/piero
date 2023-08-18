@@ -61,7 +61,7 @@ function loadElevationLayer(layerManager: LayerManager, id: string) {
     const noDataValue = -1000;
     const format = new BilFormat();
 
-    const colorMap = createColorMap('RdYlBu', 0, 100);
+    const colorMap = createColorMap('RdYlBu', 0, 600);
 
     const layer = new ElevationLayer(id, {
         source: new TiledImageSource({ source, format, noDataValue }),
