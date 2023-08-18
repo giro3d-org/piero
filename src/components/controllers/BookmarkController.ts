@@ -22,7 +22,13 @@ function getBookmarks()  {
 
 function addBookmarkFromCurrentPosition(name: string) {
     if (controller) {
-        controller.addBookmark(name);
+        controller.addBookmarkFromCurrentView(name);
+    }
+}
+
+function addBookmark(bookmark: Bookmark) {
+    if (controller) {
+        controller.addBookmark(bookmark);
     }
 }
 
@@ -50,12 +56,16 @@ class BookmarkController {
         }
     }
 
-    addBookmark(name: string) {
-        const cameraPosition = this.mainController.camera.getCameraPosition();
-        const bookmark = new Bookmark(name, cameraPosition);
+    addBookmark(bookmark: Bookmark) {
         bookmark.addEventListener('delete', () => this.deleteBookmark(bookmark));
         bookmark.addEventListener('goto', () => this.goTo(bookmark));
         bookmarks.push(bookmark);
+    }
+
+    addBookmarkFromCurrentView(name: string) {
+        const cameraPosition = this.mainController.camera.getCameraPosition();
+        const bookmark = new Bookmark(name, cameraPosition);
+        this.addBookmark(bookmark);
     }
 
     deleteBookmark(bookmark: Bookmark) {
@@ -67,4 +77,5 @@ class BookmarkController {
 export default {
     getBookmarks,
     addBookmarkFromCurrentPosition,
+    addBookmark,
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, shallowRef } from 'vue';
 import Bookmarks from '../controllers/BookmarkController'
 import BookmarkItem from './BookmarkItem.vue'
 import ShareBookmarkModal from './ShareBookmarkModal.vue'
@@ -8,10 +8,11 @@ import ModalOverlay from '../ModalOverlay.vue';
 import Bookmark from '../../types/Bookmark';
 import MainController from '../controllers/MainController';
 
-const bookmarks = Bookmarks.getBookmarks()
+const bookmarks = shallowRef(Bookmarks.getBookmarks());
 const showShareModal = ref(false);
 const shareUrl = ref<string>(null);
 const modalTitle = ref<string>(null);
+const hiddenInput = ref<HTMLInputElement>(null);
 
 function shareBookmark(bookmark: Bookmark) {
   shareUrl.value = bookmark.getUrl().toString();
@@ -56,6 +57,40 @@ function exportBookmarks() {
     URL.revokeObjectURL(blobUrl);
 }
 
+async function importBookmarks(file: Blob) {
+  const str = await file.text();
+  const serializedBookmarks = JSON.parse(str);
+
+  const existingBookmarks = new Set(Bookmarks.getBookmarks().map(b => b.name));
+
+  let nbImported = 0;
+  let nbSkipped = 0;
+
+  serializedBookmarks.forEach(bookmark => {
+    if (!existingBookmarks.has(bookmark.title)) {
+      Bookmarks.addBookmark(Bookmark.new(bookmark.title, bookmark.url))
+      nbImported++;
+    } else {
+      nbSkipped++;
+    }
+  });
+
+  // To trigger a re-render of the bookmark list,
+  // we need to assign a different reference to the bookmark array,
+  // otherwise Vue does not detect the change.
+  bookmarks.value = [];
+  bookmarks.value = Bookmarks.getBookmarks();
+
+  // TODO implement alerts
+  // Alerts.showAlert(`${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success', true);
+};
+
+async function importBookmarkFile(e: Event) {
+  for (const  file of (e.target as HTMLInputElement).files)
+    importBookmarks(file);
+}
+
+
 </script>
 
 <template>
@@ -77,13 +112,18 @@ function exportBookmarks() {
 
     <div class="button-area">
         <hr>
-        <button title="New bookmark..." class="btn btn-primary" @click="() => { addBookmark(); $forceUpdate(); }"><i class="bi-plus-lg"/> Add bookmark</button>
-        <button title="Share current view" class="btn btn-outline-secondary" @click="shareCurrentView"><i class="bi-share" /> Share current view</button>
-        <button title="Export to GeoJSON..." class="btn btn-outline-secondary" @click="exportBookmarks"><i class="bi-box-arrow-right" /> Export to GeoJSON</button>
-        <button title="Import from GeoJSON..." class="btn btn-outline-secondary"><i class="bi-box-arrow-in-left" /> Import from GeoJSON</button>
+        <button title="Create a new bookmark from the current view" class="btn btn-primary" @click="() => { addBookmark(); $forceUpdate(); }"><i class="bi-plus-lg"/> New bookmark</button>
+        <button title="Share current view" class="btn btn-outline-secondary" @click="shareCurrentView"><i class="bi-share" /> Share view</button>
+        <button title="Export bookmarks to GeoJSON" class="btn btn-outline-secondary" @click="exportBookmarks"><i class="bi-box-arrow-right" /> Export bookmarks</button>
+
+        <!-- Import from GeoJSON -->
+        <button title="Import bookmarks from GeoJSON" class="btn btn-outline-secondary" @click="hiddenInput.click()"><i class="bi-box-arrow-in-left" /> Import bookmarks</button>
+        <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="formFile" @input="(e) => importBookmarkFile(e)">
     </div>
   </div>
 
+  <!-- FIXME the modal popup background does not take the entire screen -->
+  <!-- FIXME the modal popup slightly changes the layout of the page when it appears -->
   <ModalOverlay :show="showShareModal" :title="modalTitle" v-on:close="() => showShareModal = false" >
       <ShareBookmarkModal :url="shareUrl" />
   </ModalOverlay>
@@ -94,6 +134,9 @@ function exportBookmarks() {
 .button-area {
     position: absolute;
     bottom: 0;
+    left: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
     padding: 1rem;
 }
 
@@ -106,7 +149,7 @@ function exportBookmarks() {
 }
 
 button {
-    margin: 0.2rem;
+    margin-top: 0.2rem;
     width: 100%;
 }
 </style>
