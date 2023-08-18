@@ -11,7 +11,7 @@ defineEmits(['delete', 'zoom', 'update:visible'])
 <template>
   <li class="list-group-item item d-flex">
     <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
-    <a class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
+    <a :class="!visible ? 'disabled' : null" class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
     <div class="icons">
       <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
         <i class="bi bi-trash"></i>
