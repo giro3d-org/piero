@@ -5,6 +5,8 @@ import Dataset from "../../types/Dataset";
 import MainController from "./MainController";
 import Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import PointCloudMaterial from '../../giro3d/PointCloudMaterial';
+import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
 const lidarHdTiles = [
     'Semis_2021_0841_6518_LA93_IGN69',
@@ -20,19 +22,6 @@ const datasets = [
     lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson')),
     lidarHdTiles.map(t => new Dataset(`${t}`, 'lidarhd')),
 ].flat()
-
-// const pointcloud = new Tiles3D(
-//     `pointcloud-${t}`,
-//     new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`),
-//     {
-//         // TODO
-//         // material: new PointsMaterial2({
-//         //     size: 2,
-//         //     mode: MODE.ELEVATION,
-//         // }),
-//     },
-// );
-// pointcloud.visible = false;
 
 function getDatasets()  {
     return datasets;
@@ -66,11 +55,10 @@ class DatasetController {
             `pointcloud-${dataset.name}`,
             new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${dataset.name}/tileset.json`),
             {
-                // TODO
-                // material: new PointsMaterial2({
-                //     size: 2,
-                //     mode: MODE.ELEVATION,
-                // }),
+                material: new PointCloudMaterial({
+                    size: 2,
+                    mode: MODE.ELEVATION,
+                }),
             },
         );
         return pointcloud;
@@ -80,7 +68,7 @@ class DatasetController {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
-            this.instance.notifyChange();
+            this.instance.notifyChange(entity);
         }
     }
 
