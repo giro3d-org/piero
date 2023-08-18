@@ -2,7 +2,7 @@ import { EventDispatcher, MathUtils } from "three";
 
 export default abstract class LayerObject extends EventDispatcher {
     readonly uuid: string;
-    private _visible: boolean;
+    private _visible: boolean = false;
     private _opacity: number = 1;
     readonly name: string;
 
