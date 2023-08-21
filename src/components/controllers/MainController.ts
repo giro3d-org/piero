@@ -7,6 +7,8 @@ import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
 
 import LayerManager from "./LayerManager";
 import Camera from "./CameraController";
+import Drawing from "@giro3d/giro3d/interactions/Drawing";
+import Skybox from "../../giro3d/Skybox";
 
 const DEFAULT_CRS = 'EPSG:2154';
 
@@ -62,6 +64,8 @@ export default class MainController extends THREE.EventDispatcher {
         dirLight.position.set(1, -1.75, 1);
         this.mainInstance.scene.add(dirLight);
         dirLight.updateMatrixWorld();
+
+        Skybox.addSkybox(this.mainInstance);
 
         this.mainInstance.notifyChange();
     }
