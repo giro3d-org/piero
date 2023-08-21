@@ -6,6 +6,8 @@ defineProps<{
     group: string,
     datasets: Iterable<Dataset>,
 }>();
+
+defineEmits(['zoom'])
 </script>
 
 <template>

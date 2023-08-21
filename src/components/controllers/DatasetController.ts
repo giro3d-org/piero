@@ -21,8 +21,8 @@ const lidarHdTiles = [
 
 const datasets = [
     new Dataset('19_rue_Marc_Antoine_Petit.ifc', 'ifc', 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc'),
-    lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson')),
-    lidarHdTiles.map(t => new Dataset(`${t}`, 'lidarhd')),
+    lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
+    lidarHdTiles.map(t => new Dataset(`${t}`, 'lidarhd', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
 ].flat()
 
 function getDatasets()  {
@@ -56,7 +56,7 @@ class DatasetController {
     loadPointCloud(dataset: Dataset) {
         const pointcloud = new Tiles3D(
             `pointcloud-${dataset.name}`,
-            new Tiles3DSource(`https://3d.oslandia.com/lyon/3dtiles/${dataset.name}/tileset.json`),
+            new Tiles3DSource(dataset.url),
             {
                 material: new PointCloudMaterial({
                     size: 2,
@@ -76,6 +76,10 @@ class DatasetController {
 
     loadIFC(dataset: Dataset) {
         return loader.processFile(this.instance, null, dataset.url)
+    }
+
+    loadCityJSON(dataset: Dataset) {
+        return loader.processFile(this.instance, null, dataset.url);
     }
 
     private updateDataset(dataset: Dataset) {
@@ -102,6 +106,7 @@ class DatasetController {
         let entity: Entity3D;
         switch (dataset.type) {
             case 'cityjson':
+                entity = (await this.loadCityJSON(dataset)).obj;
                 break;
             case 'ifc':
                 entity = (await this.loadIFC(dataset)).obj;
