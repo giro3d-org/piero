@@ -70,6 +70,111 @@ export default class MainController extends THREE.EventDispatcher {
         this.mainInstance.notifyChange();
     }
 
+    /**
+     * Gets the datasets & annotations as Object3D.
+     *
+     * @returns {Object3D[]} Datasets as Object3D
+     */
+    getObjects3d() {
+        const result = [];
+        this.mainInstance.scene.traverse(o => {
+            result.push(o);
+        })
+        return result;
+    }
+
+    /**
+     * Gets bounding box of all datasets & annotations.
+     *
+     * @returns Bounding box of all datasets.
+     */
+    getBoundingBox() {
+        const bbox = new THREE.Box3();
+        const bbox2 = new THREE.Box3();
+        this.mainInstance.scene.traverse(obj => {
+            bbox2.setFromObject(obj);
+            bbox.union(bbox2);
+        });
+        return bbox;
+    }
+
+    /**
+     * Gets the closest dataset object from where the user clicked.
+     * Does **NOT** pick on the base map!
+     *
+     * @param {MouseEvent} e Mouse event
+     * @param {number} radius Radius - the smaller, the faster and more precise (but
+     * may return nothing)
+     * @returns {PickResult|null} Result or null if notthing found
+     */
+    getObjectAt(e, radius = 1) {
+        const picked = this.mainInstance.pickObjectsAt(e, {
+            radius,
+            where: this.getObjects3d(),
+        }).filter(p => p.layer === null || p.layer.type !== 'Map')
+            .sort((a, b) => (a.distance - b.distance))
+            .at(0);
+
+        let layer = null;
+        let rootobj = null;
+        let drawing = null;
+
+        if (picked) {
+            rootobj = picked.object;
+            while (layer === null && rootobj !== null) {
+                if (rootobj instanceof Drawing) drawing = rootobj;
+
+                // TODO
+                // if (this.has(rootobj.uuid)) {
+                //     layer = this.get(rootobj.uuid);
+                // } else {
+                //     rootobj = rootobj.parent;
+                // }
+            }
+
+            return {
+                ...picked,
+                layer,
+                rootobj,
+                drawing,
+            };
+        }
+        return null;
+    }
+
+    getVectorFeatureAt(e, radius = 1) {
+        const pickedOnMap = this.mainInstance.pickObjectsAt(e, { limit: 1, radius }).at(0);
+        if (pickedOnMap && pickedOnMap.layer?.type === 'Map') {
+            const coord = pickedOnMap.coord;
+            const parentMap = pickedOnMap.layer;
+            const tile = pickedOnMap.object;
+
+            const feature = parentMap.getVectorFeaturesAtCoordinate(coord, 10, tile).at(0);
+            if (feature) {
+                return {
+                    layer: feature.layer,
+                    feature: feature.feature,
+                    rootobj: parentMap.object3d,
+                };
+            }
+        }
+        return null;
+    }
+
+    getFirstFeatureAt(e, radius = 1) {
+        const picked = this.getObjectAt(e, radius);
+        if (picked) {
+            return picked;
+        }
+
+        const pickedOnMap = this.getVectorFeatureAt(e, radius);
+        if (pickedOnMap) {
+            return pickedOnMap;
+        }
+
+        return null;
+    }
+
     dispose() {
         this.mainInstance.dispose();
     }

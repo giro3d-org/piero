@@ -10,6 +10,7 @@ import StatusBar from './components/StatusBar.vue'
 import MainController from './components/controllers/MainController'
 import ModalOverlay from './components/ModalOverlay.vue'
 import AlertToast from './components/AlertToast.vue'
+import TooltipPopup from './components/TooltipPopup.vue'
 
 const selectedTool = ref(null);
 const progress = ref(1);
@@ -30,8 +31,14 @@ function onGiro3DMounted() {
   })
 }
 
+const mouse = ref({ x: 0, y: 0});
+const pickedFeature = ref(null);
+
 function pick(event: MouseEvent) {
-  const instance = MainController.get()?.mainInstance;
+  mouse.value = { x: event.clientX, y: event.clientY };
+
+  const mainController = MainController.get();
+  const instance = mainController?.mainInstance;
 
   if (!instance) {
     return;
@@ -41,6 +48,9 @@ function pick(event: MouseEvent) {
     radius: 1,
     limit: 1
   });
+
+  const pick = mainController.getVectorFeatureAt(event);
+  pickedFeature.value = pick;
 
   if (picks.length > 0) {
     const point = picks[0].point;
@@ -57,6 +67,7 @@ function pick(event: MouseEvent) {
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
+  <TooltipPopup v-if="pickedFeature != null" :pos="mouse" :text="pickedFeature?.layer?.id"/>
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="progress" class="loading-indicator" />
   <SearchOverlay class="search" />
