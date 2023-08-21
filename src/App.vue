@@ -8,7 +8,7 @@ import SearchOverlay from './components/SearchOverlay.vue'
 import { ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
 import MainController from './components/controllers/MainController'
-import ModalOverlay from './components/ModalOverlay.vue'
+import Tour from './components/controllers/Tour'
 import AlertToast from './components/AlertToast.vue'
 import TooltipPopup from './components/TooltipPopup.vue'
 
@@ -29,6 +29,8 @@ function onGiro3DMounted() {
   main.addEventListener('update', () => {
     progress.value = main.mainInstance.progress;
   })
+
+  Tour.start(main.mainInstance, null, main.camera, null);
 }
 
 const mouse = ref({ x: 0, y: 0});
@@ -63,7 +65,7 @@ function pick(event: MouseEvent) {
 </script>
 
 <template>
-  <MainView @vue:mounded="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
+  <MainView @vue:mounted="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
