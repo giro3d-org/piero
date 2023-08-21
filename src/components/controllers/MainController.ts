@@ -53,6 +53,16 @@ export default class MainController extends THREE.EventDispatcher {
         this.mainInstance.renderingOptions.enableInpainting = true;
         this.mainInstance.renderingOptions.enablePointCloudOcclusion = true;
 
+        const lightColor = 0xffffff;
+
+        const ambientLight = new THREE.AmbientLight(lightColor, 0.5);
+        this.mainInstance.scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(lightColor, 0.5);
+        dirLight.position.set(1, -1.75, 1);
+        this.mainInstance.scene.add(dirLight);
+        dirLight.updateMatrixWorld();
+
         this.mainInstance.notifyChange();
     }
 

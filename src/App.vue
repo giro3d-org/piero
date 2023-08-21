@@ -9,6 +9,7 @@ import { ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
 import MainController from './components/controllers/MainController'
 import ModalOverlay from './components/ModalOverlay.vue'
+import AlertToast from './components/AlertToast.vue'
 
 const selectedTool = ref(null);
 const progress = ref(1);
@@ -52,13 +53,14 @@ function pick(event: MouseEvent) {
 </script>
 
 <template>
-  <MainView @vnode-mounted="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
+  <MainView @vue:mounded="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="progress" class="loading-indicator" />
   <SearchOverlay class="search" />
+  <AlertToast />
 </template>
 
 <style scoped>

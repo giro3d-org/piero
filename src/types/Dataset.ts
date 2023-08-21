@@ -4,9 +4,11 @@ type DatasetType = 'cityjson' | 'ifc' | 'lidarhd';
 
 export default class Dataset extends LayerObject {
     readonly type: DatasetType;
+    readonly url: string;
 
-    constructor(name: string, type: DatasetType)  {
+    constructor(name: string, type: DatasetType, url?: string)  {
         super(name);
         this.type = type;
+        this.url = url;
     }
 }

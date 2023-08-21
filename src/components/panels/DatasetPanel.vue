@@ -1,45 +1,24 @@
 <script setup lang="ts">
+import Dataset from '../../types/Dataset';
 import Datasets from '../controllers/DatasetController'
-import DatasetItem from './DatasetItem.vue'
+import DatasetGroup from './DatasetGroup.vue';
 
 const datasets = Datasets.getDatasets()
+
+const groups = [
+  { key: 'ifc', name: 'IFC' },
+  { key: 'lidarhd', name: 'Lidar HD' },
+  { key: 'cityjson', name: 'CityJSON' },
+]
+
+function zoomOnDataset(dataset: Dataset) {
+  Datasets.zoomOn(dataset);
+}
 </script>
 
 <template>
   <div>
-    <h6>IFC</h6>
-    <ul class="layers-list-group">
-      <DatasetItem
-        v-for="layer in datasets.filter((ds) => ds.type === 'ifc')"
-        :key="layer.name"
-        :name="layer.name"
-        :visible="layer.visible"
-        v-on:update:visible="(v) => { layer.visible = !layer.visible; $forceUpdate() }"
-      />
-    </ul>
-
-    <hr />
-    <h6>Lidar HD</h6>
-    <ul class="layers-list-group">
-      <DatasetItem
-        v-for="layer in datasets.filter((ds) => ds.type === 'lidarhd')"
-        :key="layer.name"
-        :name="layer.name"
-        :visible="layer.visible"
-        v-on:update:visible="(v) => { layer.visible = !layer.visible; $forceUpdate() }"
-      />
-    </ul>
-
-    <hr />
-    <h6>CityJSON</h6>
-    <ul class="layers-list-group">
-      <DatasetItem
-        v-for="layer in datasets.filter((ds) => ds.type === 'cityjson')"
-        :key="layer.name"
-        :name="layer.name"
-        :visible="layer.visible"
-        v-on:update:visible="(v) => { layer.visible = !layer.visible; $forceUpdate() }"
-      />
-    </ul>
+    <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name" @zoom="(ds) => zoomOnDataset(ds)"
+      :datasets="datasets.filter((ds) => ds.type === item.key)" />
   </div>
 </template>

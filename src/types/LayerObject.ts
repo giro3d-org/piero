@@ -29,4 +29,8 @@ export default abstract class LayerObject extends EventDispatcher {
         this._opacity = v;
         this.dispatchEvent({ type: 'opacity' });
     }
+
+    delete() {
+        this.dispatchEvent({ type: 'delete' });
+    }
 }

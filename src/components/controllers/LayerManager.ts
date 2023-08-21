@@ -7,6 +7,7 @@ import Layer from "@giro3d/giro3d/core/layer/Layer";
 import Map from "@giro3d/giro3d/entities/Map";
 import { Feature } from "ol";
 import { EventDispatcher } from "three";
+import NotificationController from "./NotificationController";
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
@@ -43,6 +44,8 @@ export default class LayerManager extends EventDispatcher {
         });
 
         this.instance.add(this.basemap);
+
+        NotificationController.showNotification('Basemaps', 'Basemaps created');
 
         if (layers) {
             for (const layer of layers) {
