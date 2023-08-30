@@ -9,6 +9,7 @@ const groups = [
   { key: 'ifc', name: 'IFC' },
   { key: 'lidarhd', name: 'Lidar HD' },
   { key: 'cityjson', name: 'CityJSON' },
+  { key: 'bdtopo', name: '3D Buildings' },
 ]
 
 function zoomOnDataset(dataset: Dataset) {

@@ -1,3 +1,8 @@
+import * as THREE from 'three';
+import { GeoJSON } from 'ol/format';
+import { createXYZ } from 'ol/tilegrid.js';
+import { tile } from 'ol/loadingstrategy.js';
+
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
@@ -9,6 +14,9 @@ import PointCloudMaterial from '../../giro3d/PointCloudMaterial';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 import loader from '../../loaders/loader';
 import Camera from './CameraController';
+import VectorSource from 'ol/source/Vector';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 
 const lidarHdTiles = [
     // 'Semis_2021_0841_6518_LA93_IGN69',
@@ -21,6 +29,7 @@ const lidarHdTiles = [
 
 const datasets = [
     new Dataset('19_rue_Marc_Antoine_Petit.ifc', 'ifc', 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc'),
+    new Dataset('BD TOPO', 'bdtopo', null),
     lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
     lidarHdTiles.map(t => new Dataset(`${t}`, 'lidarhd', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
 ].flat()
@@ -82,6 +91,61 @@ class DatasetController {
         return loader.processFile(this.instance, null, dataset.url);
     }
 
+    loadBDTopo(dataset: Dataset): Entity3D {
+        const vectorSource = new VectorSource({
+            format: new GeoJSON(),
+            url: function url(e) {
+                return (
+                    `${'https://wxs.ign.fr/topographie/geoportail/wfs'
+                    // 'https://download.data.grandlyon.com/wfs/rdata'
+                    + '?SERVICE=WFS'
+                    + '&VERSION=2.0.0'
+                    + '&request=GetFeature'
+                    + '&typename=BDTOPO_V3:batiment'
+                    + '&outputFormat=application/json'
+                    + '&SRSNAME=EPSG:2154'
+                    + '&startIndex=0'
+                    + '&bbox='}${e.join(',')},EPSG:2154`
+                );
+            },
+            strategy: tile(createXYZ({ tileSize: 512 })),
+        });
+
+        const entity = new FeatureCollection('BDTOPO_V3', {
+            source: vectorSource,
+            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
+            material: new THREE.MeshLambertMaterial(),
+            extrude: feature => {
+                const hauteur = -feature.getProperties().hauteur;
+                if (Number.isNaN(hauteur)) {
+                    return null;
+                }
+                return hauteur;
+            },
+            style: feature => {
+                const properties = feature.getProperties();
+                let color = '#FFFFFF';
+                if (properties.usage_1 === 'Résidentiel') {
+                    color = '#9d9484';
+                } else if (properties.usage_1 === 'Commercial et services') {
+                    color = '#b0ffa7';
+                }
+                return { color };
+            },
+            onMeshCreated: mesh => {
+                // hide this particular mesh because we have a ifc for this
+                if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
+                    || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
+                    mesh.visible = false;
+                }
+            },
+            minLevel: 11,
+            maxLevel: 11,
+        });
+
+        return entity;
+    }
+
     private updateDataset(dataset: Dataset) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
@@ -113,6 +177,9 @@ class DatasetController {
                 break;
             case 'lidarhd':
                 entity = this.loadPointCloud(dataset);
+                break;
+            case 'bdtopo':
+                entity = this.loadBDTopo(dataset);
                 break;
         }
 
