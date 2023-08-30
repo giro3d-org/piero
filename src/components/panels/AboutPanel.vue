@@ -12,7 +12,7 @@
         <ul class="flex-grow-1">
             <li><a target="_blank" href="https://ign.fr/">IGN</a> (Imagery, Elevation model, LIDAR data, Elevation API)</li>
             <li><a target="_blank" href="https://www.grandlyon.com/">Métropole Grand Lyon</a> (Imagery, Elevation model, overlay layers)</li>
-            <li><a target="_blank" href="https://omniscale.com/">Omniscale</a>, <a target="_blank" href="https://www.openstreetmap.org">OpenStreetMap</a> (Imagery)</li>
+            <li><a target="_blank" href="https://www.openstreetmap.org">OpenStreetMap</a> (Imagery)</li>
             <li><a target="_blank" href="https://adresse.data.gouv.fr/">adresse.data.gouv.fr</a> (Geocoding API)</li>
             <li><a target="_blank" href="https://cadastre.data.gouv.fr">Données cadastrales ouvertes</a> (Cadastre)</li>
             <li><a target="_blank" href="https://oslandia.com">Oslandia</a> (CityJSON reconstructions, overlay layers)</li>

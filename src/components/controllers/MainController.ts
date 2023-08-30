@@ -49,7 +49,7 @@ export default class MainController extends THREE.EventDispatcher {
 
         this.layerManager = new LayerManager(this.mainInstance);
 
-        this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.dispatchEvent({ type: 'update' }));
+        this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.onFrameEnd());
 
         this.mainInstance.renderingOptions.enableEDL = true;
         this.mainInstance.renderingOptions.enableInpainting = true;
@@ -65,17 +65,25 @@ export default class MainController extends THREE.EventDispatcher {
         this.mainInstance.scene.add(dirLight);
         dirLight.updateMatrixWorld();
 
-        Skybox.addSkybox(this.mainInstance);
+        // We disable the skybox for now as it breaks the rendering of point cloud  with effects.
+        // Skybox.addSkybox(this.mainInstance);
 
         this.mainInstance.notifyChange();
     }
 
+    onFrameEnd() {
+        // Temporary solution to avoid annoying horizontal line artifacts
+        // on point cloud due to constantly shifting near clipping plane.
+        const camera : THREE.PerspectiveCamera = this.mainInstance.camera.camera3D;
+        camera.near = 2;
+
+        this.dispatchEvent({ type: 'update' })
+    }
+
     /**
      * Gets the datasets & annotations as Object3D.
-     *
-     * @returns {Object3D[]} Datasets as Object3D
      */
-    getObjects3d() {
+    getObjects3d(): THREE.Object3D[] {
         const result = [];
         this.mainInstance.scene.traverse(o => {
             result.push(o);
