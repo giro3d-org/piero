@@ -113,7 +113,7 @@ function pick(event: MouseEvent) {
   position: absolute;
   height: 100vh;
   left: 3.5rem;
-  width: 25rem;
+  width: 27rem;
   z-index: 1;
 }
 
