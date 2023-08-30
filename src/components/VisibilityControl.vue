@@ -1,12 +1,12 @@
 <script setup>
+import SwitchToggle from './SwitchToggle.vue';
+
 defineProps(['visible'])
 defineEmits(['update:visible'])
 </script>
 
 <template>
-    <a href="#" title="Show/hide this element" @click="$emit('update:visible')">
-        <i :class="['bi', 'icon', visible ? 'bi-eye' : 'bi-eye-slash', visible ? null : 'inactive']"></i>
-    </a>
+      <SwitchToggle :model-value="visible" @update:model-value="(v) => $emit('update:visible', v)" />
 </template>
 
 <style scoped>
