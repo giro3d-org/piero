@@ -15,7 +15,7 @@ defineEmits(['update:opacity'])
         min="0"
         step="0.01"
         max="1"
-        @input="$emit('update:opacity', $event.target.value)"
+        @input="$emit('update:opacity', Number.parseFloat($event.target.value))"
         :value="opacity"
       />
       <i title="Opaque" class="bi-x-diamond-fill mx-2"></i>
