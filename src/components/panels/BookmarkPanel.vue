@@ -95,7 +95,7 @@ async function importBookmarkFile(e: Event) {
 
 <template>
   <div>
-    <EmptyIndicator text="No bookmarks" :visible="bookmarks.length === 0" />
+    <EmptyIndicator text="No bookmarks" v-if="bookmarks.length === 0" />
 
     <div>
       <ul class="layers-list-group">

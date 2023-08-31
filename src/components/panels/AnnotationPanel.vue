@@ -30,7 +30,7 @@ function addPolygonAnnotation() {
 
 <template>
   <div>
-    <EmptyIndicator text="No annotations" :visible="annotations.length === 0" />
+    <EmptyIndicator text="No annotations" v-if="annotations.length === 0" />
 
     <ul class="layers-list-group">
       <AnnotationItem
