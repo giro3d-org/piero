@@ -23,6 +23,7 @@ const panels = Configuration.panels;
         v-for="panel in panels"
         :active="active === panel.key"
         :key="panel.key"
+        :tourkey="panel.key"
         :title="panel.title"
         :icon="panel.icon"
         @click="$emit('selected', panel.key)"

@@ -71,11 +71,11 @@ mainTour.addStep({
 
 navigatingTour.addStep({
     id: 'view',
-    text: 'Here you can view your data.<br/>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.<br/>This sample application adds support for CityJSON and IFC files.',
+    text: '<p>This is the <b>main view</b>.</p><p>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.</p><p>This sample application adds support for CityJSON and IFC files.</p>',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#viewerDiv',
-        on: 'right',
+        element: '#main-view',
+        on: 'bottom',
     },
     when: {
         show: displayProgress,
@@ -84,11 +84,11 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'navigate',
-    text: 'This application integrates <a href="https://github.com/yomotsu/camera-controls">camera-controls</a>, a camera control for three.js.<br/>Click to move the camera. Right-click to rotate around a point. Scroll to zoom in or out.',
+    text: '<p>This application integrates <a href="https://github.com/yomotsu/camera-controls">camera-controls</a>, a camera control for three.js.</p><p><b>Click</b> to move the camera. <b>Right-click</b> to rotate around a point. <b>Scroll</b> to zoom in or out.</p>',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#viewerDiv',
-        on: 'right',
+        element: '#main-view',
+        on: 'bottom',
     },
     when: {
         show: () => {
@@ -108,16 +108,35 @@ navigatingTour.addStep({
 });
 
 navigatingTour.addStep({
-    id: 'basemaps',
-    text: 'Giro3D supports multiple layers drapped onto an elevation layer. You can toggle basemaps as you wish.',
+    id: 'toolbar-layers',
+    text: '<p>Giro3D supports multiple layers.</p><p>You can toggle layers as you wish with the <b>Layers</b> panel.</p>',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#menu-container',
+        element: '#toolbar',
         on: 'right',
     },
     when: {
         show: () => {
-            const link = document.getElementById('menu-basemaps-link');
+            const link = document.getElementById('toolbar-layers');
+            if (!link.classList.contains('active')) {
+                link.click();
+            }
+            displayProgress();
+        },
+    },
+});
+
+navigatingTour.addStep({
+    id: 'basemaps',
+    text: '<p><b>Basemaps</b> are color and elevation layers that make the basic shape and aspect of the <b>Map</b>.</p>',
+    buttons: buttonsOptions,
+    attachTo: {
+        element: '#basemap-list',
+        on: 'right',
+    },
+    when: {
+        show: () => {
+            const link = document.getElementById('toolbar-layers');
             if (!link.classList.contains('active')) {
                 link.click();
             }
@@ -128,15 +147,15 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'overlays',
-    text: 'Giro3D supports overlaying layers on top of maps; we\'have added some using different file formats.',
+    text: '<p><b>Overlays</b> are vector layers in various formats (WFS, GML, GeoJSON...).</p>',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#menu-container',
+        element: '#overlay-list',
         on: 'right',
     },
     when: {
         show: () => {
-            const link = document.getElementById('menu-overlays-link');
+            const link = document.getElementById('toolbar-layers');
             if (!link.classList.contains('active')) {
                 link.click();
             }
@@ -147,15 +166,15 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'layers',
-    text: 'From the Datasets panel, you can access the 3D objects displayed, toggle their visibility, and remove them.<br/>Most objects leverage Giro3D\'s adaptive resolution to optimize their display.',
+    text: '<p>The <b>Datasets</b> panel contains all 3D objects in the scene.</><p>You can toggle their visibility and delete them.<p><p>Most objects leverage Giro3D\'s adaptive resolution to optimize their display.</p>',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#menu-container',
+        element: '#panel-container',
         on: 'right',
     },
     when: {
         show: () => {
-            const link = document.getElementById('menu-datasets-link');
+            const link = document.getElementById('toolbar-datasets');
             if (!link.classList.contains('active')) {
                 link.click();
             }
@@ -166,7 +185,7 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'adddata',
-    text: 'You can add your own data from your computer by dragging the file into this page.<br/>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.<br/>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.',
+    text: '<p>You can add your own data from your computer by <b>dragging the file</b> into this page.</p><p>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.</p><p>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.</p>',
     buttons: buttonsOptions,
     attachTo: {
         element: '#datasets-drop-zone',
@@ -174,7 +193,7 @@ navigatingTour.addStep({
     },
     when: {
         show: () => {
-            const link = document.getElementById('menu-datasets-link');
+            const link = document.getElementById('toolbar-datasets');
             if (!link.classList.contains('active')) {
                 link.click();
             }
@@ -185,7 +204,7 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'widgets',
-    text: 'Giro3D is highly extensible. Here we added a widget to search and navigate to locations based on the French addresses API.',
+    text: 'Giro3D is highly extensible. Here we added a widget to search and navigate to locations based on the French address database.',
     buttons: [
         {
             text: 'Analyzing data',
@@ -197,7 +216,7 @@ navigatingTour.addStep({
         { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
     ],
     attachTo: {
-        element: '#tools',
+        element: '#address-search',
         on: 'left-start',
     },
     when: {
@@ -210,7 +229,7 @@ analyzingTour.addStep({
     text: 'Click on a feature to see its info. Clickable features display a tooltip when hovered.',
     buttons: buttonsOptions,
     attachTo: {
-        element: '#viewerDiv',
+        element: '#main-view',
         on: 'right',
     },
     when: {
@@ -279,7 +298,7 @@ analyzingTour.addStep({
     id: 'measure2',
     text: 'Click to define points',
     attachTo: {
-        element: '#viewerDiv',
+        element: '#main-view',
         on: 'right',
     },
     when: {
@@ -307,7 +326,7 @@ analyzingTour.addStep({
     id: 'measure3',
     text: 'Right-click to end the shape',
     attachTo: {
-        element: '#viewerDiv',
+        element: '#main-view',
         on: 'right',
     },
     when: {

@@ -118,7 +118,6 @@ Map.prototype.getVectorFeaturesInExtent = function getVectorFeaturesInExtent(ext
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
-    private readonly overlays: ColorLayer[] = [];
     private basemap: Map;
 
     constructor(instance: Instance) {
@@ -178,7 +177,6 @@ export default class LayerManager extends EventDispatcher {
     }
 
     addOverlay(layer: ColorLayer) {
-        this.overlays.push(layer);
         this.basemap.addLayer(layer);
     }
 

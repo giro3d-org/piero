@@ -1,18 +1,18 @@
 <script setup>
-import Overlays from '../controllers/OverlayController'
 import Basemaps from '../controllers/BasemapController'
-import OverlayItem from './OverlayItem.vue'
 import BasemapItem from './BasemapItem.vue';
+import Overlays from '../controllers/OverlayController'
+import OverlayItem from './OverlayItem.vue'
 
-const overlays = Overlays.getOverlays()
 const basemaps = Basemaps.getBasemaps()
+const overlays = Overlays.getOverlays()
 
 </script>
 
 <template>
   <div class="py-2">
     <h6>Basemaps</h6>
-    <ul class="layers-list-group">
+    <ul id="basemap-list" class="layers-list-group">
       <BasemapItem
         v-for="layer in basemaps"
         :key="layer.name"
@@ -27,7 +27,7 @@ const basemaps = Basemaps.getBasemaps()
     </ul>
     <hr>
     <h6>Overlays</h6>
-    <ul class="layers-list-group">
+    <ul id="overlay-list" class="layers-list-group">
       <OverlayItem
         v-for="item in overlays"
         :key="item.name"

@@ -65,14 +65,14 @@ function pick(event: MouseEvent) {
 </script>
 
 <template>
-  <MainView @vue:mounted="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
+  <MainView id="main-view" @vue:mounted="() => onGiro3DMounted()" @mousemove="(evt) => pick(evt)" class="mainview" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
-  <TheToolbar :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
+  <TheToolbar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
   <TooltipPopup v-if="pickedFeature != null" :pos="mouse" :text="pickedFeature?.layer?.id"/>
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="progress" class="loading-indicator" />
-  <SearchOverlay class="search" />
+  <SearchOverlay id="address-search" class="search" />
   <AlertToast />
 </template>
 

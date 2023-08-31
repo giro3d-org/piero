@@ -30,7 +30,7 @@ const lidarHdTiles = [
 const datasets = [
     new Dataset('19_rue_Marc_Antoine_Petit.ifc', 'ifc', 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc'),
     new Dataset('BD TOPO', 'bdtopo', null),
-    lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
+    // lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
     lidarHdTiles.map(t => new Dataset(`${t}`, 'lidarhd', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
 ].flat()
 

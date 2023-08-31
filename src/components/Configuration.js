@@ -1,5 +1,5 @@
 const panels = [
-  { key: 'basemaps', title: 'Layers', icon: 'bi-layers' },
+  { key: 'layers', title: 'Layers', icon: 'bi-layers' },
   { key: 'datasets', title: 'Datasets', icon: 'bi-database' },
   // { key: 'overlays', title: 'Overlays', icon: 'bi-front' },
   { key: 'annotations', title: 'Annotations', icon: 'bi-rulers' },

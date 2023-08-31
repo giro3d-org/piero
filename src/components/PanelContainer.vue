@@ -23,7 +23,7 @@ const panels = Configuration.panels;
 </script>
 
 <template>
-  <div class="panel">
+  <div class="panel" id="panel-container">
     <h5 class="title">{{ panels.find(p => p.key === selected).title }}</h5>
     <div class="content">
       <DatasetPanel v-if="selected === 'datasets'" />
@@ -31,7 +31,7 @@ const panels = Configuration.panels;
       <AboutPanel v-if="selected === 'about'" />
       <SearchPanel v-if="selected === 'search'" />
       <BookmarkPanel v-if="selected === 'bookmarks'" />
-      <OverlayPanel v-if="selected === 'basemaps'" />
+      <OverlayPanel v-if="selected === 'layers'" />
       <AnalysisPanel v-if="selected === 'analysis'" />
       <AnnotationPanel v-if="selected === 'annotations'" />
     </div>
