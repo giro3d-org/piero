@@ -14,7 +14,7 @@ defineEmits(['update:opacity', 'update:visible'])
 </script>
 
 <template>
-  <li class="list-group-item d-flex justify-content-between">
+  <li :class="['list-group-item', 'item', 'd-flex']">
     <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
     <div :class="!visible ? 'disabled' : null" class="layer-name">{{ name }}</div>
     <div class="spinner-container">
@@ -33,22 +33,34 @@ defineEmits(['update:opacity', 'update:visible'])
 </template>
 
 <style scoped>
-.main {
-  display: flex;
-  align-items: start;
+.item {
+  padding: 0.1rem;
 }
 
-.slider {
-  width: 12rem;
+a {
+  text-decoration: none;
 }
 
-.spinner-container {
-  width: 1rem;
+a:hover {
+  text-decoration: underline;
+}
+
+.icons {
+  width: 3rem;
+}
+
+.dataset {
+  white-space: nowrap;
+  display: block;
+  width: 60% !important;
+  margin-left: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .icon {
-  margin-left: 0.2rem;
   width: 1rem !important;
+  float: right;
   color: rgb(180, 180, 180);
 }
 
@@ -58,8 +70,16 @@ defineEmits(['update:opacity', 'update:visible'])
   }
 }
 
+.spinner-container {
+  width: 1rem;
+}
+
 .layer-name {
   width: 40%;
   margin-left: 1rem;
+}
+
+.slider {
+  display: flex;
 }
 </style>

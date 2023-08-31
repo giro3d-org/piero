@@ -9,7 +9,7 @@ const inspectorView = ref(null);
 onMounted(() => {
     const mainCtrl = MainController.init(mainView.value);
 
-    Inspector.attach(inspectorView.value, mainCtrl.mainInstance, { title: 'Main view', width: 300 });
+    // Inspector.attach(inspectorView.value, mainCtrl.mainInstance, { title: 'Main view', width: 300 });
     // TODO minimap inspector
 })
 

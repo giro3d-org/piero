@@ -1,10 +1,10 @@
 <script setup>
 import AboutPanel from './panels/AboutPanel.vue';
-import BasemapPanel from './panels/BasemapPanel.vue'
+import OverlayPanel from './panels/OverlayPanel.vue'
 import DatasetPanel from './panels/DatasetPanel.vue'
 import SearchPanel from './panels/SearchPanel.vue';
 import BookmarkPanel from './panels/BookmarkPanel.vue';
-import OverlayPanel from './panels/OverlayPanel.vue';
+import Configuration from './Configuration';
 import AnalysisPanel from './panels/AnalysisPanel.vue';
 import AnnotationPanel from './panels/AnnotationPanel.vue';
 
@@ -19,28 +19,19 @@ defineProps({
   }
 })
 
-const panels = {}
-
-panels.datasets = { name: 'Datasets' }
-panels.basemaps = { name: 'Basemaps' }
-panels.overlays = { name: 'Overlays' }
-panels.annotations = { name: 'Annotations' }
-panels.bookmarks = { name: 'Bookmarks' }
-panels.analysis = { name: 'Analysis' }
-panels.search = { name: 'Search' }
-panels.about = { name: 'About' }
+const panels = Configuration.panels;
 </script>
 
 <template>
   <div class="panel">
-    <h5 class="title">{{ panels[selected].name }}</h5>
+    <h5 class="title">{{ panels.find(p => p.key === selected).title }}</h5>
     <div class="content">
       <DatasetPanel v-if="selected === 'datasets'" />
-      <BasemapPanel v-if="selected === 'basemaps'" />
+      <!-- <BasemapPanel v-if="selected === 'basemaps'" /> -->
       <AboutPanel v-if="selected === 'about'" />
       <SearchPanel v-if="selected === 'search'" />
       <BookmarkPanel v-if="selected === 'bookmarks'" />
-      <OverlayPanel v-if="selected === 'overlays'" />
+      <OverlayPanel v-if="selected === 'basemaps'" />
       <AnalysisPanel v-if="selected === 'analysis'" />
       <AnnotationPanel v-if="selected === 'annotations'" />
     </div>

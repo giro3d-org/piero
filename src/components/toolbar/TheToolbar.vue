@@ -1,21 +1,13 @@
 <script setup>
 import ToolButton from './ToolButton.vue'
+import Configuration from '../Configuration'
 
 defineProps({
   active: String
 })
 defineEmits(['selected'])
 
-const buttons = [
-  { key: 'datasets', title: 'Datasets', icon: 'bi-database' },
-  { key: 'basemaps', title: 'Basemaps', icon: 'bi-layers' },
-  { key: 'overlays', title: 'Overlays', icon: 'bi-front' },
-  { key: 'annotations', title: 'Annotations', icon: 'bi-rulers' },
-  { key: 'analysis', title: 'Analysis', icon: 'bi-bar-chart-steps' },
-  { key: 'bookmarks', title: 'Bookmarks', icon: 'bi-bookmarks' },
-  // { key: 'search', title: 'Search', icon: 'bi-search' },
-  { key: 'about', title: 'About', icon: 'bi-info-circle' }
-]
+const panels = Configuration.panels;
 </script>
 
 <template>
@@ -28,12 +20,12 @@ const buttons = [
       </li>
 
       <ToolButton
-        v-for="button in buttons"
-        :active="active === button.key"
-        :key="button.key"
-        :title="button.title"
-        :icon="button.icon"
-        @click="$emit('selected', button.key)"
+        v-for="panel in panels"
+        :active="active === panel.key"
+        :key="panel.key"
+        :title="panel.title"
+        :icon="panel.icon"
+        @click="$emit('selected', panel.key)"
       />
     </ul>
   </div>
