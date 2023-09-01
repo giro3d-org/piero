@@ -7,7 +7,7 @@ defineProps<{
     datasets: Dataset[],
 }>();
 
-defineEmits(['zoom'])
+defineEmits(['zoom', 'updated'])
 </script>
 
 <template>
@@ -20,8 +20,8 @@ defineEmits(['zoom'])
           :name="layer.name"
           :visible="layer.visible"
           v-on:zoom="() => $emit('zoom', layer)"
-          v-on:delete="() => { layer.delete(); $forceUpdate() }"
-          v-on:update:visible="(v) => { layer.visible = !layer.visible; $forceUpdate() }"
+          v-on:delete="() => { layer.delete(); $emit('updated') }"
+          v-on:update:visible="() => { layer.visible = !layer.visible; $emit('updated') }"
         />
       </ul>
       <hr>

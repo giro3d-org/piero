@@ -20,6 +20,7 @@ function zoomOnDataset(dataset: Dataset) {
 <template>
   <div>
     <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name" @zoom="(ds) => zoomOnDataset(ds)"
-      :datasets="datasets.filter((ds) => ds.type === item.key)" />
+      :datasets="datasets.filter((ds) => ds.type === item.key)"
+      @updated="$forceUpdate()" />
   </div>
 </template>
