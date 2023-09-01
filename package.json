@@ -24,7 +24,7 @@
     "camera-controls": "^2.7.0",
     "chart.js": "^4.3.0",
     "chroma-js": "^2.4.2",
-    "cityjson-threejs-loader": "github:tmuguet/cityjson-threejs-loader",
+    "cityjson-threejs-loader": "^0.4.0",
     "ol": "^6.15.1",
     "proj4": "^2.9.0",
     "shepherd.js": "^11.1.1",
