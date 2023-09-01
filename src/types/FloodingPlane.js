@@ -5,8 +5,9 @@ const DEFAULT_HEIGHT = 170;
 export default class FloodingPlane {
     constructor() {
         this.geometry =  new THREE.PlaneGeometry(1, 1, 1, 1);
-        this.material = new THREE.MeshBasicMaterial({ color: 0x00aaaa });
+        this.material = new THREE.MeshBasicMaterial({ color: 0x00aaaa, transparent: true, opacity: 0.5 });
         this.object3D = new THREE.Mesh(this.geometry, this.material);
+        this.object3D.renderOrder = 2;
         this.visible = false;
         this.height = DEFAULT_HEIGHT;
     }
