@@ -7,14 +7,15 @@ defineProps<{
 
 <template>
     <tr>
-        <td class="name"><b>{{ attrName }}</b></td>
-        <td>{{ attrValue }}</td>
+        <td :title="attrName"><b>{{ attrName.substring(0, 18) }}</b></td>
+        <td :title="attrValue">{{ attrValue }}</td>
     </tr>
 </template>
 
 <style scoped>
-.name {
-    width: 40%;
+.td {
+    word-wrap: break-word;
+    width: 100%;
 }
 
 </style>

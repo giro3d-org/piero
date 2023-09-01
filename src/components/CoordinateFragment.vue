@@ -15,7 +15,6 @@ defineProps({
 <style scoped>
 div {
     width: 5rem;
-    height: 0;
     text-align: start;
     font-size: small;
     margin-left: 0.5rem;

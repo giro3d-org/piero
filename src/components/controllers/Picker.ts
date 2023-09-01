@@ -5,6 +5,7 @@ import Drawing from "@giro3d/giro3d/interactions/Drawing";
 import { Feature as OLFeature } from "ol";
 import Feature, { Attribute } from "../../types/Feature";
 import Measure from "../../utils/Measure";
+import Entity3D from "@giro3d/giro3d/entities/Entity3D";
 
 /**
  * Picked object
@@ -28,12 +29,9 @@ export default class Picker {
     coordinates: Vector3 = new Vector3();
 
     getNameFromOLFeature(feature: OLFeature): string {
-        const nom = feature.get('nom');
-        if (nom) {
-            return nom;
-        }
-        const name = feature.get('name');
-        return name;
+        return feature.get('nom')
+            ?? feature.get('name')
+            ?? feature.getId();
     }
 
     getAttributesFromOLFeature(feature: OLFeature, attributes: Array<Attribute>) {
@@ -63,7 +61,7 @@ export default class Picker {
 
     getAttributesFromObject3D(layer: any, object: Object3D, attributes: Array<Attribute>) {
         if (object?.userData) {
-            if (layer?.obj?.type === 'FeatureCollection') {
+            if (layer?.type === 'FeatureCollection') {
                 attributes.push({ key: 'fid', value: object.userData.id });
                 for (const [key, value] of Object.entries(object.userData.properties)) {
                     if (key === 'geometry' || key === 'bbox') continue;
@@ -88,8 +86,10 @@ export default class Picker {
      * @returns Result or null if notthing found
      */
     getObjectAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
+        const where = instance.getObjects((o: Object3D | Entity3D) => o.type !== 'Map');
         const picked = instance.pickObjectsAt(e, {
             radius,
+            where,
         }).sort((a, b) => (a.distance - b.distance))
           .at(0);
 
@@ -207,7 +207,7 @@ export default class Picker {
 
         const attributes: Array<Attribute> = [];
 
-        let name = '';
+        let name = null;
 
         if (layer?.filename) {
             attributes.push({ key: 'Dataset', value: layer.filename });
@@ -242,6 +242,21 @@ export default class Picker {
         // TODO IFC
 
         return new Feature(name, layer?.id, attributes);
+    }
+
+    getMouseCoordinate(instance: Instance, event: MouseEvent) : Vector3 | null {
+        const where = instance.getObjects((o: Object3D | Entity3D) => o.type === 'Map');
+
+        const picked = instance.pickObjectsAt(event, {
+            radius: 1,
+            where,
+        });
+
+        const first = picked
+            .sort((a, b) => (a.distance - b.distance))
+            .at(0) as { point?: Vector3 };
+
+        return first?.point;
     }
 
     pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature } | null {

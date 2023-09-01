@@ -14,14 +14,16 @@ import TooltipPopup from './components/TooltipPopup.vue'
 import AttributePanel from './components/AttributePanel.vue'
 import Feature from './types/Feature'
 import Picker from './components/controllers/Picker'
+import { Vector3 } from 'three'
 
 const selectedTool = ref(null);
 const progress = ref(1);
-const coordinates = ref({ x: 0, y: 0, z: 0 });
+const coordinates = ref(new Vector3(0, 0, 0));
 const picker = new Picker();
 const mouse = ref({ x: 0, y: 0});
 const pickedFeature = ref<Feature>(null);
 const tooltip = ref<string>(null);
+const isLoading = ref(false);
 
 function selectPanel(key: string) {
   if (key === selectedTool.value) {
@@ -31,10 +33,12 @@ function selectPanel(key: string) {
   }
 }
 
+
 function onGiro3DMounted() {
   const main = MainController.get();
   main.addEventListener('update', () => {
     progress.value = main.mainInstance.progress;
+    isLoading.value = main.mainInstance.loading;
   })
 
   Tour.start(main.mainInstance, null, main.camera, null);
@@ -73,10 +77,23 @@ function pick(event: MouseEvent, clicked?: boolean) {
   }
 }
 
+function updateCoordinates(event: MouseEvent) {
+  const main = MainController.get();
+  if (main) {
+    const point = picker.getMouseCoordinate(main.mainInstance, event);
+
+    if (point) {
+      coordinates.value.x = point.x;
+      coordinates.value.y = point.y;
+      coordinates.value.z = point.z;
+    }
+  }
+}
+
 </script>
 
 <template>
-  <MainView id="main-view" @vue:mounted="() => onGiro3DMounted()" @click="(evt) => pick(evt, true)" @mousemove="(evt) => pick(evt)" class="mainview" />
+  <MainView id="main-view" @vue:mounted="() => onGiro3DMounted()" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
   <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" class="component attribute-panel" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
@@ -100,7 +117,7 @@ function pick(event: MouseEvent, clicked?: boolean) {
   right: 0;
   bottom: 0;
   width: 370px;
-  height: 60%;
+  max-height: 60%;
   margin-right: 1rem;
   margin-bottom: 3rem;
 }
