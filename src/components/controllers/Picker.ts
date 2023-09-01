@@ -97,7 +97,7 @@ export default class Picker {
         let rootobj : Object3D = null;
         let drawing = null;
 
-        if (picked && picked.layer.type !== 'Map') {
+        if (picked) {
             rootobj = picked.object;
             while (layer === null && rootobj !== null) {
                 if (rootobj instanceof Drawing) {

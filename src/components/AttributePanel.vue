@@ -2,7 +2,7 @@
 import AttributeItem from './AttributeItem.vue';
 
 defineProps<{
-    name: string;
+    name?: string;
     parent: string,
     attributelist: Array<{ key: string, value: any }>
 }>()

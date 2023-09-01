@@ -101,11 +101,11 @@ class DatasetController {
     }
 
     loadIFC(dataset: Dataset) {
-        return loader.processFile(this.instance, null, dataset.url)
+        return loader.processFile(this.instance, dataset.url)
     }
 
     loadCityJSON(dataset: Dataset) {
-        return loader.processFile(this.instance, null, dataset.url);
+        return loader.processFile(this.instance, dataset.url);
     }
 
     loadBDTopo(dataset: Dataset): Entity3D {
