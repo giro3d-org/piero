@@ -16,4 +16,5 @@ defineProps<{
 .name {
     width: 40%;
 }
+
 </style>

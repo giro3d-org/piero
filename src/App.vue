@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import TheToolbar from './components/toolbar/TheToolbar.vue'
-import { Feature as OLFeature } from 'ol'
 import MinimapView from './components/MinimapView.vue'
 import MainView from './components/MainView.vue'
 import PanelContainer from './components/PanelContainer.vue'
@@ -13,11 +12,16 @@ import Tour from './components/controllers/Tour'
 import AlertToast from './components/AlertToast.vue'
 import TooltipPopup from './components/TooltipPopup.vue'
 import AttributePanel from './components/AttributePanel.vue'
-import Feature, { Attribute } from './types/Feature'
+import Feature from './types/Feature'
+import Picker from './components/controllers/Picker'
 
 const selectedTool = ref(null);
 const progress = ref(1);
 const coordinates = ref({ x: 0, y: 0, z: 0 });
+const picker = new Picker();
+const mouse = ref({ x: 0, y: 0});
+const pickedFeature = ref<Feature>(null);
+const tooltip = ref<string>(null);
 
 function selectPanel(key: string) {
   if (key === selectedTool.value) {
@@ -36,53 +40,30 @@ function onGiro3DMounted() {
   Tour.start(main.mainInstance, null, main.camera, null);
 }
 
-const mouse = ref({ x: 0, y: 0});
-const pickedFeature = ref<Feature>(null);
-const tooltip = ref<string>(null);
-
-function toFeature(name: string, olFeature?: OLFeature): Feature {
-  const attributes: Array<Attribute> = [];
-    if (olFeature) {
-
-      for (const attr of olFeature.getKeys()) {
-        if (attr !== 'geometry') {
-          attributes.push({ key: attr, value: olFeature.get(attr) });
-        }
-      }
-
-    }
-  return new Feature(name, attributes);
-}
-
-function pick(event: MouseEvent, clicked: boolean) {
+function pick(event: MouseEvent, clicked?: boolean) {
   mouse.value = { x: event.clientX, y: event.clientY };
 
   const mainController = MainController.get();
+
   const instance = mainController?.mainInstance;
 
   if (!instance) {
     return;
   }
 
-  const picks = instance.pickObjectsAt(event, {
-    radius: 1,
-    limit: 1
-  });
+  const picked = picker.pick(mainController.mainInstance, event);
 
-  if (picks.length > 0) {
-    const point = picks[0].point;
+  if (picked?.point) {
+    const point = picked.point;
     coordinates.value.x = point.x;
     coordinates.value.y = point.y;
     coordinates.value.z = point.z;
   }
 
-  const pick = mainController.getVectorFeatureAt(event);
-
-  if (pick) {
-    const name = pick.layer?.id ?? '?';
-    tooltip.value = name;
+  if (picked?.feature) {
+    tooltip.value = picked.feature.name;
     if (clicked) {
-      pickedFeature.value = toFeature(name, pick.feature);
+      pickedFeature.value = picked.feature;
     }
   } else {
     tooltip.value = null;
@@ -92,17 +73,11 @@ function pick(event: MouseEvent, clicked: boolean) {
   }
 }
 
-// const attributes = [
-//   { key: 'height', value: 123 },
-//   { key: 'cat', value: 'building' },
-//   { key: 'admin', value: 'France' },
-// ];
-
 </script>
 
 <template>
   <MainView id="main-view" @vue:mounted="() => onGiro3DMounted()" @click="(evt) => pick(evt, true)" @mousemove="(evt) => pick(evt)" class="mainview" />
-  <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" class="component attribute-panel" />
+  <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" class="component attribute-panel" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
@@ -121,11 +96,10 @@ function pick(event: MouseEvent, clicked: boolean) {
 .attribute-panel {
   position: absolute;
   box-shadow: -1px -1px 5px rgba(0, 0, 0, 0.5);
-  border-radius: 0.2rem;
   border-style: sol;
   right: 0;
   bottom: 0;
-  width: 350px;
+  width: 370px;
   height: 60%;
   margin-right: 1rem;
   margin-bottom: 3rem;

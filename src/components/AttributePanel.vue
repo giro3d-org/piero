@@ -3,6 +3,7 @@ import AttributeItem from './AttributeItem.vue';
 
 defineProps<{
     name: string;
+    parent: string,
     attributelist: Array<{ key: string, value: any }>
 }>()
 
@@ -12,10 +13,10 @@ defineEmits(['close'])
 <template>
     <div class="card">
         <div class="card-header d-float">
-            {{ name }}
+            {{ name }} ({{ parent }})
             <button @click="$emit('close')" type="button" class="btn-close float-end" aria-label="Close"></button>
         </div>
-        <div class="card-body">
+        <div class="card-body content">
             <table class="table">
                 <tbody>
                     <AttributeItem v-for="(item, index) in attributelist" :key="index" :attr-name="item.key"
@@ -26,4 +27,9 @@ defineEmits(['close'])
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.content {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+</style>
