@@ -1,17 +1,27 @@
-<script setup>
+<script setup lang="ts">
+import { ref } from 'vue';
+import Dataset from '../../types/Dataset';
+import SpinnerControl from '../SpinnerControl.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 
-defineProps({
-  visible: Boolean,
-  name: String
+const props = defineProps({
+  dataset: Dataset,
 })
+
+const isLoading = ref(props.dataset.isLoading);
+props.dataset.addEventListener('isLoading', () => isLoading.value = props.dataset.isLoading);
+
 defineEmits(['delete', 'zoom', 'update:visible'])
 </script>
 
 <template>
   <li class="list-group-item item d-flex">
-    <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
-    <a :class="!visible ? 'disabled' : null" class="dataset" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
+    <VisibilityControl :visible="dataset.visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
+    <div class="spinner">
+      <SpinnerControl v-show="isLoading" />
+    </div>
+    <a :class="!dataset.visible ? 'disabled' : null" class="dataset" :title="dataset.name" href="#"
+      @click="$emit('zoom')">{{ dataset.name }}</a>
     <div class="icons">
       <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
         <i class="bi bi-trash"></i>
@@ -23,6 +33,11 @@ defineEmits(['delete', 'zoom', 'update:visible'])
 <style scoped>
 .item {
   padding: 0.1rem;
+}
+
+.spinner {
+  width: 0.4rem;
+  opacity: 0.5;
 }
 
 a {

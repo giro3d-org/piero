@@ -66,6 +66,7 @@ function loadElevationLayer(layerManager: LayerManager, id: string) {
     const layer = new ElevationLayer(id, {
         source: new TiledImageSource({ source, format, noDataValue }),
         extent: layerManager.extent,
+        minmax: { min: 0, max: 600 },
         noDataValue,
         colorMap,
     });

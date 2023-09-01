@@ -57,8 +57,21 @@ class DatasetController {
         this.instance = mainController.mainInstance;
         this.camera = mainController.camera;
 
-        for (const ds of datasets) {
-            this.loadDataset(ds);
+        for (const dataset of datasets) {
+            dataset.addEventListener('visible', () => this.onVisibilityChanged(dataset));
+            dataset.addEventListener('delete', () => this.deleteDataset(dataset));
+
+            if (dataset.visible) {
+                this.loadDataset(dataset);
+            }
+        }
+    }
+
+    onVisibilityChanged(dataset: Dataset) {
+        if (!dataset.isLoaded && dataset.visible) {
+            this.loadDataset(dataset).then(() => this.updateDataset(dataset));
+        } else {
+            this.updateDataset(dataset);
         }
     }
 
@@ -164,8 +177,7 @@ class DatasetController {
     }
 
     async loadDataset(dataset: Dataset) {
-        dataset.addEventListener('visible', () => this.updateDataset(dataset));
-        dataset.addEventListener('delete', () => this.deleteDataset(dataset));
+        dataset.isLoading = true;
 
         let entity: Entity3D;
         switch (dataset.type) {
@@ -190,6 +202,11 @@ class DatasetController {
         }
 
         entity.object3d.userData.entity = entity;
+
+        dataset.isLoaded = true;
+        dataset.isLoading = false;
+
+        return dataset;
     }
 }
 

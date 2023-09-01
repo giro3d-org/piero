@@ -119,7 +119,7 @@ export default class Picker {
             };
         }
         return {
-            point: picked.point,
+            point: picked?.point,
         };
     }
 

@@ -15,13 +15,12 @@ defineEmits(['zoom', 'updated'])
       <h6>{{ group }}</h6>
       <ul class="layers-list-group">
         <DatasetItem
-          v-for="layer in datasets"
-          :key="layer.name"
-          :name="layer.name"
-          :visible="layer.visible"
-          v-on:zoom="() => $emit('zoom', layer)"
-          v-on:delete="() => { layer.delete(); $emit('updated') }"
-          v-on:update:visible="() => { layer.visible = !layer.visible; $emit('updated') }"
+          v-for="dataset in datasets"
+          :key="dataset.name"
+          :dataset="dataset"
+          v-on:zoom="() => $emit('zoom', dataset)"
+          v-on:delete="() => { dataset.delete(); $emit('updated') }"
+          v-on:update:visible="() => { dataset.visible = !dataset.visible; $emit('updated') }"
         />
       </ul>
       <hr>

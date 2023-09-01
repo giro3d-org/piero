@@ -3,7 +3,7 @@ import Dataset from '../../types/Dataset';
 import Datasets from '../controllers/DatasetController'
 import DatasetGroup from './DatasetGroup.vue';
 
-const datasets = Datasets.getDatasets()
+const datasets = Datasets.getDatasets();
 
 const groups = [
   { key: 'ifc', name: 'IFC' },

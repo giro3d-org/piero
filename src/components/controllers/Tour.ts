@@ -188,6 +188,7 @@ navigatingTour.addStep({
     text: '<p>You can add your own data from your computer by <b>dragging the file</b> into this page.</p><p>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.</p><p>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.</p>',
     buttons: buttonsOptions,
     attachTo: {
+        // TODO
         element: '#datasets-drop-zone',
         on: 'right',
     },
@@ -216,7 +217,7 @@ navigatingTour.addStep({
         { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
     ],
     attachTo: {
-        element: '#address-search',
+        element: '#search-place-autocomplete',
         on: 'left-start',
     },
     when: {

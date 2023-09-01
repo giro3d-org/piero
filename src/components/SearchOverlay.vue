@@ -107,7 +107,7 @@ MainController.onInit(mainController => {
 
 <template>
   <div class="main">
-    <div class="input-group">
+    <div class="input-group" id="address-search">
       <input
         ref="inputField"
         id="search-place-autocomplete"

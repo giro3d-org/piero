@@ -11,23 +11,11 @@ import NotificationController from "./NotificationController";
 import VectorSource from "@giro3d/giro3d/sources/VectorSource";
 import TileIndex from "@giro3d/giro3d/core/TileIndex";
 
-
-/**
- * Picked object
- *
- * @typedef {object} PickResult
- * @property {Dataset} layer Layer picked
- * @property {Object3D} rootobj Parent Object3D picked (directly created by dataset)
- * @property {Object3D} object Object3D picked
- * @property {Vector3} point Point picked
- * @property {?Drawing} drawing Drawing object, if any (may be null)
- * @property {number} distance Distance from camera
- * @property {?number} distanceToRay Distance to ray when raycasting, if any (may be null or
- * undefined)
- * @property {?number} index Index from raycasting, if any (may be null or undefined)
- * @property {?Face} face Face from raycasting, if any (may be null or undefined)
- * @property {?number} faceIndex Face index from raycasting, if any (may be null or undefined)
- */
+// Workaround performance issue.
+// TODO remove when https://gitlab.com/giro3d/giro3d/-/merge_requests/418 is merged
+Layer.prototype.loadFallbackImages = function doNothing() {
+    return Promise.resolve();
+}
 
 // Patch Giro3D, remove me when https://gitlab.com/giro3d/giro3d/-/issues/168 is closed
 Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordinate(
