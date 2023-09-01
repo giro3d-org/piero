@@ -42,6 +42,10 @@ function zoomOn(dataset: Dataset) {
     controller?.zoom(dataset);
 }
 
+function importFromFile(file: File) {
+    controller.importFromFile(file);
+}
+
 let controller: DatasetController;
 
 MainController.onInit(ctrl => {
@@ -159,6 +163,10 @@ class DatasetController {
         return entity;
     }
 
+    importFromFile(file: File) {
+        throw new Error('Method not implemented.');
+    }
+
     private updateDataset(dataset: Dataset) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
@@ -212,5 +220,6 @@ class DatasetController {
 
 export default {
     getDatasets,
+    importFromFile,
     zoomOn,
 }

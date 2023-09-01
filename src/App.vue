@@ -98,7 +98,7 @@ function updateCoordinates(event: MouseEvent) {
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <TheToolbar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
-  <TooltipPopup v-if="tooltip != null" :pos="mouse" :text="tooltip"/>
+  <!-- <TooltipPopup v-if="tooltip != null" :pos="mouse" :text="tooltip"/> -->
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="progress" class="loading-indicator" />
   <SearchOverlay id="address-search" class="search" />

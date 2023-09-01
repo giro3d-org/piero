@@ -1,55 +1,54 @@
 import { Box3 } from 'three';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 
-import CityJSON from './CityJSON.ts';
+import CityJSON from './CityJSON';
 import GeoJSON from './GeoJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
 import NotificationController from '../components/controllers/NotificationController.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import Camera from '../components/controllers/CameraController.js';
-
-/**
- * Processed file results
- *
- * @typedef {object} ProcessedFileResult
- * @property {string} filename Filename (with extension)
- * @property {Entity3D} obj Entity created
- */
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 /**
  * Options
- *
- * @typedef {object} ProcessOptions
- * @property {string} [projection] Projection
- * - CityJSON - required if not defined in the file
- * - GeoJSON - if different from 4326
- * - Geopackage
- * @property {Coordinates} [at] Coordinates
- * - IFC - Coordinates where to place the IFC
- * @property {number} [z] Altitude
- * - GeoJSON - altitude where to put the annotations
- * - Geopackage
- * @property {boolean} [visible=true] Display this object by default
- * @property {boolean} [isAnnotation=false] Set to true to add the object as an annotation
- * @property {string|undefined} [group] Group to put the dataset into (if any)
- * @property {import('@loaders.gl/core').LoaderOptions} [loader] @loaders.gl options (should not be necessary)
- * instead of a dataset
  */
+interface ProcessOptions {
+    projection?: string;
+    at?: Coordinates;
+    z?: number;
+    visible?: boolean;
+    isAnnotation?: boolean;
+    group?: string | undefined;
+    loader?: import('@loaders.gl/core').LoaderOptions;
+}
+
+/**
+ * Processed file results
+ */
+interface ProcessedFileResult {
+    filename: string;
+    obj: Entity3D;
+}
+
 
 /**
  * Processes a file and adds it into Giro3d scene.
  *
- * @param {Instance} instance Giro3d instance
- * @param {LayerManager} layerManager Layer manager
- * @param {File|string} fileOrUrl File object to load, or URL to fetch and load
- * @param {ProcessOptions} options Options
- * @returns {Promise<ProcessedFileResult>} Processed entity
+ * @param instance Giro3d instance
+ * @param layerManager Layer manager
+ * @param fileOrUrl File object to load, or URL to fetch and load
+ * @param options Options
+ * @returns Processed entity
  */
-const processFile = async (instance, layerManager, fileOrUrl, options = {}) => {
+async function processFile(
+    instance: Instance,
+    // layerManager: LayerManager,
+    fileOrUrl: File | string,
+    options: ProcessOptions = {}
+): Promise<ProcessedFileResult> {
     /** @type {File|Response} */
-    let file = null;
+    let file: File | Response = null;
     let filename = null;
     let filetype = null;
 
@@ -134,15 +133,22 @@ const processFile = async (instance, layerManager, fileOrUrl, options = {}) => {
 /**
  * Processes multiple files.
  *
- * @param {Instance} instance Giro3d instance
- * @param {LayerManager} layerManager Layer manager
- * @param {Camera} camera Camera object for zooming into the loaded files
- * @param {Array<File|string>} files File to load, as objects or URLs
- * @param {boolean} [zoomTo=true] Zooms into the loaded file once done
- * @param {ProcessOptions} options Options
- * @returns {Promise<Array<Entity3D>>} Processed entities
+ * @param instance Giro3d instance
+ * @param layerManager Layer manager
+ * @param camera Camera object for zooming into the loaded files
+ * @param files File to load, as objects or URLs
+ * @param zoomTo Zooms into the loaded file once done
+ * @param options Options
+ * @returns Processed entities
  */
-const processFiles = async (instance, layerManager, camera, files, zoomTo = true, options = {}) => {
+async function processFiles(
+    instance: Instance,
+    layerManager: LayerManager,
+    camera: Camera,
+    files: Array<File | string>,
+    zoomTo: boolean = true,
+    options: ProcessOptions = {}
+): Promise<Array<Entity3D>> {
     const promises = [];
     // StatusBar.addTask(files.length);
 
@@ -160,11 +166,11 @@ const processFiles = async (instance, layerManager, camera, files, zoomTo = true
     // eslint-disable-next-line jsdoc/no-undefined-types
     /** @type {Array<PromiseFulfilledResult<ProcessedFileResult>>} */
     // @ts-ignore
-    const fullfilled = settled.filter(p => p.status === 'fulfilled');
+    const fullfilled: Array<PromiseFulfilledResult<ProcessedFileResult>> = settled.filter(p => p.status === 'fulfilled');
     // eslint-disable-next-line jsdoc/no-undefined-types
     /** @type {Array<PromiseRejectedResult>} */
     // @ts-ignore
-    const rejected = settled.filter(p => p.status === 'rejected');
+    const rejected: Array<PromiseRejectedResult> = settled.filter(p => p.status === 'rejected');
 
     const objs = [];
     const bbox = new Box3();

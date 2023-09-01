@@ -153,6 +153,15 @@ li.layers-list-item.layer-hidden .layers-list-name a.layer-link {
   @extend .pe-none;
 }
 
+.button-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding: 1rem;
+}
+
 .layers-list-item a.link-left {
   @extend .link-secondary;
   @extend .link-opacity-50;

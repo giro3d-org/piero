@@ -7,6 +7,7 @@ import EmptyIndicator from './EmptyIndicator.vue';
 import ModalOverlay from '../ModalOverlay.vue';
 import Bookmark from '../../types/Bookmark';
 import MainController from '../controllers/MainController';
+import IconButton from '../IconButton.vue';
 
 const bookmarks = shallowRef(Bookmarks.getBookmarks());
 const showShareModal = ref(false);
@@ -86,7 +87,7 @@ async function importBookmarks(file: Blob) {
 };
 
 async function importBookmarkFile(e: Event) {
-  for (const  file of (e.target as HTMLInputElement).files)
+  for (const file of (e.target as HTMLInputElement).files)
     importBookmarks(file);
 }
 
@@ -112,12 +113,12 @@ async function importBookmarkFile(e: Event) {
 
     <div class="button-area">
         <hr>
-        <button title="Create a new bookmark from the current view" class="btn btn-primary" @click="() => { addBookmark(); $forceUpdate(); }"><i class="bi-plus-lg"/> New bookmark</button>
-        <button title="Share current view" class="btn btn-outline-secondary" @click="shareCurrentView"><i class="bi-share" /> Share view</button>
-        <button title="Export bookmarks to GeoJSON" class="btn btn-outline-secondary" @click="exportBookmarks"><i class="bi-box-arrow-right" /> Export bookmarks</button>
+        <IconButton text="New bookmark" icon="bi-plus-lg" title="Create a new bookmark from the current view" class="btn-primary" @click="() => { addBookmark(); $forceUpdate(); }" />
+        <IconButton text="Share view" icon="bi-share" title="Share current view" class="btn-outline-secondary" @click="shareCurrentView" />
+        <IconButton title="Export bookmarks to GeoJSON" class="btn-outline-secondary" @click="exportBookmarks" icon="bi-box-arrow-right" text="Export bookmarks"/>
 
         <!-- Import from GeoJSON -->
-        <button title="Import bookmarks from GeoJSON" class="btn btn-outline-secondary" @click="hiddenInput.click()"><i class="bi-box-arrow-in-left" /> Import bookmarks</button>
+        <IconButton title="Import bookmarks from GeoJSON" class="btn-outline-secondary" @click="hiddenInput.click()" icon="bi-box-arrow-left" text="Import bookmarks"/>
         <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="formFile" @input="(e) => importBookmarkFile(e)">
     </div>
   </div>
@@ -131,15 +132,6 @@ async function importBookmarkFile(e: Event) {
 </template>
 
 <style scoped>
-.button-area {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding: 1rem;
-}
-
 .import {
   height: 30rem;
   width: 100%;
