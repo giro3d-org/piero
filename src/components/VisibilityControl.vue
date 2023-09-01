@@ -1,7 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import SwitchToggle from './SwitchToggle.vue';
 
-defineProps(['visible'])
+defineProps<{
+  visible: Boolean
+}>()
 defineEmits(['update:visible'])
 </script>
 
