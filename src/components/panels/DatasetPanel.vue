@@ -4,6 +4,7 @@ import Dataset from '../../types/Dataset';
 import IconButton from '../IconButton.vue';
 import Datasets from '../controllers/DatasetController'
 import DatasetGroup from './DatasetGroup.vue';
+import DropZone from '../DropZone.vue';
 
 const datasets = Datasets.getDatasets();
 
@@ -18,9 +19,14 @@ function zoomOnDataset(dataset: Dataset) {
   Datasets.zoomOn(dataset);
 }
 
+async function importDatasetFromDrop(e: DragEvent) {
+  for (const file of e.dataTransfer.files) {
+    Datasets.importFromFile(file);
+  }
+}
+
 async function importDatasetFromFile(e: Event) {
   for (const file of (e.target as HTMLInputElement).files) {
-    // TODO
     Datasets.importFromFile(file);
   }
 }
@@ -32,6 +38,7 @@ defineEmits(['import'])
 
 <template>
   <div>
+    <DropZone @drop="importDatasetFromDrop" label="Import file..." />
     <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name" @zoom="zoomOnDataset"
       :datasets="datasets.filter((ds) => ds.type === item.key)" @updated="$forceUpdate()" />
   </div>
