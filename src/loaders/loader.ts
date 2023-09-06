@@ -23,11 +23,14 @@ interface ProcessOptions {
     loader?: import('@loaders.gl/core').LoaderOptions;
 }
 
+type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc';
+
 /**
  * Processed file results
  */
 interface ProcessedFileResult {
     filename: string;
+    filetype: FileType;
     obj: Entity3D;
 }
 
@@ -49,8 +52,8 @@ async function processFile(
 ): Promise<ProcessedFileResult> {
     /** @type {File|Response} */
     let file: File | Response = null;
-    let filename = null;
-    let filetype = null;
+    let filename: string = null;
+    let filetype: FileType = null;
 
     if (fileOrUrl instanceof File) {
         filename = fileOrUrl.name;
@@ -111,6 +114,7 @@ async function processFile(
         }
         case 'geojson': {
             const str = await file.text();
+            // TODO layerManager
             obj = await GeoJSON.loadString(instance, layerManager, filename, str, options);
             break;
         }
@@ -127,7 +131,7 @@ async function processFile(
     //     instance.add(obj);
     // }
 
-    return { filename, obj };
+    return { filename, filetype, obj };
 };
 
 /**

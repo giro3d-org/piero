@@ -17,6 +17,7 @@ import Camera from './CameraController';
 import VectorSource from 'ol/source/Vector';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
+import NotificationController from './NotificationController';
 
 const lidarHdTiles = [
     // 'Semis_2021_0841_6518_LA93_IGN69',
@@ -163,8 +164,13 @@ class DatasetController {
         return entity;
     }
 
-    importFromFile(file: File) {
-        throw new Error('Method not implemented.');
+    async importFromFile(file: File) {
+        try {
+            const result = await loader.processFile(this.instance, file);
+        } catch (e) {
+            const error = e as Error;
+            NotificationController.showNotification(file.name, error.message, 'error');
+        }
     }
 
     private updateDataset(dataset: Dataset) {
