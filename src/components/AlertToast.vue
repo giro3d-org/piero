@@ -25,6 +25,7 @@ function getStyle() {
     case 'info': return 'text-bg-secondary';
     case 'warning': return 'text-bg-warning';
     case 'error': return 'text-bg-danger';
+    case 'success': return 'text-bg-success';
     default:
       return 'text-bg-success';
   }
@@ -39,6 +40,7 @@ function getIcon() {
     case 'info': return 'bi-check-circle-fill';
     case 'warning': return 'bi-exclamation-triangle-fill';
     case 'error': return 'bi-exclamation-circle-fill';
+    case 'success': return 'bi-check-lg';
     default:
       return 'text-bg-success';
   }
