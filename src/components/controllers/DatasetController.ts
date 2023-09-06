@@ -32,7 +32,7 @@ const datasets = [
     new Dataset('19_rue_Marc_Antoine_Petit.ifc', 'ifc', 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc'),
     new Dataset('BD TOPO', 'bdtopo', null),
     lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
-    lidarHdTiles.map(t => new Dataset(`${t}`, 'lidarhd', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
+    lidarHdTiles.map(t => new Dataset(`${t}`, 'pointcloud', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
 ].flat()
 
 function getDatasets()  {
@@ -167,6 +167,27 @@ class DatasetController {
     async importFromFile(file: File) {
         try {
             const result = await loader.processFile(this.instance, file);
+
+            let entity: Entity3D = result.obj;
+            let dataset: Dataset;
+
+            switch (result.filetype) {
+                case 'gpkg':
+                case 'las':
+                    dataset = new Dataset(result.filename, 'pointcloud');
+                    break;
+                case 'csv':
+                case 'cityjson':
+                case 'geojson':
+                case 'ifc':
+                    // TODO
+                    break;
+            }
+
+            this.entities.set(dataset.uuid, result.obj);
+            this.instance.add(entity);
+            this.instance.notifyChange(entity);
+            datasets.push(dataset);
         } catch (e) {
             const error = e as Error;
             NotificationController.showNotification(file.name, error.message, 'error');
@@ -201,7 +222,7 @@ class DatasetController {
             case 'ifc':
                 entity = (await this.loadIFC(dataset)).obj;
                 break;
-            case 'lidarhd':
+            case 'pointcloud':
                 entity = this.loadPointCloud(dataset);
                 break;
             case 'bdtopo':

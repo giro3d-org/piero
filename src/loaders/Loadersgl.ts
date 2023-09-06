@@ -145,7 +145,8 @@ export default {
         const data = await load(fileOrUrl, loader, options?.loader);
         const posArray = getdata(data);
 
-        const alert = NotificationController.showNotification('Point cloud', `Loaded ${fileOrUrl}; processing ${posArray.length / 3} points...`);
+        const filename = (fileOrUrl as File).name ?? fileOrUrl;
+        const alert = NotificationController.showNotification(filename, `Processing ${posArray.length / 3} points...`);
         if (options?.projection && options.projection !== instance.referenceCrs) {
             // @ts-ignore
             const coords = new Coordinates(options.projection);

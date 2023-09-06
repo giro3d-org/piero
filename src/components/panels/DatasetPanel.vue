@@ -10,7 +10,7 @@ const datasets = Datasets.getDatasets();
 
 const groups = [
   { key: 'ifc', name: 'IFC' },
-  { key: 'lidarhd', name: 'Lidar HD' },
+  { key: 'pointcloud', name: 'Point clouds' },
   { key: 'cityjson', name: 'CityJSON' },
   { key: 'bdtopo', name: '3D Buildings' },
 ]

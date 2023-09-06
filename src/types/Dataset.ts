@@ -1,6 +1,6 @@
 import LayerObject from "./LayerObject";
 
-type DatasetType = 'cityjson' | 'ifc' | 'lidarhd' | 'bdtopo';
+type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
 
 export default class Dataset extends LayerObject {
     readonly type: DatasetType;

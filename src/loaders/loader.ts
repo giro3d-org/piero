@@ -81,7 +81,7 @@ async function processFile(
         throw new Error('File not supported');
     }
 
-    const alert = NotificationController.showNotification(filename, `Loading ${filename}...`);
+    const alert = NotificationController.showNotification(filename, 'Loading...');
 
     if (!(fileOrUrl instanceof File)
         && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')
