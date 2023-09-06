@@ -27,7 +27,6 @@ export const useDatasetStore = defineStore('datasets', () => {
   }
 
   function remove(ds: Dataset) {
-    ds.delete();
     datasets.value.splice(datasets.value.indexOf(ds), 1);
   }
 

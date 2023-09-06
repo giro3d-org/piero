@@ -44,6 +44,16 @@ class DatasetController {
         this.camera = mainController.camera;
         const store = useDatasetStore();
 
+        store.$onAction(({
+            name,
+            args,
+        }) => {
+            switch (name) {
+                case 'remove': this.deleteDataset(args[0]);
+                    break;
+            }
+        });
+
         for (const dataset of store.datasets) {
             this.registerDataset(dataset);
 
@@ -55,7 +65,6 @@ class DatasetController {
 
     registerDataset(dataset: Dataset) {
         dataset.addEventListener('visible', () => this.onVisibilityChanged(dataset));
-        dataset.addEventListener('delete', () => this.deleteDataset(dataset));
     }
 
     onVisibilityChanged(dataset: Dataset) {
@@ -170,6 +179,7 @@ class DatasetController {
                     break;
             }
 
+            dataset.visible = true;
             this.registerDataset(dataset);
             this.entities.set(dataset.uuid, result.obj);
             this.instance.add(entity);
@@ -195,11 +205,12 @@ class DatasetController {
         }
     }
 
-    deleteDataset(dataset: Dataset) {
+    private deleteDataset(dataset: Dataset) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             this.instance.remove(entity);
         }
+        this.instance.notifyChange();
     }
 
     onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
