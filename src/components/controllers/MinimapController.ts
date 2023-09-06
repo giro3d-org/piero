@@ -18,7 +18,6 @@ const DEFAULT_EXTENT = new Extent(
 
 function loadOSMLayer(map: Map) {
     const layer = new ColorLayer('osm', {
-        extent: map.extent,
         source: new TiledImageSource({ source: new OSM() }),
     });
 

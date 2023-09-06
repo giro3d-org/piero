@@ -139,8 +139,6 @@ export default class LayerManager extends EventDispatcher {
 
         this.instance.add(this.basemap);
 
-        NotificationController.showNotification('Basemaps', 'Basemaps created');
-
         if (layers) {
             for (const layer of layers) {
                 this.basemap.addLayer(layer);

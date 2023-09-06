@@ -30,13 +30,11 @@ const basemaps = [
     new Basemap({ id: 'elevation', name: 'Elevation', type: 'elevation' }),
 ];
 
-const layers = new Map();
-
 function getBasemaps() {
     return basemaps;
 }
 
-function createColorMap(preset, min, max) {
+function createColorMap(preset: string, min: number, max: number) {
     const scale = chroma.scale(preset);
     const colors = [];
     for (let i = 0; i < 256; i++) {
@@ -101,7 +99,6 @@ function loadImageryLayer(layerManager: LayerManager, id: string) {
     });
 
     const colorLayer = new ColorLayer(id, {
-        extent: layerManager.extent,
         source: wmsOthophotoSource,
     },
     );
