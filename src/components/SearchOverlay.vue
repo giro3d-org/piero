@@ -87,18 +87,20 @@ MainController.onInit(mainController => {
     const instance = mainController.mainInstance;
 
     const selection = event.detail.selection.value as Vector3;
-    const extent = Extent.fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 100, 100);
-    const newExtent = extent.as(instance.referenceCrs);
+    const aoi = Extent
+      .fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 10000, 10000)
+      .as(instance.referenceCrs);
 
-    if (!newExtent.equals(layerManager.extent) && !newExtent.isInside(layerManager.extent)) {
+    if (!aoi.isInside(layerManager.extent)) {
         const newExtent = layerManager.extent.clone();
-        const center = newExtent.center() as Coordinates;
-        const locationExtent = Extent.fromCenterAndSize('EPSG:2154', { x: center.x(), y: center.y() }, 10000, 10000);
-        newExtent.union(locationExtent);
+        newExtent.union(aoi);
         layerManager.setExtent(newExtent);
     }
 
-    const bbox3 = newExtent.toBox3(selection.z, selection.z + 200);
+    const target = Extent
+      .fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 1000, 1000)
+      .as(instance.referenceCrs);
+    const bbox3 = target.toBox3(selection.z, selection.z + 200);
     mainController.camera.lookTopDownAt(bbox3, false);
 });
 });
