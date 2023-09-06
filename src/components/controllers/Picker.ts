@@ -69,7 +69,7 @@ export default class Picker {
                 }
             } else {
                 for (const [key, value] of Object.entries(object.userData)) {
-                    if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata') continue;
+                    if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
                     attributes.push({ key, value });
                 }
             }
@@ -207,7 +207,8 @@ export default class Picker {
 
         const attributes: Array<Attribute> = [];
 
-        let name = null;
+        const entity = layer as Entity3D;
+        let name = entity?.object3d?.userData?.name;
 
         if (layer?.filename) {
             attributes.push({ key: 'Dataset', value: layer.filename });

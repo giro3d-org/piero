@@ -43,7 +43,7 @@ export default {
 
         const polygons = new Group();
         // StatusBar.addTask(features.length);
-        const alert = NotificationController.showNotification('Loader', `Loaded ${fileOrUrl}; processing ${features.length} features...`);
+        // const alert = NotificationController.showNotification('Loader', `Loaded ${fileOrUrl}; processing ${features.length} features...`);
 
         features.forEach(feature => {
             for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {

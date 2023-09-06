@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Dataset from '../../types/Dataset';
+import { useDatasetStore } from '../../stores/datasets';
+import { Dataset } from '../../types/Dataset';
 import IconButton from '../IconButton.vue';
 import Datasets from '../controllers/DatasetController'
 import DatasetGroup from './DatasetGroup.vue';
 import DropZone from '../DropZone.vue';
 
-const datasets = Datasets.getDatasets();
+const datasetStore = useDatasetStore();
 
 const groups = [
   { key: 'ifc', name: 'IFC' },
@@ -39,8 +40,13 @@ defineEmits(['import'])
 <template>
   <div>
     <DropZone @drop="importDatasetFromDrop" label="Import file..." />
-    <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name" @zoom="zoomOnDataset"
-      :datasets="datasets.filter((ds) => ds.type === item.key)" @updated="$forceUpdate()" />
+    <DatasetGroup v-for="(item, index) in groups"
+      :key="index"
+      :group="item.name"
+      :datasets="datasetStore.datasets.filter(ds => ds.type === item.key)"
+      @zoom="zoomOnDataset"
+      @updated="$forceUpdate()"
+    />
   </div>
   <div class="button-area">
     <!-- Import from GeoJSON -->

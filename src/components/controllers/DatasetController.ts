@@ -6,7 +6,7 @@ import { tile } from 'ol/loadingstrategy.js';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
-import Dataset from "../../types/Dataset";
+import { Dataset, DatasetObject } from "../../types/Dataset";
 import MainController from "./MainController";
 import Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
@@ -18,26 +18,7 @@ import VectorSource from 'ol/source/Vector';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import NotificationController from './NotificationController';
-
-const lidarHdTiles = [
-    // 'Semis_2021_0841_6518_LA93_IGN69',
-    // 'Semis_2021_0841_6519_LA93_IGN69',
-    'Semis_2021_0841_6520_LA93_IGN69',
-    'Semis_2021_0841_6521_LA93_IGN69',
-    'Semis_2021_0842_6520_LA93_IGN69',
-    'Semis_2021_0842_6521_LA93_IGN69',
-];
-
-const datasets = [
-    new Dataset('19_rue_Marc_Antoine_Petit.ifc', 'ifc', 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc'),
-    new Dataset('BD TOPO', 'bdtopo', null),
-    lidarHdTiles.map(t => new Dataset(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
-    lidarHdTiles.map(t => new Dataset(`${t}`, 'pointcloud', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
-].flat()
-
-function getDatasets()  {
-    return datasets;
-}
+import { useDatasetStore } from '../../stores/datasets';
 
 function zoomOn(dataset: Dataset) {
     controller?.zoom(dataset);
@@ -61,15 +42,20 @@ class DatasetController {
     constructor(mainController: MainController) {
         this.instance = mainController.mainInstance;
         this.camera = mainController.camera;
+        const store = useDatasetStore();
 
-        for (const dataset of datasets) {
-            dataset.addEventListener('visible', () => this.onVisibilityChanged(dataset));
-            dataset.addEventListener('delete', () => this.deleteDataset(dataset));
+        for (const dataset of store.datasets) {
+            this.registerDataset(dataset);
 
             if (dataset.visible) {
                 this.loadDataset(dataset);
             }
         }
+    }
+
+    registerDataset(dataset: Dataset) {
+        dataset.addEventListener('visible', () => this.onVisibilityChanged(dataset));
+        dataset.addEventListener('delete', () => this.deleteDataset(dataset));
     }
 
     onVisibilityChanged(dataset: Dataset) {
@@ -174,7 +160,7 @@ class DatasetController {
             switch (result.filetype) {
                 case 'gpkg':
                 case 'las':
-                    dataset = new Dataset(result.filename, 'pointcloud');
+                    dataset = new DatasetObject(result.filename, 'pointcloud');
                     break;
                 case 'csv':
                 case 'cityjson':
@@ -184,10 +170,17 @@ class DatasetController {
                     break;
             }
 
+            this.registerDataset(dataset);
             this.entities.set(dataset.uuid, result.obj);
             this.instance.add(entity);
             this.instance.notifyChange(entity);
-            datasets.push(dataset);
+
+            const store = useDatasetStore();
+            store.add(dataset);
+
+            this.onDatasetLoaded(dataset, entity);
+
+            NotificationController.showNotification(result.filename, 'Import successful.', 'success');
         } catch (e) {
             const error = e as Error;
             NotificationController.showNotification(file.name, error.message, 'error');
@@ -203,12 +196,18 @@ class DatasetController {
     }
 
     deleteDataset(dataset: Dataset) {
-        const index = datasets.indexOf(dataset);
-        datasets.splice(index, 1);
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             this.instance.remove(entity);
         }
+    }
+
+    onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
+        entity.object3d.userData.entity = entity;
+        entity.object3d.userData.name = dataset.name;
+
+        dataset.isLoaded = true;
+        dataset.isLoading = false;
     }
 
     async loadDataset(dataset: Dataset) {
@@ -236,17 +235,13 @@ class DatasetController {
             this.instance.add(entity);
         }
 
-        entity.object3d.userData.entity = entity;
-
-        dataset.isLoaded = true;
-        dataset.isLoading = false;
+        this.onDatasetLoaded(dataset, entity);
 
         return dataset;
     }
 }
 
 export default {
-    getDatasets,
     importFromFile,
     zoomOn,
 }

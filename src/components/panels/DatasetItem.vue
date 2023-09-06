@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Dataset from '../../types/Dataset';
+import { Dataset } from '../../types/Dataset';
 import SpinnerControl from '../SpinnerControl.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 
-const props = defineProps({
+const props = defineProps<{
   dataset: Dataset,
-})
+}>()
 
 const isLoading = ref(props.dataset.isLoading);
 props.dataset.addEventListener('isLoading', () => isLoading.value = props.dataset.isLoading);

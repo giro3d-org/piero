@@ -31,7 +31,7 @@ export default {
      */
     async loadIfc(instance: Instance, id: string, file: File|Response, options: IFCOptions = {}) {
         const buffer = await file.arrayBuffer();
-        const alert = NotificationController.showNotification('IFC', `Loaded ${id}; processing ${buffer.byteLength} bytes...`);
+        // const alert = NotificationController.showNotification('IFC', `Loaded ${id}; processing ${buffer.byteLength} bytes...`);
 
         const ifcModel = await ifcLoader.parse(buffer);
         ifcModel.name = 'ifcModel';

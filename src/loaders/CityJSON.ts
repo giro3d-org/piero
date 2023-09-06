@@ -25,7 +25,7 @@ export default {
     loadString(instance: Instance, id: string, str: string, options: CityJSONOptions = {}): Promise<Entity3D> {
         return new Promise(resolve => {
             const json = JSON.parse(str);
-            const alert = NotificationController.showNotification('CityJSON', `Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`);
+            // const alert = NotificationController.showNotification('CityJSON', `Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`);
             const parser = new CityJSONWorkerParser();
             // @ts-ignore - CityJSON typing seems outdated
             const loader = new CityJSONLoader(parser);

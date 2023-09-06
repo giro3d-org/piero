@@ -13,7 +13,8 @@ defineEmits(['close'])
 <template>
     <div class="card">
         <div class="card-header d-float">
-            {{ name ?? parent }}
+            <i class="bi bi-card-checklist"></i>
+            <span class="mx-2">{{ name ?? parent }}</span>
             <button @click="$emit('close')" type="button" class="btn-close float-end" aria-label="Close"></button>
         </div>
         <div class="card-body content">

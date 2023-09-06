@@ -1,8 +1,26 @@
+import { EventDispatcher } from "three";
 import LayerObject from "./LayerObject";
 
-type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
+export type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
 
-export default class Dataset extends LayerObject {
+export interface Dataset extends EventDispatcher {
+    isLoaded: boolean;
+    type: DatasetType;
+    url: string;
+    uuid: string;
+    name: string;
+
+    get isLoading(): boolean;
+    set isLoading(v: boolean);
+    get visible(): boolean;
+    set visible(v: boolean);
+    get opacity(): number;
+    set opacity(v: number);
+
+    delete(): void;
+}
+
+export class DatasetObject extends LayerObject implements Dataset {
     readonly type: DatasetType;
     readonly url: string;
     private _isLoading: boolean = false;

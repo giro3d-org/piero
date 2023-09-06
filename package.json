@@ -26,6 +26,7 @@
     "chroma-js": "^2.4.2",
     "cityjson-threejs-loader": "^0.4.0",
     "ol": "^6.15.1",
+    "pinia": "^2.1.6",
     "proj4": "^2.9.0",
     "shepherd.js": "^11.1.1",
     "three": "^0.148.0",
