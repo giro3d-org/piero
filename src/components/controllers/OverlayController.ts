@@ -156,7 +156,7 @@ class OverlayController {
 
         for (const overlay of overlays) {
             if (overlay.source) {
-                const layer = new ColorLayer(overlay.name, { source: overlay.source(mainController.mainInstance), extent })
+                const layer = new ColorLayer(overlay.name, { source: overlay.source(mainController.mainInstance) })
                 this.layers.set(overlay.id, layer);
                 this.layerManager.addOverlay(layer);
                 layer.visible = overlay.visible;

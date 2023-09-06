@@ -92,8 +92,8 @@ MainController.onInit(mainController => {
 
     if (!newExtent.equals(layerManager.extent) && !newExtent.isInside(layerManager.extent)) {
         const newExtent = layerManager.extent.clone();
-        const center = newExtent.center() as Vector2;
-        const locationExtent = Extent.fromCenterAndSize('EPSG:2154', { x: center.x, y: center.y }, 10000, 10000);
+        const center = newExtent.center() as Coordinates;
+        const locationExtent = Extent.fromCenterAndSize('EPSG:2154', { x: center.x(), y: center.y() }, 10000, 10000);
         newExtent.union(locationExtent);
         layerManager.setExtent(newExtent);
     }
