@@ -225,7 +225,7 @@ export default class Picker {
             this.getAttributesFromDrawing(drawing, attributes);
         }
 
-        if (object?.isCityObject && pickedObject.face) {
+        if ((object as any)?.isCityObject && pickedObject.face) {
             this.getAttributesFromCityObject(pickedObject, object, attributes);
         }
 
