@@ -20,6 +20,9 @@ pages:
           variables:
               DEPLOY_URL: $CI_PAGES_URL/next
               OUTPUT: ./dist/$CI_COMMIT_BRANCH
+    cache:
+        key: gitlab-pages
+        paths: [dist]
     script:
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
     environment:
