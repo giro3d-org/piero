@@ -21,7 +21,7 @@ pages:
               DEPLOY_URL: $CI_PAGES_URL/next
               OUTPUT: ./dist/$CI_COMMIT_BRANCH
     script:
-        - npm run build -- --out-dir $OUTPUT
+        - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
     environment:
         name: pages/$CI_COMMIT_BRANCH
         action: start
@@ -30,3 +30,4 @@ pages:
         paths:
             - dist
         name: "$CI_COMMIT_REF_SLUG"
+    publish: dist
