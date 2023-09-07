@@ -30,7 +30,7 @@ pages:
     artifacts:
         paths:
             - dist
-        name: "$CI_COMMIT_REF_SLUG"
+        name: build
     publish: dist
     script:
         - ls dist
