@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TheToolbar from './components/toolbar/TheToolbar.vue'
+import ToolBar from './components/toolbar/ToolBar.vue'
 import MinimapView from './components/MinimapView.vue'
 import MainView from './components/MainView.vue'
 import PanelContainer from './components/PanelContainer.vue'
@@ -10,7 +10,6 @@ import StatusBar from './components/StatusBar.vue'
 import MainController from './components/controllers/MainController'
 import Tour from './components/controllers/Tour'
 import AlertToast from './components/AlertToast.vue'
-import TooltipPopup from './components/TooltipPopup.vue'
 import AttributePanel from './components/AttributePanel.vue'
 import Feature from './types/Feature'
 import Picker from './components/controllers/Picker'
@@ -96,9 +95,8 @@ function updateCoordinates(event: MouseEvent) {
   <MainView id="main-view" @vue:mounted="() => onGiro3DMounted()" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
   <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" class="component attribute-panel" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
-  <TheToolbar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
+  <ToolBar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
-  <!-- <TooltipPopup v-if="tooltip != null" :pos="mouse" :text="tooltip"/> -->
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
   <ProgressBar :progress="progress" class="loading-indicator" />
   <SearchOverlay id="address-search" class="search" />

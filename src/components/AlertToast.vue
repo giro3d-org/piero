@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as bootstrap from 'bootstrap';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import Notifications from './controllers/NotificationController';
 import Notification from '../types/Notification'
 

@@ -1,5 +1,5 @@
 <script setup>
-import ToolButton from './ToolButton.vue'
+import ToolbarButton from './ToolbarButton.vue'
 import Configuration from '../Configuration'
 
 defineProps({
@@ -19,7 +19,7 @@ const panels = Configuration.panels;
         </a>
       </li>
 
-      <ToolButton
+      <ToolbarButton
         v-for="panel in panels"
         :active="active === panel.key"
         :key="panel.key"
