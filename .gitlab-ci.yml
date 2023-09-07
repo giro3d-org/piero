@@ -29,8 +29,8 @@ pages:
         url: $DEPLOY_URL
     artifacts:
         paths:
-            - dist/$CI_COMMIT_BRANCH
+            - dist
         name: "$CI_COMMIT_REF_SLUG"
-    publish: dist/$CI_COMMIT_BRANCH
+    publish: dist
     script:
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
