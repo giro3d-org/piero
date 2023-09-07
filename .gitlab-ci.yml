@@ -15,22 +15,22 @@ pages:
         - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
           variables:
               DEPLOY_URL: $CI_PAGES_URL
-              OUTPUT: ./public/$CI_COMMIT_BRANCH
+              OUTPUT: ./out/$CI_COMMIT_BRANCH
         - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "next"
           variables:
               DEPLOY_URL: $CI_PAGES_URL/$CI_COMMIT_BRANCH
-              OUTPUT: ./public/$CI_COMMIT_BRANCH
+              OUTPUT: ./out/$CI_COMMIT_BRANCH
     cache:
         key: gitlab-pages
-        paths: [public]
+        paths: [out]
     environment:
         name: pages/$CI_COMMIT_BRANCH
         action: start
         url: $DEPLOY_URL
     artifacts:
         paths:
-            - public
+            - out
         name: "$CI_COMMIT_REF_SLUG"
-    publish: public
+    publish: out
     script:
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
