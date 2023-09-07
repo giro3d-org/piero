@@ -9,6 +9,7 @@
         "strictNullChecks": false,
         "emitDeclarationOnly": false,
         "declaration": true,
-        "removeComments": false
+        "removeComments": false,
+        "allowSyntheticDefaultImports": true,
     }
   }

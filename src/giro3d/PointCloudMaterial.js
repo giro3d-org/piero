@@ -1,5 +1,5 @@
 import { Color, Uniform } from 'three';
-import * as chroma from 'chroma-js';
+import chroma from 'chroma-js';
 import PointsMaterial from '@giro3d/giro3d/renderer/PointsMaterial.js';
 
 import PointsVS from './PointsVS.glsl.js';

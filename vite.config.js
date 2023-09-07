@@ -10,7 +10,7 @@ export default defineConfig({
     // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it
     // however it depends on earcut which _has_ to be optimized (because giro3d also depends on it)
     include: ['earcut'],
-    exclude: ['cityjson-threejs-loader']
+    exclude: ['cityjson-threejs-loader', 'chroma-js']
   },
   plugins: [
     vue(),
