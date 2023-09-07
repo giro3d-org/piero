@@ -31,7 +31,7 @@ pages:
     artifacts:
         paths:
             - dist
-        name: build
+        name: $CI_COMMIT_BRANCH
     publish: dist
     script:
         - ls dist
