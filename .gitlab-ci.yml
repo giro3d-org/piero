@@ -15,7 +15,7 @@ pages:
         - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
           variables:
               DEPLOY_URL: $CI_PAGES_URL
-              OUTPUT: ./dist/$CI_COMMIT_BRANCH
+              OUTPUT: ./dist
         - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "next"
           variables:
               DEPLOY_URL: $CI_PAGES_URL/$CI_COMMIT_BRANCH
@@ -24,6 +24,7 @@ pages:
         key: gitlab-pages
         paths:
             - dist
+            - node_modules
     environment:
         name: pages/$CI_COMMIT_BRANCH
         action: start
