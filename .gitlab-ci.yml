@@ -22,7 +22,7 @@ pages:
               OUTPUT: ./out-$CI_COMMIT_BRANCH
     cache:
         key: gitlab-pages
-        paths: [out]
+        paths: [out-$CI_COMMIT_BRANCH]
     environment:
         name: pages/$CI_COMMIT_BRANCH
         action: start
@@ -30,6 +30,6 @@ pages:
     artifacts:
         paths:
             - $OUTPUT
-    publish: $OUTPUT
+    publish: out-$CI_COMMIT_BRANCH
     script:
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
