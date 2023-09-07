@@ -30,7 +30,6 @@ pages:
     artifacts:
         paths:
             - out
-        name: "$CI_COMMIT_REF_SLUG"
     publish: out
     script:
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
