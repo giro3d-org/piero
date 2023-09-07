@@ -34,5 +34,4 @@ pages:
         name: $CI_COMMIT_BRANCH
     publish: dist
     script:
-        - ls dist
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
