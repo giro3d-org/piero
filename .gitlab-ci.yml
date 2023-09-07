@@ -33,6 +33,7 @@ pages:
         name: "$CI_COMMIT_REF_SLUG"
     publish: dist
     script:
+        - ls dist
         - npm run build -- --out-dir tempbuild --base $DEPLOY_URL
         - rm -fr $OUTPUT
         - mv tempbuild $OUTPUT
