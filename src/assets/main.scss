@@ -12,34 +12,6 @@
   font-weight: normal;
 }
 
-.text-vertical {
-  text-orientation: sideways;
-}
-
-.component-name {
-  text-align: center;
-  vertical-align: middle;
-  font-weight: bold;
-  font-size: large;
-}
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-}
-
-$position-values: (
-  0: 0,
-  20: 20%,
-  25: 25%,
-  50: 50%,
-  75: 75%,
-  80: 80%,
-  100: 100%
-);
-
 @import 'bootstrap/scss/bootstrap';
 $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
 @import 'bootstrap-icons/font/bootstrap-icons';
@@ -47,113 +19,14 @@ $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/utilities';
 
-$utilities: map-merge(
-  $utilities,
-  (
-    'max-width': (
-      property: max-width,
-      class: mw,
-      values: (
-        25: 25%,
-        50: 50%,
-        75: 75%,
-        100: 100%
-      )
-    ),
-    'max-height': (
-      property: max-height,
-      class: mh,
-      values: (
-        25: 25%,
-        50: 50%,
-        75: 75%,
-        100: 100%
-      )
-    ),
-    'viewport-width': (
-      property: width,
-      class: vw,
-      values: (
-        25: 25vw,
-        50: 50vw,
-        75: 75vw,
-        100: 100vw
-      )
-    ),
-    'min-viewport-width': (
-      property: min-width,
-      class: min-vw,
-      values: (
-        25: 25vw,
-        50: 50vw,
-        75: 75vw,
-        100: 100vw
-      )
-    ),
-    'viewport-height': (
-      property: height,
-      class: vh,
-      values: (
-        25: 25vh,
-        50: 50vh,
-        75: 75vh,
-        100: 100vh
-      )
-    ),
-    'min-viewport-height': (
-      property: min-height,
-      class: min-vh,
-      values: (
-        25: 25vh,
-        50: 50vh,
-        75: 75vh,
-        100: 100vh
-      )
-    )
-  )
-);
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
 }
 
-.menutab {
-  @extend .p-2;
-  @extend .overflow-auto;
-  @extend .flex-grow-1;
-  @extend .bg-body;
-}
-
 .layers-list-group {
   @extend .list-group;
   @extend .list-group-flush;
-}
-
-.layers-list-item {
-  @extend .list-group-item;
-  @extend .d-flex;
-  // @extend .justify-content-between;
-  @extend .align-items-start;
-  @extend .py-0;
-  @extend .px-1;
-}
-
-.layers-list-name {
-  @extend .ms-2;
-  @extend .me-auto;
-  @extend .flex-grow-1;
-  @extend .text-break;
-}
-
-.layers-list-name a.layer-link {
-  @extend .link-underline-success;
-  @extend .link-underline-opacity-0;
-  @extend .link-underline-opacity-75-hover;
-}
-
-li.layers-list-item.layer-hidden .layers-list-name a.layer-link {
-  @extend .pe-none;
 }
 
 .button-area {
@@ -165,50 +38,6 @@ li.layers-list-item.layer-hidden .layers-list-name a.layer-link {
   padding: 1rem;
 }
 
-.layers-list-item a.link-left {
-  @extend .link-secondary;
-  @extend .link-opacity-50;
-  @extend .link-opacity-100-hover;
-  @extend .me-1;
-}
-
-.layers-list-item a.link-right {
-  @extend .link-secondary;
-  @extend .link-opacity-50;
-  @extend .link-opacity-100-hover;
-  @extend .ms-1;
-}
-
-li.layers-list-item a.layer-toggle-visible-link i {
-  @extend .bi;
-}
-
-li.layers-list-item.layer-visible .layer-toggle-visible-link i {
-  @extend .bi-eye;
-}
-
-li.layers-list-item.layer-hidden .layer-toggle-visible-link i {
-  @extend .bi-eye-slash;
-}
-
-li.layers-list-item.layer-hidden {
-  @extend .list-group-item-secondary;
-}
-
-li.layers-list-item a.layer-move-up-link i {
-  @extend .bi;
-  @extend .bi-arrow-up;
-}
-
-li.layers-list-item a.layer-move-down-link i {
-  @extend .bi;
-  @extend .bi-arrow-down;
-}
-
-.autoComplete_wrapper {
-  @extend .px-2;
-  @extend .w-100;
-}
 .disabled {
   opacity: 0.5;
 }

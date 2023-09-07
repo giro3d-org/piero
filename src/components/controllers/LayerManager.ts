@@ -7,7 +7,6 @@ import Layer from "@giro3d/giro3d/core/layer/Layer";
 import Map from "@giro3d/giro3d/entities/Map";
 import { Feature } from "ol";
 import { EventDispatcher } from "three";
-import NotificationController from "./NotificationController";
 import VectorSource from "@giro3d/giro3d/sources/VectorSource";
 import TileIndex from "@giro3d/giro3d/core/TileIndex";
 
