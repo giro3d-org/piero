@@ -22,7 +22,8 @@ pages:
               OUTPUT: ./dist/$CI_COMMIT_BRANCH
     cache:
         key: gitlab-pages
-        paths: [dist]
+        paths:
+            - dist
     environment:
         name: pages/$CI_COMMIT_BRANCH
         action: start
@@ -34,6 +35,4 @@ pages:
     publish: dist
     script:
         - ls dist
-        - npm run build -- --out-dir tempbuild --base $DEPLOY_URL
-        - rm -fr $OUTPUT
-        - mv tempbuild $OUTPUT
+        - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
