@@ -34,4 +34,5 @@ pages:
     publish: dist
     script:
         - npm run build -- --out-dir tempbuild --base $DEPLOY_URL
+        - rm -fr $OUTPUT
         - mv tempbuild $OUTPUT
