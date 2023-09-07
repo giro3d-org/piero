@@ -6,7 +6,7 @@ import { tile } from 'ol/loadingstrategy.js';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
-import { Dataset, DatasetObject } from "../../types/Dataset";
+import { Dataset, DatasetObject, DatasetType } from "../../types/Dataset";
 import MainController from "./MainController";
 import Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
@@ -164,20 +164,30 @@ class DatasetController {
             const result = await loader.processFile(this.instance, file);
 
             let entity: Entity3D = result.obj;
-            let dataset: Dataset;
+            let type: DatasetType;
 
             switch (result.filetype) {
                 case 'gpkg':
-                case 'las':
-                    dataset = new DatasetObject(result.filename, 'pointcloud');
-                    break;
-                case 'csv':
-                case 'cityjson':
-                case 'geojson':
-                case 'ifc':
                     // TODO
                     break;
+                case 'las':
+                    type = 'pointcloud';
+                    break;
+                case 'csv':
+                    // TODO
+                    break;
+                case 'cityjson':
+                    type = 'cityjson';
+                    break;
+                case 'geojson':
+                    // TODO
+                    break;
+                case 'ifc':
+                    type = 'ifc';
+                    break;
             }
+
+            const dataset = new DatasetObject(result.filename, type);
 
             dataset.visible = true;
             this.registerDataset(dataset);
