@@ -1,5 +1,8 @@
 @import './base.css';
 
+@import 'shepherd.js/dist/css/shepherd.css';
+@import '@tarekraafat/autocomplete.js/dist/css/autoComplete.02.css';
+
 #app {
   width: 100vw;
   height: 100vh;
@@ -38,7 +41,7 @@ $position-values: (
 );
 
 @import 'bootstrap/scss/bootstrap';
-$bootstrap-icons-font-dir: '../node_modules/bootstrap-icons/font/fonts';
+$bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
 @import 'bootstrap-icons/font/bootstrap-icons';
 
 @import 'bootstrap/scss/variables';
