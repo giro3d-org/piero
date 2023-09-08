@@ -1,7 +1,6 @@
 import { IFCLoader } from 'three/examples/jsm/loaders/IFCLoader.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
-import NotificationController from '../components/controllers/NotificationController';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 const ifcLoader = new IFCLoader();

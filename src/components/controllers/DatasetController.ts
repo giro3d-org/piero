@@ -17,8 +17,9 @@ import Camera from './CameraController';
 import VectorSource from 'ol/source/Vector';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import NotificationController from './NotificationController';
 import { useDatasetStore } from '../../stores/datasets';
+import { useNotificationStore } from '../../stores/notifications';
+import Notification from '../../types/Notification';
 
 function zoomOn(dataset: Dataset) {
     controller?.zoom(dataset);
@@ -160,6 +161,7 @@ class DatasetController {
     }
 
     async importFromFile(file: File) {
+        const notifications = useNotificationStore();
         try {
             const result = await loader.processFile(this.instance, file);
 
@@ -200,10 +202,11 @@ class DatasetController {
 
             this.onDatasetLoaded(dataset, entity);
 
-            NotificationController.showNotification(result.filename, 'Import successful.', 'success');
+            notifications.push(new Notification(result.filename, 'Import successful.', 'success'));
         } catch (e) {
+            console.error(e);
             const error = e as Error;
-            NotificationController.showNotification(file.name, error.message, 'error');
+            notifications.push(new Notification(file.name, error.message, 'error'));
         }
     }
 

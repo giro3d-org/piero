@@ -5,10 +5,11 @@ import CityJSON from './CityJSON';
 import GeoJSON from './GeoJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
-import NotificationController from '../components/controllers/NotificationController.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import Camera from '../components/controllers/CameraController.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import { useNotificationStore } from '../stores/notifications';
+import Notification from '../types/Notification';
 
 /**
  * Options
@@ -81,7 +82,8 @@ async function processFile(
         throw new Error('File not supported');
     }
 
-    const alert = NotificationController.showNotification(filename, 'Loading...');
+    const notifications = useNotificationStore();
+    notifications.push(new Notification(filename, 'Loading...'));
 
     if (!(fileOrUrl instanceof File)
         && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')
@@ -205,16 +207,18 @@ async function processFiles(
         }
     });
 
+    const notifications = useNotificationStore();
+
     rejected.forEach(p => {
         console.warn('Could not load file', p.reason);
-        NotificationController.showNotification('Loader', `Could not load file: ${p.reason}`, 'error');
+        notifications.push(new Notification('Loader', `Could not load file: ${p.reason}`, 'error'));
     });
 
     if (zoomTo) {
         if (!bbox.isEmpty()) {
             await camera.lookTopDownAt(bbox, hasData);
         } else {
-            NotificationController.showNotification('Loader', 'No data to show', 'warning');
+            notifications.push(new Notification('Loader', 'No data to show', 'warning'));
         }
     }
 

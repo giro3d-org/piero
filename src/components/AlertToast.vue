@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import * as bootstrap from 'bootstrap';
 import { ref } from 'vue';
-import Notifications from './controllers/NotificationController';
 import Notification from '../types/Notification'
+import { useNotificationStore } from '../stores/notifications';
 
 const alertToast = ref(null);
 const notification = ref<Notification>(Notification.empty());
@@ -14,7 +14,18 @@ function showNotification(notif: Notification) {
   toast.show();
 }
 
-Notifications.registerCallback(showNotification);
+const notificationStore = useNotificationStore();
+
+notificationStore.$onAction(({
+  name,
+  args
+}) => {
+  switch (name) {
+    case 'push':
+      showNotification(args[0]);
+      break;
+  }
+})
 
 function getStyle() {
   if (!notification.value) {

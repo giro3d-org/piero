@@ -8,12 +8,16 @@ import ModalOverlay from '../ModalOverlay.vue';
 import Bookmark from '../../types/Bookmark';
 import MainController from '../controllers/MainController';
 import IconButton from '../IconButton.vue';
+import { useNotificationStore } from '../../stores/notifications';
+import Notification from '../../types/Notification';
 
 const bookmarks = shallowRef(Bookmarks.getBookmarks());
 const showShareModal = ref(false);
 const shareUrl = ref<string>(null);
 const modalTitle = ref<string>(null);
 const hiddenInput = ref<HTMLInputElement>(null);
+
+const notificationStore = useNotificationStore();
 
 function shareBookmark(bookmark: Bookmark) {
   shareUrl.value = bookmark.getUrl().toString();
@@ -82,8 +86,7 @@ async function importBookmarks(file: Blob) {
   bookmarks.value = [];
   bookmarks.value = Bookmarks.getBookmarks();
 
-  // TODO implement alerts
-  // Alerts.showAlert(`${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success', true);
+  notificationStore.push(new Notification('Bookmarks', `${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success'));
 };
 
 async function importBookmarkFile(e: Event) {

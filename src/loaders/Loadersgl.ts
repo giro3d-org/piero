@@ -10,10 +10,11 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import PointCloud from '@giro3d/giro3d/core/PointCloud.js';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial.js';
-import NotificationController from '../components/controllers/NotificationController.js';
 import { SimpleGeoJSONFeature } from './_types.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import PointCloudMaterial from '../giro3d/PointCloudMaterial.js';
+import { useNotificationStore } from '../stores/notifications.js';
+import Notification from '../types/Notification.js';
 
 /**
  * Loadersgl options
@@ -42,15 +43,16 @@ export default {
         const features = getdata(raw);
 
         const polygons = new Group();
-        // StatusBar.addTask(features.length);
+
         // const alert = NotificationController.showNotification('Loader', `Loaded ${fileOrUrl}; processing ${features.length} features...`);
+        const notifications = useNotificationStore();
 
         features.forEach(feature => {
             for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
                 if (!Number.isFinite(feature.geometry.coordinates[0][i][0])
                     || !Number.isFinite(feature.geometry.coordinates[0][i][1])) {
                     // this feature has an invalid geometry, skip it
-                    NotificationController.showNotification('Loader', `Skipped feature ${feature}: invalid geometry`, 'warning');
+                    notifications.push(new Notification('Loader', `Skipped feature ${feature}: invalid geometry`, 'warning'));
                     // TODO
                     // StatusBar.doneTask();
                     return;
@@ -146,7 +148,8 @@ export default {
         const posArray = getdata(data);
 
         const filename = (fileOrUrl as File).name ?? fileOrUrl;
-        const alert = NotificationController.showNotification(filename, `Processing ${posArray.length / 3} points...`);
+        const notifications = useNotificationStore();
+        notifications.push(new Notification(filename, `Processing ${posArray.length / 3} points...`));
         if (options?.projection && options.projection !== instance.referenceCrs) {
             // @ts-ignore
             const coords = new Coordinates(options.projection);

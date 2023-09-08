@@ -5,7 +5,7 @@ export default class Notification {
     readonly text: string;
     readonly level: NotificationLevel;
 
-    constructor(title: string, text: string, level: NotificationLevel) {
+    constructor(title: string, text: string, level: NotificationLevel = 'info') {
         this.title = title;
         this.text = text;
         this.level = level;

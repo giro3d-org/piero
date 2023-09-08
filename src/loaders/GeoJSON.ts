@@ -3,7 +3,8 @@ import Drawing, { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
-import NotificationController from '../components/controllers/NotificationController';
+import { useNotificationStore } from '../stores/notifications';
+import Notification from '../types/Notification';
 
 /**
  * GeoJSON options
@@ -26,8 +27,9 @@ export default {
      */
     async loadString(instance: Instance, layerManager: unknown, id: string, str: string, options: GeoJSONOptions = {}): Promise<Entity3D> {
         const json = JSON.parse(str);
+        const notifications = useNotificationStore();
         if (json.geometry) {
-            const alert = NotificationController.showNotification('GeoJSON', `Loaded ${id}; processing 1 features...`);
+            notifications.push(new Notification('GeoJSON', `Loaded ${id}; processing 1 features...`));
 
             // @ts-ignore - Coordinates are optional
             const coordinatesWgs84 = new Coordinates('EPSG:4326');
@@ -87,7 +89,7 @@ export default {
             return entity;
         }
 
-        const alert = NotificationController.showNotification('GeoJSON', `Loaded ${id}; processing ${json.features.length} features...`);
+        notifications.push(new Notification('GeoJSON', `Loaded ${id}; processing ${json.features.length} features...`));
 
         const projectionOrigin = options?.projection ?? 'EPSG:4326';
         // @ts-ignore - Coordinates are optional

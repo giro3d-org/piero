@@ -3,7 +3,6 @@ import Instance from '@giro3d/giro3d/core/Instance.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Projections from '../utils/Projections';
-import NotificationController from '../components/controllers/NotificationController.js';
 
 /**
  * CityJSON options
