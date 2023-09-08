@@ -11,7 +11,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@giro3d/giro3d": "^0.27.1-demo.1",
+    "@giro3d/giro3d": "0.28.0-demo.1",
     "@loaders.gl/core": "^3.4.5",
     "@loaders.gl/csv": "^3.4.5",
     "@loaders.gl/geopackage": "^3.4.5",

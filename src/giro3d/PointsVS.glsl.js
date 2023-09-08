@@ -1,14 +1,10 @@
 export default ` /* glsl */
-precision highp float;
-precision highp int;
-
+#include <giro3d_precision_qualifiers>
 #include <logdepthbuf_pars_vertex>
+#include <clipping_planes_pars_vertex>
+
 #define EPSILON 1e-6
 
-attribute vec3 position;
-uniform mat4 modelMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 modelViewMatrix;
 uniform float size;
 
 uniform int pickingId;
@@ -28,8 +24,6 @@ uniform float lutSize;
 attribute vec2 oct16Normal;
 #elif defined(NORMAL_SPHEREMAPPED)
 attribute vec2 sphereMappedNormal;
-#else
-attribute vec3 normal;
 #endif
 
 uniform sampler2D overlayTexture;
@@ -187,5 +181,6 @@ void main() {
     }
 
     #include <logdepthbuf_vertex>
+    #include <clipping_planes_vertex>
 }
 `;
