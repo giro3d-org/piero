@@ -3,16 +3,28 @@ import { ref } from "vue";
 
 export const useAnalysisStore = defineStore('analysis', () => {
     const floodingPlaneHeight = ref(170);
-    const floodingPlaneVisible = ref(false);
-
-    function setFloodingPlaneVisible(visible: boolean) {
-        floodingPlaneVisible.value = visible;
-    }
+    const _enableFloodingPlane = ref(false);
+    const _enableCrossSection = ref(false);
 
     function setFloodingPlaneHeight(height: number) {
         floodingPlaneHeight.value = height;
     }
 
+    function enableFloodingPlane(enable: boolean) {
+        _enableFloodingPlane.value = enable;
+    }
 
-    return { floodingPlaneHeight, floodingPlaneVisible, setFloodingPlaneVisible, setFloodingPlaneHeight, }
+    function isFloodingPlaneEnabled() {
+        return _enableFloodingPlane.value
+    }
+
+    function enableCrossSection(enable: boolean) {
+        _enableCrossSection.value = enable;
+    }
+
+    function isCrossSectionEnabled() {
+        return _enableCrossSection.value
+    }
+
+    return { floodingPlaneHeight, enableFloodingPlane, isFloodingPlaneEnabled, setFloodingPlaneHeight, enableCrossSection, isCrossSectionEnabled }
 });

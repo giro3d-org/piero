@@ -1,12 +1,19 @@
 <script setup>
+import { useAnalysisStore } from '@/stores/analysis';
 import FloodingPlane from './analysis/FloodingPlane.vue'
+import ToolWrapper from './analysis/ToolWrapper.vue';
+
+const analysis = useAnalysisStore();
 </script>
 
 <template>
     <div>
-        <ul class="layers-list-group">
-            <FloodingPlane class="tool" />
-        </ul>
+        <ToolWrapper class="tool" title="Flooding plane" :enabled="analysis.isFloodingPlaneEnabled()" @update:enabled="analysis.enableFloodingPlane">
+            <FloodingPlane />
+        </ToolWrapper>
+
+        <ToolWrapper class="tool" title="Cross section" :enabled="analysis.isCrossSectionEnabled()" @update:enabled="analysis.enableCrossSection">
+        </ToolWrapper>
     </div>
 </template>
 

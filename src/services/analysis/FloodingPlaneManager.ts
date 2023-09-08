@@ -20,7 +20,9 @@ export default class FloodingPlaneManager {
         }) => {
             after(() => {
                 switch (name) {
-                    case 'setFloodingPlaneVisible':
+                    case 'enableFloodingPlane':
+                        this.updatePlane();
+                        break;
                     case 'setFloodingPlaneHeight':
                         this.updatePlane();
                         break;
@@ -38,7 +40,7 @@ export default class FloodingPlaneManager {
         const center = extent.center(new Vector2()) as Vector2;
         const dims = extent.dimensions() as Vector2;
 
-        this.plane.visible = this.store.floodingPlaneVisible;
+        this.plane.visible = this.store.isFloodingPlaneEnabled();
         this.plane.setPosition(center.x, center.y, this.store.floodingPlaneHeight, dims.x, dims.y);
         this.instance.notifyChange();
     }
