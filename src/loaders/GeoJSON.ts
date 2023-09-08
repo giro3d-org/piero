@@ -4,7 +4,7 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
 import { useNotificationStore } from '../stores/notifications';
-import Notification from '../types/Notification';
+import Notification from '@/types/Notification';
 
 /**
  * GeoJSON options

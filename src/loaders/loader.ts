@@ -6,10 +6,10 @@ import GeoJSON from './GeoJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
-import Camera from '../components/controllers/CameraController.js';
+import Camera from '.@/controllers/CameraController.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { useNotificationStore } from '../stores/notifications';
-import Notification from '../types/Notification';
+import Notification from '@/types/Notification';
 
 /**
  * Options

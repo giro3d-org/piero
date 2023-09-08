@@ -4,12 +4,12 @@ import BookmarkItem from './BookmarkItem.vue'
 import ShareBookmarkModal from './ShareBookmarkModal.vue'
 import EmptyIndicator from './EmptyIndicator.vue';
 import ModalOverlay from '../ModalOverlay.vue';
-import Bookmark from '../../types/Bookmark';
-import MainController from '../controllers/MainController';
+import Bookmark from '@/types/Bookmark';
 import IconButton from '../IconButton.vue';
-import { useNotificationStore } from '../../stores/notifications';
-import Notification from '../../types/Notification';
-import { useBookmarkStore } from '../../stores/bookmarks';
+import { useNotificationStore } from '@/stores/notifications';
+import Notification from '@/types/Notification';
+import { useBookmarkStore } from '@/stores/bookmarks';
+import { useCameraStore } from '@/stores/camera';
 
 const showShareModal = ref(false);
 const shareUrl = ref<string>(null);
@@ -18,6 +18,7 @@ const hiddenInput = ref<HTMLInputElement>(null);
 
 const notificationStore = useNotificationStore();
 const bookmarkStore = useBookmarkStore();
+const cameraStore = useCameraStore();
 
 function shareBookmark(bookmark: Bookmark) {
   shareUrl.value = bookmark.getUrl().toString();
@@ -27,13 +28,12 @@ function shareBookmark(bookmark: Bookmark) {
 
 function addBookmark() {
   const name = window.prompt('Bookmark name', 'New bookmark');
-  const cameraPosition = MainController.get().camera.getCameraPosition();
-  const bookmark = new Bookmark(name, cameraPosition);
+  const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
   bookmarkStore.add(bookmark);
 }
 
 function shareCurrentView() {
-  const temp = new Bookmark('temp', MainController.get().camera.getCameraPosition());
+  const temp = new Bookmark('temp', cameraStore.getCameraPosition());
   shareUrl.value = temp.getUrl().toString();
   modalTitle.value = 'Share current view';
   showShareModal.value = true;
@@ -92,7 +92,7 @@ async function importBookmarkFile(e: Event) {
 
 function goTo(bookmark: Bookmark) {
   if (bookmark.camera) {
-    MainController.get().camera.setCamera(bookmark.camera);
+    cameraStore.setCameraPosition(bookmark.camera);
   }
 }
 
@@ -150,3 +150,4 @@ button {
     width: 100%;
 }
 </style>
+../.@/controllers/MainController

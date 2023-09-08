@@ -1,17 +1,14 @@
-<script setup>
-import { ref } from 'vue';
-import FloodingPlaneController from '../../controllers/FloodingPlaneController'
+<script setup lang="ts">
+import { useAnalysisStore } from '@/stores/analysis';
 
-const floodingPlane = ref(FloodingPlaneController.getPlane());
+const analysis = useAnalysisStore();
 
-function show(visible) {
-    floodingPlane.value.visible = visible;
-    FloodingPlaneController.updatePlane();
+function show(visible: boolean) {
+    analysis.setFloodingPlaneVisible(visible);
   }
 
-function setHeight(height) {
-    floodingPlane.value.height = height;
-    FloodingPlaneController.updatePlane();
+function setHeight(height: number) {
+    analysis.setFloodingPlaneHeight(height);
 }
 
 </script>
@@ -22,16 +19,16 @@ function setHeight(height) {
       <div class="form-check form-switch">
         <input
           class="form-check-input"
-          :checked="floodingPlane.visible"
+          :checked="analysis.floodingPlaneVisible"
           type="checkbox"
           role="switch"
           id="enable"
-          @input="() => show(!floodingPlane.visible)"
+          @input="() => show(!analysis.floodingPlaneVisible)"
         />
         <label class="form-check-label" for="enable">Flooding plane</label>
       </div>
     </h5>
-    <div class="card-body" v-if="floodingPlane.visible">
+    <div class="card-body" v-if="analysis.floodingPlaneVisible">
       <div class="input-group mb-3">
         <label for="flooding-altitude-range" class="form-label">Altitude</label>
         <input
@@ -42,7 +39,7 @@ function setHeight(height) {
           min="0"
           step="0.1"
           max="500"
-          :value="floodingPlane.height"
+          :value="analysis.floodingPlaneHeight"
           @input="(event) => setHeight(Number.parseFloat(event.target.value))"
         />
         <div class="input-group mb-3">
@@ -51,7 +48,7 @@ function setHeight(height) {
             class="form-control"
             id="flooding-altitude-number"
             step="0.1"
-            :value="floodingPlane.height"
+            :value="analysis.floodingPlaneHeight"
             @input="(event) => setHeight(Number.parseFloat(event.target.value))"
           />
           <span class="input-group-text">m</span>
@@ -60,3 +57,4 @@ function setHeight(height) {
     </div>
   </div>
 </template>
+../../../services/analysis/FloodingPlaneController

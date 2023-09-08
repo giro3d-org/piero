@@ -2,13 +2,11 @@ import { LineBasicMaterial, MeshBasicMaterial, PointsMaterial } from 'three';
 
 import DrawTool, { DRAWTOOL_EVENT_TYPE, DRAWTOOL_MODE, DRAWTOOL_STATE, GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/DrawTool';
 import Drawing from '@giro3d/giro3d/interactions/Drawing';
-
-import Annotation from "../../types/Annotation"
-import MainController from "./MainController";
-import Camera from './CameraController';
 import Instance from '@giro3d/giro3d/core/Instance';
 
-const annotations = [];
+import Annotation from "@/types/Annotation"
+import Camera from '@/controllers/CameraController';
+import { useAnnotationStore } from '@/stores/annotations';
 
 const drawnFaceMaterial = new MeshBasicMaterial({
     color: 'yellow',
@@ -33,32 +31,6 @@ const drawnPointMaterial = new PointsMaterial({
     depthTest: false,
     size: 100,
 });
-
-function getAnnotations() {
-    return annotations;
-}
-
-function deleteAnnotation(annotation: Annotation) {
-    if (controller) {
-        controller.deleteAnnotation(annotation);
-    }
-}
-
-function createLine() {
-    if (controller) {
-        return controller.drawLine();
-    }
-
-    return Promise.resolve();
-}
-
-function createPolygon() {
-    if (controller) {
-        return controller.drawPolygon();
-    }
-
-    return Promise.resolve();
-}
 
 function promptName(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
@@ -87,20 +59,15 @@ function point2DFactory(index: number) {
     return pt;
 }
 
-let controller: AnnotationController;
-
-MainController.onInit(ctrl => {
-    controller = new AnnotationController(ctrl);
-});
-
-class AnnotationController {
+export default class AnnotationManager {
     private readonly drawTool: DrawTool;
     private readonly camera: Camera;
     private readonly instance: Instance;
+    private readonly store = useAnnotationStore();
 
-    constructor(mainController: MainController) {
-        this.instance = mainController.mainInstance;
-        this.drawTool = new DrawTool(mainController.mainInstance, {
+    constructor(instance: Instance, camera: Camera) {
+        this.instance = instance;
+        this.drawTool = new DrawTool(instance, {
             drawObjectOptions: {
                 minExtrudeDepth: 10,
                 maxExtrudeDepth: 30,
@@ -109,15 +76,35 @@ class AnnotationController {
             splicingHitTolerance: 0,
             endDrawingOnRightClick: true,
         });
-        this.camera = mainController.camera;
+        this.camera = camera;
 
         this.camera.addEventListener('interaction-start', () => this.drawTool.pause());
         this.camera.addEventListener('interaction-end', () => this.drawTool.continue());
 
-        mainController.mainInstance.domElement.addEventListener('keydown', e => {
+        instance.domElement.addEventListener('keydown', e => {
             if (e.code === 'Escape' && this.drawTool.state !== DRAWTOOL_STATE.READY) {
                 this.drawTool.reset();
             }
+        });
+
+        this.store.$onAction(({
+            name,
+            args,
+            after
+        }) => {
+            after(() => {
+                switch (name) {
+                    case 'remove':
+                        this.deleteAnnotation(args[0]);
+                        break;
+                    case 'createLine':
+                        this.drawLine();
+                        break;
+                    case 'createPolygon':
+                        this.drawPolygon();
+                        break;
+                }
+            });
         });
     }
 
@@ -134,10 +121,10 @@ class AnnotationController {
         this.instance.notifyChange();
     }
 
-    drawPolygon(): Promise<void> {
+    private drawPolygon() {
         this.beforeDraw();
 
-        return this.drawObject(GEOMETRY_TYPE.POLYGON).then(drawing => {
+        this.drawObject(GEOMETRY_TYPE.POLYGON).then(drawing => {
             this.pushNewAnnotation(promptName('New polygon annotation'), drawing);
         });
     }
@@ -145,13 +132,13 @@ class AnnotationController {
     pushNewAnnotation(name: string, drawing: Drawing) {
         const annotation = new Annotation(name, drawing);
         annotation.addEventListener('visible', () => this.updateDrawing(annotation));
-        annotations.push(annotation);
+        this.store.add(annotation);
     }
 
-    drawLine(): Promise<void> {
+    private drawLine() {
         this.beforeDraw();
 
-        return this.drawObject(GEOMETRY_TYPE.LINE).then(drawing => {
+        this.drawObject(GEOMETRY_TYPE.LINE).then(drawing => {
             this.pushNewAnnotation(promptName('New line annotation'), drawing);
         });
     }
@@ -175,14 +162,10 @@ class AnnotationController {
         return o;
     }
 
-    deleteAnnotation(annotation: Annotation) {
-        const index = annotations.indexOf(annotation);
-        if (index !== -1) {
-            annotation.object.dispose();
-            annotation.object.removeFromParent();
-            this.instance.notifyChange();
-        }
-        annotations.splice(index, 1);
+    private deleteAnnotation(annotation: Annotation) {
+        annotation.object.dispose();
+        annotation.object.removeFromParent();
+        this.instance.notifyChange();
     }
 
     private drawObject(type: GEOMETRY_TYPE): Promise<Drawing> {
@@ -202,11 +185,4 @@ class AnnotationController {
             this.drawTool.start(type);
         });
     }
-}
-
-export default {
-    getAnnotations,
-    createLine,
-    createPolygon,
-    deleteAnnotation,
 }

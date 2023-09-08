@@ -1,8 +1,8 @@
 import { Vector3 } from "three";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import Bookmark from "../types/Bookmark";
-import CameraPosition from "../types/CameraPosition";
+import Bookmark from "@/types/Bookmark";
+import CameraPosition from "@/types/CameraPosition";
 
 const initialList = [
     new Bookmark('Entrée du 19', new CameraPosition(new Vector3(841907.9, 6517787.6, 169.2), new Vector3(841905.9, 6517796.4, 168.9), new Vector3(0.1,-1.11,-0.0))),

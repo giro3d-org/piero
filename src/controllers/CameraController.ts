@@ -16,8 +16,9 @@ import {
 import CameraControls from 'camera-controls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-import CameraPosition from '../../types/CameraPosition';
 import Instance from '@giro3d/giro3d/core/Instance';
+import CameraPosition from '@/types/CameraPosition';
+import { useCameraStore } from '@/stores/camera';
 
 CameraControls.install({
     THREE: {
@@ -42,6 +43,7 @@ class Camera extends EventDispatcher {
     controls: CameraControls;
     pickObjectsAt: (e: any) => any;
     clock: Clock;
+    private readonly store = useCameraStore();
 
     /**
      * Creates new Camera-controls and bind them to Giro3D.
@@ -100,6 +102,10 @@ class Camera extends EventDispatcher {
             }
         });
 
+        this.instance.addFrameRequester('after_camera_update', () => {
+            this.store.setCurrentPosition(this.getCameraPosition());
+        });
+
         // As Giro3d runs the event loop only when needed, we need to notify Giro3d when
         // the controls update the view.
         // We need both events to make sure the view is updated from user interactions and from
@@ -115,6 +121,17 @@ class Camera extends EventDispatcher {
         this.controls.addEventListener('controlend', () => setTimeout(() => {
             this.dispatchEvent({ type: 'interaction-end' });
         }));
+
+        this.store.$onAction(({
+            name,
+            args
+        }) => {
+            switch (name) {
+                case 'setCameraPosition':
+                    this.setCamera(args[0]);
+                    break;
+            }
+        });
     }
 
     /**

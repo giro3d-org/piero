@@ -7,12 +7,12 @@ import ProgressBar from './components/ProgressBar.vue'
 import SearchOverlay from './components/SearchOverlay.vue'
 import { ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
-import MainController from './components/controllers/MainController'
-import Tour from './components/controllers/Tour'
+import MainController from '@/controllers/MainController'
+import Tour from '@/controllers/Tour'
 import AlertToast from './components/AlertToast.vue'
 import AttributePanel from './components/AttributePanel.vue'
 import Feature from './types/Feature'
-import Picker from './components/controllers/Picker'
+import Picker from '@/controllers/Picker'
 import { Vector3 } from 'three'
 
 const selectedTool = ref(null);
@@ -32,21 +32,23 @@ function selectPanel(key: string) {
   }
 }
 
+let mainController: MainController;
 
-function onGiro3DMounted() {
-  const main = MainController.get();
-  main.addEventListener('update', () => {
-    progress.value = main.mainInstance.progress;
-    isLoading.value = main.mainInstance.loading;
+function onGiro3DMounted(main: MainController) {
+  mainController = main;
+  mainController.addEventListener('update', () => {
+    progress.value = mainController.mainInstance.progress;
+    isLoading.value = mainController.mainInstance.loading;
   })
 
-  Tour.start(main.mainInstance, null, main.camera, null);
+  Tour.start(mainController.mainInstance, null, mainController.camera, null);
 }
 
 function pick(event: MouseEvent, clicked?: boolean) {
+  if (!mainController) {
+    return;
+  }
   mouse.value = { x: event.clientX, y: event.clientY };
-
-  const mainController = MainController.get();
 
   const instance = mainController?.mainInstance;
 
@@ -77,9 +79,8 @@ function pick(event: MouseEvent, clicked?: boolean) {
 }
 
 function updateCoordinates(event: MouseEvent) {
-  const main = MainController.get();
-  if (main) {
-    const point = picker.getMouseCoordinate(main.mainInstance, event);
+  if (mainController) {
+    const point = picker.getMouseCoordinate(mainController.mainInstance, event);
 
     if (point) {
       coordinates.value.x = point.x;
@@ -92,7 +93,7 @@ function updateCoordinates(event: MouseEvent) {
 </script>
 
 <template>
-  <MainView id="main-view" @vue:mounted="() => onGiro3DMounted()" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
+  <MainView id="main-view" @main-controller="ctrl => onGiro3DMounted(ctrl)" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
   <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" class="component attribute-panel" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <ToolBar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
@@ -183,3 +184,4 @@ function updateCoordinates(event: MouseEvent) {
   right: 0;
 }
 </style>
+@/controllers/MainController@/controllers/Tour@/controllers/Picker

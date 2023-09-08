@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import MainController from './controllers/MainController'
+import MainController from '@/controllers/MainController'
 import Inspector from '@giro3d/giro3d/gui/Inspector';
 
 const mainView = ref(null);
 const inspectorView = ref(null);
+const emits = defineEmits(['mainController'])
+
+let mainController : MainController;
 
 onMounted(() => {
-    const mainCtrl = MainController.init(mainView.value);
+    mainController = MainController.init(mainView.value);
 
-    Inspector.attach(inspectorView.value, mainCtrl.mainInstance, { title: 'Main view', width: 300 });
+    Inspector.attach(inspectorView.value, mainController.mainInstance, { title: 'Main view', width: 300 });
+    emits('mainController', mainController);
     // TODO minimap inspector
 })
 
 onUnmounted(() => {
-    MainController.get().dispose();
+    mainController?.dispose();
 })
 
 </script>
@@ -31,4 +35,4 @@ onUnmounted(() => {
     width: 100%;
     height: 100%;
 }
-</style>
+</style>.@/controllers/MainController

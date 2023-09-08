@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useDatasetStore } from '../../stores/datasets';
-import { Dataset } from '../../types/Dataset';
+import { Dataset } from '@/types/Dataset';
 import IconButton from '../IconButton.vue';
 import DatasetGroup from './DatasetGroup.vue';
 import DropZone from '../DropZone.vue';

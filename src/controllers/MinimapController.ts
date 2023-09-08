@@ -6,9 +6,9 @@ import Extent from '@giro3d/giro3d/core/geographic/Extent.js'
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
 import Instance from '@giro3d/giro3d/core/Instance'
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
-import Viewbox from '../../types/Viewbox'
-import MainController from './MainController'
 import Map from '@giro3d/giro3d/entities/Map.js'
+import Viewbox from '@/types/Viewbox'
+import MainController from './MainController'
 
 const DEFAULT_EXTENT = new Extent(
     'EPSG:3857',

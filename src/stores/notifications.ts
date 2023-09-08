@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import Notification from '../types/Notification'
+import Notification from '@/types/Notification'
 
 export const useNotificationStore = defineStore('notifications', () => {
   function push(notification: Notification) {

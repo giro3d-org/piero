@@ -1,6 +1,6 @@
 import { ref, computed, Ref } from 'vue'
 import { defineStore } from 'pinia'
-import { Dataset, DatasetObject } from '../types/Dataset'
+import { Dataset, DatasetObject } from '@/types/Dataset'
 
 const lidarHdTiles = [
   // 'Semis_2021_0841_6518_LA93_IGN69',

@@ -1,15 +1,15 @@
-import { defineStore } from "pinia";
-import { Ref, computed, reactive, ref } from "vue";
-import { BasemapObject, Basemap } from "../types/Basemap";
-import Instance from "@giro3d/giro3d/core/Instance";
+import { Basemap, BasemapObject } from "@/types/Basemap";
 import { Overlay, OverlayObject } from "@/types/Overlay";
+import Instance from "@giro3d/giro3d/core/Instance";
+import { defineStore } from "pinia";
+import { computed, reactive } from "vue";
 
-import * as olsource from 'ol/source';
-import * as olstyle from 'ol/style';
-import * as format from 'ol/format';
-import GML32 from 'ol/format/GML32';
 import TiledImageSource from "@giro3d/giro3d/sources/TiledImageSource";
 import VectorSource from "@giro3d/giro3d/sources/VectorSource";
+import * as format from 'ol/format';
+import GML32 from 'ol/format/GML32';
+import * as olsource from 'ol/source';
+import * as olstyle from 'ol/style';
 
 const basemapList = [
     new BasemapObject({ id: 'osm', name: 'OSM', type: 'color', visible: false }),

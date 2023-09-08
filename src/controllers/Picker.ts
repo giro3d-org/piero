@@ -1,10 +1,9 @@
 import { Box3, Face, Object3D, Vector3 } from "three";
-import MainController from "./MainController";
 import Instance from "@giro3d/giro3d/core/Instance";
 import Drawing from "@giro3d/giro3d/interactions/Drawing";
 import { Feature as OLFeature } from "ol";
-import Feature, { Attribute } from "../../types/Feature";
-import Measure from "../../utils/Measure";
+import Feature, { Attribute } from "@/types/Feature";
+import Measure from "../utils/Measure";
 import Entity3D from "@giro3d/giro3d/entities/Entity3D";
 
 /**

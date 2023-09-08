@@ -1,0 +1,45 @@
+import * as THREE from 'three';
+import Instance from "@giro3d/giro3d/core/Instance";
+import FloodingPlane from "@/types/FloodingPlane";
+import LayerManager from '@/services/LayerManager';
+import { useAnalysisStore } from '@/stores/analysis';
+
+export default class FloodingPlaneManager {
+    private readonly instance: Instance;
+    private readonly layerManager: LayerManager;
+    private readonly store = useAnalysisStore();
+    private plane: FloodingPlane;
+
+    constructor(instance: Instance, layerManager: LayerManager) {
+        this.instance = instance;
+        this.layerManager = layerManager;
+
+        this.store.$onAction(({
+            name,
+            after
+        }) => {
+            after(() => {
+                switch (name) {
+                    case 'setFloodingPlaneVisible':
+                    case 'setFloodingPlaneHeight':
+                        this.updatePlane();
+                        break;
+                }
+            });
+        });
+    }
+
+    private updatePlane() {
+        if (!this.plane) {
+            this.plane = new FloodingPlane();
+            this.instance.add(this.plane.object3D);
+        }
+        const extent = this.layerManager.extent;
+        const center = extent.center(new THREE.Vector2()) as THREE.Vector2;
+        const dims = extent.dimensions() as THREE.Vector2;
+
+        this.plane.visible = this.store.floodingPlaneVisible;
+        this.plane.setPosition(center.x, center.y, this.store.floodingPlaneHeight, dims.x, dims.y);
+        this.instance.notifyChange();
+    }
+}

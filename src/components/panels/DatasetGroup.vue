@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDatasetStore } from '../../stores/datasets';
-import { Dataset } from '../../types/Dataset';
+import { Dataset } from '@/types/Dataset';
 import DatasetItem from './DatasetItem.vue';
 
 const store = useDatasetStore();

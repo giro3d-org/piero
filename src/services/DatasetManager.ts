@@ -1,24 +1,24 @@
 import * as THREE from 'three';
 import { GeoJSON } from 'ol/format';
-import { createXYZ } from 'ol/tilegrid.js';
 import { tile } from 'ol/loadingstrategy.js';
+import { createXYZ } from 'ol/tilegrid.js';
+import VectorSource from 'ol/source/Vector';
 
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
-import { Dataset, DatasetObject, DatasetType } from "../types/Dataset";
+import Camera from '@/controllers/CameraController';
+import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
+import loader from '@/loaders/loader';
+import { useDatasetStore } from '@/stores/datasets';
+import { useNotificationStore } from '@/stores/notifications';
+import { Dataset, DatasetObject, DatasetType } from "@/types/Dataset";
+import Notification from '@/types/Notification';
 import Instance from '@giro3d/giro3d/core/Instance';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import PointCloudMaterial from '../giro3d/PointCloudMaterial';
-import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
-import loader from '../loaders/loader';
-import Camera from '../components/controllers/CameraController';
-import VectorSource from 'ol/source/Vector';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import { useDatasetStore } from '../stores/datasets';
-import { useNotificationStore } from '../stores/notifications';
-import Notification from '../types/Notification';
+import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
 export default class DatasetManager {
     private readonly instance: Instance;

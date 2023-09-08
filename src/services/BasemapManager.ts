@@ -3,17 +3,17 @@ import chroma from 'chroma-js'
 import OSM from 'ol/source/OSM'
 import TileWMS from 'ol/source/TileWMS'
 
-import BilFormat from '@giro3d/giro3d/formats/BilFormat'
-import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource'
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
 import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer'
+import BilFormat from '@giro3d/giro3d/formats/BilFormat'
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource'
 
-import { Basemap } from "../types/Basemap"
-import LayerManager from './LayerManager'
-import Layer from '@giro3d/giro3d/core/layer/Layer'
+import LayerManager from '@/services/LayerManager'
+import { useLayerStore } from '@/stores/layers'
+import { Basemap } from "@/types/Basemap"
 import ColorMap from '@giro3d/giro3d/core/layer/ColorMap'
+import Layer from '@giro3d/giro3d/core/layer/Layer'
 import { Color } from 'three'
-import { useLayerStore } from '../stores/layers'
 
 function createColorMap(preset: string, min: number, max: number) {
     const scale = chroma.scale(preset);

@@ -14,7 +14,7 @@ import { SimpleGeoJSONFeature } from './_types.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import PointCloudMaterial from '../giro3d/PointCloudMaterial.js';
 import { useNotificationStore } from '../stores/notifications.js';
-import Notification from '../types/Notification.js';
+import Notification from '@/types/Notification.js';
 
 /**
  * Loadersgl options

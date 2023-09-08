@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Dataset } from '../../types/Dataset';
+import { Dataset } from '@/types/Dataset';
 import SpinnerControl from '../SpinnerControl.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 

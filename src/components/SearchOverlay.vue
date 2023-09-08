@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import autoComplete from '@tarekraafat/autocomplete.js'
-import { Vector2, Vector3 } from 'three';
+import { Vector3 } from 'three';
 import { onMounted, ref } from 'vue'
-import MainController from './controllers/MainController';
-import { main } from '@popperjs/core';
+import MainController from '@/controllers/MainController';
 
-let autoCompleteControl;
+let autoCompleteControl: any;
 
 const inputField = ref<HTMLInputElement>(null);
 
@@ -18,14 +16,14 @@ onMounted(() => {
     threshold: 3,
     debounce: 300, // 300ms debounce
     data: {
-      src: async (query) => {
+      src: async (query: any) => {
         const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`)
         const data = await source.json()
 
         const lng = []
         const lat = []
 
-        data.features.forEach((feature) => {
+        data.features.forEach((feature: { geometry: { coordinates: any[]; }; }) => {
           lng.push(feature.geometry.coordinates[0])
           lat.push(feature.geometry.coordinates[1])
         })
@@ -36,16 +34,16 @@ onMounted(() => {
           )}&zonly=true`
         )
         const altitude = await requestAltitude.json()
-        altitude.elevations.forEach((value, i) => {
+        altitude.elevations.forEach((value: any, i: string | number) => {
           data.features[i].properties.z = value
         })
 
-        return data.features.map((f) => f.properties)
+        return data.features.map((f: { properties: any; }) => f.properties)
       },
       keys: ['label']
     },
     resultsList: {
-      element: (list, data) => {
+      element: (list: any, data: any) => {
         console.log(data)
         // TODO
         // if (!data.results.length) {
@@ -61,28 +59,13 @@ onMounted(() => {
       highlight: true
     },
     // Trust what we get from the query
-    searchEngine: (query, record) => record
+    searchEngine: (query: any, record: any) => record
   })
 })
-// TODO
-// document.getElementById('autoComplete').addEventListener('selection', event => {
-//     const selection = event.detail.selection.value;
-//     const coords = new Coordinates('EPSG:2154', selection.x, selection.y);
-//     const extent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 100, 100);
-//     const newExtent = extent.as(instance.referenceCrs);
-//     if (!newExtent.equals(layerManager.baseMap.extent) && !newExtent.isInside(layerManager.baseMap.extent)) {
-//         const newExtent = layerManager.baseMap.extent.clone();
-//         const locationExtent = Extent.fromCenterAndSize('EPSG:2154', { x: coords._values[0], y: coords._values[1] }, 10000, 10000);
-//         newExtent.union(locationExtent);
-//         layerManager.createMap(newExtent);
-//     }
-//     const bbox3 = newExtent.toBox3(selection.z, selection.z + 200);
-//     camera.lookTopDownAt(bbox3, false);
-// });
 
 MainController.onInit(mainController => {
   const inputElement = inputField.value as HTMLInputElement;
-  inputElement.addEventListener('selection', event => {
+  inputElement.addEventListener('selection', (event: InputEvent) => {
     const layerManager = mainController.layerManager;
     const instance = mainController.mainInstance;
 
@@ -138,3 +121,4 @@ input {
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
 }
 </style>
+.@/controllers/MainController
