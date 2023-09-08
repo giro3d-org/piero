@@ -13,7 +13,7 @@ import * as olstyle from 'ol/style';
 
 const basemapList = [
     new BasemapObject({ id: 'osm', name: 'OSM', type: 'color', visible: false }),
-    new BasemapObject({ id: 'imagery', name: 'Imagery' }),
+    new BasemapObject({ id: 'imagery', name: 'Satellite' }),
     new BasemapObject({ id: 'elevation', name: 'Elevation', type: 'elevation' }),
 ];
 
