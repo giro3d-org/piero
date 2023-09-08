@@ -1,6 +1,19 @@
+import { EventDispatcher } from "three";
 import LayerObject from "./LayerObject";
 
-export default class Basemap extends LayerObject {
+export interface Basemap extends EventDispatcher {
+    id: string;
+    name: string;
+    type: string;
+    get isLoading(): boolean;
+    set isLoading(v: boolean);
+    get visible(): boolean;
+    set visible(v: boolean);
+    get opacity(): number;
+    set opacity(v: number);
+}
+
+export class BasemapObject extends LayerObject implements Basemap {
     readonly id: string;
     private _loading: boolean;
     readonly type: string;

@@ -1,6 +1,6 @@
 <script setup>
 import AboutPanel from './panels/AboutPanel.vue';
-import OverlayPanel from './panels/OverlayPanel.vue'
+import LayerPanel from './panels/LayerPanel.vue'
 import DatasetPanel from './panels/DatasetPanel.vue'
 import SearchPanel from './panels/SearchPanel.vue';
 import BookmarkPanel from './panels/BookmarkPanel.vue';
@@ -27,11 +27,10 @@ const panels = Configuration.panels;
     <h5 class="title">{{ panels.find(p => p.key === selected).title }}</h5>
     <div class="content">
       <DatasetPanel v-if="selected === 'datasets'" />
-      <!-- <BasemapPanel v-if="selected === 'basemaps'" /> -->
       <AboutPanel v-if="selected === 'about'" />
       <SearchPanel v-if="selected === 'search'" />
       <BookmarkPanel v-if="selected === 'bookmarks'" />
-      <OverlayPanel v-if="selected === 'layers'" />
+      <LayerPanel v-if="selected === 'layers'" />
       <AnalysisPanel v-if="selected === 'analysis'" />
       <AnnotationPanel v-if="selected === 'annotations'" />
     </div>

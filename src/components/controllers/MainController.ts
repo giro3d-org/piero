@@ -5,7 +5,9 @@ import Extent from "@giro3d/giro3d/core/geographic/Extent";
 import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
 import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
 
-import LayerManager from "./LayerManager";
+import LayerManager from "@/services/LayerManager";
+import BasemapManager from "@/services/BasemapManager";
+import OverlayManager from "@/services/OverlayManager";
 import Camera from "./CameraController";
 
 const DEFAULT_CRS = 'EPSG:2154';
@@ -24,6 +26,8 @@ export default class MainController extends THREE.EventDispatcher {
     readonly camera: Camera;
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
+    readonly basemapManager: BasemapManager;
+    readonly overlayManager: OverlayManager;
 
     constructor(domElement: HTMLDivElement) {
         super();
@@ -46,6 +50,8 @@ export default class MainController extends THREE.EventDispatcher {
         this.camera.setInitialPosition(extent);
 
         this.layerManager = new LayerManager(this.mainInstance);
+        this.basemapManager = new BasemapManager(this.layerManager);
+        this.overlayManager = new OverlayManager(this.layerManager, this.mainInstance);
 
         this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.onFrameEnd());
 
