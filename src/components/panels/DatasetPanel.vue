@@ -3,11 +3,10 @@ import { ref } from 'vue';
 import { useDatasetStore } from '../../stores/datasets';
 import { Dataset } from '../../types/Dataset';
 import IconButton from '../IconButton.vue';
-import Datasets from '../controllers/DatasetController'
 import DatasetGroup from './DatasetGroup.vue';
 import DropZone from '../DropZone.vue';
 
-const datasetStore = useDatasetStore();
+const datasets = useDatasetStore();
 
 const groups = [
   { key: 'ifc', name: 'IFC' },
@@ -17,18 +16,18 @@ const groups = [
 ]
 
 function zoomOnDataset(dataset: Dataset) {
-  Datasets.zoomOn(dataset);
+  datasets.goTo(dataset);
 }
 
 async function importDatasetFromDrop(e: DragEvent) {
   for (const file of e.dataTransfer.files) {
-    Datasets.importFromFile(file);
+    datasets.importFromFile(file);
   }
 }
 
 async function importDatasetFromFile(e: Event) {
   for (const file of (e.target as HTMLInputElement).files) {
-    Datasets.importFromFile(file);
+    datasets.importFromFile(file);
   }
 }
 
@@ -43,7 +42,7 @@ defineEmits(['import'])
     <DatasetGroup v-for="(item, index) in groups"
       :key="index"
       :group="item.name"
-      :datasets="datasetStore.datasets.filter(ds => ds.type === item.key)"
+      :datasets="datasets.datasets.filter(ds => ds.type === item.key)"
       @zoom="zoomOnDataset"
       @updated="$forceUpdate()"
     />

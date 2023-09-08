@@ -9,6 +9,7 @@ import LayerManager from "@/services/LayerManager";
 import BasemapManager from "@/services/BasemapManager";
 import OverlayManager from "@/services/OverlayManager";
 import Camera from "./CameraController";
+import DatasetManager from "@/services/DatasetManager";
 
 const DEFAULT_CRS = 'EPSG:2154';
 
@@ -28,6 +29,7 @@ export default class MainController extends THREE.EventDispatcher {
     readonly layerManager: LayerManager;
     readonly basemapManager: BasemapManager;
     readonly overlayManager: OverlayManager;
+    readonly datasetManager: DatasetManager;
 
     constructor(domElement: HTMLDivElement) {
         super();
@@ -52,6 +54,7 @@ export default class MainController extends THREE.EventDispatcher {
         this.layerManager = new LayerManager(this.mainInstance);
         this.basemapManager = new BasemapManager(this.layerManager);
         this.overlayManager = new OverlayManager(this.layerManager, this.mainInstance);
+        this.datasetManager = new DatasetManager(this.mainInstance, this.camera);
 
         this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.onFrameEnd());
 

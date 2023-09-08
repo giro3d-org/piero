@@ -23,7 +23,7 @@ defineEmits(['zoom', 'updated'])
           :dataset="dataset"
           v-on:zoom="() => $emit('zoom', dataset)"
           v-on:delete="store.remove(dataset)"
-          v-on:update:visible="() => { dataset.visible = !dataset.visible; $emit('updated') }"
+          v-on:update:visible="v => store.setVisible(dataset, v)"
         />
       </ul>
       <hr>

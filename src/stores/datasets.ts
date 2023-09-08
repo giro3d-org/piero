@@ -30,5 +30,17 @@ export const useDatasetStore = defineStore('datasets', () => {
     datasets.value.splice(datasets.value.indexOf(ds), 1);
   }
 
-  return { count, datasets, add, remove }
+  function goTo(ds: Dataset) {
+    // Nothing to do, rely on action listeners.
+  }
+
+  function importFromFile(file: File) {
+    // Nothing to do, rely on action listeners.
+  }
+
+  function setVisible(ds: Dataset, newVisibility: boolean) {
+    ds.visible = newVisibility;
+  }
+
+  return { count, datasets, add, remove, goTo, importFromFile, setVisible }
 })

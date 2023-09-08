@@ -6,77 +6,68 @@ import { tile } from 'ol/loadingstrategy.js';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
-import { Dataset, DatasetObject, DatasetType } from "../../types/Dataset";
-import MainController from "./MainController";
+import { Dataset, DatasetObject, DatasetType } from "../types/Dataset";
 import Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import PointCloudMaterial from '../../giro3d/PointCloudMaterial';
+import PointCloudMaterial from '../giro3d/PointCloudMaterial';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
-import loader from '../../loaders/loader';
-import Camera from './CameraController';
+import loader from '../loaders/loader';
+import Camera from '../components/controllers/CameraController';
 import VectorSource from 'ol/source/Vector';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import { useDatasetStore } from '../../stores/datasets';
-import { useNotificationStore } from '../../stores/notifications';
-import Notification from '../../types/Notification';
+import { useDatasetStore } from '../stores/datasets';
+import { useNotificationStore } from '../stores/notifications';
+import Notification from '../types/Notification';
 
-function zoomOn(dataset: Dataset) {
-    controller?.zoom(dataset);
-}
-
-function importFromFile(file: File) {
-    controller.importFromFile(file);
-}
-
-let controller: DatasetController;
-
-MainController.onInit(ctrl => {
-    controller = new DatasetController(ctrl);
-});
-
-class DatasetController {
+export default class DatasetManager {
     private readonly instance: Instance;
     private readonly entities: Map<string, Entity3D> = new Map();
     private readonly camera: Camera;
 
-    constructor(mainController: MainController) {
-        this.instance = mainController.mainInstance;
-        this.camera = mainController.camera;
+    constructor(instance: Instance, camera: Camera) {
+        this.instance = instance;
+        this.camera = camera;
         const store = useDatasetStore();
 
         store.$onAction(({
             name,
             args,
+            after,
         }) => {
-            switch (name) {
-                case 'remove': this.deleteDataset(args[0]);
-                    break;
-            }
+            after(() => {
+                switch (name) {
+                    case 'remove': this.deleteDataset(args[0]);
+                        break;
+                    case 'goTo':
+                        this.zoom(args[0]);
+                        break;
+                    case 'importFromFile':
+                        this.importFromFile(args[0]);
+                        break;
+                    case 'setVisible':
+                        this.onVisibilityChanged(args[0], args[1]);
+                        break;
+                }
+            });
         });
 
         for (const dataset of store.datasets) {
-            this.registerDataset(dataset);
-
             if (dataset.visible) {
                 this.loadDataset(dataset);
             }
         }
     }
 
-    registerDataset(dataset: Dataset) {
-        dataset.addEventListener('visible', () => this.onVisibilityChanged(dataset));
-    }
-
-    onVisibilityChanged(dataset: Dataset) {
-        if (!dataset.isLoaded && dataset.visible) {
+    private onVisibilityChanged(dataset: Dataset, newVisibility: boolean) {
+        if (!dataset.isLoaded && newVisibility) {
             this.loadDataset(dataset).then(() => this.updateDataset(dataset));
         } else {
             this.updateDataset(dataset);
         }
     }
 
-    loadPointCloud(dataset: Dataset) {
+    private loadPointCloud(dataset: Dataset) {
         const pointcloud = new Tiles3D(
             `pointcloud-${dataset.name}`,
             new Tiles3DSource(dataset.url),
@@ -90,22 +81,22 @@ class DatasetController {
         return pointcloud;
     }
 
-    zoom(dataset: Dataset) {
+    private zoom(dataset: Dataset) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             this.camera.lookTopDownAt(entity);
         }
     }
 
-    loadIFC(dataset: Dataset) {
+    private loadIFC(dataset: Dataset) {
         return loader.processFile(this.instance, dataset.url)
     }
 
-    loadCityJSON(dataset: Dataset) {
+    private loadCityJSON(dataset: Dataset) {
         return loader.processFile(this.instance, dataset.url);
     }
 
-    loadBDTopo(dataset: Dataset): Entity3D {
+    private loadBDTopo(dataset: Dataset): Entity3D {
         const vectorSource = new VectorSource({
             format: new GeoJSON(),
             url: function url(e) {
@@ -160,7 +151,7 @@ class DatasetController {
         return entity;
     }
 
-    async importFromFile(file: File) {
+    private async importFromFile(file: File) {
         const notifications = useNotificationStore();
         try {
             const result = await loader.processFile(this.instance, file);
@@ -192,7 +183,6 @@ class DatasetController {
             const dataset = new DatasetObject(result.filename, type);
 
             dataset.visible = true;
-            this.registerDataset(dataset);
             this.entities.set(dataset.uuid, result.obj);
             this.instance.add(entity);
             this.instance.notifyChange(entity);
@@ -226,7 +216,7 @@ class DatasetController {
         this.instance.notifyChange();
     }
 
-    onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
+    private onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
         entity.object3d.userData.entity = entity;
         entity.object3d.userData.name = dataset.name;
 
@@ -234,7 +224,7 @@ class DatasetController {
         dataset.isLoading = false;
     }
 
-    async loadDataset(dataset: Dataset) {
+    private async loadDataset(dataset: Dataset) {
         dataset.isLoading = true;
 
         let entity: Entity3D;
@@ -263,9 +253,4 @@ class DatasetController {
 
         return dataset;
     }
-}
-
-export default {
-    importFromFile,
-    zoomOn,
 }
