@@ -1,5 +1,12 @@
 @import 'shepherd.js/dist/css/shepherd.css';
 @import '@tarekraafat/autocomplete.js/dist/css/autoComplete.02.css';
+@import 'bootstrap/scss/bootstrap';
+$bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
+@import 'bootstrap-icons/font/bootstrap-icons';
+
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/utilities/api';
 
 #app {
   width: 100vw;
@@ -10,12 +17,6 @@
   font-weight: normal;
 }
 
-@import 'bootstrap/scss/bootstrap';
-$bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
-@import 'bootstrap-icons/font/bootstrap-icons';
-
-@import 'bootstrap/scss/variables';
-@import 'bootstrap/scss/utilities';
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -44,5 +45,3 @@ body {
   @extend .text-center;
   border: var(--bs-border-width) dashed var(--bs-border-color) !important;
 }
-
-@import 'bootstrap/scss/utilities/api';
