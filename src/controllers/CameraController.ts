@@ -269,7 +269,6 @@ class Camera extends EventDispatcher {
             if (bbox.isEmpty() && obj.extent) {
                 // In case object is hidden
                 bbox = obj.extent.toBox3(0, 200);
-                // TODO: clamp to extent of map!
             }
         } else if (obj instanceof Object3D) {
             bbox.setFromObject(obj);

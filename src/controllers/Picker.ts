@@ -24,9 +24,6 @@ interface PickResult {
 }
 
 export default class Picker {
-    // TODO
-    coordinates: Vector3 = new Vector3();
-
     getNameFromOLFeature(feature: OLFeature): string {
         return feature.get('nom')
             ?? feature.get('name')

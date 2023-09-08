@@ -43,16 +43,6 @@ onMounted(() => {
       keys: ['label']
     },
     resultsList: {
-      element: (list: any, data: any) => {
-        console.log(data)
-        // TODO
-        // if (!data.results.length) {
-        //     const message = document.createElement('div');
-        //     message.setAttribute('class', 'no_result');
-        //     message.innerHTML = `<span>No results found for "${data.query}"</span>`;
-        //     list.prepend(message);
-        // }
-      },
       noResults: true
     },
     resultItem: {

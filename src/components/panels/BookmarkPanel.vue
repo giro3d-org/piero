@@ -150,4 +150,3 @@ button {
     width: 100%;
 }
 </style>
-../.@/controllers/MainController

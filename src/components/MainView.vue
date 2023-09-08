@@ -14,7 +14,6 @@ onMounted(() => {
 
     Inspector.attach(inspectorView.value, mainController.mainInstance, { title: 'Main view', width: 300 });
     emits('mainController', mainController);
-    // TODO minimap inspector
 })
 
 onUnmounted(() => {
