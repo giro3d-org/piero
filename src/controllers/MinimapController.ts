@@ -47,9 +47,10 @@ class MinimapController {
     constructor(div: HTMLDivElement, mainController: MainController) {
         this.mainInstance = mainController.mainInstance;
 
-        mainController.addEventListener('update', () => {
-            this.updateViewbox();
-        });
+        // TODO disabled because it uses too much CPU
+        // mainController.addEventListener('update', () => {
+        //     this.updateViewbox();
+        // });
 
         this.minimapInstance = new Instance(div, {
             crs: 'EPSG:3857',
