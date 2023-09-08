@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue';
-import Bookmarks from '../controllers/BookmarkController'
+import { ref } from 'vue';
 import BookmarkItem from './BookmarkItem.vue'
 import ShareBookmarkModal from './ShareBookmarkModal.vue'
 import EmptyIndicator from './EmptyIndicator.vue';
@@ -10,14 +9,15 @@ import MainController from '../controllers/MainController';
 import IconButton from '../IconButton.vue';
 import { useNotificationStore } from '../../stores/notifications';
 import Notification from '../../types/Notification';
+import { useBookmarkStore } from '../../stores/bookmarks';
 
-const bookmarks = shallowRef(Bookmarks.getBookmarks());
 const showShareModal = ref(false);
 const shareUrl = ref<string>(null);
 const modalTitle = ref<string>(null);
 const hiddenInput = ref<HTMLInputElement>(null);
 
 const notificationStore = useNotificationStore();
+const bookmarkStore = useBookmarkStore();
 
 function shareBookmark(bookmark: Bookmark) {
   shareUrl.value = bookmark.getUrl().toString();
@@ -27,7 +27,9 @@ function shareBookmark(bookmark: Bookmark) {
 
 function addBookmark() {
   const name = window.prompt('Bookmark name', 'New bookmark');
-  Bookmarks.addBookmarkFromCurrentPosition(name);
+  const cameraPosition = MainController.get().camera.getCameraPosition();
+  const bookmark = new Bookmark(name, cameraPosition);
+  bookmarkStore.add(bookmark);
 }
 
 function shareCurrentView() {
@@ -39,7 +41,7 @@ function shareCurrentView() {
 
 function exportBookmarks() {
   const json = [];
-    for (const bookmark of Bookmarks.getBookmarks()) {
+    for (const bookmark of bookmarkStore.getBookmarks()) {
         json.push({
             title: bookmark.name,
             url: bookmark.getUrl().toString(),
@@ -66,25 +68,19 @@ async function importBookmarks(file: Blob) {
   const str = await file.text();
   const serializedBookmarks = JSON.parse(str);
 
-  const existingBookmarks = new Set(Bookmarks.getBookmarks().map(b => b.name));
+  const existingBookmarks = new Set(bookmarkStore.getBookmarks().map(b => b.name));
 
   let nbImported = 0;
   let nbSkipped = 0;
 
-  serializedBookmarks.forEach(bookmark => {
+  serializedBookmarks.forEach((bookmark: any) => {
     if (!existingBookmarks.has(bookmark.title)) {
-      Bookmarks.addBookmark(Bookmark.new(bookmark.title, bookmark.url))
+      bookmarkStore.add(Bookmark.new(bookmark.title, bookmark.url))
       nbImported++;
     } else {
       nbSkipped++;
     }
   });
-
-  // To trigger a re-render of the bookmark list,
-  // we need to assign a different reference to the bookmark array,
-  // otherwise Vue does not detect the change.
-  bookmarks.value = [];
-  bookmarks.value = Bookmarks.getBookmarks();
 
   notificationStore.push(new Notification('Bookmarks', `${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success'));
 };
@@ -94,22 +90,28 @@ async function importBookmarkFile(e: Event) {
     importBookmarks(file);
 }
 
+function goTo(bookmark: Bookmark) {
+  if (bookmark.camera) {
+    MainController.get().camera.setCamera(bookmark.camera);
+  }
+}
+
 
 </script>
 
 <template>
   <div>
-    <EmptyIndicator text="No bookmarks" v-if="bookmarks.length === 0" />
+    <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
 
     <div>
       <ul class="layers-list-group">
         <BookmarkItem
-        v-for="bookmark in bookmarks"
+        v-for="bookmark in bookmarkStore.getBookmarks()"
         :key="bookmark.name"
         :name="bookmark.name"
-        v-on:share="() => shareBookmark(bookmark)"
-        v-on:delete="() => { bookmark.delete(); $forceUpdate() }"
-        v-on:goto="() => { bookmark.goTo(); $forceUpdate() }"
+        v-on:share="shareBookmark(bookmark)"
+        v-on:delete="bookmarkStore.remove(bookmark)"
+        v-on:goto="goTo(bookmark)"
         />
       </ul>
     </div>

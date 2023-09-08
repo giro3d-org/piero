@@ -1,4 +1,4 @@
-import * as chroma from 'chroma-js'
+import chroma from 'chroma-js'
 
 import OSM from 'ol/source/OSM'
 import TileWMS from 'ol/source/TileWMS'
