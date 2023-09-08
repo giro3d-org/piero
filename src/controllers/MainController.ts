@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D } from "three";
 
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
@@ -25,7 +25,7 @@ let singleton: MainController;
 
 const initCallbacks : Function[] = [];
 
-export default class MainController extends THREE.EventDispatcher {
+export default class MainController extends EventDispatcher {
     readonly camera: Camera;
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
@@ -51,7 +51,7 @@ export default class MainController extends THREE.EventDispatcher {
         this.camera.bindKeys();
 
         const center = new Coordinates('EPSG:4326', 4.84, 45.76, 0).as(crs) as Coordinates;
-        const xyz = new THREE.Vector3(center.x(), center.y(), center.z());
+        const xyz = new Vector3(center.x(), center.y(), center.z());
         const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, 10000, 10000);
         this.camera.setInitialPosition(extent);
 
@@ -70,10 +70,10 @@ export default class MainController extends THREE.EventDispatcher {
 
         const lightColor = 0xffffff;
 
-        const ambientLight = new THREE.AmbientLight(lightColor, 0.5);
+        const ambientLight = new AmbientLight(lightColor, 0.5);
         this.mainInstance.scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(lightColor, 0.5);
+        const dirLight = new DirectionalLight(lightColor, 0.5);
         dirLight.position.set(1, -1.75, 1);
         this.mainInstance.scene.add(dirLight);
         dirLight.updateMatrixWorld();
@@ -87,7 +87,7 @@ export default class MainController extends THREE.EventDispatcher {
     onFrameEnd() {
         // Temporary solution to avoid annoying horizontal line artifacts
         // on point cloud due to constantly shifting near clipping plane.
-        const camera : THREE.PerspectiveCamera = this.mainInstance.camera.camera3D;
+        const camera : PerspectiveCamera = this.mainInstance.camera.camera3D;
         camera.near = 2;
 
         this.dispatchEvent({ type: 'update' })
@@ -96,7 +96,7 @@ export default class MainController extends THREE.EventDispatcher {
     /**
      * Gets the datasets & annotations as Object3D.
      */
-    getObjects3d(): THREE.Object3D[] {
+    getObjects3d(): Object3D[] {
         const result = [];
         this.mainInstance.scene.traverse(o => {
             result.push(o);
@@ -110,8 +110,8 @@ export default class MainController extends THREE.EventDispatcher {
      * @returns Bounding box of all datasets.
      */
     getBoundingBox() {
-        const bbox = new THREE.Box3();
-        const bbox2 = new THREE.Box3();
+        const bbox = new Box3();
+        const bbox2 = new Box3();
         this.mainInstance.scene.traverse(obj => {
             bbox2.setFromObject(obj);
             bbox.union(bbox2);

@@ -19,6 +19,7 @@ import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
+import { MeshLambertMaterial } from 'three';
 
 export default class DatasetManager {
     private readonly instance: Instance;
@@ -119,7 +120,7 @@ export default class DatasetManager {
         const entity = new FeatureCollection('BDTOPO_V3', {
             source: vectorSource,
             extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
-            material: new THREE.MeshLambertMaterial(),
+            material: new MeshLambertMaterial(),
             extrude: feature => {
                 const hauteur = -feature.getProperties().hauteur;
                 if (Number.isNaN(hauteur)) {

@@ -1,4 +1,3 @@
-import { Box3 } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 
 import CityJSON from './CityJSON';
@@ -6,9 +5,8 @@ import GeoJSON from './GeoJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
-import Camera from '.@/controllers/CameraController.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { useNotificationStore } from '../stores/notifications';
+import { useNotificationStore } from '@/stores/notifications';
 import Notification from '@/types/Notification';
 
 /**
@@ -123,106 +121,13 @@ async function processFile(
         default:
             throw new Error('File not supported');
     }
-    // alert.dismiss();
 
     const visible = options?.visible ?? true;
     if (!visible) {
         obj.visible = false;
     }
-    // if (obj !== null && visible) {
-    //     instance.add(obj);
-    // }
 
     return { filename, filetype, obj };
 };
 
-/**
- * Processes multiple files.
- *
- * @param instance Giro3d instance
- * @param layerManager Layer manager
- * @param camera Camera object for zooming into the loaded files
- * @param files File to load, as objects or URLs
- * @param zoomTo Zooms into the loaded file once done
- * @param options Options
- * @returns Processed entities
- */
-async function processFiles(
-    instance: Instance,
-    layerManager: LayerManager,
-    camera: Camera,
-    files: Array<File | string>,
-    zoomTo: boolean = true,
-    options: ProcessOptions = {}
-): Promise<Array<Entity3D>> {
-    const promises = [];
-    // StatusBar.addTask(files.length);
-
-    const hasData = layerManager.hasData();
-
-    files.forEach(file => {
-        const p = processFile(instance, layerManager, file, options);
-        promises.push(p);
-        p.finally(() => {
-            // StatusBar.doneTask();
-        });
-    });
-
-    const settled = await Promise.allSettled(promises);
-    // eslint-disable-next-line jsdoc/no-undefined-types
-    /** @type {Array<PromiseFulfilledResult<ProcessedFileResult>>} */
-    // @ts-ignore
-    const fullfilled: Array<PromiseFulfilledResult<ProcessedFileResult>> = settled.filter(p => p.status === 'fulfilled');
-    // eslint-disable-next-line jsdoc/no-undefined-types
-    /** @type {Array<PromiseRejectedResult>} */
-    // @ts-ignore
-    const rejected: Array<PromiseRejectedResult> = settled.filter(p => p.status === 'rejected');
-
-    const objs = [];
-    const bbox = new Box3();
-    let bbox2;
-
-    fullfilled.forEach(p => {
-        const { obj, filename } = p.value;
-        if (Array.isArray(obj)) {
-            obj.forEach(o => {
-                bbox2 = o.getBoundingBox();
-                bbox.union(bbox2);
-                if (options?.isAnnotation) {
-                    layerManager.addAnnotationSet(o);
-                } else {
-                    layerManager.addSet(o, filename, options?.group);
-                }
-                objs.push(o);
-            });
-        } else {
-            bbox2 = obj.getBoundingBox();
-            bbox.union(bbox2);
-            if (options?.isAnnotation) {
-                layerManager.addAnnotationSet(obj);
-            } else {
-                layerManager.addSet(obj, filename, options?.group);
-            }
-            objs.push(obj);
-        }
-    });
-
-    const notifications = useNotificationStore();
-
-    rejected.forEach(p => {
-        console.warn('Could not load file', p.reason);
-        notifications.push(new Notification('Loader', `Could not load file: ${p.reason}`, 'error'));
-    });
-
-    if (zoomTo) {
-        if (!bbox.isEmpty()) {
-            await camera.lookTopDownAt(bbox, hasData);
-        } else {
-            notifications.push(new Notification('Loader', 'No data to show', 'warning'));
-        }
-    }
-
-    return objs;
-};
-
-export default { processFile, processFiles };
+export default { processFile };
