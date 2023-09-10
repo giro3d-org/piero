@@ -14,6 +14,9 @@ import { Basemap } from "@/types/Basemap"
 import ColorMap from '@giro3d/giro3d/core/layer/ColorMap'
 import Layer from '@giro3d/giro3d/core/layer/Layer'
 import { Color } from 'three'
+import { WMTSCapabilities } from 'ol/format'
+import { WMTS } from 'ol/source'
+import { optionsFromCapabilities } from 'ol/source/WMTS'
 
 function createColorMap(preset: string, min: number, max: number) {
     const scale = chroma.scale(preset);
@@ -66,22 +69,31 @@ function loadOSMLayer(layerManager: LayerManager, id: string) {
     return layer;
 }
 
-function loadImageryLayer(layerManager: LayerManager, id: string) {
-    // Create a WMS imagery layer
-    // TODO use WMTS version for faster loading
-    const wmsOthophotoSource = new TiledImageSource({
-        source: new TileWMS({
-            url: 'https://wxs.ign.fr/ortho/geoportail/r/wms',
-            projection: 'EPSG:2154',
-            params: {
-                LAYERS: ['HR.ORTHOIMAGERY.ORTHOPHOTOS'],
-                FORMAT: 'image/jpeg',
-            },
-        }),
-    });
+async function createWMTSSource(layer: string, url: string, format = undefined) {
+    const parser = new WMTSCapabilities();
+
+    return fetch(url)
+        .then(res => {
+            return res.text();
+        }).then(text => {
+            const result = parser.read(text);
+            const options = optionsFromCapabilities(result, {
+              layer,
+              matrixSet: 'EPSG:3857',
+              format,
+            });
+            return new WMTS(options);
+        });
+}
+
+async function loadImageryLayer(layerManager: LayerManager, id: string) {
+    const source = await createWMTSSource(
+        'ORTHOIMAGERY.ORTHOPHOTOS',
+        'https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities',
+    );
 
     const colorLayer = new ColorLayer(id, {
-        source: wmsOthophotoSource,
+        source: new TiledImageSource({ source }),
     },
     );
 
@@ -126,14 +138,14 @@ export default class BasemapManager {
         }
     }
 
-    private loadBasemap(basemap: Basemap) {
+    private async loadBasemap(basemap: Basemap) {
         let layer: Layer;
         switch (basemap.id) {
             case 'elevation':
                 layer = loadElevationLayer(this.layerManager, 'elevation');
                 break;
             case 'imagery':
-                layer = loadImageryLayer(this.layerManager, 'imagery')
+                layer = await loadImageryLayer(this.layerManager, 'imagery')
                 break;
             case 'osm':
                 layer = loadOSMLayer(this.layerManager, 'osm');
@@ -141,6 +153,11 @@ export default class BasemapManager {
         }
 
         this.layers.set(basemap.id, layer);
+
+        layer.visible = basemap.visible;
+        if (layer.type === 'ColorLayer') {
+            (layer as ColorLayer).opacity = basemap.opacity;
+        }
 
         return layer;
     }
@@ -156,7 +173,8 @@ export default class BasemapManager {
     private getLayer(basemap: Basemap) {
         let layer = this.layers.get(basemap.id);
         if (!layer) {
-            layer = this.loadBasemap(basemap);
+            this.loadBasemap(basemap);
+            return null;
         }
         return layer;
     }
