@@ -1,12 +1,13 @@
 <script setup>
-import AboutPanel from './panels/AboutPanel.vue';
-import LayerPanel from './panels/LayerPanel.vue'
-import DatasetPanel from './panels/DatasetPanel.vue'
-import SearchPanel from './panels/SearchPanel.vue';
-import BookmarkPanel from './panels/BookmarkPanel.vue';
+import { defineAsyncComponent } from 'vue';
 import Configuration from './Configuration';
-import AnalysisPanel from './panels/AnalysisPanel.vue';
-import AnnotationPanel from './panels/AnnotationPanel.vue';
+
+const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
+const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
+const BookmarkPanel = defineAsyncComponent(() => import('./panels/BookmarkPanel.vue'));
+const LayerPanel = defineAsyncComponent(() => import('./panels/LayerPanel.vue'));
+const AnalysisPanel = defineAsyncComponent(() => import('./panels/AnalysisPanel.vue'));
+const AnnotationPanel = defineAsyncComponent(() => import('./panels/AnnotationPanel.vue'));
 
 defineProps({
   /**
@@ -28,7 +29,6 @@ const panels = Configuration.panels;
     <div class="content">
       <DatasetPanel v-if="selected === 'datasets'" />
       <AboutPanel v-if="selected === 'about'" />
-      <SearchPanel v-if="selected === 'search'" />
       <BookmarkPanel v-if="selected === 'bookmarks'" />
       <LayerPanel v-if="selected === 'layers'" />
       <AnalysisPanel v-if="selected === 'analysis'" />

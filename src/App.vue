@@ -2,18 +2,19 @@
 import ToolBar from './components/toolbar/ToolBar.vue'
 import MinimapView from './components/MinimapView.vue'
 import MainView from './components/MainView.vue'
-import PanelContainer from './components/PanelContainer.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import SearchOverlay from './components/SearchOverlay.vue'
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
 import MainController from '@/controllers/MainController'
 import Tour from '@/controllers/Tour'
 import AlertToast from './components/AlertToast.vue'
-import AttributePanel from './components/AttributePanel.vue'
 import Feature from './types/Feature'
 import Picker from '@/controllers/Picker'
 import { Vector3 } from 'three'
+
+const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
+const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
 
 const selectedTool = ref(null);
 const progress = ref(1);
