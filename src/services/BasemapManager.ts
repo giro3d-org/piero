@@ -29,24 +29,31 @@ function createColorMap(preset: string, min: number, max: number) {
     return new ColorMap(colors, min, max);
 }
 
-function loadElevationLayer(layerManager: LayerManager, id: string) {
-    const source = new TileWMS({
-        url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
-        projection: layerManager.extent.crs(),
-        crossOrigin: 'anonymous',
-        params: {
-            LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
-            FORMAT: 'image/x-bil;bits=32',
-            VERSION: '1.3.0',
-        },
-    });
+async function loadElevationLayer(layerManager: LayerManager, id: string) {
+    // const source = new TileWMS({
+    //     url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
+    //     projection: layerManager.extent.crs(),
+    //     crossOrigin: 'anonymous',
+    //     params: {
+    //         LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
+    //         FORMAT: 'image/x-bil;bits=32',
+    //         VERSION: '1.3.0',
+    //     },
+    // });
     const noDataValue = -1000;
     const format = new BilFormat();
+
+    const wmts = await createWMTSSource(
+        'ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES',
+        'https://wxs.ign.fr/altimetrie/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities',
+        'image/x-bil;bits=32',
+        'WGS84G',
+    );
 
     const colorMap = createColorMap('RdYlBu', 0, 600);
 
     const layer = new ElevationLayer(id, {
-        source: new TiledImageSource({ source, format, noDataValue }),
+        source: new TiledImageSource({ source: wmts, format, noDataValue }),
         minmax: { min: 0, max: 600 },
         noDataValue,
         colorMap,
@@ -69,7 +76,7 @@ function loadOSMLayer(layerManager: LayerManager, id: string) {
     return layer;
 }
 
-async function createWMTSSource(layer: string, url: string, format = undefined) {
+async function createWMTSSource(layer: string, url: string, format?: string, matrixSet?: string) {
     const parser = new WMTSCapabilities();
 
     return fetch(url)
@@ -79,7 +86,7 @@ async function createWMTSSource(layer: string, url: string, format = undefined) 
             const result = parser.read(text);
             const options = optionsFromCapabilities(result, {
               layer,
-              matrixSet: 'EPSG:3857',
+              matrixSet: matrixSet ?? 'EPSG:3857',
               format,
             });
             return new WMTS(options);
@@ -142,7 +149,7 @@ export default class BasemapManager {
         let layer: Layer;
         switch (basemap.id) {
             case 'elevation':
-                layer = loadElevationLayer(this.layerManager, 'elevation');
+                layer = await loadElevationLayer(this.layerManager, 'elevation');
                 break;
             case 'imagery':
                 layer = await loadImageryLayer(this.layerManager, 'imagery')
