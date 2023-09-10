@@ -68,6 +68,7 @@ function loadOSMLayer(layerManager: LayerManager, id: string) {
 
 function loadImageryLayer(layerManager: LayerManager, id: string) {
     // Create a WMS imagery layer
+    // TODO use WMTS version for faster loading
     const wmsOthophotoSource = new TiledImageSource({
         source: new TileWMS({
             url: 'https://wxs.ign.fr/ortho/geoportail/r/wms',
@@ -118,24 +119,53 @@ export default class BasemapManager {
             });
         });
 
-        this.layers.set('elevation', loadElevationLayer(this.layerManager, 'elevation'));
-        this.layers.set('imagery', loadImageryLayer(this.layerManager, 'imagery'));
-        this.layers.set('osm', loadOSMLayer(this.layerManager, 'osm'));
+        for (const basemap of this.store.getBasemaps()) {
+            if (basemap.visible) {
+                this.loadBasemap(basemap);
+            }
+        }
+    }
+
+    private loadBasemap(basemap: Basemap) {
+        let layer: Layer;
+        switch (basemap.id) {
+            case 'elevation':
+                layer = loadElevationLayer(this.layerManager, 'elevation');
+                break;
+            case 'imagery':
+                layer = loadImageryLayer(this.layerManager, 'imagery')
+                break;
+            case 'osm':
+                layer = loadOSMLayer(this.layerManager, 'osm');
+                break;
+        }
+
+        this.layers.set(basemap.id, layer);
+
+        return layer;
     }
 
     onOpacityChanged(basemap: Basemap, newOpacity: number) {
-        const id = basemap.id;
-        const layer = this.layers.get(id);
-        if (layer.type === 'ColorLayer') {
+        const layer = this.getLayer(basemap);
+        if (layer && layer.type === 'ColorLayer') {
             (layer as ColorLayer).opacity = newOpacity;
             this.layerManager.notify(layer);
         }
     }
 
+    private getLayer(basemap: Basemap) {
+        let layer = this.layers.get(basemap.id);
+        if (!layer) {
+            layer = this.loadBasemap(basemap);
+        }
+        return layer;
+    }
+
     onVisibilityChanged(basemap: Basemap, newVisibility: boolean) {
-        const id = basemap.id;
-        const layer = this.layers.get(id);
-        layer.visible = newVisibility;
-        this.layerManager.notify(layer);
+        const layer = this.getLayer(basemap);
+        if (layer) {
+            layer.visible = newVisibility;
+            this.layerManager.notify(layer);
+        }
     }
 }
