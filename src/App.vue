@@ -6,11 +6,11 @@ import ProgressBar from './components/ProgressBar.vue'
 import SearchOverlay from './components/SearchOverlay.vue'
 import { defineAsyncComponent, ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
-import MainController from '@/controllers/MainController'
-import Tour from '@/controllers/Tour'
+import Giro3DManager from '@/services/Giro3DManager'
+import Tour from '@/services/Tour'
 import AlertToast from './components/AlertToast.vue'
 import Feature from './types/Feature'
-import Picker from '@/controllers/Picker'
+import Picker from '@/services/Picker'
 import { Vector3 } from 'three'
 
 const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
@@ -33,31 +33,31 @@ function selectPanel(key: string) {
   }
 }
 
-let mainController: MainController;
+let giro3d: Giro3DManager;
 
-function onGiro3DMounted(main: MainController) {
-  mainController = main;
-  mainController.addEventListener('update', () => {
-    progress.value = mainController.mainInstance.progress;
-    isLoading.value = mainController.mainInstance.loading;
+function onGiro3DMounted(main: Giro3DManager) {
+  giro3d = main;
+  giro3d.addEventListener('update', () => {
+    progress.value = giro3d.mainInstance.progress;
+    isLoading.value = giro3d.mainInstance.loading;
   })
 
-  Tour.start(mainController.mainInstance, null, mainController.camera, null);
+  Tour.start(giro3d.mainInstance, null, giro3d.camera, null);
 }
 
 function pick(event: MouseEvent, clicked?: boolean) {
-  if (!mainController) {
+  if (!giro3d) {
     return;
   }
   mouse.value = { x: event.clientX, y: event.clientY };
 
-  const instance = mainController?.mainInstance;
+  const instance = giro3d?.mainInstance;
 
   if (!instance) {
     return;
   }
 
-  const picked = picker.pick(mainController.mainInstance, event);
+  const picked = picker.pick(giro3d.mainInstance, event);
 
   if (picked?.point) {
     const point = picked.point;
@@ -80,8 +80,8 @@ function pick(event: MouseEvent, clicked?: boolean) {
 }
 
 function updateCoordinates(event: MouseEvent) {
-  if (mainController) {
-    const point = picker.getMouseCoordinate(mainController.mainInstance, event);
+  if (giro3d) {
+    const point = picker.getMouseCoordinate(giro3d.mainInstance, event);
 
     if (point) {
       coordinates.value.x = point.x;
@@ -185,4 +185,4 @@ function updateCoordinates(event: MouseEvent) {
   right: 0;
 }
 </style>
-@/controllers/MainController@/controllers/Tour@/controllers/Picker
+@/services/Giro3DManager@/services/Tour@/services/Picker

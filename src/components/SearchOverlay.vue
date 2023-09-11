@@ -3,7 +3,7 @@ import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import autoComplete from '@tarekraafat/autocomplete.js'
 import { Vector3 } from 'three';
 import { onMounted, ref } from 'vue'
-import MainController from '@/controllers/MainController';
+import Giro3DManager from '@/services/Giro3DManager';
 
 let autoCompleteControl: any;
 
@@ -53,11 +53,11 @@ onMounted(() => {
   })
 })
 
-MainController.onInit(mainController => {
+Giro3DManager.onInit(giro3d => {
   const inputElement = inputField.value as HTMLInputElement;
   inputElement.addEventListener('selection', (event: InputEvent) => {
-    const layerManager = mainController.layerManager;
-    const instance = mainController.mainInstance;
+    const layerManager = giro3d.layerManager;
+    const instance = giro3d.mainInstance;
 
     const selection = event.detail.selection.value as Vector3;
     const aoi = Extent
@@ -74,7 +74,7 @@ MainController.onInit(mainController => {
       .fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 1000, 1000)
       .as(instance.referenceCrs);
     const bbox3 = target.toBox3(selection.z, selection.z + 200);
-    mainController.camera.lookTopDownAt(bbox3, false);
+    giro3d.camera.lookTopDownAt(bbox3, false);
 });
 });
 
@@ -111,4 +111,3 @@ input {
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
 }
 </style>
-.@/controllers/MainController

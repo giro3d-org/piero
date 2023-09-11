@@ -34,7 +34,7 @@ function setY(y: number) {
       step="0.1"
       max="360"
       :value="analysis.crossSectionOrientation"
-      @input="(event) => setOrientation(Number.parseFloat(event.target.value))"
+      @input="(event) => setOrientation(Number.parseFloat((event.target as HTMLInputElement).value))"
       />
       <div class="input-group mb-3">
         <input
@@ -43,7 +43,7 @@ function setY(y: number) {
         id="plane-orientation-number"
         step="0.1"
         :value="analysis.crossSectionOrientation"
-        @input="(event) => setOrientation(Number.parseFloat(event.target.value))"
+        @input="(event) => setOrientation(Number.parseFloat((event.target as HTMLInputElement).value))"
         />
       </div>
     </div>
@@ -56,14 +56,14 @@ function setY(y: number) {
           class="form-control"
           id="plane-center-x"
           :value="analysis.crossSectionCenter.x"
-          @input="(event) => setX(Number.parseFloat(event.target.value))"
+          @input="(event) => setX(Number.parseFloat((event.target as HTMLInputElement).value))"
         />
         <input
           type="number"
           class="form-control"
           id="plane-center-y"
           :value="analysis.crossSectionCenter.y"
-          @input="(event) => setY(Number.parseFloat(event.target.value))"
+          @input="(event) => setY(Number.parseFloat((event.target as HTMLInputElement).value))"
         />
       </div>
     </div>

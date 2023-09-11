@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import MinimapController from '@/controllers/MinimapController';
+import MinimapController from '@/services/MinimapController';
 
 const minimapView = ref(null);
 

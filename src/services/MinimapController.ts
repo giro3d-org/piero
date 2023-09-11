@@ -7,7 +7,7 @@ import Instance from '@giro3d/giro3d/core/Instance'
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
 import Map from '@giro3d/giro3d/entities/Map.js'
 import Viewbox from '@/types/Viewbox'
-import MainController from './MainController'
+import Giro3DManager from './Giro3DManager'
 import { Vector3, Vector2, Box3, MathUtils } from 'three'
 
 const DEFAULT_EXTENT = new Extent(
@@ -27,7 +27,7 @@ function loadOSMLayer(map: Map) {
 }
 
 function loadMinimap(div: HTMLDivElement) {
-    MainController.onInit(ctrl => {
+    Giro3DManager.onInit(ctrl => {
         minimapController = new MinimapController(div, ctrl);
     });
 }
@@ -44,11 +44,11 @@ class MinimapController {
     private readonly viewbox: Viewbox;
     private readonly basemap: Map;
 
-    constructor(div: HTMLDivElement, mainController: MainController) {
-        this.mainInstance = mainController.mainInstance;
+    constructor(div: HTMLDivElement, giro3d: Giro3DManager) {
+        this.mainInstance = giro3d.mainInstance;
 
         // TODO disabled because it uses too much CPU
-        // mainController.addEventListener('update', () => {
+        // Giro3DManager.addEventListener('update', () => {
         //     this.updateViewbox();
         // });
 

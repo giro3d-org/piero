@@ -22,11 +22,11 @@ Instance.registerCRS('EPSG:4171', '+proj=longlat +ellps=GRS80 +no_defs +type=crs
 Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46 +lon_0=3 +x_0=1700000 +y_0=5200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
 Instance.registerCRS('IGNF:WGS84G', '+title=World Geodetic System 1984 +proj=longlat +nadgrids=null +wktext +towgs84=0.0000,0.0000,0.0000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs');
 
-let singleton: MainController;
+let singleton: Giro3DManager;
 
 const initCallbacks : Function[] = [];
 
-export default class MainController extends EventDispatcher {
+export default class Giro3DManager extends EventDispatcher {
     readonly camera: Camera;
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
@@ -124,7 +124,7 @@ export default class MainController extends EventDispatcher {
         this.mainInstance.dispose();
     }
 
-    static onInit(callback: (arg0: MainController) => void) {
+    static onInit(callback: (arg0: Giro3DManager) => void) {
         if (singleton) {
             callback(singleton);
         }
@@ -133,7 +133,7 @@ export default class MainController extends EventDispatcher {
     }
 
     static init(domElement: HTMLDivElement) {
-        singleton = new MainController(domElement);
+        singleton = new Giro3DManager(domElement);
         initCallbacks.forEach(cb => cb(singleton));
         return singleton;
     }

@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import MainController from '@/controllers/MainController'
+import Giro3DManager from '@/services/Giro3DManager'
 import Inspector from '@giro3d/giro3d/gui/Inspector';
 
 const mainView = ref(null);
 const inspectorView = ref(null);
-const emits = defineEmits(['mainController'])
+const emits = defineEmits(['Giro3DManager'])
 
-let mainController : MainController;
+let giro3d : Giro3DManager;
 
 onMounted(() => {
-    mainController = MainController.init(mainView.value);
+    giro3d = Giro3DManager.init(mainView.value);
 
-    Inspector.attach(inspectorView.value, mainController.mainInstance, { title: 'Main view', width: 300 });
-    emits('mainController', mainController);
+    Inspector.attach(inspectorView.value, giro3d.mainInstance, { title: 'Main view', width: 300 });
+    emits('Giro3DManager', giro3d);
 })
 
 onUnmounted(() => {
-    mainController?.dispose();
+    giro3d?.dispose();
 })
 
 </script>
@@ -34,4 +34,4 @@ onUnmounted(() => {
     width: 100%;
     height: 100%;
 }
-</style>.@/controllers/MainController
+</style>.@/services/Giro3DManager
