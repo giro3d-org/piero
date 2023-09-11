@@ -15,8 +15,10 @@ import ColorMap from '@giro3d/giro3d/core/layer/ColorMap'
 import Layer from '@giro3d/giro3d/core/layer/Layer'
 import { Color } from 'three'
 import { WMTSCapabilities } from 'ol/format'
-import { WMTS } from 'ol/source'
+import { WMTS, XYZ } from 'ol/source'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
+import { OpenLayersUtils } from '@giro3d/giro3d/utils'
+import Interpretation from '@giro3d/giro3d/core/layer/Interpretation'
 
 function createColorMap(preset: string, min: number, max: number) {
     const scale = chroma.scale(preset);
@@ -29,32 +31,69 @@ function createColorMap(preset: string, min: number, max: number) {
     return new ColorMap(colors, min, max);
 }
 
-async function loadElevationLayer(layerManager: LayerManager, id: string) {
-    // const source = new TileWMS({
-    //     url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
-    //     projection: layerManager.extent.crs(),
-    //     crossOrigin: 'anonymous',
-    //     params: {
-    //         LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
-    //         FORMAT: 'image/x-bil;bits=32',
-    //         VERSION: '1.3.0',
-    //     },
-    // });
+const colorMap = createColorMap('RdYlBu', 0, 5000);
+
+function loadElevationLayerFromMapbox(layerManager: LayerManager, id: string) {
+    const key = 'pk.eyJ1IjoidG11Z3VldCIsImEiOiJjbGJ4dTNkOW0wYWx4M25ybWZ5YnpicHV6In0.KhDJ7W5N3d1z3ArrsDjX_A';
+    const layer = new ElevationLayer(id, {
+            source: new TiledImageSource({
+                source: new XYZ({
+                    url: `https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=${key}`,
+                    projection: 'EPSG:3857',
+                    crossOrigin: 'anonymous',
+                }),
+            }),
+            minmax: { min: 0, max: 5000 },
+            interpretation: Interpretation.MapboxTerrainRGB,
+            colorMap,
+        },
+    );
+
+    layerManager.addElevationLayer(layer);
+
+    return layer;
+}
+
+async function loadElevationLayerFromAltimetryWMS(layerManager: LayerManager, id: string) {
+    const source = new TileWMS({
+        url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
+        projection: layerManager.extent.crs(),
+        crossOrigin: 'anonymous',
+        params: {
+            LAYERS: ['ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES'],
+            FORMAT: 'image/x-bil;bits=32',
+            VERSION: '1.3.0',
+        },
+    });
     const noDataValue = -1000;
     const format = new BilFormat();
 
-    const wmts = await createWMTSSource(
+    const layer = new ElevationLayer(id, {
+        source: new TiledImageSource({ source, format, noDataValue }),
+        minmax: { min: 0, max: 5000 },
+        noDataValue,
+        colorMap,
+    });
+
+    layerManager.addElevationLayer(layer);
+
+    return layer;
+}
+
+async function loadElevationLayerFromAltimetryWMTS(layerManager: LayerManager, id: string) {
+    const noDataValue = -1000;
+    const format = new BilFormat();
+
+    const source = await createWMTSSource(
         'ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES',
         'https://wxs.ign.fr/altimetrie/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities',
         'image/x-bil;bits=32',
-        'WGS84G',
+        'LAMB93',
     );
 
-    const colorMap = createColorMap('RdYlBu', 0, 600);
-
     const layer = new ElevationLayer(id, {
-        source: new TiledImageSource({ source: wmts, format, noDataValue }),
-        minmax: { min: 0, max: 600 },
+        source: new TiledImageSource({ source, format, noDataValue }),
+        minmax: { min: 0, max: 5000 },
         noDataValue,
         colorMap,
     });
@@ -86,7 +125,8 @@ async function createWMTSSource(layer: string, url: string, format?: string, mat
             const result = parser.read(text);
             const options = optionsFromCapabilities(result, {
               layer,
-              matrixSet: matrixSet ?? 'EPSG:3857',
+            //   matrixSet: matrixSet ?? 'EPSG:3857',
+              projection: 'EPSG:3857',
               format,
             });
             return new WMTS(options);
@@ -99,8 +139,18 @@ async function loadImageryLayer(layerManager: LayerManager, id: string) {
         'https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities',
     );
 
+    const tiledSource = new TiledImageSource({ source });
+
+    // FIXME in Giro3D we use the extent of the tilegrid which seems incorrect in this case
+    tiledSource.sourceExtent = OpenLayersUtils.fromOLExtent([
+        -20037508.342789244,
+        -20037508.342789244,
+        20037508.342789244,
+        20037508.342789244
+    ], 'EPSG:3857');
+
     const colorLayer = new ColorLayer(id, {
-        source: new TiledImageSource({ source }),
+        source: tiledSource,
     },
     );
 
@@ -149,7 +199,7 @@ export default class BasemapManager {
         let layer: Layer;
         switch (basemap.id) {
             case 'elevation':
-                layer = await loadElevationLayer(this.layerManager, 'elevation');
+                layer = loadElevationLayerFromMapbox(this.layerManager, 'elevation');
                 break;
             case 'imagery':
                 layer = await loadImageryLayer(this.layerManager, 'imagery')
