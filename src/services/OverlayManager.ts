@@ -9,19 +9,17 @@ export default class OverlayManager {
     private readonly layerManager: LayerManager;
     private readonly layers: Map<string, ColorLayer> = new Map();
     private readonly store = useLayerStore();
+    private readonly instance: Instance;
 
     constructor(layerManager: LayerManager, instance: Instance) {
         this.layerManager = layerManager;
+        this.instance = instance;
 
         const overlayList = [...this.store.getOverlays()].reverse();
 
         for (const overlay of overlayList) {
-            if (overlay.source) {
-                const layer = new ColorLayer(overlay.name, { source: overlay.source(instance) })
-                this.layers.set(overlay.id, layer);
-                this.layerManager.addOverlay(layer);
-                layer.visible = overlay.visible;
-                layer.opacity = overlay.opacity;
+            if (overlay.source && overlay.visible) {
+                this.loadOverlay(overlay);
             }
         }
 
@@ -68,13 +66,33 @@ export default class OverlayManager {
     onOpacityChanged(overlay: Overlay, newOpacity: number) {
         const id = overlay.id;
         const layer = this.layers.get(id);
+
+        if (!layer && overlay.source) {
+            this.loadOverlay(overlay);
+        }
+
         layer.opacity = newOpacity;
         this.layerManager.notify(layer);
+    }
+
+    private loadOverlay(overlay: Overlay) {
+        const layer = new ColorLayer(overlay.name, { source: overlay.source(this.instance) })
+        this.layers.set(overlay.id, layer);
+        this.layerManager.addOverlay(layer);
+        layer.visible = overlay.visible;
+        layer.opacity = overlay.opacity;
+
+        return layer;
     }
 
     onVisibilityChanged(overlay: Overlay, newVisibility: boolean) {
         const id = overlay.id;
         const layer = this.layers.get(id);
+
+        if (newVisibility && !layer && overlay.source) {
+            this.loadOverlay(overlay);
+        }
+
         layer.visible = newVisibility;
         this.layerManager.notify(layer);
     }
