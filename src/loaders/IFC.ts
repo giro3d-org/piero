@@ -9,7 +9,7 @@ ifcLoader.ifcManager.applyWebIfcConfig({
     COORDINATE_TO_ORIGIN: true,
 });
 // By default ifcManager searches wasm in node_modules/.... and doesn't like '/'...
-if (import.meta.env.PRODUCTION) {
+if (import.meta.env.PROD) {
     ifcLoader.ifcManager.setWasmPath(import.meta.env.BASE_URL);
 } else {
     ifcLoader.ifcManager.setWasmPath('/');
