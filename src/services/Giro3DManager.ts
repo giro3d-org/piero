@@ -12,6 +12,7 @@ import Camera from "./CameraController";
 import DatasetManager from "@/services/DatasetManager";
 import AnnotationManager from "@/services/AnnotationManager";
 import AnalysisManager from "@/services/AnalysisManager";
+import { useGiro3dStore } from "@/stores/giro3d";
 
 const DEFAULT_CRS = 'EPSG:2154';
 
@@ -22,11 +23,7 @@ Instance.registerCRS('EPSG:4171', '+proj=longlat +ellps=GRS80 +no_defs +type=crs
 Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46 +lon_0=3 +x_0=1700000 +y_0=5200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
 Instance.registerCRS('IGNF:WGS84G', '+title=World Geodetic System 1984 +proj=longlat +nadgrids=null +wktext +towgs84=0.0000,0.0000,0.0000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs');
 
-let singleton: MainController;
-
-const initCallbacks : Function[] = [];
-
-export default class MainController extends EventDispatcher {
+export default class Giro3DManager extends EventDispatcher {
     readonly camera: Camera;
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
@@ -35,25 +32,22 @@ export default class MainController extends EventDispatcher {
     readonly datasetManager: DatasetManager;
     readonly annotationManager: AnnotationManager;
     readonly analysisManager: AnalysisManager;
+    private readonly store = useGiro3dStore();
 
-    constructor(domElement: HTMLDivElement) {
+    constructor(instance: Instance) {
         super();
 
-        const crs = DEFAULT_CRS;
+        const crs = instance.referenceCrs;
 
-        this.mainInstance = new Instance(domElement, {
-            crs,
-            renderer: {
-                clearColor: 0xcccccc,
-            },
-        })
+        this.mainInstance = instance;
 
         this.camera = new Camera(this.mainInstance);
         this.camera.bindKeys();
 
-        const center = new Coordinates('EPSG:4326', 4.84, 45.76, 0).as(crs) as Coordinates;
+        const center = this.store.getDefaultCameraPosition().as(crs) as Coordinates;
         const xyz = new Vector3(center.x(), center.y(), center.z());
-        const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, 10000, 10000);
+        const basemapSize = this.store.getDefaultBasemapSize();
+        const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, basemapSize.width, basemapSize.height);
         this.camera.setInitialPosition(extent);
 
         this.layerManager = new LayerManager(this.mainInstance);
@@ -122,23 +116,5 @@ export default class MainController extends EventDispatcher {
 
     dispose() {
         this.mainInstance.dispose();
-    }
-
-    static onInit(callback: (arg0: MainController) => void) {
-        if (singleton) {
-            callback(singleton);
-        }
-
-        initCallbacks.push(callback);
-    }
-
-    static init(domElement: HTMLDivElement) {
-        singleton = new MainController(domElement);
-        initCallbacks.forEach(cb => cb(singleton));
-        return singleton;
-    }
-
-    static get() {
-        return singleton;
     }
 }

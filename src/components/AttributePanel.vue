@@ -3,8 +3,8 @@ import AttributeItem from './AttributeItem.vue';
 
 defineProps<{
     name?: string;
-    parent: string,
-    attributelist: Array<{ key: string, value: any }>
+    parent: string;
+    attributelist: Array<{ key: string, value: any }>;
 }>()
 
 defineEmits(['close'])

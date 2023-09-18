@@ -54,7 +54,7 @@ function loadElevationLayerFromMapbox(layerManager: LayerManager, id: string) {
     return layer;
 }
 
-async function loadElevationLayerFromAltimetryWMS(layerManager: LayerManager, id: string) {
+function loadElevationLayerFromAltimetryWMS(layerManager: LayerManager, id: string) {
     const source = new TileWMS({
         url: 'https://wxs.ign.fr/altimetrie/geoportail/r/wms',
         projection: layerManager.extent.crs(),

@@ -7,7 +7,7 @@ import VectorSource from 'ol/source/Vector';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
-import Camera from '@/controllers/CameraController';
+import Camera from '@/services/CameraController';
 import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
 import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';

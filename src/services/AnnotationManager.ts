@@ -5,7 +5,7 @@ import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import Annotation from "@/types/Annotation"
-import Camera from '@/controllers/CameraController';
+import Camera from '@/services/CameraController';
 import { useAnnotationStore } from '@/stores/annotations';
 
 const drawnFaceMaterial = new MeshBasicMaterial({

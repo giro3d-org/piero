@@ -21,7 +21,7 @@ function setHeight(height: number) {
         step="0.1"
         max="500"
         :value="analysis.floodingPlaneHeight"
-        @input="(event) => setHeight(Number.parseFloat(event.target.value))"
+        @input="(event) => setHeight(Number.parseFloat((event.target as HTMLInputElement).value))"
       />
       <div class="input-group mb-3">
         <input
@@ -30,7 +30,7 @@ function setHeight(height: number) {
           id="flooding-altitude-number"
           step="0.1"
           :value="analysis.floodingPlaneHeight"
-          @input="(event) => setHeight(Number.parseFloat(event.target.value))"
+          @input="(event) => setHeight(Number.parseFloat((event.target as HTMLInputElement).value))"
         />
         <span class="input-group-text">m</span>
       </div>

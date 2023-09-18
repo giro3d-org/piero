@@ -7,8 +7,8 @@ import Instance from '@giro3d/giro3d/core/Instance'
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
 import Map from '@giro3d/giro3d/entities/Map.js'
 import Viewbox from '@/types/Viewbox'
-import MainController from './MainController'
 import { Vector3, Vector2, Box3, MathUtils } from 'three'
+import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop'
 
 const DEFAULT_EXTENT = new Extent(
     'EPSG:3857',
@@ -26,38 +26,14 @@ function loadOSMLayer(map: Map) {
     map.addLayer(layer);
 }
 
-function loadMinimap(div: HTMLDivElement) {
-    MainController.onInit(ctrl => {
-        minimapController = new MinimapController(div, ctrl);
-    });
-}
-
-export default {
-    loadMinimap
-}
-
-let minimapController : MinimapController;
-
-class MinimapController {
-    private readonly mainInstance: Instance;
+export default class MinimapController {
+    private mainInstance: Instance;
     private readonly minimapInstance: Instance;
     private readonly viewbox: Viewbox;
     private readonly basemap: Map;
 
-    constructor(div: HTMLDivElement, mainController: MainController) {
-        this.mainInstance = mainController.mainInstance;
-
-        // TODO disabled because it uses too much CPU
-        // mainController.addEventListener('update', () => {
-        //     this.updateViewbox();
-        // });
-
-        this.minimapInstance = new Instance(div, {
-            crs: 'EPSG:3857',
-            renderer: {
-                clearColor: 0xcccccc,
-            },
-        })
+    constructor(instance: Instance) {
+        this.minimapInstance = instance;
 
         this.viewbox = new Viewbox();
 
@@ -83,6 +59,13 @@ class MinimapController {
         camera.lookAt(xyz.x, xyz.y + 1, 0);
 
        this.minimapInstance.notifyChange()
+    }
+
+    setMainInstance(instance: Instance) {
+        this.mainInstance = instance;
+        instance.addFrameRequester(MAIN_LOOP_EVENTS.AFTER_CAMERA_UPDATE, () => {
+            this.updateViewbox();
+        });
     }
 
     getCorners() {
@@ -119,7 +102,9 @@ class MinimapController {
     }
 
     updateViewbox() {
-        let corners = this.getCorners();
+        // Disabled as it consumes too much CPU
+        // let corners = this.getCorners();
+        const corners = null;
         const mainCamera = this.mainInstance.camera.camera3D;
         const minimapCamera = this.minimapInstance.camera.camera3D;
 

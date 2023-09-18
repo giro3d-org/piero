@@ -44,9 +44,9 @@ export default {
                         json.geometry.coordinates[2],
                     );
                     coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                    json.geometry.coordinates[0] = coordinates._values[0];
-                    json.geometry.coordinates[1] = coordinates._values[1];
-                    json.geometry.coordinates[2] = coordinates._values[2];
+                    json.geometry.coordinates[0] = coordinates.values[0];
+                    json.geometry.coordinates[1] = coordinates.values[1];
+                    json.geometry.coordinates[2] = coordinates.values[2];
                     break;
                 }
                 case GEOMETRY_TYPE.LINE:
@@ -59,9 +59,9 @@ export default {
                             json.geometry.coordinates[i][2],
                         );
                         coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[i][0] = coordinates._values[0];
-                        json.geometry.coordinates[i][1] = coordinates._values[1];
-                        json.geometry.coordinates[i][2] = coordinates._values[2];
+                        json.geometry.coordinates[i][0] = coordinates.values[0];
+                        json.geometry.coordinates[i][1] = coordinates.values[1];
+                        json.geometry.coordinates[i][2] = coordinates.values[2];
                     }
                     break;
                 }
@@ -74,9 +74,9 @@ export default {
                             json.geometry.coordinates[0][i][2],
                         );
                         coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[0][i][0] = coordinates._values[0];
-                        json.geometry.coordinates[0][i][1] = coordinates._values[1];
-                        json.geometry.coordinates[0][i][2] = coordinates._values[2];
+                        json.geometry.coordinates[0][i][0] = coordinates.values[0];
+                        json.geometry.coordinates[0][i][1] = coordinates.values[1];
+                        json.geometry.coordinates[0][i][2] = coordinates.values[2];
                     }
                     break;
                 }
@@ -110,9 +110,9 @@ export default {
                         feature.geometry.coordinates[2] ?? zDefault,
                     );
                     coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                    feature.geometry.coordinates[0] = coordinates._values[0];
-                    feature.geometry.coordinates[1] = coordinates._values[1];
-                    feature.geometry.coordinates[2] = coordinates._values[2];
+                    feature.geometry.coordinates[0] = coordinates.values[0];
+                    feature.geometry.coordinates[1] = coordinates.values[1];
+                    feature.geometry.coordinates[2] = coordinates.values[2];
                     break;
                 }
                 case GEOMETRY_TYPE.LINE:
@@ -125,9 +125,9 @@ export default {
                             feature.geometry.coordinates[i][2] ?? zDefault,
                         );
                         coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                        feature.geometry.coordinates[i][0] = coordinates._values[0];
-                        feature.geometry.coordinates[i][1] = coordinates._values[1];
-                        feature.geometry.coordinates[i][2] = coordinates._values[2];
+                        feature.geometry.coordinates[i][0] = coordinates.values[0];
+                        feature.geometry.coordinates[i][1] = coordinates.values[1];
+                        feature.geometry.coordinates[i][2] = coordinates.values[2];
                     }
                     break;
                 }
@@ -140,9 +140,9 @@ export default {
                             feature.geometry.coordinates[0][i][2] ?? zDefault,
                         );
                         coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                        feature.geometry.coordinates[0][i][0] = coordinates._values[0];
-                        feature.geometry.coordinates[0][i][1] = coordinates._values[1];
-                        feature.geometry.coordinates[0][i][2] = coordinates._values[2];
+                        feature.geometry.coordinates[0][i][0] = coordinates.values[0];
+                        feature.geometry.coordinates[0][i][1] = coordinates.values[1];
+                        feature.geometry.coordinates[0][i][2] = coordinates.values[2];
                     }
                     break;
                 }
@@ -162,8 +162,6 @@ export default {
         });
 
         const entity = new Entity3D(group.uuid, group);
-        // TODO
-        // alert.dismiss();
         return entity;
     },
 };
