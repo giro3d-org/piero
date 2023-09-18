@@ -12,6 +12,10 @@ import AlertToast from './components/AlertToast.vue'
 import Feature from './types/Feature'
 import Picker from '@/services/Picker'
 import { Vector3 } from 'three'
+import { useGiro3dStore } from '@/stores/giro3d'
+import { Instance } from '@giro3d/giro3d/core'
+import MinimapController from './services/MinimapController'
+import { Extent } from '@giro3d/giro3d/core/geographic'
 
 const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
 const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
@@ -25,24 +29,62 @@ const pickedFeature = ref<Feature>(null);
 const tooltip = ref<string>(null);
 const isLoading = ref(false);
 
+const giro3dStore = useGiro3dStore();
+let giro3d: Giro3DManager;
+let minimap: MinimapController;
+
+function initializeGiro3DManager(instance: Instance) {
+  giro3d = new Giro3DManager(giro3dStore.getMainView());
+  giro3d.addEventListener('update', () => {
+    progress.value = giro3d.mainInstance.progress;
+    isLoading.value = giro3d.mainInstance.loading;
+  });
+
+  if (minimap) {
+    minimap.setMainInstance(instance);
+  }
+
+  Tour.start(giro3d.mainInstance, null, giro3d.camera, null);
+}
+
+function initializeMinimap(instance: Instance) {
+  minimap = new MinimapController(instance);
+  if (giro3d) {
+    minimap.setMainInstance(giro3d.mainInstance);
+  }
+}
+
+if (giro3dStore.getMainView()) {
+  initializeGiro3DManager(giro3dStore.getMainView());
+}
+
+if (giro3dStore.getMinimapView()) {
+  initializeGiro3DManager(giro3dStore.getMainView());
+}
+
+giro3dStore.$onAction(({
+    name,
+    after,
+    args,
+  }) => {
+    after(() => {
+      switch (name) {
+        case 'setMainView':
+          initializeGiro3DManager(giro3dStore.getMainView());
+          break;
+        case 'setMinimapView':
+          initializeMinimap(args[0]);
+          break;
+      }
+    });
+  })
+
 function selectPanel(key: string) {
   if (key === selectedTool.value) {
     selectedTool.value = null;
   } else {
     selectedTool.value = key;
   }
-}
-
-let giro3d: Giro3DManager;
-
-function onGiro3DMounted(main: Giro3DManager) {
-  giro3d = main;
-  giro3d.addEventListener('update', () => {
-    progress.value = giro3d.mainInstance.progress;
-    isLoading.value = giro3d.mainInstance.loading;
-  })
-
-  Tour.start(giro3d.mainInstance, null, giro3d.camera, null);
 }
 
 function pick(event: MouseEvent, clicked?: boolean) {
@@ -91,17 +133,41 @@ function updateCoordinates(event: MouseEvent) {
   }
 }
 
+function onPointOfInterestSelected(poi: Vector3) {
+  if (!giro3d) {
+    return;
+  }
+  const layerManager = giro3d.layerManager;
+  const instance = giro3d.mainInstance;
+
+  const aoi = Extent
+    .fromCenterAndSize('EPSG:2154', { x: poi.x, y: poi.y }, 10000, 10000)
+    .as(instance.referenceCrs);
+
+  if (!aoi.isInside(layerManager.extent)) {
+      const newExtent = layerManager.extent.clone();
+      newExtent.union(aoi);
+      layerManager.setExtent(newExtent);
+  }
+
+  const target = Extent
+    .fromCenterAndSize('EPSG:2154', { x: poi.x, y: poi.y }, 1000, 1000)
+    .as(instance.referenceCrs);
+  const bbox3 = target.toBox3(poi.z, poi.z + 200);
+  giro3d.camera.lookTopDownAt(bbox3, false);
+}
+
 </script>
 
 <template>
-  <MainView id="main-view" @main-controller="ctrl => onGiro3DMounted(ctrl)" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
+  <MainView id="main-view" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
   <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" class="component attribute-panel" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <ToolBar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
-  <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
+  <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" @restart-tour="Tour.start(giro3d.mainInstance, null, giro3d.camera, null);" />
   <ProgressBar :progress="progress" class="loading-indicator" />
-  <SearchOverlay id="address-search" class="search" />
+  <SearchOverlay id="address-search" class="search" @update:poi="onPointOfInterestSelected" />
   <AlertToast />
 </template>
 
@@ -185,4 +251,3 @@ function updateCoordinates(event: MouseEvent) {
   right: 0;
 }
 </style>
-@/services/Giro3DManager@/services/Tour@/services/Picker

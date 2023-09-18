@@ -1,23 +1,29 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import Giro3DManager from '@/services/Giro3DManager'
+import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 import Inspector from '@giro3d/giro3d/gui/Inspector';
+import { Instance } from '@giro3d/giro3d/core';
+import { useGiro3dStore } from '@/stores/giro3d';
 
 const mainView = ref(null);
 const inspectorView = ref(null);
-const emits = defineEmits(['Giro3DManager'])
+const instance = shallowRef<Instance>(null);
 
-let giro3d : Giro3DManager;
+const store = useGiro3dStore();
 
 onMounted(() => {
-    giro3d = Giro3DManager.init(mainView.value);
+    instance.value = new Instance(mainView.value, {
+            crs: 'EPSG:2154',
+            renderer: {
+                clearColor: 0xcccccc,
+            },
+    })
+    store.setMainView(instance.value);
 
-    Inspector.attach(inspectorView.value, giro3d.mainInstance, { title: 'Main view', width: 300 });
-    emits('Giro3DManager', giro3d);
+    Inspector.attach(inspectorView.value, instance.value, { title: 'Main view', width: 300 });
 })
 
 onUnmounted(() => {
-    giro3d?.dispose();
+    instance.value?.dispose();
 })
 
 </script>
@@ -34,4 +40,4 @@ onUnmounted(() => {
     width: 100%;
     height: 100%;
 }
-</style>.@/services/Giro3DManager
+</style>

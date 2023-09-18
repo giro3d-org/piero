@@ -20,6 +20,8 @@ defineProps({
   }
 })
 
+defineEmits(['restart-tour'])
+
 const panels = Configuration.panels;
 </script>
 
@@ -28,7 +30,7 @@ const panels = Configuration.panels;
     <h5 class="title">{{ panels.find(p => p.key === selected).title }}</h5>
     <div class="content">
       <DatasetPanel v-if="selected === 'datasets'" />
-      <AboutPanel v-if="selected === 'about'" />
+      <AboutPanel v-if="selected === 'about'" @restart-tour="$emit('restart-tour')" />
       <BookmarkPanel v-if="selected === 'bookmarks'" />
       <LayerPanel v-if="selected === 'layers'" />
       <AnalysisPanel v-if="selected === 'analysis'" />

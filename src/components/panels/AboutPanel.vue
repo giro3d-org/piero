@@ -1,3 +1,8 @@
+<script setup lang="ts">
+
+defineEmits(['restart-tour'])
+</script>
+
 <template>
     <div>
         <p>
@@ -19,7 +24,6 @@
             <li><a target="_blank" href="https://sketchfab.com/3d-models/stylized-tree-6d1aeea748f147789004bc03e1930d32">yonimantz</a> (Stylized Tree)</li>
         </ul>
         <hr>
-        <!-- TODO -->
-        <button id="tour-restart" type="button" class="btn btn-primary mx-2"><i class="bi bi-arrow-clockwise"></i> Restart guided tour</button>
+        <button id="tour-restart" type="button" class="btn btn-primary mx-2" @click="$emit('restart-tour')"><i class="bi bi-arrow-clockwise"></i> Restart guided tour</button>
     </div>
 </template>

@@ -7,6 +7,7 @@
         "checkJs": true,
         "moduleResolution": "node",
         "alwaysStrict": true,
+        "resolveJsonModule": true,
         "strictNullChecks": false,
         "emitDeclarationOnly": false,
         "declaration": true,

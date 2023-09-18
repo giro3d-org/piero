@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import autoComplete from '@tarekraafat/autocomplete.js'
 import { Vector3 } from 'three';
 import { onMounted, ref } from 'vue'
-import Giro3DManager from '@/services/Giro3DManager';
-
-let autoCompleteControl: any;
 
 const inputField = ref<HTMLInputElement>(null);
 
+const emits = defineEmits(['update:poi']);
+
 onMounted(() => {
-    autoCompleteControl = new autoComplete({
+  new autoComplete({
     selector: '#search-place-autocomplete',
     placeHolder: 'Search places...',
     threshold: 3,
@@ -51,52 +49,24 @@ onMounted(() => {
     // Trust what we get from the query
     searchEngine: (query: any, record: any) => record
   })
-})
 
-Giro3DManager.onInit(giro3d => {
   const inputElement = inputField.value as HTMLInputElement;
+
   inputElement.addEventListener('selection', (event: InputEvent) => {
-    const layerManager = giro3d.layerManager;
-    const instance = giro3d.mainInstance;
+      const poi = event.detail.selection.value as Vector3;
 
-    const selection = event.detail.selection.value as Vector3;
-    const aoi = Extent
-      .fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 10000, 10000)
-      .as(instance.referenceCrs);
-
-    if (!aoi.isInside(layerManager.extent)) {
-        const newExtent = layerManager.extent.clone();
-        newExtent.union(aoi);
-        layerManager.setExtent(newExtent);
-    }
-
-    const target = Extent
-      .fromCenterAndSize('EPSG:2154', { x: selection.x, y: selection.y }, 1000, 1000)
-      .as(instance.referenceCrs);
-    const bbox3 = target.toBox3(selection.z, selection.z + 200);
-    giro3d.camera.lookTopDownAt(bbox3, false);
-});
-});
+      emits('update:poi', poi);
+  });
+})
 
 </script>
 
 <template>
   <div class="main">
     <div class="input-group" id="address-search">
-      <input
-        ref="inputField"
-        id="search-place-autocomplete"
-        class="rounded-pill form-control"
-        type="search"
-        dir="ltr"
-        placeholder="Search places..."
-        spellcheck="false"
-        autocorrect="off"
-        autocomplete="off"
-        autocapitalize="off"
-        maxlength="2048"
-        tabindex="1"
-      />
+      <input ref="inputField" id="search-place-autocomplete" class="rounded-pill form-control" type="search" dir="ltr"
+        placeholder="Search places..." spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="off"
+        maxlength="2048" tabindex="1" />
     </div>
   </div>
 </template>
