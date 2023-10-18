@@ -3,10 +3,10 @@ import TileWMS from 'ol/source/TileWMS'
 import BilFormat from '@giro3d/giro3d/formats/BilFormat'
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource'
 
-import { GPX, KML, WMTSCapabilities } from 'ol/format'
+import { GPX, KML, MVT, WMTSCapabilities } from 'ol/format'
 import { WMTS } from 'ol/source'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
-import { ImageSource, VectorSource } from '@giro3d/giro3d/sources'
+import { ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources'
 import { ImageFormat } from '@giro3d/giro3d/formats'
 import GeoJSON from 'ol/format/GeoJSON';
 import { Circle, Fill, Image, Stroke, Style } from 'ol/style'
@@ -169,9 +169,19 @@ function createGPXSource(url: string, projection: string, style: VectorStyle) {
     });
 }
 
+function createMVTSource(url: string, backgroundColor: string, style: VectorStyle): VectorTileSource {
+    return new VectorTileSource({
+        url,
+        format: new MVT(),
+        style: parseStaticStyle(style),
+        backgroundColor,
+    });
+}
+
 export default {
     getSource,
     createKMLSource,
     createGPXSource,
     createGeoJsonSource,
+    createMVTSource,
 }

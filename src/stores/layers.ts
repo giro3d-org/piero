@@ -7,7 +7,7 @@ import { ColorMap } from "@giro3d/giro3d/core/layer";
 import chroma from "chroma-js";
 import { getPublicFolderUrl } from "@/utils/Configuration";
 import { BaseLayer, BaseLayerObject } from "@/types/BaseLayer";
-import { LayerSource, GeoJSONSource, WMSSource, WMTSSource, KMLSource, VectorSource } from "@/types/LayerSource";
+import { LayerSource, WMSSource, WMTSSource, VectorSource, MVTSource } from "@/types/LayerSource";
 import { Overlay, OverlayObject } from "@/types/Overlay";
 
 function getSource(conf): LayerSource {
@@ -62,6 +62,12 @@ function getInitialOverlays() {
                 vectorSource.url = getPublicFolderUrl(item.url);
                 vectorSource.projection = item.projection;
                 vectorSource.style = item.style;
+                break;
+            case 'mvt':
+                const mvtSource = source as MVTSource;
+                mvtSource.url = getPublicFolderUrl(item.url);
+                mvtSource.style = item.style;
+                mvtSource.backgroundColor = item.backgroundColor;
                 break;
             case 'wms':
                 source = getSource(item.source);
