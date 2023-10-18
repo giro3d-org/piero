@@ -15,6 +15,7 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ```sh
 npm install
 cp src/config.json.sample src/config.json
+cp src/styles.ts.sample src/styles.ts
 ```
 
 ### Compile and Hot-Reload for Development

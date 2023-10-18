@@ -5,3 +5,4 @@ dist
 
 # App config
 src/config.json
+src/styles.ts

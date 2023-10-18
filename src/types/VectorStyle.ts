@@ -1,20 +1,26 @@
-export interface VectorStyle {
+import type { DynamicStyleId } from '@/styles';
+
+export interface StaticVectorStyle {
     fill?: FillStyle;
-    stroke?: StrokStyle;
+    stroke?: StrokeStyle;
     point?: PointStyle;
 }
+
+export type DynamicVectorStyle = DynamicStyleId;
+
+export type VectorStyle = StaticVectorStyle | DynamicVectorStyle;
 
 export interface FillStyle {
     color: string;
 }
 
-export interface StrokStyle {
+export interface StrokeStyle {
     color: string;
     width: number;
 }
 
 export interface PointStyle {
     radius: number;
-    stroke: StrokStyle;
+    stroke: StrokeStyle;
     fill: FillStyle;
 }

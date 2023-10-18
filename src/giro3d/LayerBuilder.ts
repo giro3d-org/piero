@@ -10,9 +10,11 @@ import { ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sour
 import { ImageFormat } from '@giro3d/giro3d/formats'
 import GeoJSON from 'ol/format/GeoJSON';
 import { Circle, Fill, Image, Stroke, Style } from 'ol/style'
-import { LayerSource, WMSSource, WMTSSource } from '@/types/LayerSource'
-import { FillStyle, PointStyle, StrokStyle, VectorStyle } from '@/types/VectorStyle'
 import CircleStyle from 'ol/style/Circle'
+import { StyleFunction } from 'ol/style/Style'
+import { LayerSource, WMSSource, WMTSSource } from '@/types/LayerSource'
+import { FillStyle, PointStyle, StaticVectorStyle, StrokeStyle, VectorStyle } from '@/types/VectorStyle'
+import dynamicStyles from '@/styles';
 
 async function createWMTSSource(layer: string, url: string, format?: string, matrixSet?: string) {
     const parser = new WMTSCapabilities();
@@ -79,8 +81,8 @@ async function getSource(input: LayerSource) {
     return result;
 }
 
-function parseStaticStyle(style: VectorStyle) {
-    function parseStroke(stroke: StrokStyle) {
+function parseStaticStyle(style: StaticVectorStyle): Style {
+    function parseStroke(stroke: StrokeStyle) {
         if (stroke) {
             return new Stroke({
                 color: stroke.color,
@@ -115,6 +117,19 @@ function parseStaticStyle(style: VectorStyle) {
     })
 }
 
+function getStyle(style: VectorStyle): Style | StyleFunction {
+    if (typeof style === 'string' || style instanceof String) {
+        if (dynamicStyles[style] == undefined) {
+            // As config is not checked against TS, we can't know if during build :(
+            console.warn(`Could not find style ${style} in configuration`);
+            return new Style({});
+        }
+        return dynamicStyles[style];
+    }
+
+    return parseStaticStyle(style);
+}
+
 function getDefaultStyle(geometry: string) {
     switch (geometry) {
         case 'point': return new Style({
@@ -147,7 +162,7 @@ function createGeoJsonSource(url: string, projection: string, style: VectorStyle
         data: url,
         format: new GeoJSON(),
         dataProjection: projection,
-        style: parseStaticStyle(style),
+        style: getStyle(style),
     });
 }
 
@@ -156,7 +171,7 @@ function createKMLSource(url: string, projection: string, style: VectorStyle) {
         data: url,
         format: new KML(),
         dataProjection: projection,
-        style: parseStaticStyle(style),
+        style: getStyle(style),
     });
 }
 
@@ -165,7 +180,7 @@ function createGPXSource(url: string, projection: string, style: VectorStyle) {
         data: url,
         format: new GPX(),
         dataProjection: projection,
-        style: parseStaticStyle(style),
+        style: getStyle(style),
     });
 }
 
@@ -173,7 +188,7 @@ function createMVTSource(url: string, backgroundColor: string, style: VectorStyl
     return new VectorTileSource({
         url,
         format: new MVT(),
-        style: parseStaticStyle(style),
+        style: getStyle(style),
         backgroundColor,
     });
 }
