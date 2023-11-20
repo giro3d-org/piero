@@ -181,6 +181,7 @@ class CameraController extends EventDispatcher {
                 this.orbitControls.enabled = true;
                 break;
         }
+        this.instance.domElement.focus();
     }
 
     onBeforeCameraUpdate() {
