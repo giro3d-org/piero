@@ -6,6 +6,7 @@ import { ref } from "vue";
 export const useCameraStore = defineStore('camera', () => {
     const cameraPosition = ref<CameraPosition>();
     const navigationMode = ref<NavigationMode>('orbit');
+    const _isUserInteracting = ref<boolean>(false);
 
     function getCameraPosition(): CameraPosition {
         const json: Record<string, any> = {};
@@ -49,11 +50,21 @@ export const useCameraStore = defineStore('camera', () => {
         console.log('changing navigation mode to ' + mode);
     }
 
+    function isUserInteracting(): boolean {
+        return _isUserInteracting.value;
+    }
+
+    function setIsUserInteracting(value: boolean) {
+        _isUserInteracting.value = value;
+    }
+
     return {
         getCameraPosition,
         setCameraPosition,
         setCurrentPosition,
         getNavigationMode,
         setNavigationMode,
+        isUserInteracting,
+        setIsUserInteracting,
     }
 });

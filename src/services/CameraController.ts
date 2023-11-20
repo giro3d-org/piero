@@ -127,6 +127,8 @@ class CameraController extends EventDispatcher {
 
         // Make rotation around where the user clicked
         this.instance.domElement.addEventListener('contextmenu', e => {
+            if (this.store.getNavigationMode() !== 'orbit') return;
+
             const picked = this.pickObjectsAt(e);
             if (picked) {
                 this.orbitHelper.visible = true;
@@ -136,6 +138,8 @@ class CameraController extends EventDispatcher {
             }
         });
         this.instance.domElement.addEventListener('wheel', () => {
+            if (this.store.getNavigationMode() !== 'orbit') return;
+
             // As camera-controls doesn't dispatch controlstart/controlend events, we need
             // to take care of them for proper events
             this.orbitControls.dispatchEvent({ type: 'controlstart' });
@@ -143,6 +147,8 @@ class CameraController extends EventDispatcher {
         });
 
         this.instance.domElement.addEventListener('mouseup', () => {
+            if (this.store.getNavigationMode() !== 'orbit') return;
+
             this.orbitHelper.visible = false;
             this.instance.notifyChange();
         });
@@ -156,9 +162,11 @@ class CameraController extends EventDispatcher {
         this.orbitControls.addEventListener('control', () => {
             if (this.orbitControls.active || this.orbitControls.currentAction !== 0) {
                 this.dispatchEvent({ type: 'interaction-start' });
+                this.store.setIsUserInteracting(true);
             }
         });
         this.orbitControls.addEventListener('controlend', () => setTimeout(() => {
+            this.store.setIsUserInteracting(false);
             this.dispatchEvent({ type: 'interaction-end' });
         }));
 
@@ -215,6 +223,8 @@ class CameraController extends EventDispatcher {
             LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown',
         };
         this.instance.domElement.addEventListener('keydown', e => {
+            if (this.store.getNavigationMode() !== 'orbit') return;
+
             let forwardDirection = 0;
             let truckDirectionX = 0;
             const factor = (e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20);

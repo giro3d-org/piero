@@ -95,7 +95,7 @@ function pick(event: MouseEvent, clicked?: boolean) {
     return;
   }
 
-  if (cameraStore.getNavigationMode() !== 'orbit') {
+  if (cameraStore.getNavigationMode() !== 'orbit' || cameraStore.isUserInteracting()) {
     return;
   }
 
