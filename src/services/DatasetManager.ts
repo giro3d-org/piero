@@ -164,7 +164,7 @@ export default class DatasetManager {
             source: vectorSource,
             extent: new Extent(crs, -111629.52, 1275028.84, 5976033.79, 7230161.64),
             material: new MeshLambertMaterial(),
-            extrude: feature => {
+            extrusionOffset: feature => {
                 const hauteur = -feature.getProperties().hauteur;
                 if (Number.isNaN(hauteur)) {
                     return null;
@@ -173,20 +173,21 @@ export default class DatasetManager {
             },
             style: feature => {
                 const properties = feature.getProperties();
+                const fid = feature.getId();
                 let color = '#FFFFFF';
+                let visible = true;
                 if (properties.usage_1 === 'Résidentiel') {
                     color = '#9d9484';
                 } else if (properties.usage_1 === 'Commercial et services') {
                     color = '#b0ffa7';
                 }
-                return { color };
-            },
-            onMeshCreated: mesh => {
-                // hide this particular mesh because we have a ifc for this
-                if (mesh.userData.id === 'batiment.BATIMENT0000000240851971'
-                    || mesh.userData.id === 'batiment.BATIMENT0000000240851972') {
-                    mesh.visible = false;
+
+                if (fid === 'batiment.BATIMENT0000000240851971'
+                    || fid === 'batiment.BATIMENT0000000240851972') {
+                    visible = false;
                 }
+
+                return { color, visible };
             },
             minLevel: 11,
             maxLevel: 11,
