@@ -12,7 +12,7 @@ const props = defineProps<{
 const isLoading = ref(props.dataset.isLoading);
 props.dataset.addEventListener('isLoading', () => isLoading.value = props.dataset.isLoading);
 
-defineEmits(['delete', 'zoom', 'update:visible', 'udpdate:toggle-grid'])
+defineEmits(['delete', 'zoom', 'clipTo', 'update:visible', 'udpdate:toggle-grid'])
 
 const propertyViews: Map<DatasetType, Component> = new Map();
 propertyViews.set('ifc', IfcPropertyView);
@@ -21,27 +21,30 @@ propertyViews.set('ifc', IfcPropertyView);
 
 <template>
     <li class="list-group-item item">
-        <div>
+        <div class="d-flex">
             <VisibilityControl class="float-start" :visible="dataset.visible"
                 v-on:update:visible="(v) => $emit('update:visible', v)" />
-            <a :class="!dataset.visible ? 'disabled' : null" class="dataset" :title="dataset.name" href="#"
+            <a class="flex-fill dataset" :class="!dataset.visible ? 'disabled' : null" :title="dataset.name" href="#"
                 @click="$emit('zoom')">{{ dataset.name }}</a>
-            <div class="float-end icons">
-                <a v-if="dataset.isLoaded" href="#" class="icon" title="Toggle 3D grid"
-                    @click="$emit('udpdate:toggle-grid')">
-                    <i class="bi bi-box"></i>
-                </a>
-                <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
-                    <i class="bi bi-trash"></i>
-                </a>
+            <div class="icons">
                 <a v-if="dataset.type === 'ifc' && dataset.isLoaded" href="#" class="icon" title="Show dataset properties"
                     data-bs-toggle="collapse" :data-bs-target="`#collapse-${dataset.uuid}`" aria-expanded="false"
                     aria-controls="`#collapse-${dataset.uuid}`">
                     <i class="bi bi-card-list"></i>
                 </a>
-                <div class="icon spinner">
-                    <SpinnerControl title="Loading..." v-if="isLoading" />
+                <a v-if="dataset.isLoaded" href="#" class="icon" title="Clip to" @click="$emit('clipTo')">
+                    <i class="bi bi-bounding-box"></i>
+                </a>
+                <a v-if="dataset.isLoaded" href="#" class="icon" title="Toggle 3D grid"
+                    @click="$emit('udpdate:toggle-grid')">
+                    <i class="bi bi-box"></i>
+                </a>
+                <div class="icon spinner d-inline-block" v-if="isLoading">
+                    <SpinnerControl title="Loading..."/>
                 </div>
+                <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
+                    <i class="bi bi-trash"></i>
+                </a>
             </div>
         </div>
         <!-- Property view -->
@@ -69,10 +72,6 @@ a:hover {
     text-decoration: underline;
 }
 
-.icons {
-    width: 4rem;
-}
-
 .dataset {
     /* margin-left: 1rem; */
     overflow: hidden;
@@ -81,7 +80,6 @@ a:hover {
 
 .icon {
     /* width: 1rem !important; */
-    float: right;
     margin-left: 0.3rem;
     color: rgb(180, 180, 180);
 }

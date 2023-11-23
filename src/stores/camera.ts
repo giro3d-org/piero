@@ -1,6 +1,8 @@
 import CameraPosition from "@/types/CameraPosition";
 import NavigationMode from "@/types/NavigationMode";
+import Entity3D from "@giro3d/giro3d/entities/Entity3D";
 import { defineStore } from "pinia";
+import { Box3, Object3D } from "three";
 import { ref } from "vue";
 
 export const useCameraStore = defineStore('camera', () => {
@@ -47,7 +49,6 @@ export const useCameraStore = defineStore('camera', () => {
 
     function setNavigationMode(mode: NavigationMode) {
         navigationMode.value = mode;
-        console.log('changing navigation mode to ' + mode);
     }
 
     function isUserInteracting(): boolean {
@@ -58,6 +59,10 @@ export const useCameraStore = defineStore('camera', () => {
         _isUserInteracting.value = value;
     }
 
+    function lookTopDownAt(obj: Box3 | Object3D | Entity3D) {
+      // Nothing to do, rely on action listeners.
+    }
+
     return {
         getCameraPosition,
         setCameraPosition,
@@ -66,5 +71,6 @@ export const useCameraStore = defineStore('camera', () => {
         setNavigationMode,
         isUserInteracting,
         setIsUserInteracting,
+        lookTopDownAt,
     }
 });

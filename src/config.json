@@ -62,11 +62,30 @@
         ]
     },
     "analysis": {
-        "clipping_planes": {
+        "cross_section": {
             "pivot": {
                 "crs": "EPSG:2154",
                 "x": 841913,
                 "y": 6517811
+            },
+            "orientation": 40
+        },
+        "clipping_box": {
+            "center": {
+              "crs": "EPSG:2154",
+              "x": 841906,
+              "y": 6517811,
+              "z": 166
+            },
+            "size": {
+              "x": 20,
+              "y": 20,
+              "z": 20
+            },
+            "floor_preset": {
+                "altitude": 167,
+                "size": 2.8,
+                "floor": 0
             }
         }
     },

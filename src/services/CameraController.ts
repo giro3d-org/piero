@@ -106,6 +106,9 @@ class CameraController extends EventDispatcher {
                 case 'setNavigationMode':
                     this.setNavigationMode(args[0]);
                     break;
+                case 'lookTopDownAt':
+                    this.lookTopDownAt(args[0]);
+                    break;
             }
         });
     }
@@ -187,6 +190,11 @@ class CameraController extends EventDispatcher {
                 this.firstPersonControls.enabled = false;
                 this.orbitControls.connect(this.instance.domElement);
                 this.orbitControls.enabled = true;
+                break;
+            case 'disabled':
+                this.orbitControls.enabled = false;
+                this.firstPersonControls.enabled = false;
+                this.orbitControls.disconnect();
                 break;
         }
         this.instance.domElement.focus();
@@ -344,18 +352,19 @@ class CameraController extends EventDispatcher {
     }): Promise<any> {
         // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
         let bbox = new Box3();
-        if (obj instanceof Box3) {
-            bbox = obj.clone();
-        } else if (obj instanceof Entity3D) {
-            bbox = obj.getBoundingBox();
-            if (bbox.isEmpty() && obj.extent) {
+        if ((obj as any).isBox3) {
+            bbox = (obj as Box3).clone();
+        } else if ((obj as any).isEntity3D) {
+            const entity3d = obj as Entity3D;
+            bbox = entity3d.getBoundingBox();
+            if (bbox.isEmpty() && 'extent' in entity3d) {
                 // In case object is hidden
-                bbox = obj.extent.toBox3(0, 200);
+                bbox = (entity3d.extent as Extent).toBox3(0, 200);
             }
-        } else if (obj instanceof Object3D) {
-            bbox.setFromObject(obj);
+        } else if ((obj as any).isObject3D) {
+            bbox.setFromObject(obj as Object3D);
         } else {
-            throw new Error('obj should be instanceof Box3 or Object3D');
+            throw new Error('obj should be instanceof Box3, Object3D or Entity3D');
         }
         bbox.min.z = Math.max(bbox.min.z, 0);
         bbox.max.z = Math.min(bbox.max.z, 2000);

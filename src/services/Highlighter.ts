@@ -27,7 +27,7 @@ export default class Highlighter {
         if (entity.isEntity3D && (entity as any)?.isIfcEntity && pick.mesh) {
             const ifcEntity = entity as IfcEntity;
             this.highlighted = ifcEntity;
-            ifcEntity.highlight(pick.mesh, pick.itemId);
+            ifcEntity.highlight("selection", pick.mesh, pick.itemId);
         }
     }
 }

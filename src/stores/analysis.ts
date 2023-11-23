@@ -1,15 +1,24 @@
 import { defineStore } from "pinia";
-import { Vector3 } from "three";
+import { Box3, Vector3 } from "three";
 import { ref } from "vue";
 import config from '../config.json';
 
 export const useAnalysisStore = defineStore('analysis', () => {
     const floodingPlaneHeight = ref(170);
-    const crossSectionOrientation = ref(0);
-    const center = config.analysis.clipping_planes.pivot;
-    const crossSectionCenter = ref(new Vector3(center.x, center.y, 0));
     const _enableFloodingPlane = ref(false);
+
+    const crossSectionOrientation = ref(config.analysis.cross_section.orientation);
+    const crossSectionPivot = config.analysis.cross_section.pivot;
+    const crossSectionCenter = ref(new Vector3(crossSectionPivot.x, crossSectionPivot.y, 0));
     const _enableCrossSection = ref(false);
+
+    const { center: clippingPlanesCenter, size } = config.analysis.clipping_box;
+    const clippingBoxCenter = ref(new Vector3(clippingPlanesCenter.x, clippingPlanesCenter.y, clippingPlanesCenter.z));
+    const clippingBoxSize = ref(new Vector3(size.x, size.y, size.z));
+    const _enableClippingBox = ref(false);
+    const _invertClippingBox = ref(false);
+    const _displayClippingBoxHelper = ref(false);
+
     const _enableStatistics = ref(false);
 
     function setFloodingPlaneHeight(height: number) {
@@ -24,13 +33,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
         return _enableFloodingPlane.value
     }
 
-    function enableStatistics(enable: boolean) {
-        _enableStatistics.value = enable;
-    }
 
-    function isStatisticsEnabled() {
-        return _enableStatistics.value
-    }
 
     function enableCrossSection(enable: boolean) {
         _enableCrossSection.value = enable;
@@ -48,18 +51,81 @@ export const useAnalysisStore = defineStore('analysis', () => {
         crossSectionCenter.value = center;
     }
 
+    function enableClippingBox(enable: boolean) {
+        _enableClippingBox.value = enable;
+    }
+
+    function isClippingBoxEnabled() {
+        return _enableClippingBox.value
+    }
+
+    function setClippingBoxCenter(center: Vector3) {
+        clippingBoxCenter.value = center;
+    }
+
+    function setClippingBoxSize(size: Vector3) {
+        clippingBoxSize.value = size;
+    }
+
+    function setClippingBox(box: Box3) {
+        const center = new Vector3();
+        const size = new Vector3();
+        box.getCenter(center);
+        box.getSize(size);
+        clippingBoxCenter.value = center;
+        clippingBoxSize.value = size;
+    }
+
+    function displayClippingBoxHelper(display: boolean) {
+        _displayClippingBoxHelper.value = display;
+    }
+
+    function isClippingBoxHelperDisplayed() {
+        return _displayClippingBoxHelper.value
+    }
+
+    function setClippingBoxInverted(inverted: boolean) {
+        _invertClippingBox.value = inverted;
+    }
+
+    function isClippingBoxInverted() {
+        return _invertClippingBox.value
+    }
+
+    function enableStatistics(enable: boolean) {
+        _enableStatistics.value = enable;
+    }
+
+    function isStatisticsEnabled() {
+        return _enableStatistics.value
+    }
+
     return {
         floodingPlaneHeight,
         enableFloodingPlane,
         isFloodingPlaneEnabled,
         setFloodingPlaneHeight,
+
         crossSectionOrientation,
         crossSectionCenter,
-        isStatisticsEnabled,
-        enableStatistics,
         enableCrossSection,
         isCrossSectionEnabled,
         setCrossSectionOrientation,
         setCrossSectionCenter,
-     }
+
+        clippingBoxCenter,
+        clippingBoxSize,
+        enableClippingBox,
+        isClippingBoxEnabled,
+        setClippingBoxCenter,
+        setClippingBoxSize,
+        setClippingBox,
+        displayClippingBoxHelper,
+        isClippingBoxHelperDisplayed,
+        setClippingBoxInverted,
+        isClippingBoxInverted,
+
+        isStatisticsEnabled,
+        enableStatistics,
+    }
 });

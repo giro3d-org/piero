@@ -77,6 +77,10 @@ export const useDatasetStore = defineStore('datasets', () => {
     // Nothing to do, rely on action listeners.
   }
 
+  function clipTo(ds: Dataset) {
+    // Nothing to do, rely on action listeners.
+  }
+
   function getEntity(ds: Dataset): Entity3D {
     return entities.get(ds.uuid);
   }
@@ -97,5 +101,5 @@ export const useDatasetStore = defineStore('datasets', () => {
 
   }
 
-  return { count, getDatasets, add, remove, goTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid }
+  return { count, getDatasets, add, remove, goTo, clipTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid }
 })

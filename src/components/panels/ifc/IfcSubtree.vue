@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import IfcEntity, { ClassificationItem } from '@/giro3d/IfcEntity';
+import { useCameraStore } from '@/stores/camera';
+import { useAnalysisStore } from '@/stores/analysis';
 
 const props = defineProps<{
     ifcEntity: IfcEntity,
@@ -8,6 +10,8 @@ const props = defineProps<{
 }>()
 
 const highlighted = ref(false);
+const cameraStore = useCameraStore();
+const analysis = useAnalysisStore();
 
 function highlight() {
     highlighted.value = true;
@@ -17,19 +21,42 @@ function highlight() {
     setTimeout(() => highlighted.value = false, 2000);
 }
 
+function zoomTo() {
+    const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
+    cameraStore.lookTopDownAt(bbox);
+}
+
+function clipTo() {
+    const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
+    analysis.setClippingBox(bbox);
+    analysis.enableClippingBox(true);
+}
+
 
 </script>
 
 <template>
     <div>
         <div class="d-flex">
-            <a class="icon mx-1" href="#" @click="highlight">
+            <!-- <a class="icon mx-1" href="#" @click="highlight">
                 <i class="bi bi-eye"></i>
-            </a>
-            <span class="badge class" :class="highlighted ? 'text-bg-success' : 'text-bg-secondary'" :title="classificationElement.treeItemName">{{
+            </a> -->
+            <span class="badge class" :class="highlighted ? 'text-bg-danger' : 'text-bg-secondary'" :title="classificationElement.treeItemName">{{
                 classificationElement.treeItemName }}</span>
-            <span class="mx-2 text-truncate name" :class="highlighted ? 'text-success-emphasis' : 'text-muted'" :title="classificationElement.name">{{
+            <span class="flex-fill mx-2 text-truncate name" :class="highlighted ? 'text-danger-emphasis' : 'text-muted'" :title="classificationElement.name">{{
                 classificationElement.name }}</span>
+            <div class="icons">
+                <a href="#" class="icon" title="Highlight"
+                    @click="highlight">
+                    <i class="bi bi-highlighter"></i>
+                </a>
+                <a href="#" class="icon" title="Zoom to" @click="zoomTo">
+                    <i class="bi bi-zoom-in"></i>
+                </a>
+                <a href="#" class="icon" title="Clip to" @click="clipTo">
+                    <i class="bi bi-bounding-box"></i>
+                </a>
+            </div>
         </div>
         <div v-if="classificationElement.children.length > 0">
             <ul>
@@ -59,15 +86,13 @@ li {
 }
 
 .icon {
-    width: 1rem !important;
-    float: right;
-    color: var(--bs-secondary);
+    margin-left: 0.3rem;
+    color: rgb(180, 180, 180);
 }
 
 @media (hover: hover) {
     .icon:hover {
-        /* opacity: 0.8; */
-        color: var(--bs-primary);
+        color: rgb(75, 75, 75);
     }
 }
 </style>

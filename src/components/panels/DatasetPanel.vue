@@ -2,11 +2,12 @@
 import { ref } from 'vue';
 import { useDatasetStore } from '../../stores/datasets';
 import { Dataset } from '@/types/Dataset';
-import IconButton from '../IconButton.vue';
 import DatasetGroup from './DatasetGroup.vue';
 import DropZone from '../DropZone.vue';
+import { useAnalysisStore } from '@/stores/analysis';
 
 const datasets = useDatasetStore();
+const analysis = useAnalysisStore();
 
 const groups = [
   { key: 'ifc', name: 'IFC' },
@@ -17,6 +18,13 @@ const groups = [
 
 function zoomOnDataset(dataset: Dataset) {
   datasets.goTo(dataset);
+}
+
+function clipToDataset(dataset: Dataset) {
+    const entity = datasets.getEntity(dataset);
+    const bbox = entity.getBoundingBox();
+    analysis.setClippingBox(bbox);
+    analysis.enableClippingBox(true);
 }
 
 async function importDatasetFromDrop(e: DragEvent) {
@@ -44,6 +52,7 @@ defineEmits(['import'])
       :group="item.name"
       :datasets="datasets.getDatasets().filter(ds => ds.type === item.key)"
       @zoom="zoomOnDataset"
+      @clipTo="clipToDataset"
       @updated="$forceUpdate()"
     />
   </div>

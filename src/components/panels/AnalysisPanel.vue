@@ -3,22 +3,33 @@ import { useAnalysisStore } from '@/stores/analysis';
 import FloodingPlane from './analysis/FloodingPlane.vue'
 import ToolWrapper from './analysis/ToolWrapper.vue';
 import CrossSection from './analysis/CrossSection.vue';
+import ClippingBox from './analysis/ClippingBox.vue';
 import Statistics from './analysis/Statistics.vue';
 
 const analysis = useAnalysisStore();
+
 </script>
 
 <template>
     <div>
-        <ToolWrapper class="tool" title="Flooding plane" :enabled="analysis.isFloodingPlaneEnabled()" @update:enabled="analysis.enableFloodingPlane">
+        <ToolWrapper class="tool" id="flooding-plane" title="Flooding plane" icon="bi-layers-half"
+            :expanded="analysis.isFloodingPlaneEnabled()" :collapsible="true"
+            @update:expanded="analysis.enableFloodingPlane">
             <FloodingPlane />
         </ToolWrapper>
 
-        <ToolWrapper class="tool" title="Cross section" :enabled="analysis.isCrossSectionEnabled()" @update:enabled="analysis.enableCrossSection">
+        <ToolWrapper class="tool" id="cross-section" title="Cross section" icon="bi-circle-half"
+            :expanded="analysis.isCrossSectionEnabled()" :collapsible="true" @update:expanded="analysis.enableCrossSection">
             <CrossSection />
         </ToolWrapper>
 
-        <ToolWrapper class="tool" title="Statistics" :enabled="analysis.isStatisticsEnabled()" @update:enabled="analysis.enableStatistics">
+        <ToolWrapper class="tool" id="clipping-box" title="Clipping Box" icon="bi-bounding-box"
+            :expanded="analysis.isClippingBoxEnabled()" :collapsible="true" @update:expanded="analysis.enableClippingBox">
+            <ClippingBox />
+        </ToolWrapper>
+
+        <ToolWrapper class="tool" id="statistics" title="Statistics" icon="bi-bar-chart-line"
+            :expanded="analysis.isStatisticsEnabled()" :collapsible="true" @update:expanded="analysis.enableStatistics">
             <Statistics />
         </ToolWrapper>
     </div>

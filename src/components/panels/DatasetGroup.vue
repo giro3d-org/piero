@@ -10,7 +10,7 @@ defineProps<{
     datasets: Dataset[],
 }>();
 
-defineEmits(['zoom', 'updated'])
+defineEmits(['zoom', 'clipTo', 'updated'])
 </script>
 
 <template>
@@ -22,6 +22,7 @@ defineEmits(['zoom', 'updated'])
           :key="dataset.name"
           :dataset="dataset"
           v-on:zoom="() => $emit('zoom', dataset)"
+          v-on:clip-to="() => $emit('clipTo', dataset)"
           v-on:delete="store.remove(dataset)"
           @udpdate:toggle-grid="store.toggleGrid(dataset)"
           v-on:update:visible="v => store.setVisible(dataset, v)"

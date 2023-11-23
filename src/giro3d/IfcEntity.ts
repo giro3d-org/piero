@@ -2,8 +2,8 @@ import { Entity3D } from "@giro3d/giro3d/entities";
 import { Fragment } from "bim-fragment/fragment";
 import { FragmentsGroup } from 'bim-fragment/fragments-group';
 import { FragmentMesh } from 'bim-fragment/fragment-mesh';
-import { Components, FragmentManager, FragmentIdMap, toCompositeID, SimpleRaycaster, IfcPropertiesUtils, FragmentClassifier } from 'openbim-components';
-import { Matrix4, MeshBasicMaterial, Vector3 } from "three";
+import { Components, FragmentManager, FragmentIdMap, toCompositeID, SimpleRaycaster, IfcPropertiesUtils, FragmentClassifier, FragmentBoundingBox } from 'openbim-components';
+import { Material, Matrix4, MeshBasicMaterial, Vector3 } from "three";
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting
@@ -12,14 +12,31 @@ import { Matrix4, MeshBasicMaterial, Vector3 } from "three";
 
 ///// HIGHLIGHTING
 
-const highlightMaterial = new MeshBasicMaterial({
-    color: "#FF0000",
-    transparent: true,
-    opacity: 0.6,
-    depthTest: true,
-});
 const tempMatrix = new Matrix4();
-const selectionFragmentName = "selection";
+
+type FragmentTypeName  = "selection" | "bbox";
+
+type SelectionMap = {
+    [name in FragmentTypeName]: FragmentIdMap;
+};
+type MaterialMap = {
+    [name in FragmentTypeName]: Material;
+};
+
+const materials: MaterialMap = {
+    selection: new MeshBasicMaterial({
+        color: "#FF0000",
+        transparent: true,
+        opacity: 0.6,
+        depthTest: false,
+    }),
+    bbox: new MeshBasicMaterial({
+        color: "#FFFF00",
+        transparent: true,
+        opacity: 0.2,
+        depthTest: true,
+    })
+}
 
 ///// PROPERTIES
 
@@ -70,9 +87,10 @@ export default class IfcEntity extends Entity3D {
     readonly components: Components;
     readonly fragmentManager: FragmentManager;
     readonly fragmentClassifier: FragmentClassifier;
-    private ifcSelection: FragmentIdMap; // Currently selected fragments
+    private ifcSelection: SelectionMap; // Currently selected fragments
     private indexMap: IndexMap; // Properties relationships
     private classificationCache: ClassificationItem[];
+    private fragmentBoundingBox: FragmentBoundingBox;
 
     override get object3d(): FragmentsGroup { return super.object3d as FragmentsGroup };
 
@@ -83,7 +101,7 @@ export default class IfcEntity extends Entity3D {
         this.fragmentManager = fragmentManager;
         this.fragmentClassifier = fragmentClassifier;
         this.type = 'IfcEntity';
-        this.ifcSelection = {};
+        this.ifcSelection = {"selection": {}, "bbox": {}};
         this.initializeEntityIndexes();
         this.initializeIfcHightlight();
 
@@ -204,6 +222,7 @@ export default class IfcEntity extends Entity3D {
             // Maybe we don't have storeys, try to classify by entity
             this.classificationCache = await this.regenerateClassification([ClassificationSystem.ENTITY]);
         }
+        this.fragmentBoundingBox = await this.components.tools.get(FragmentBoundingBox);
     }
 
     getClassification(): ClassificationItem[] {
@@ -213,13 +232,15 @@ export default class IfcEntity extends Entity3D {
     private initializeIfcHightlight() {
         for (const fragmentID in this.fragmentManager.list) {
             const fragment = this.fragmentManager.list[fragmentID];
-            this.addHighlightToFragment(fragment);
+            for (const name of Object.keys(this.ifcSelection)) {
+                this.addHighlightToFragment(name as FragmentTypeName, fragment);
+            }
         }
     }
 
-    private addHighlightToFragment(fragment: Fragment) {
-        if (!fragment.fragments[selectionFragmentName]) {
-            const subFragment = fragment.addFragment(selectionFragmentName, [highlightMaterial]);
+    private addHighlightToFragment(name: FragmentTypeName, fragment: Fragment) {
+        if (!fragment.fragments[name]) {
+            const subFragment = fragment.addFragment(name, [materials[name]]);
             if (fragment.blocks.count > 1) {
                 subFragment.setInstance(0, {
                     ids: Array.from(fragment.ids),
@@ -230,46 +251,46 @@ export default class IfcEntity extends Entity3D {
 
             this.object3d.add(subFragment.mesh);
 
-            subFragment.mesh.renderOrder = 10;
+            subFragment.mesh.renderOrder = 30;
             subFragment.mesh.frustumCulled = false;
-            subFragment.mesh.name = 'highlight';
+            subFragment.mesh.name = name;
             subFragment.mesh.updateMatrixWorld(true);
         }
     }
 
-    clearHighlight() {
-        for (const fragID in this.ifcSelection) {
+    clearHighlight(name: FragmentTypeName = "selection") {
+        for (const fragID in this.ifcSelection[name]) {
             const fragment = this.fragmentManager.list[fragID];
             if (!fragment) continue;
-            const selection = fragment.fragments[selectionFragmentName];
+            const selection = fragment.fragments[name];
             if (selection) {
                 selection.mesh.removeFromParent();
             }
         }
         this._instance.notifyChange();
 
-        this.ifcSelection = {};
+        this.ifcSelection[name] = {};
     }
 
-    private regenerate(fragID: string) {
-        this.updateFragmentFill(fragID);
+    private regenerate(name: FragmentTypeName, fragID: string) {
+        this.updateFragmentFill(name, fragID);
     }
 
-    private addComposites(mesh: FragmentMesh, itemID: number) {
+    private addComposites(name: FragmentTypeName, mesh: FragmentMesh, itemID: number) {
         const composites = mesh.fragment.composites[itemID];
         if (composites) {
             for (let i = 1; i < composites; i++) {
                 const compositeID = toCompositeID(itemID, i);
-                this.ifcSelection[mesh.uuid].add(compositeID);
+                this.ifcSelection[name][mesh.uuid].add(compositeID);
             }
         }
     }
 
-    private updateFragmentFill(fragmentID: string) {
-        const ids = this.ifcSelection[fragmentID];
+    private updateFragmentFill(name: FragmentTypeName, fragmentID: string) {
+        const ids = this.ifcSelection[name][fragmentID];
         const fragment = this.fragmentManager.list[fragmentID];
         if (!fragment) return;
-        const selection = fragment.fragments[selectionFragmentName];
+        const selection = fragment.fragments[name];
         if (!selection) return;
 
         const fragmentParent = fragment.mesh.parent;
@@ -297,13 +318,13 @@ export default class IfcEntity extends Entity3D {
         }
     }
 
-    highlight(mesh: FragmentMesh, itemId: string) {
-        this.ifcSelection[mesh.uuid] = new Set<string>();
+    highlight(name: FragmentTypeName, mesh: FragmentMesh, itemId: string) {
+        this.ifcSelection[name][mesh.uuid] = new Set<string>();
 
         const idNum = parseInt(itemId, 10);
-        this.ifcSelection[mesh.uuid].add(itemId);
-        this.addComposites(mesh, idNum);
-        this.regenerate(mesh.uuid);
+        this.ifcSelection[name][mesh.uuid].add(itemId);
+        this.addComposites(name, mesh, idNum);
+        this.regenerate(name, mesh.uuid);
 
         const group = mesh.fragment.group;
         if (group) {
@@ -313,37 +334,73 @@ export default class IfcEntity extends Entity3D {
                 const fragID = group.keyFragments[fragKey];
                 const fragment = this.fragmentManager.list[fragID];
 
-                if (!this.ifcSelection[fragID]) {
-                    this.ifcSelection[fragID] = new Set<string>();
+                if (!this.ifcSelection[name][fragID]) {
+                    this.ifcSelection[name][fragID] = new Set<string>();
                 }
-                this.ifcSelection[fragID].add(itemId);
-                this.addComposites(fragment.mesh, idNum);
-                this.regenerate(fragID);
+                this.ifcSelection[name][fragID].add(itemId);
+                this.addComposites(name, fragment.mesh, idNum);
+                this.regenerate(name, fragID);
             }
         }
         this._instance.notifyChange();
     }
 
-    highlightById(ids: FragmentIdMap) {
+    highlightById(ids: FragmentIdMap, name: FragmentTypeName = "selection") {
         for (const fragID in ids) {
-            if (!this.ifcSelection[fragID]) {
-                this.ifcSelection[fragID] = new Set<string>();
+            if (!this.ifcSelection[name][fragID]) {
+                this.ifcSelection[name][fragID] = new Set<string>();
             }
 
             const fragment = this.fragmentManager.list[fragID];
 
             const idsNum = new Set<number>();
             for (const id of ids[fragID]) {
-                this.ifcSelection[fragID].add(id);
+                this.ifcSelection[name][fragID].add(id);
                 idsNum.add(parseInt(id, 10));
             }
             for (const id of idsNum) {
-                this.addComposites(fragment.mesh, id);
+                this.addComposites(name, fragment.mesh, id);
             }
-            this.regenerate(fragID);
+            this.regenerate(name, fragID);
         }
 
         this._instance.notifyChange();
+    }
+
+    getBoundingBoxById(ids: FragmentIdMap) {
+        this.clearHighlight("bbox");
+        this.highlightById(ids, "bbox");
+
+        const bbox = this.fragmentBoundingBox;
+        const fragments = this.fragmentManager;
+        bbox.reset();
+
+        const selected = this.ifcSelection.bbox;
+        if (!Object.keys(selected).length) {
+            return;
+        }
+        for (const fragID in selected) {
+            const fragment = fragments.list[fragID];
+            const highlight = fragment.fragments["bbox"];
+            bbox.addMesh(highlight.mesh);
+        }
+
+        const box = bbox.get();
+
+        // since Giro3D is Z-up, we need to swap Y and Z, and then invert the sign of
+        // the new Y (i.e the Z before the swap).
+        const { x: xmin, y: ymin, z: zmin} = box.min;
+        const { x: xmax, y: ymax, z: zmax} = box.max;
+
+        box.min.y = -zmax;
+        box.max.y = -zmin;
+        box.min.z = ymin;
+        box.max.z = ymax;
+
+        box.translate(this.object3d.position);
+
+        this.clearHighlight("bbox");
+        return box;
     }
 
     raycast(origin: Vector3, direction: Vector3): {
