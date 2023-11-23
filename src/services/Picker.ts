@@ -1,12 +1,15 @@
-import { Box3, Face, Mesh, MeshBasicMaterial, Object3D, Vector3 } from "three";
-import * as ifc from "three/examples/jsm/loaders/IFCLoader";
+import { Box3, Object3D, Vector3 } from "three";
+import { Fragment } from "bim-fragment/fragment";
+import { IfcCategoryMap } from 'openbim-components';
 import Instance from "@giro3d/giro3d/core/Instance";
 import Drawing from "@giro3d/giro3d/interactions/Drawing";
+import Entity3D from "@giro3d/giro3d/entities/Entity3D";
 import { Feature as OLFeature } from "ol";
 import Feature, { Attribute } from "@/types/Feature";
 import Measure from "../utils/Measure";
-import Entity3D from "@giro3d/giro3d/entities/Entity3D";
 import PickResult from "@/types/PickResult";
+import IfcEntity from "@/giro3d/IfcEntity";
+
 export default class Picker {
     getNameFromOLFeature(feature: OLFeature): string {
         return feature.get('nom')
@@ -58,24 +61,23 @@ export default class Picker {
         }
     }
 
-    getAttributesFromIfc(ifcModel: ifc.IFCModel, faceIndex: number, attributes: Attribute[]) {
-        const modelID = ifcModel.modelID;
-        const id = ifcModel.ifcManager.getExpressId(ifcModel.geometry, faceIndex);
-        const properties = ifcModel.ifcManager.getItemProperties(modelID, id, true);
-        const nullValue = 'NULL';
-        const name = properties.Name?.value ?? nullValue;
+    getAttributesFromIfcFragment(ifcEntity: IfcEntity, fragment: Fragment, itemId: string, attributes: Array<Attribute>) {
+        if (fragment.group && fragment.group.properties[itemId]) {
+            const properties = fragment.group.properties[itemId];
+            const nullValue = 'NULL';
+            const name = properties.Name?.value ?? nullValue;
 
-        ifcModel.ifcManager.getIfcType
-        attributes.push({ key: 'Site', value: ifcModel?.userData?.dataset?.name ?? nullValue });
-        attributes.push({ key: 'IFCType', value: ifcModel.ifcManager.getIfcType(modelID, id) ?? nullValue });
-        attributes.push({ key: 'Name', value: name });
-        attributes.push({ key: 'ID', value: properties.expressID });
-        attributes.push({ key: 'GlobalId', value: properties.GlobalId?.value ?? nullValue });
-        attributes.push({ key: 'Description', value: properties.Description?.value ?? nullValue });
-        attributes.push({ key: 'PredefinedType', value: properties.PredefinedType?.value ?? nullValue });
-        attributes.push({ key: 'ObjectType', value: properties.ObjectType?.value ?? nullValue });
+            attributes.push({ key: 'Site', value: ifcEntity.object3d.userData?.dataset?.name ?? nullValue });
+            attributes.push({ key: 'IFCType', value: IfcCategoryMap[properties.type] ?? nullValue });
+            attributes.push({ key: 'Name', value: name });
+            attributes.push({ key: 'ID', value: properties.expressID });
+            attributes.push({ key: 'GlobalId', value: properties.GlobalId?.value ?? nullValue });
+            attributes.push({ key: 'Description', value: properties.Description?.value ?? nullValue });
+            attributes.push({ key: 'PredefinedType', value: properties.PredefinedType?.value ?? nullValue });
+            attributes.push({ key: 'ObjectType', value: properties.ObjectType?.value ?? nullValue });
 
-        return name;
+            return name;
+        }
     }
 
     /**
@@ -98,6 +100,7 @@ export default class Picker {
         let layer = null;
         let rootobj : Object3D = null;
         let drawing = null;
+        let ifcData = {};
 
         if (picked) {
             rootobj = picked.object;
@@ -113,16 +116,23 @@ export default class Picker {
                 }
             }
 
+            if (layer && layer.isEntity3D && (layer as any)?.isIfcEntity) {
+                const ifcEntity = layer as IfcEntity;
+                const direction = new Vector3();
+                direction.subVectors(picked.point, instance.camera.camera3D.position);
+                direction.normalize();
+                ifcData = ifcEntity.raycast(instance.camera.camera3D.position, direction);
+            }
+
             return {
                 ...picked,
+                ...ifcData,
                 layer,
                 rootobj,
                 drawing,
             };
         }
-        return {
-            point: picked?.point,
-        };
+        return null;
     }
 
     getVectorFeatureAt(instance: Instance, e: MouseEvent, radius = 1): PickResult {
@@ -242,9 +252,9 @@ export default class Picker {
             this.getAttributesFromOLFeature(feature, attributes);
         }
 
-        if (entity.isEntity3D && entity.object3d.modelID !== undefined) {
-            const ifcModel = entity.object3d as ifc.IFCModel;
-            name = this.getAttributesFromIfc(ifcModel, pickedObject.faceIndex, attributes);
+        if (entity.isEntity3D && (entity as any)?.isIfcEntity && pickedObject.mesh) {
+            const ifcEntity = entity as IfcEntity;
+            this.getAttributesFromIfcFragment(ifcEntity, pickedObject.mesh.fragment, pickedObject.itemId, attributes);
         }
 
         return new Feature(name, layer?.id, attributes);

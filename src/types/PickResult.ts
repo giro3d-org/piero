@@ -1,6 +1,7 @@
 import { Drawing } from "@giro3d/giro3d/interactions";
 import { Face, Object3D, Vector3 } from "three";
 import OLFeature from 'ol/Feature';
+import { FragmentMesh } from 'bim-fragment/fragment-mesh';
 
 /**
  * Picked object
@@ -17,6 +18,11 @@ interface PickResult {
     face?: Face;
     faceIndex?: number;
     feature?: OLFeature;
+
+    // IFC
+    mesh?: FragmentMesh;
+    blockId?: number;
+    itemId?: string;
 }
 
 export default PickResult;

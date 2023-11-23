@@ -1,17 +1,8 @@
-import { IFCLoader, IFCModel } from 'three/examples/jsm/loaders/IFCLoader.js';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
+import { Vector3 } from 'three';
+import { Components, SimpleScene, SimpleRenderer, SimpleCamera, SimpleRaycaster, FragmentManager, FragmentIfcLoader } from 'openbim-components';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
-import { IFCBUILDING } from 'web-ifc';
-import { Vector3 } from 'three';
-import { getPublicFolderUrl } from '@/utils/Configuration';
-
-const ifcLoader = new IFCLoader();
-// @ts-ignore - Don't need to set other settings
-ifcLoader.ifcManager.applyWebIfcConfig({
-    COORDINATE_TO_ORIGIN: true,
-});
-ifcLoader.ifcManager.setWasmPath(getPublicFolderUrl(''));
+import IfcEntity from '@/giro3d/IfcEntity';
 
 /**
  * IFC options
@@ -22,7 +13,7 @@ interface IFCOptions {
 
 export default {
     /**
-     * Loads a CityJSON file as a string.
+     * Loads an IFC file.
      *
      * @param instance Giro3d instance
      * @param id Layer id
@@ -30,35 +21,63 @@ export default {
      * @param options Options
      * @returns Entity created
      */
-    async loadIfc(instance: Instance, id: string, file: File|Response, options: IFCOptions = {}) {
-        const buffer = await file.arrayBuffer();
-        // const alert = NotificationController.showNotification('IFC', `Loaded ${id}; processing ${buffer.byteLength} bytes...`);
+    async loadIfc(instance: Instance, id: string, file: File | Response, options: IFCOptions = {}) {
+        const data = await file.arrayBuffer();
 
-        const ifcModel = await ifcLoader.parse(buffer);
-        ifcModel.name = 'ifcModel';
-        ifcModel.rotateX(Math.PI / 2);
-        ifcModel.geometry.computeBoundingBox();
+        const components = new Components();
+        components.ui.enabled = false;
 
-        if (!options.at) {
-            // @ts-ignore - Coordinates type hint doesn't like variadic arguments :/
-            options.at = new Coordinates('EPSG:3946', 1842023, 5173319, 171);
+        components.scene = new SimpleScene(components);
+        components.renderer = new SimpleRenderer(components, document.createElement('div'));
+        components.camera = new SimpleCamera(components);
+        components.raycaster = new SimpleRaycaster(components);
+
+        components.init();
+
+        const fragmentManager = await components.tools.get(FragmentManager);
+
+        let fragmentIfcLoader = new FragmentIfcLoader(components);
+
+        // TODO replace with own WASM ?
+        fragmentIfcLoader.settings.wasm = {
+            path: "https://unpkg.com/web-ifc@0.0.44/",
+            absolute: true
         }
-        // @ts-ignore - target is actually optional
-        const position = options.at.as(instance.referenceCrs).xyz(new Vector3());
 
-        // const offset = config.ifc_offset;
-        // position.add(new Vector3(offset.x, offset.y, offset.z));
+        fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
+        fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
 
-        // @ts-ignore - We don't care if geocentric or not, we just want the values!
-        ifcModel.position.copy(position);
+        const buffer = new Uint8Array(data);
+        const ifcModel = await fragmentIfcLoader.load(buffer, id);
+
+        // IFC models are Y-up, so we need to rotate them to be Z-up.
+        ifcModel.rotateX(Math.PI / 2);
+
+        let position: Vector3 = new Vector3();
+        // If custom coordinates are provided, we ignore the IFC's placement
+        if (options.at) {
+            position = options.at.as(instance.referenceCrs).xyz(position);
+            ifcModel.position.copy(position);
+        } else {
+            // Since we are loading the model with COORDINATE_TO_ORIGIN = true, all vertices will be
+            // expressed as an offset from the root object, rather than their absolute world space
+            // positions. We then have to compute a transformation matrix to put the object back in
+            // its original position.
+            // For this, we use the undocumented coordination matrix which is the transformation
+            // from world to local space.
+            //
+            // However, since Giro3D is Z-up, we need to swap Y and Z, and then invert the sign of
+            // the new Y (i.e the Z before the swap).
+            //
+            // Important note: the IFC's origin is not transformed to the instance's CRS. We assume that
+            // The IFC file is in the same coordinate system as the instance.
+            const coordinationMatrix = ifcModel.coordinationMatrix.clone().invert();
+            const pos = new Vector3().applyMatrix4(coordinationMatrix);
+            ifcModel.position.set(pos.x, -pos.z, pos.y);
+        }
+
         ifcModel.updateWorldMatrix(true, true);
 
-        const buildings = ifcModel.ifcManager.getAllItemsOfType(ifcModel.modelID, IFCBUILDING, false);
-
-        const props = ifcModel.ifcManager.getItemProperties(ifcModel.modelID, buildings[0], false);
-
-        ifcModel.name = props?.Name?.value ?? 'ifcModel';
-
-        return new Entity3D(ifcModel.uuid, ifcModel);
+        return new IfcEntity(ifcModel, components, fragmentManager);
     },
 };

@@ -76,10 +76,10 @@
             "url": "https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc",
             "name": "19_rue_Marc_Antoine_Petit.ifc",
             "position": {
-                "crs": "EPSG:3946",
-                "x": 1842023,
-                "y": 5173319,
-                "z": 171
+                "crs": "EPSG:2154",
+                "x": 841913,
+                "y": 6517805,
+                "z": 170
             }
         },
         {

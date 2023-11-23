@@ -1,4 +1,4 @@
-import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D, SphereGeometry, Mesh, MeshBasicMaterial } from "three";
+import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D, SphereGeometry, Mesh, MeshBasicMaterial, Vector2 } from "three";
 
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
@@ -65,13 +65,16 @@ export default class Giro3DManager extends EventDispatcher {
 
         const lightColor = 0xffffff;
 
-        const ambientLight = new AmbientLight(lightColor, 0.5);
+        const ambientLight = new AmbientLight(lightColor, 0.6);
         this.mainInstance.scene.add(ambientLight);
 
-        const dirLight = new DirectionalLight(lightColor, 0.5);
-        dirLight.position.set(1, -1.75, 1);
+        const dirLight = new DirectionalLight(lightColor, 2);
+        dirLight.position.set(center.x() - 10000, center.y() - 10000, 10000);
+        dirLight.target.position.set(center.x(), center.y(), 0);
         this.mainInstance.scene.add(dirLight);
+        this.mainInstance.scene.add(dirLight.target);
         dirLight.updateMatrixWorld();
+        this.mainInstance.scene.updateMatrixWorld();
 
         // We disable the skybox for now as it breaks the rendering of point cloud  with effects.
         // Skybox.addSkybox(this.mainInstance);

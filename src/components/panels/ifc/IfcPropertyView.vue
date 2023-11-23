@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { useDatasetStore } from '@/stores/datasets';
 import { Dataset } from '@/types/Dataset';
 import { IFCModel } from 'three/examples/jsm/loaders/IFCLoader';
@@ -59,4 +59,4 @@ function getRoot() {
     <div v-if="isLoaded">
         <IfcSubtree :ifc-element="getRoot()" :ifc-model="getIfcModel()" />
     </div>
-</template>
+</template> -->

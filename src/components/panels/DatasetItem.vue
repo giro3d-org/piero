@@ -3,7 +3,7 @@ import { type Component, ref } from 'vue';
 import { Dataset, DatasetType } from '@/types/Dataset';
 import SpinnerControl from '../SpinnerControl.vue';
 import VisibilityControl from '../VisibilityControl.vue';
-import IfcPropertyView from '@/components/panels/ifc/IfcPropertyView.vue';
+// import IfcPropertyView from '@/components/panels/ifc/IfcPropertyView.vue';
 
 const props = defineProps<{
   dataset: Dataset,
@@ -15,7 +15,7 @@ props.dataset.addEventListener('isLoading', () => isLoading.value = props.datase
 defineEmits(['delete', 'zoom', 'update:visible', 'udpdate:toggle-grid'])
 
 const propertyViews: Map<DatasetType, Component> = new Map();
-propertyViews.set('ifc', IfcPropertyView);
+// propertyViews.set('ifc', IfcPropertyView);
 
 </script>
 
@@ -31,7 +31,7 @@ propertyViews.set('ifc', IfcPropertyView);
         <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
           <i class="bi bi-trash"></i>
         </a>
-        <a
+        <!-- <a
           v-if="dataset.type === 'ifc' && dataset.isLoaded"
           href="#"
           class="icon"
@@ -42,16 +42,16 @@ propertyViews.set('ifc', IfcPropertyView);
           aria-controls="`#collapse-${dataset.uuid}`"
         >
           <i class="bi bi-card-list"></i>
-        </a>
+        </a> -->
         <div class="icon spinner">
           <SpinnerControl title="Loading..." v-if="isLoading" />
         </div>
       </div>
     </div>
     <!-- Property view -->
-    <div v-if="propertyViews.has(dataset.type)" class="collapse m-2" :id="`collapse-${dataset.uuid}`">
+    <!-- <div v-if="propertyViews.has(dataset.type)" class="collapse m-2" :id="`collapse-${dataset.uuid}`">
       <component :is="propertyViews.get(dataset.type)" :dataset="dataset"></component>
-    </div>
+    </div> -->
   </li>
 </template>
 

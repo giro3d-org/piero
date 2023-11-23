@@ -128,7 +128,7 @@ export default class DatasetManager {
 
     private loadIFC(dataset: Dataset) {
         return loader.processFile(this.instance, dataset.url, {
-            at: dataset.coordinates.as(this.instance.referenceCrs),
+            at:  dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
         });
     }
 

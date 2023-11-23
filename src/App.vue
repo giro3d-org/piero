@@ -107,8 +107,6 @@ function pick(event: MouseEvent, clicked?: boolean) {
     return;
   }
 
-  giro3d.highlighter.clear();
-
   const picked = picker.pick(giro3d.mainInstance, event);
 
   if (picked?.point) {
@@ -132,6 +130,8 @@ function pick(event: MouseEvent, clicked?: boolean) {
 
   if (picked.pickResult) {
     giro3d.highlighter.highlightFromPick(picked.pickResult);
+  } else {
+    giro3d.highlighter.clear();
   }
 }
 

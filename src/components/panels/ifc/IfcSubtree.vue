@@ -1,15 +1,15 @@
-<script setup lang="ts">
-import { IFCModel } from 'three/examples/jsm/loaders/IFCLoader';
+<!-- <script setup lang="ts">
 import { IfcSpatialStructureElement } from '@/types/IFCTypes';
 import { ref } from 'vue';
 import VisibilityEyeToggle from '@/components/VisibilityEyeToggle.vue';
 import { useGiro3dStore } from '@/stores/giro3d';
+import { FragmentsGroup } from 'bim-fragment';
 
 const giro3d = useGiro3dStore();
 
 const props = defineProps<{
   ifcElement: IfcSpatialStructureElement,
-  ifcModel: IFCModel,
+  ifcModel: FragmentsGroup,
 }>()
 
 function traverse(item: IfcSpatialStructureElement, action: (e: IfcSpatialStructureElement) => void) {
@@ -32,15 +32,16 @@ function setVisibility(v: boolean) {
     });
 
     if (v) {
-        props.ifcModel.ifcManager.showItems(props.ifcModel.modelID, ids);
+        // TODO
+        // props.ifcModel.ifcManager.showItems(props.ifcModel.modelID, ids);
     } else {
-        props.ifcModel.ifcManager.hideItems(props.ifcModel.modelID, ids);
+        // props.ifcModel.ifcManager.hideItems(props.ifcModel.modelID, ids);
     }
 
     giro3d.notifyChange();
 }
 
-const itemProperties = ref(props.ifcModel.ifcManager.getItemProperties(props.ifcModel.modelID, props.ifcElement.expressID));
+const itemProperties = ref(props.ifcMode.getItemProperties(props.ifcModel.modelID, props.ifcElement.expressID));
 
 
 </script>
@@ -74,4 +75,4 @@ li {
 .name {
     font-size: smaller;
 }
-</style>
+</style> -->

@@ -1,11 +1,11 @@
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
+import Instance from '@giro3d/giro3d/core/Instance.js';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 import CityJSON from './CityJSON';
 import GeoJSON from './GeoJSON.js';
 import IFC from './IFC.js';
 import Loadersgl from './Loadersgl.js';
-import Instance from '@giro3d/giro3d/core/Instance.js';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { useNotificationStore } from '@/stores/notifications';
 import Notification from '@/types/Notification';
 
@@ -80,7 +80,7 @@ async function processFile(
     }
 
     const notifications = useNotificationStore();
-    notifications.push(new Notification(filename, 'Loading...'));
+    notifications.push(new Notification(decodeURI(filename), 'Loading...'));
 
     if (!(fileOrUrl instanceof File)
         && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')

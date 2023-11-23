@@ -2,14 +2,16 @@ import { ref, computed, Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset'
 import config from '../config.json';
-import { Coordinates } from '@giro3d/giro3d/core/geographic';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { Entity3D } from '@giro3d/giro3d/entities';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 
 function buildIfcDataset(conf: Record<string, any>) {
   const ds = new DatasetObject(conf.name, 'ifc', getPublicFolderUrl(conf.url));
-  const position = conf.position;
-  ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
+  if (conf.position) {
+    const position = conf.position;
+    ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
+  }
   return ds;
 }
 
