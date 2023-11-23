@@ -37,7 +37,7 @@ defineEmits(['import'])
 </script>
 
 <template>
-  <div class="root overflow-auto">
+  <div class="root">
     <DropZone id="datasets-drop-zone" @drop="importDatasetFromDrop" label="Import file..." />
     <DatasetGroup v-for="(item, index) in groups"
       :key="index"

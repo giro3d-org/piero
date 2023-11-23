@@ -1,6 +1,7 @@
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 
 import CityJSON from './CityJSON';
 import GeoJSON from './GeoJSON.js';
@@ -85,7 +86,7 @@ async function processFile(
     if (!(fileOrUrl instanceof File)
         && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')
     ) {
-        file = await fetch(fileOrUrl);
+        file = await Fetcher.fetch(fileOrUrl);
     }
 
     let obj: Entity3D = null;

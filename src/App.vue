@@ -177,7 +177,7 @@ function onPointOfInterestSelected(poi: Vector3) {
 
 <template>
   <MainView id="main-view" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)" class="mainview" />
-  <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributelist="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" class="component attribute-panel" />
+  <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributes="pickedFeature.attributes" :name="pickedFeature.name" :parent="pickedFeature.parent" :point="pickedFeature.point" class="component attribute-panel" />
   <StatusBar class="component statusbar" :x="coordinates.x" :y="coordinates.y" :z="coordinates.z"/>
   <ToolBar id="toolbar" :active="selectedTool" class="component toolbar" v-on:selected="v => selectPanel(v)" />
   <MinimapView class="component minimap" />
@@ -209,7 +209,7 @@ function onPointOfInterestSelected(poi: Vector3) {
   width: 370px;
   max-height: 60%;
   margin-right: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 5rem;
 }
 
 .statusbar {

@@ -1,62 +1,40 @@
-<!-- <script setup lang="ts">
-import { IfcSpatialStructureElement } from '@/types/IFCTypes';
+<script setup lang="ts">
 import { ref } from 'vue';
-import VisibilityEyeToggle from '@/components/VisibilityEyeToggle.vue';
-import { useGiro3dStore } from '@/stores/giro3d';
-import { FragmentsGroup } from 'bim-fragment';
-
-const giro3d = useGiro3dStore();
+import IfcEntity, { ClassificationItem } from '@/giro3d/IfcEntity';
 
 const props = defineProps<{
-  ifcElement: IfcSpatialStructureElement,
-  ifcModel: FragmentsGroup,
+    ifcEntity: IfcEntity,
+    classificationElement: ClassificationItem,
 }>()
 
-function traverse(item: IfcSpatialStructureElement, action: (e: IfcSpatialStructureElement) => void) {
-    action(item);
-    if (item.children && item.children.length > 0) {
-        for (const child of item.children) {
-            traverse(child, action);
-        }
-    }
+const highlighted = ref(false);
+
+function highlight() {
+    highlighted.value = true;
+    props.ifcEntity.clearHighlight();
+    props.ifcEntity.highlightById(props.classificationElement.fragments);
+
+    setTimeout(() => highlighted.value = false, 2000);
 }
-
-const visible = ref(true);
-
-function setVisibility(v: boolean) {
-    visible.value = v;
-
-    const ids = [];
-    traverse(props.ifcElement, elt => {
-        ids.push(elt.expressID);
-    });
-
-    if (v) {
-        // TODO
-        // props.ifcModel.ifcManager.showItems(props.ifcModel.modelID, ids);
-    } else {
-        // props.ifcModel.ifcManager.hideItems(props.ifcModel.modelID, ids);
-    }
-
-    giro3d.notifyChange();
-}
-
-const itemProperties = ref(props.ifcMode.getItemProperties(props.ifcModel.modelID, props.ifcElement.expressID));
 
 
 </script>
 
 <template>
-    <div :class="visible ? '' : 'disabled'">
+    <div>
         <div class="d-flex">
-            <VisibilityEyeToggle class="mx-1" :visible="visible" @update:visible="v => setVisibility(v)" />
-            <span class="badge text-bg-secondary" :title="itemProperties.Name?.value ?? '?'">{{ifcElement.type}}</span>
-            <span class="mx-2 text-muted text-truncate name" :title="itemProperties.Name?.value ?? '?'">{{ itemProperties.Name?.value ?? '?' }}</span>
+            <a class="icon mx-1" href="#" @click="highlight">
+                <i class="bi bi-eye"></i>
+            </a>
+            <span class="badge class" :class="highlighted ? 'text-bg-success' : 'text-bg-secondary'" :title="classificationElement.treeItemName">{{
+                classificationElement.treeItemName }}</span>
+            <span class="mx-2 text-truncate name" :class="highlighted ? 'text-success-emphasis' : 'text-muted'" :title="classificationElement.name">{{
+                classificationElement.name }}</span>
         </div>
-        <div v-if="ifcElement.children.length > 0 ">
+        <div v-if="classificationElement.children.length > 0">
             <ul>
-                <li v-for="(item, index) in ifcElement.children" :key="index" >
-                    <IfcSubtree :ifc-element="item" :ifc-model="ifcModel" />
+                <li v-for="(item, index) in classificationElement.children" :key="index">
+                    <IfcSubtree :ifc-entity="props.ifcEntity" :classification-element="item" />
                 </li>
             </ul>
         </div>
@@ -72,7 +50,24 @@ li {
     margin-top: 0.2rem;
 }
 
+.class {
+    font-weight: normal;
+}
+
 .name {
     font-size: smaller;
 }
-</style> -->
+
+.icon {
+    width: 1rem !important;
+    float: right;
+    color: var(--bs-secondary);
+}
+
+@media (hover: hover) {
+    .icon:hover {
+        /* opacity: 0.8; */
+        color: var(--bs-primary);
+    }
+}
+</style>

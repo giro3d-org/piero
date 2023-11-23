@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { Components, SimpleScene, SimpleRenderer, SimpleCamera, SimpleRaycaster, FragmentManager, FragmentIfcLoader } from 'openbim-components';
+import { Components, SimpleScene, SimpleRenderer, SimpleCamera, SimpleRaycaster, FragmentManager, FragmentIfcLoader, FragmentClassifier } from 'openbim-components';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
 import IfcEntity from '@/giro3d/IfcEntity';
@@ -36,6 +36,7 @@ export default {
 
         const fragmentManager = await components.tools.get(FragmentManager);
 
+        const classifier = await components.tools.get(FragmentClassifier);
         let fragmentIfcLoader = new FragmentIfcLoader(components);
 
         // TODO replace with own WASM ?
@@ -78,6 +79,8 @@ export default {
 
         ifcModel.updateWorldMatrix(true, true);
 
-        return new IfcEntity(ifcModel, components, fragmentManager);
+        const entity = new IfcEntity(ifcModel, components, fragmentManager, classifier);
+        await entity.initClassification();
+        return entity;
     },
 };

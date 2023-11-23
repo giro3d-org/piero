@@ -1,13 +1,14 @@
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 import { useDatasetStore } from '@/stores/datasets';
 import { Dataset } from '@/types/Dataset';
-import { IFCModel } from 'three/examples/jsm/loaders/IFCLoader';
 import { ref } from 'vue';
 import IfcSubtree from './IfcSubtree.vue';
+import IfcEntity from '@/giro3d/IfcEntity';
+
 const datasets = useDatasetStore();
 
 const props = defineProps<{
-  dataset: Dataset,
+    dataset: Dataset,
 }>()
 
 const isLoaded = ref(props.dataset.isLoaded);
@@ -32,31 +33,46 @@ datasets.$onAction(({
     });
 });
 
-function getIfcModel() {
+function getIfcEntity() {
     const entity = datasets.getEntity(props.dataset);
 
     if (entity == null) {
         return null;
     }
 
-    return entity.object3d as IFCModel;
+    return entity as IfcEntity;
 }
 
-function getRoot() {
-    const ifcModel = getIfcModel();
+function getClassificationRoot() {
+    const ifcEntity = getIfcEntity();
 
-    if (ifcModel == null) {
+    if (ifcEntity == null) {
         return null;
     }
 
-    const structure = ifcModel.ifcManager.getSpatialStructure(ifcModel.modelID);
-
-    return structure;
+    return ifcEntity.getClassification();
 }
 </script>
 
 <template>
     <div v-if="isLoaded">
-        <IfcSubtree :ifc-element="getRoot()" :ifc-model="getIfcModel()" />
+        <ul>
+            <li v-for="(item, index) in getClassificationRoot()" :key="index">
+                <IfcSubtree :ifc-entity="getIfcEntity()" :classification-element="item" />
+            </li>
+        </ul>
     </div>
-</template> -->
+</template>
+
+
+<style scoped>
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    margin-top: 0.2rem;
+}
+</style>

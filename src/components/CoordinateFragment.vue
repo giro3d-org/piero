@@ -7,8 +7,8 @@ defineProps({
 </script>
 
 <template>
-    <div>
-        <p class="text-secondary"><span><b>{{ prefix }}</b> {{ value }}{{ suffix }}</span></p>
+    <div class="text-secondary">
+        <span><b>{{ prefix }}</b> {{ value }}{{ suffix }}</span>
     </div>
 </template>
 

@@ -6,6 +6,7 @@ async function loadProjCrsIfNeeded(projection: string) {
 
     const regexes = [
         /EPSG:+(\d+)/,
+        /http:\/\/www.opengis.net\/def\/crs\/EPSG\/0\/(\d+)/,
         /https:\/\/www.opengis.net\/def\/crs\/EPSG\/0\/(\d+)/,
     ];
     for (const regex of regexes) {
