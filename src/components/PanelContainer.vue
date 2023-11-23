@@ -46,8 +46,8 @@ const panels = Configuration.panels;
 
 .content {
   width: 100% auto;
-  /* height: 100%; */
   margin: 1rem;
+  height: 100%;
 }
 
 .panel {

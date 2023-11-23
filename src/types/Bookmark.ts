@@ -25,8 +25,16 @@ export default class Bookmark extends EventDispatcher {
         this.dispatchEvent({ type: 'goto' });
     }
 
+    getBaseUrl() {
+        if (import.meta.env.PROD) {
+            return import.meta.env.BASE_URL;
+        }
+
+        return 'http://example.com';
+    }
+
     getUrl() {
-        const base = 'https://giro3d.gitlab.io/giro3d-sample-application/?';
+        const base = this.getBaseUrl() + '/?';
         const cam = this.camera;
         const json : BookmarkJson = {
             camera: [cam.camera.x, cam.camera.y, cam.camera.z],

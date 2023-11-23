@@ -1,14 +1,17 @@
 import { EventDispatcher } from "three";
 import LayerObject from "./LayerObject";
+import { Coordinates } from "@giro3d/giro3d/core/geographic";
+import Named from "./Named";
 
 export type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
 
-export interface Dataset extends EventDispatcher {
+export interface Dataset extends Named, EventDispatcher {
     isLoaded: boolean;
     type: DatasetType;
     url: string;
     uuid: string;
     name: string;
+    coordinates: Coordinates;
 
     get isLoading(): boolean;
     set isLoading(v: boolean);
@@ -26,6 +29,8 @@ export class DatasetObject extends LayerObject implements Dataset {
     private _isLoading: boolean = false;
 
     isLoaded: boolean;
+
+    coordinates: Coordinates;
 
     set isLoading(v: boolean) {
         this._isLoading = v;

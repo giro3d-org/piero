@@ -15,12 +15,20 @@ function formatValue(item: any) {
 
     return item;
 }
+
+function getStyles(attrName: string) {
+    switch (attrName) {
+        case 'IFCType': return ['badge', 'bg-secondary', 'text-light'];
+    }
+
+    return [];
+}
 </script>
 
 <template>
     <tr>
         <td :title="attrName"><b>{{ attrName.substring(0, 18) }}</b></td>
-        <td :title="attrValue">{{ formatValue(attrValue) }}</td>
+        <td :title="attrValue" :class="getStyles(attrName)">{{ formatValue(attrValue) }}</td>
     </tr>
 </template>
 

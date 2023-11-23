@@ -1,13 +1,16 @@
 import { defineStore } from "pinia";
 import { Vector3 } from "three";
 import { ref } from "vue";
+import config from '../config.json';
 
 export const useAnalysisStore = defineStore('analysis', () => {
     const floodingPlaneHeight = ref(170);
     const crossSectionOrientation = ref(0);
-    const crossSectionCenter = ref(new Vector3(841912, 6517810, 0));
+    const center = config.analysis.clipping_planes.pivot;
+    const crossSectionCenter = ref(new Vector3(center.x, center.y, 0));
     const _enableFloodingPlane = ref(false);
     const _enableCrossSection = ref(false);
+    const _enableStatistics = ref(false);
 
     function setFloodingPlaneHeight(height: number) {
         floodingPlaneHeight.value = height;
@@ -19,6 +22,14 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
     function isFloodingPlaneEnabled() {
         return _enableFloodingPlane.value
+    }
+
+    function enableStatistics(enable: boolean) {
+        _enableStatistics.value = enable;
+    }
+
+    function isStatisticsEnabled() {
+        return _enableStatistics.value
     }
 
     function enableCrossSection(enable: boolean) {
@@ -44,6 +55,8 @@ export const useAnalysisStore = defineStore('analysis', () => {
         setFloodingPlaneHeight,
         crossSectionOrientation,
         crossSectionCenter,
+        isStatisticsEnabled,
+        enableStatistics,
         enableCrossSection,
         isCrossSectionEnabled,
         setCrossSectionOrientation,

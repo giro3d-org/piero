@@ -1,163 +1,109 @@
-import { Basemap, BasemapObject } from "@/types/Basemap";
-import { Overlay, OverlayObject } from "@/types/Overlay";
-import Instance from "@giro3d/giro3d/core/Instance";
 import { defineStore } from "pinia";
 import { computed, reactive } from "vue";
 
-import TiledImageSource from "@giro3d/giro3d/sources/TiledImageSource";
-import VectorSource from "@giro3d/giro3d/sources/VectorSource";
-import * as format from 'ol/format';
-import GML32 from 'ol/format/GML32';
-import * as olsource from 'ol/source';
-import * as olstyle from 'ol/style';
+import config from '../config.json';
+import { Color } from "three";
+import { ColorMap } from "@giro3d/giro3d/core/layer";
+import chroma from "chroma-js";
+import { getPublicFolderUrl } from "@/utils/Configuration";
+import { BaseLayer, BaseLayerObject } from "@/types/BaseLayer";
+import { LayerSource, GeoJSONSource, WMSSource, WMTSSource, KMLSource, VectorSource } from "@/types/LayerSource";
+import { Overlay, OverlayObject } from "@/types/Overlay";
 
-const basemapList = [
-    new BasemapObject({ id: 'osm', name: 'OSM', type: 'color', visible: false }),
-    new BasemapObject({ id: 'imagery', name: 'Satellite' }),
-    new BasemapObject({ id: 'elevation', name: 'Elevation', type: 'elevation' }),
-];
+function getSource(conf): LayerSource {
+    switch (conf.type) {
+        case 'wms':
+            return {
+                type: 'wms',
+                format: conf.format,
+                layer: conf.layer,
+                nodata: conf.nodata,
+                url: conf.url,
+                projection: conf.projection,
+            } as WMSSource;
+        case 'wmts':
+            return {
+                type: 'wmts',
+                format: conf.format,
+                layer: conf.layer,
+                nodata: conf.nodata,
+                url: conf.url,
+                projection: conf.projection,
+        } as WMTSSource;
+    }
+}
 
-const overlayList = [
-    new OverlayObject('overlay-arbres', 'Alignement d\'arbres', (instance: Instance) => new TiledImageSource({
-        source: new olsource.TileWMS({
-            url: 'https://download.data.grandlyon.com/wms/grandlyon',
-            projection: instance.referenceCrs,
-            params: {
-                LAYERS: ['metropole-de-lyon:abr_arbres_alignement.abrarbre'],
-                FORMAT: 'image/png',
-                VERSION: '1.3.0',
-            },
-        }),
-    })),
+function getBaseLayers() {
+    const result: BaseLayerObject[] = [];
 
-    new OverlayObject('overlay-travaux', 'Prévision de travaux de la Métropole de Lyon', (instance: Instance) => new TiledImageSource({
-        source: new olsource.TileWMS({
-            url: 'https://download.data.grandlyon.com/wms/rdata',
-            projection: instance.referenceCrs,
-            params: {
-                LAYERS: ['lyv_lyvia.lyvchantier'],
-                FORMAT: 'image/png',
-                VERSION: '1.3.0',
-            },
-        }),
-    })),
+    const conf = config.basemap.layers;
+    for (const item of conf) {
+        const layer = new BaseLayerObject({
+            name: item.name,
+            type: item.type as 'elevation' | 'color',
+            source: getSource(item.source),
+        });
+        layer.visible = item.visible;
+        result.push(layer);
+    }
 
-    new OverlayObject('overlay-zae', 'Zones d\'activités économiques (ZAE)', (instance: Instance) => new TiledImageSource({
-        source: new olsource.TileWMS({
-            url: 'https://download.data.grandlyon.com/wms/grandlyon',
-            projection: instance.referenceCrs,
-            params: {
-                LAYERS: ['adr_voie_lieu.adrzae'],
-                FORMAT: 'image/png',
-                VERSION: '1.3.0',
-            },
-        }),
-    })),
+    return result;
+}
 
-    new OverlayObject('overlay-vegetation', 'Végétation stratifiée 2018', (instance: Instance) => new TiledImageSource({
-        source: new olsource.TileWMS({
-            url: 'https://download.data.grandlyon.com/wms/rdata',
-            projection: instance.referenceCrs,
-            params: {
-                LAYERS: ['MNC_class_2022_INT1U'],
-                FORMAT: 'image/png',
-                VERSION: '1.3.0',
-            },
-        }),
-    })),
+function getInitialOverlays() {
+    const result: Overlay[] = [];
+    for (const item of config.overlays) {
+        let source: LayerSource = { type: item.type };
+        switch (item.type) {
+            case 'geojson':
+            case 'kml':
+            case 'gpx':
+                const vectorSource = source as VectorSource;
+                vectorSource.url = getPublicFolderUrl(item.url);
+                vectorSource.projection = item.projection;
+                vectorSource.style = item.style;
+                break;
+            case 'wms':
+                source = getSource(item.source);
+                break;
+        }
+        const overlay = new OverlayObject(item.name, source);
+        overlay.visible = item.visible;
+        result.push(overlay);
+    }
 
-    new OverlayObject('overlay-fibre', 'Réseau fibre', (instance: Instance) => new TiledImageSource({
-        source: new olsource.TileWMS({
-            url: 'https://download.data.grandlyon.com/wms/rdata',
-            projection: instance.referenceCrs,
-            params: {
-                LAYERS: ['tel_telecom.telfibreripthd_1'],
-                FORMAT: 'image/png',
-                VERSION: '1.3.0',
-            },
-        }),
-    })),
-
-    new OverlayObject('overlay-fontaines', 'Fontaines (GML)', () => new VectorSource({
-        data: 'https://3d.oslandia.com/lyon/adr_voie_lieu.adrbornefontaine_latest.gml',
-        dataProjection: 'EPSG:4171',
-        format: new GML32(),
-        style: (feature, resolution) => new olstyle.Style({
-            // Adapt size to resolution, so the shape takes approximately
-            // always the same size, and in meters :)
-            // This assumes pixelRatio of resolution is 1 and that the CRS
-            // is in meters.
-            // If true, 10 / resolution corresponds to 10 meters
-            image: new olstyle.RegularShape({
-                // Radius of 5m
-                radius: 2.5 / resolution,
-                points: 4,
-                stroke: new olstyle.Stroke({
-                    width: 2 / resolution,
-                    color: [255, 255, 255, 1],
-                }),
-                fill: new olstyle.Fill({
-                    color: [0, 150, 255, 1],
-                }),
-            }),
-        }),
-    }),),
-
-    new OverlayObject('overlay-footpath', 'Footpath (GPX)', () => new VectorSource({
-        data: 'https://3d.oslandia.com/lyon/track.gpx',
-        dataProjection: 'EPSG:4326',
-        format: new format.GPX(),
-        style: new olstyle.Style({
-            stroke: new olstyle.Stroke({
-                color: '#FA8C22',
-                width: 2,
-            }),
-        }),
-    }),),
-
-    new OverlayObject('overlay-systral', 'Sytral lines (KML)', () => new VectorSource({
-        data: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
-        format: new format.KML(),
-        dataProjection: 'EPSG:4326',
-        style: new olstyle.Style({
-            stroke: new olstyle.Stroke({
-                color: '#FA8C22',
-                width: 2,
-            }),
-        }),
-    }),),
-
-    new OverlayObject('overlay-canopee', 'Canopée (GeoJSON)', () => new VectorSource({
-        data: 'https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson',
-        format: new format.GeoJSON(),
-        dataProjection: 'EPSG:4171',
-        style: feature => new olstyle.Style({
-            fill: new olstyle.Fill({
-                color: `rgba(0, 128, 0, ${feature.get('indiccanop')})`,
-            }),
-            stroke: new olstyle.Stroke({
-                color: 'white',
-            }),
-        }),
-    }),),
-];
+    return result;
+}
 
 export const useLayerStore = defineStore('layers', () => {
-    const basemaps = reactive(basemapList);
+    const basemaps = reactive(getBaseLayers());
     const basemapCount = computed(() => basemaps.length);
 
-    const overlays: Overlay[] = reactive(overlayList);
+    const overlays: Overlay[] = reactive(getInitialOverlays());
     const overlayCount = computed(() => overlays.length);
 
-    function getBasemaps(): Basemap[] {
+    function getBasemaps(): BaseLayer[] {
         return basemaps;
     }
 
-    function setBasemapVisibility(layer: Basemap, visible: boolean) {
+    function setBasemapVisibility(layer: BaseLayer, visible: boolean) {
         layer.visible = visible;
     }
 
-    function setBasemapOpacity(layer: Basemap, opacity: number) {
+    function getElevationColorMap() {
+        const conf = config.basemap.colormap;
+
+        const scale = chroma.scale(conf.ramp);
+        const colors = [];
+        for (let i = 0; i < 256; i++) {
+            const rgb = scale(i / 255).gl();
+            const c = new Color(rgb[0], rgb[1], rgb[2]);
+            colors.push(c);
+        }
+        return new ColorMap(colors, conf.min, conf.max);
+    }
+
+    function setBasemapOpacity(layer: BaseLayer, opacity: number) {
         layer.opacity = opacity;
     }
 
@@ -198,6 +144,7 @@ export const useLayerStore = defineStore('layers', () => {
         setBasemapOpacity,
         setBasemapVisibility,
         overlayCount,
+        getElevationColorMap,
         getOverlays,
         setOverlayOpacity,
         setOverlayVisibility,

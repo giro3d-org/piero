@@ -3,6 +3,7 @@ import { useAnalysisStore } from '@/stores/analysis';
 import FloodingPlane from './analysis/FloodingPlane.vue'
 import ToolWrapper from './analysis/ToolWrapper.vue';
 import CrossSection from './analysis/CrossSection.vue';
+import Statistics from './analysis/Statistics.vue';
 
 const analysis = useAnalysisStore();
 </script>
@@ -15,6 +16,10 @@ const analysis = useAnalysisStore();
 
         <ToolWrapper class="tool" title="Cross section" :enabled="analysis.isCrossSectionEnabled()" @update:enabled="analysis.enableCrossSection">
             <CrossSection />
+        </ToolWrapper>
+
+        <ToolWrapper class="tool" title="Statistics" :enabled="analysis.isStatisticsEnabled()" @update:enabled="analysis.enableStatistics">
+            <Statistics />
         </ToolWrapper>
     </div>
 </template>

@@ -5,9 +5,10 @@ import ColorLayer from "@giro3d/giro3d/core/layer/ColorLayer";
 import ElevationLayer from "@giro3d/giro3d/core/layer/ElevationLayer";
 import Layer from "@giro3d/giro3d/core/layer/Layer";
 import Map from "@giro3d/giro3d/entities/Map";
-import { EventDispatcher } from "three";
+import { EventDispatcher, GridHelper, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector2, Vector3 } from "three";
 import VectorSource from "@giro3d/giro3d/sources/VectorSource";
 import TileIndex from "@giro3d/giro3d/core/TileIndex";
+import { useGiro3dStore } from "@/stores/giro3d";
 
 // Workaround performance issue.
 // TODO remove when https://gitlab.com/giro3d/giro3d/-/merge_requests/418 is merged
@@ -105,14 +106,19 @@ Map.prototype.getVectorFeaturesInExtent = function getVectorFeaturesInExtent(ext
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
     private basemap: Map;
+    private readonly giro3dStore = useGiro3dStore();
+    private grid: GridHelper;
+    private plane: Mesh;
+
+    private readonly baseLayerOrdering: Set<string> = new Set();
+    private readonly overlayOrdering: Set<string> = new Set();
 
     constructor(instance: Instance) {
         super();
 
         this.instance = instance;
 
-        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(instance.referenceCrs).xyz();
-        const extent = Extent.fromCenterAndSize(instance.referenceCrs, { x: center.x, y: center.y }, 30000, 30000);
+        const extent = this.giro3dStore.getDefaultBasemapExtent(instance.referenceCrs);
 
         this.createMap(extent);
     }
@@ -120,6 +126,10 @@ export default class LayerManager extends EventDispatcher {
     setExtent(extent: Extent) {
         const layers = this.basemap.getLayers();
         this.instance.remove(this.basemap);
+        this.grid.dispose();
+        this.grid.remove();
+        this.plane.geometry.dispose();
+        this.plane.remove();
         this.createMap(extent, layers);
     }
 
@@ -135,7 +145,27 @@ export default class LayerManager extends EventDispatcher {
             backgroundColor: 'white',
         });
 
+        const dims = extent.dimensions();
+
+        this.grid = new GridHelper(1, 100);
+        this.grid.scale.set(dims.x, 1, dims.y);
+        this.grid.visible = true;
+        const center = extent.center() as Coordinates;
+        this.grid.position.set(center.x(), center.y(), -100);
+        this.grid.rotateOnAxis(new Vector3(1, 0, 0,), Math.PI / 2);
+        const gridMat = this.grid.material as Material;
+        gridMat.opacity = 0.5;
+        gridMat.transparent = true;
+
+        this.plane = new Mesh(new PlaneGeometry(dims.x, dims.y, 1, 1), new MeshBasicMaterial({ color: 'black' }));
+        this.plane.position.set(center.x(), center.y(), -101);
+
         this.instance.add(this.basemap);
+        this.instance.add(this.grid);
+        this.instance.add(this.plane);
+
+        this.grid.updateMatrixWorld();
+        this.plane.updateMatrixWorld();
 
         if (layers) {
             for (const layer of layers) {
@@ -152,16 +182,29 @@ export default class LayerManager extends EventDispatcher {
         return this.basemap.extent;
     }
 
+    setMapOpacity(opacity: number) {
+        this.basemap.opacity = opacity;
+        this.instance.notifyChange(this.basemap);
+    }
+
     addElevationLayer(layer: ElevationLayer) {
         this.basemap.addLayer(layer);
+        layer.addEventListener('visible-property-changed', () => {
+            this.basemap.visible = layer.visible;
+            this.instance.notifyChange(this.basemap);
+        })
     }
 
     addBaseLayer(layer: ColorLayer) {
         this.basemap.addLayer(layer);
+        this.baseLayerOrdering.add(layer.id);
+        this.updateLayerOrdering();
     }
 
     addOverlay(layer: ColorLayer) {
         this.basemap.addLayer(layer);
+        this.overlayOrdering.add(layer.id);
+        this.updateLayerOrdering();
     }
 
     moveOverlayDown(overlay: ColorLayer) {
@@ -170,5 +213,19 @@ export default class LayerManager extends EventDispatcher {
 
     moveOverlayUp(overlay: ColorLayer) {
         this.basemap.moveLayerUp(overlay);
+    }
+
+    private updateLayerOrdering() {
+        const overlays = this.overlayOrdering;
+        const layers = this.baseLayerOrdering;
+        this.basemap.sortColorLayers((a: Layer, b: Layer) => {
+            if (overlays.has(a.id) && layers.has(b.id)) {
+                return 1;
+            }
+            if (overlays.has(b.id) && layers.has(a.id)) {
+                return -1;
+            }
+            return 0;
+        });
     }
 }

@@ -18,13 +18,13 @@ const layers = useLayerStore();
           :name="layer.name"
           :isLoading="layer.isLoading"
           :visible="layer.visible"
-          :hasOpacitySlider="layer.type === 'color'"
+          :hasOpacitySlider="true"
           v-on:update:visible="v => layers.setBasemapVisibility(layer, v)"
           v-on:update:opacity="v => layers.setBasemapOpacity(layer, v)" />
       </ul>
     </div>
-    <hr>
-    <div id="overlay-list">
+    <div id="overlay-list" v-if="layers.overlayCount > 0">
+      <hr>
       <h6>Overlays</h6>
       <ul class="layers-list-group">
         <OverlayItem v-for="layer in layers.getOverlays()"

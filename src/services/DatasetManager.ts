@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { GeoJSON } from 'ol/format';
 import { tile } from 'ol/loadingstrategy.js';
 import { createXYZ } from 'ol/tilegrid.js';
@@ -7,7 +6,7 @@ import VectorSource from 'ol/source/Vector';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 
-import Camera from '@/services/CameraController';
+import CameraController from '@/services/CameraController';
 import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
 import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
@@ -19,19 +18,21 @@ import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
-import { MeshLambertMaterial } from 'three';
+import { Color, MeshLambertMaterial } from 'three';
+import { AxisGrid } from '@giro3d/giro3d/entities';
 
 export default class DatasetManager {
     private readonly instance: Instance;
     private readonly entities: Map<string, Entity3D> = new Map();
-    private readonly camera: Camera;
+    private readonly axisGrids: Map<string, AxisGrid> = new Map();
+    private readonly camera: CameraController;
+    private readonly store = useDatasetStore();
 
-    constructor(instance: Instance, camera: Camera) {
+    constructor(instance: Instance, camera: CameraController) {
         this.instance = instance;
         this.camera = camera;
-        const store = useDatasetStore();
 
-        store.$onAction(({
+        this.store.$onAction(({
             name,
             args,
             after,
@@ -49,14 +50,50 @@ export default class DatasetManager {
                     case 'setVisible':
                         this.onVisibilityChanged(args[0], args[1]);
                         break;
+                    case 'toggleGrid':
+                        this.onToggleGrid(args[0]);
+                        break;
                 }
             });
         });
 
-        for (const dataset of store.datasets) {
+        for (const dataset of this.store.getDatasets()) {
             if (dataset.visible) {
                 this.loadDataset(dataset);
             }
+        }
+    }
+
+    private onToggleGrid(dataset: Dataset) {
+        if (this.axisGrids.has(dataset.uuid)) {
+            const grid = this.axisGrids.get(dataset.uuid);
+            this.instance.remove(grid);
+            this.axisGrids.delete(dataset.uuid);
+        } else {
+            const entity = this.entities.get(dataset.uuid);
+            if (!entity) {
+                return;
+            }
+            const box = entity.getBoundingBox();
+            const grid = new AxisGrid(`AxisGrid-${dataset.uuid}`, {
+                ticks: {
+                    x: 50,
+                    y: 50,
+                    z: 50,
+                },
+                style: {
+                    color: new Color('orange'),
+                    numberFormat: Intl.NumberFormat('fr'),
+                    fontSize: 12,
+                },
+                volume: {
+                    floor: box.min.z - 10,
+                    ceiling: box.max.z + 10,
+                    extent: Extent.fromBox3(this.instance.referenceCrs, box).withMargin(20, 20),
+                }
+            });
+            this.instance.add(grid);
+            this.axisGrids.set(dataset.uuid, grid);
         }
     }
 
@@ -90,14 +127,20 @@ export default class DatasetManager {
     }
 
     private loadIFC(dataset: Dataset) {
-        return loader.processFile(this.instance, dataset.url)
+        return loader.processFile(this.instance, dataset.url, {
+            at: dataset.coordinates.as(this.instance.referenceCrs),
+        });
     }
 
     private loadCityJSON(dataset: Dataset) {
-        return loader.processFile(this.instance, dataset.url);
+        return loader.processFile(this.instance, dataset.url, {
+            projection: this.instance.referenceCrs,
+        });
     }
 
     private loadBDTopo(dataset: Dataset): Entity3D {
+        const crs = this.instance.referenceCrs;
+
         const vectorSource = new VectorSource({
             format: new GeoJSON(),
             url: function url(e) {
@@ -109,9 +152,9 @@ export default class DatasetManager {
                     + '&request=GetFeature'
                     + '&typename=BDTOPO_V3:batiment'
                     + '&outputFormat=application/json'
-                    + '&SRSNAME=EPSG:2154'
+                    + `&SRSNAME=${crs}`
                     + '&startIndex=0'
-                    + '&bbox='}${e.join(',')},EPSG:2154`
+                    + '&bbox='}${e.join(',')},${crs}`
                 );
             },
             strategy: tile(createXYZ({ tileSize: 512 })),
@@ -119,7 +162,7 @@ export default class DatasetManager {
 
         const entity = new FeatureCollection('BDTOPO_V3', {
             source: vectorSource,
-            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
+            extent: new Extent(crs, -111629.52, 1275028.84, 5976033.79, 7230161.64),
             material: new MeshLambertMaterial(),
             extrude: feature => {
                 const hauteur = -feature.getProperties().hauteur;
@@ -188,8 +231,7 @@ export default class DatasetManager {
             this.instance.add(entity);
             this.instance.notifyChange(entity);
 
-            const store = useDatasetStore();
-            store.add(dataset);
+            this.store.add(dataset);
 
             this.onDatasetLoaded(dataset, entity);
 
@@ -219,10 +261,12 @@ export default class DatasetManager {
 
     private onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
         entity.object3d.userData.entity = entity;
-        entity.object3d.userData.name = dataset.name;
+        entity.object3d.userData.dataset = dataset;
 
         dataset.isLoaded = true;
         dataset.isLoading = false;
+
+        this.store.attachEntity(dataset, entity);
     }
 
     private async loadDataset(dataset: Dataset) {

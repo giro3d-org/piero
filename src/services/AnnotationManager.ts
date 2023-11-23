@@ -5,7 +5,7 @@ import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import Annotation from "@/types/Annotation"
-import Camera from '@/services/CameraController';
+import CameraController from '@/services/CameraController';
 import { useAnnotationStore } from '@/stores/annotations';
 
 const drawnFaceMaterial = new MeshBasicMaterial({
@@ -61,11 +61,11 @@ function point2DFactory(index: number) {
 
 export default class AnnotationManager {
     private readonly drawTool: DrawTool;
-    private readonly camera: Camera;
+    private readonly camera: CameraController;
     private readonly instance: Instance;
     private readonly store = useAnnotationStore();
 
-    constructor(instance: Instance, camera: Camera) {
+    constructor(instance: Instance, camera: CameraController) {
         this.instance = instance;
         this.drawTool = new DrawTool(instance, {
             drawObjectOptions: {

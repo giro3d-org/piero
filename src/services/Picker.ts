@@ -1,28 +1,12 @@
-import { Box3, Face, Object3D, Vector3 } from "three";
+import { Box3, Face, Mesh, MeshBasicMaterial, Object3D, Vector3 } from "three";
+import * as ifc from "three/examples/jsm/loaders/IFCLoader";
 import Instance from "@giro3d/giro3d/core/Instance";
 import Drawing from "@giro3d/giro3d/interactions/Drawing";
 import { Feature as OLFeature } from "ol";
 import Feature, { Attribute } from "@/types/Feature";
 import Measure from "../utils/Measure";
 import Entity3D from "@giro3d/giro3d/entities/Entity3D";
-
-/**
- * Picked object
- */
-interface PickResult {
-    point?: Vector3;
-    layer?: any;
-    rootobj?: Object3D;
-    object?: Object3D;
-    drawing?: Drawing;
-    distance?: number;
-    distanceToRay?: number;
-    index?: number;
-    face?: Face;
-    faceIndex?: number;
-    feature?: OLFeature;
-}
-
+import PickResult from "@/types/PickResult";
 export default class Picker {
     getNameFromOLFeature(feature: OLFeature): string {
         return feature.get('nom')
@@ -61,15 +45,37 @@ export default class Picker {
                 attributes.push({ key: 'fid', value: object.userData.id });
                 for (const [key, value] of Object.entries(object.userData.properties)) {
                     if (key === 'geometry' || key === 'bbox') continue;
+                    if (typeof value === 'object') continue;
                     attributes.push({ key, value });
                 }
             } else {
                 for (const [key, value] of Object.entries(object.userData)) {
                     if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
+                    if (typeof value === 'object') continue;
                     attributes.push({ key, value });
                 }
             }
         }
+    }
+
+    getAttributesFromIfc(ifcModel: ifc.IFCModel, faceIndex: number, attributes: Attribute[]) {
+        const modelID = ifcModel.modelID;
+        const id = ifcModel.ifcManager.getExpressId(ifcModel.geometry, faceIndex);
+        const properties = ifcModel.ifcManager.getItemProperties(modelID, id, true);
+        const nullValue = 'NULL';
+        const name = properties.Name?.value ?? nullValue;
+
+        ifcModel.ifcManager.getIfcType
+        attributes.push({ key: 'Site', value: ifcModel?.userData?.dataset?.name ?? nullValue });
+        attributes.push({ key: 'IFCType', value: ifcModel.ifcManager.getIfcType(modelID, id) ?? nullValue });
+        attributes.push({ key: 'Name', value: name });
+        attributes.push({ key: 'ID', value: properties.expressID });
+        attributes.push({ key: 'GlobalId', value: properties.GlobalId?.value ?? nullValue });
+        attributes.push({ key: 'Description', value: properties.Description?.value ?? nullValue });
+        attributes.push({ key: 'PredefinedType', value: properties.PredefinedType?.value ?? nullValue });
+        attributes.push({ key: 'ObjectType', value: properties.ObjectType?.value ?? nullValue });
+
+        return name;
     }
 
     /**
@@ -204,7 +210,7 @@ export default class Picker {
         const attributes: Array<Attribute> = [];
 
         const entity = layer as Entity3D;
-        let name = entity?.object3d?.userData?.name;
+        let name = entity?.object3d?.userData?.dataset?.name;
 
         if (layer?.filename) {
             attributes.push({ key: 'Dataset', value: layer.filename });
@@ -212,11 +218,11 @@ export default class Picker {
             attributes.push({ key: 'Layer', value: layer.id });
         }
 
-        attributes.push({ key: 'Id', value: rootobj.uuid });
+        // attributes.push({ key: 'Id', value: rootobj.uuid });
 
-        if (object) {
-            this.getGeometryAttributes(object, attributes);
-        }
+        // if (object) {
+        //     this.getGeometryAttributes(object, attributes);
+        // }
 
         if (drawing) {
             this.getAttributesFromDrawing(drawing, attributes);
@@ -236,7 +242,10 @@ export default class Picker {
             this.getAttributesFromOLFeature(feature, attributes);
         }
 
-        // TODO IFC
+        if (entity.isEntity3D && entity.object3d.modelID !== undefined) {
+            const ifcModel = entity.object3d as ifc.IFCModel;
+            name = this.getAttributesFromIfc(ifcModel, pickedObject.faceIndex, attributes);
+        }
 
         return new Feature(name, layer?.id, attributes);
     }
@@ -256,13 +265,13 @@ export default class Picker {
         return first?.point;
     }
 
-    pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature } | null {
+    pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature, pickResult: PickResult } | null {
         const picked = this.getFirstFeatureAt(instance, event);
         let feature = null;
         if (picked.layer || picked.rootobj) {
             feature = this.getFeatureFromPickedObject(picked);
         }
 
-        return { feature, point: picked.point };
+        return { feature, point: picked.point, pickResult: picked };
     }
 }

@@ -1,9 +1,12 @@
 import Instance from '@giro3d/giro3d/core/Instance';
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
 
-import { Overlay } from "@/types/Overlay"
 import { useLayerStore } from '@/stores/layers';
 import LayerManager from '@/services/LayerManager.js'
+import LayerBuilder from '@/giro3d/LayerBuilder';
+import { ImageSource } from '@giro3d/giro3d/sources';
+import { GPXSource, GeoJSONSource, KMLSource, VectorSource } from '@/types/LayerSource';
+import { Overlay } from '@/types/Overlay';
 
 export default class OverlayManager {
     private readonly layerManager: LayerManager;
@@ -51,7 +54,7 @@ export default class OverlayManager {
         const index = this.store.getOverlays().indexOf(overlay);
 
         if (index > 0) {
-            this.layerManager.moveOverlayUp(this.layers.get(overlay.id));
+            this.layerManager.moveOverlayUp(this.layers.get(overlay.uuid));
         }
     }
 
@@ -59,12 +62,12 @@ export default class OverlayManager {
         const index = this.store.getOverlays().indexOf(overlay);
 
         if (index < this.store.overlayCount) {
-            this.layerManager.moveOverlayDown(this.layers.get(overlay.id));
+            this.layerManager.moveOverlayDown(this.layers.get(overlay.uuid));
         }
     }
 
     onOpacityChanged(overlay: Overlay, newOpacity: number) {
-        const id = overlay.id;
+        const id = overlay.uuid;
         const layer = this.layers.get(id);
 
         if (!layer && overlay.source) {
@@ -75,9 +78,28 @@ export default class OverlayManager {
         this.layerManager.notify(layer);
     }
 
-    private loadOverlay(overlay: Overlay) {
-        const layer = new ColorLayer(overlay.name, { source: overlay.source(this.instance) })
-        this.layers.set(overlay.id, layer);
+    private async getSource(overlay: Overlay): Promise<ImageSource> {
+        switch (overlay.source.type) {
+            case 'geojson':
+                const geojson = overlay.source as VectorSource;
+                return LayerBuilder.createGeoJsonSource(geojson.url, geojson.projection, geojson.style);
+            case 'kml':
+                const kml = overlay.source as VectorSource;
+                return LayerBuilder.createKMLSource(kml.url, kml.projection, kml.style);
+            case 'gpx':
+                const gpx = overlay.source as VectorSource;
+                return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
+            case 'wms':
+                return await LayerBuilder.getSource(overlay.source) as ImageSource;
+        }
+    }
+
+    private async loadOverlay(overlay: Overlay) {
+        const layer = new ColorLayer(overlay.name, {
+            source: await this.getSource(overlay),
+            extent: this.layerManager.extent,
+        })
+        this.layers.set(overlay.uuid, layer);
         this.layerManager.addOverlay(layer);
         layer.visible = overlay.visible;
         layer.opacity = overlay.opacity;
@@ -86,14 +108,14 @@ export default class OverlayManager {
     }
 
     onVisibilityChanged(overlay: Overlay, newVisibility: boolean) {
-        const id = overlay.id;
+        const id = overlay.uuid;
         const layer = this.layers.get(id);
 
         if (newVisibility && !layer && overlay.source) {
             this.loadOverlay(overlay);
+        } else {
+            layer.visible = newVisibility;
+            this.layerManager.notify(layer);
         }
-
-        layer.visible = newVisibility;
-        this.layerManager.notify(layer);
     }
 }

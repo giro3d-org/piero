@@ -12,9 +12,9 @@ const store = useGiro3dStore();
 
 onMounted(() => {
     instance.value = new Instance(mainView.value, {
-            crs: 'EPSG:2154',
+            crs: store.getCRS(),
             renderer: {
-                clearColor: 0xcccccc,
+                clearColor: false,
             },
     })
     store.setMainView(instance.value);
@@ -30,6 +30,7 @@ onUnmounted(() => {
 
 <template>
     <div class="main">
+        <div id="orbit-helper" class="helper"><i class="bi bi-mouse2-fill text-dark shadow"></i></div>
         <div ref="mainView" class="main" id="main-view"></div>
         <div ref="inspectorView" id="inspector" class="position-absolute top-0 start-0 mh-100 overflow-auto"></div>
     </div>
@@ -39,5 +40,18 @@ onUnmounted(() => {
 .main {
     width: 100%;
     height: 100%;
+}
+
+.helper {
+    border-radius: 50%;
+    border-width: 2px;
+    border-style: solid;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: orange;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
+    opacity:  70%;
 }
 </style>

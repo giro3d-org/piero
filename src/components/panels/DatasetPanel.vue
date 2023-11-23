@@ -37,28 +37,31 @@ defineEmits(['import'])
 </script>
 
 <template>
-  <div>
+  <div class="root overflow-auto">
     <DropZone id="datasets-drop-zone" @drop="importDatasetFromDrop" label="Import file..." />
     <DatasetGroup v-for="(item, index) in groups"
       :key="index"
       :group="item.name"
-      :datasets="datasets.datasets.filter(ds => ds.type === item.key)"
+      :datasets="datasets.getDatasets().filter(ds => ds.type === item.key)"
       @zoom="zoomOnDataset"
       @updated="$forceUpdate()"
     />
   </div>
-  <div class="button-area">
-    <!-- Import from GeoJSON -->
+  <!-- <div class="button-area">
     <IconButton text="Add dataset..." @click="hiddenInput.click()" icon="bi-plus-lg" title="Add dataset from a local file"
       class="btn-primary" />
     <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="formFile"
       @input="importDatasetFromFile">
-  </div>
+  </div> -->
 </template>
 
 <style scoped>
 button {
   margin-top: 0.2rem;
   width: 100%;
+}
+
+.root {
+  max-height: 100%;
 }
 </style>

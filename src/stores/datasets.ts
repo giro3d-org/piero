@@ -1,29 +1,70 @@
 import { ref, computed, Ref } from 'vue'
 import { defineStore } from 'pinia'
-import { Dataset, DatasetObject } from '@/types/Dataset'
+import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset'
+import config from '../config.json';
+import { Coordinates } from '@giro3d/giro3d/core/geographic';
+import { Entity3D } from '@giro3d/giro3d/entities';
+import { getPublicFolderUrl } from '@/utils/Configuration';
 
-const lidarHdTiles = [
-  // 'Semis_2021_0841_6518_LA93_IGN69',
-  // 'Semis_2021_0841_6519_LA93_IGN69',
-  'Semis_2021_0841_6520_LA93_IGN69',
-  'Semis_2021_0841_6521_LA93_IGN69',
-  'Semis_2021_0842_6520_LA93_IGN69',
-  'Semis_2021_0842_6521_LA93_IGN69',
-];
+function buildIfcDataset(conf: Record<string, any>) {
+  const ds = new DatasetObject(conf.name, 'ifc', getPublicFolderUrl(conf.url));
+  const position = conf.position;
+  ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
+  return ds;
+}
 
-const initialList: Dataset[] = [
-  new DatasetObject('19_rue_Marc_Antoine_Petit.ifc', 'ifc', 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc'),
-  new DatasetObject('BD TOPO', 'bdtopo', null),
-  lidarHdTiles.map(t => new DatasetObject(`${t}`, 'cityjson', `https://3d.oslandia.com/lyon/${t}.city.json`)),
-  lidarHdTiles.map(t => new DatasetObject(`${t}`, 'pointcloud', `https://3d.oslandia.com/lyon/3dtiles/${t}/tileset.json`)),
-].flat();
+function buildCityJsonDataset(conf: Record<string, any>) {
+  const ds = new DatasetObject(conf.name, 'cityjson', getPublicFolderUrl(conf.url));
+  return ds;
+}
+
+function buildPointCloudDataset(conf: Record<string, any>) {
+  const ds = new DatasetObject(conf.name, 'pointcloud', getPublicFolderUrl(conf.url));
+  return ds;
+}
+
+function buildInitialList(): Dataset[] {
+  const result : Dataset[] = [];
+
+  for (const conf of config.datasets) {
+    const type = conf.type as DatasetType;
+
+    let ds : Dataset = null;
+
+    switch (type) {
+      case 'ifc':
+        ds = buildIfcDataset(conf);
+        break;
+      case 'cityjson':
+        ds = buildCityJsonDataset(conf);
+        break;
+      case 'pointcloud':
+        ds = buildPointCloudDataset(conf);
+        break;
+      case 'bdtopo':
+        ds = new DatasetObject(conf.name, 'bdtopo');
+    }
+
+    if (ds) {
+      result.push(ds);
+    }
+  }
+
+  return result;
+}
 
 export const useDatasetStore = defineStore('datasets', () => {
-  const datasets = ref(initialList) as Ref<Dataset[]>;
+  const datasets = ref(buildInitialList()) as Ref<Dataset[]>;
   const count = computed(() => datasets.value.length);
+
+  const entities: Map<string, Entity3D> = new Map();
 
   function add(ds: Dataset) {
     datasets.value.push(ds);
+  }
+
+  function attachEntity(ds: Dataset, entity: Entity3D) {
+    entities.set(ds.uuid, entity);
   }
 
   function remove(ds: Dataset) {
@@ -34,6 +75,10 @@ export const useDatasetStore = defineStore('datasets', () => {
     // Nothing to do, rely on action listeners.
   }
 
+  function getEntity(ds: Dataset): Entity3D {
+    return entities.get(ds.uuid);
+  }
+
   function importFromFile(file: File) {
     // Nothing to do, rely on action listeners.
   }
@@ -42,5 +87,13 @@ export const useDatasetStore = defineStore('datasets', () => {
     ds.visible = newVisibility;
   }
 
-  return { count, datasets, add, remove, goTo, importFromFile, setVisible }
+  function getDatasets() {
+    return datasets.value;
+  }
+
+  function toggleGrid(ds: Dataset) {
+
+  }
+
+  return { count, getDatasets, add, remove, goTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid }
 })

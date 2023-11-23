@@ -4,6 +4,7 @@ import MinimapView from './components/MinimapView.vue'
 import MainView from './components/MainView.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import SearchOverlay from './components/SearchOverlay.vue'
+import NavigationButtons from './components/NavigationButtons.vue'
 import { defineAsyncComponent, ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
 import Giro3DManager from '@/services/Giro3DManager'
@@ -16,6 +17,7 @@ import { useGiro3dStore } from '@/stores/giro3d'
 import { Instance } from '@giro3d/giro3d/core'
 import MinimapController from './services/MinimapController'
 import { Extent } from '@giro3d/giro3d/core/geographic'
+import { useCameraStore } from './stores/camera'
 
 const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
 const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
@@ -30,6 +32,7 @@ const tooltip = ref<string>(null);
 const isLoading = ref(false);
 
 const giro3dStore = useGiro3dStore();
+const cameraStore = useCameraStore();
 let giro3d: Giro3DManager;
 let minimap: MinimapController;
 
@@ -91,6 +94,11 @@ function pick(event: MouseEvent, clicked?: boolean) {
   if (!giro3d) {
     return;
   }
+
+  if (cameraStore.getNavigationMode() !== 'orbit') {
+    return;
+  }
+
   mouse.value = { x: event.clientX, y: event.clientY };
 
   const instance = giro3d?.mainInstance;
@@ -98,6 +106,8 @@ function pick(event: MouseEvent, clicked?: boolean) {
   if (!instance) {
     return;
   }
+
+  giro3d.highlighter.clear();
 
   const picked = picker.pick(giro3d.mainInstance, event);
 
@@ -119,6 +129,10 @@ function pick(event: MouseEvent, clicked?: boolean) {
       pickedFeature.value = null;
     }
   }
+
+  if (picked.pickResult) {
+    giro3d.highlighter.highlightFromPick(picked.pickResult);
+  }
 }
 
 function updateCoordinates(event: MouseEvent) {
@@ -139,9 +153,11 @@ function onPointOfInterestSelected(poi: Vector3) {
   }
   const layerManager = giro3d.layerManager;
   const instance = giro3d.mainInstance;
+  // The API is in this CRS
+  const sourceCrs = 'EPSG:2154';
 
   const aoi = Extent
-    .fromCenterAndSize('EPSG:2154', { x: poi.x, y: poi.y }, 10000, 10000)
+    .fromCenterAndSize(sourceCrs, { x: poi.x, y: poi.y }, 10000, 10000)
     .as(instance.referenceCrs);
 
   if (!aoi.isInside(layerManager.extent)) {
@@ -151,7 +167,7 @@ function onPointOfInterestSelected(poi: Vector3) {
   }
 
   const target = Extent
-    .fromCenterAndSize('EPSG:2154', { x: poi.x, y: poi.y }, 1000, 1000)
+    .fromCenterAndSize(sourceCrs, { x: poi.x, y: poi.y }, 1000, 1000)
     .as(instance.referenceCrs);
   const bbox3 = target.toBox3(poi.z, poi.z + 200);
   giro3d.camera.lookTopDownAt(bbox3, false);
@@ -168,12 +184,20 @@ function onPointOfInterestSelected(poi: Vector3) {
   <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" @restart-tour="Tour.start(giro3d.mainInstance, null, giro3d.camera, null);" />
   <ProgressBar :progress="progress" class="loading-indicator" />
   <SearchOverlay id="address-search" class="search" @update:poi="onPointOfInterestSelected" />
+  <NavigationButtons class="navigation-buttons" />
   <AlertToast />
 </template>
 
 <style scoped>
 .component {
   background-color: var(--bs-body-bg);
+}
+
+.navigation-buttons {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin-bottom: 2rem;
 }
 
 .attribute-panel {
@@ -226,7 +250,7 @@ function onPointOfInterestSelected(poi: Vector3) {
 
 .mainview {
   position: absolute;
-  background-color: cadetblue;
+  /* background-color: cadetblue; */
   height: 100vh;
   left: 3.5rem;
   width: calc(100% - 3.5rem);
@@ -237,7 +261,7 @@ function onPointOfInterestSelected(poi: Vector3) {
   width: 3.5rem;
   height: 100vh;
   position: absolute;
-  background-color: rgb(250, 250, 250);
+  /* background-color: rgb(250, 250, 250); */
   top: 0;
   left: 0;
 }

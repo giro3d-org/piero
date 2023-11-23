@@ -1,0 +1,26 @@
+import { VectorStyle } from "./VectorStyle";
+
+export interface LayerSource {
+    type: 'wms' | 'wmts' | 'geojson' | 'kml'; // TODO complete
+    nodata: number;
+}
+
+export interface WMSSource extends LayerSource {
+    layer: string;
+    url: string;
+    format: 'bil' | 'png' | 'jpg';
+    projection: string;
+}
+
+export interface WMTSSource extends LayerSource {
+    layer: string;
+    url: string;
+    format: 'bil' | 'png' | 'jpg';
+    projection: string;
+}
+
+export interface VectorSource extends LayerSource {
+    url: string;
+    projection: string;
+    style: VectorStyle;
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDatasetStore } from '../../stores/datasets';
+import { useDatasetStore } from '@/stores/datasets';
 import { Dataset } from '@/types/Dataset';
 import DatasetItem from './DatasetItem.vue';
 
@@ -23,6 +23,7 @@ defineEmits(['zoom', 'updated'])
           :dataset="dataset"
           v-on:zoom="() => $emit('zoom', dataset)"
           v-on:delete="store.remove(dataset)"
+          @udpdate:toggle-grid="store.toggleGrid(dataset)"
           v-on:update:visible="v => store.setVisible(dataset, v)"
         />
       </ul>

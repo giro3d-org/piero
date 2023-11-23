@@ -12,6 +12,9 @@ export default defineConfig({
     include: ['earcut'],
     exclude: ['cityjson-threejs-loader']
   },
+  build: {
+    sourcemap: false,
+  },
   plugins: [
     vue(),
     nodePolyfills({

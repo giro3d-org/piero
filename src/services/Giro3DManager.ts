@@ -1,4 +1,4 @@
-import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D } from "three";
+import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D, SphereGeometry, Mesh, MeshBasicMaterial } from "three";
 
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
@@ -8,13 +8,12 @@ import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
 import LayerManager from "@/services/LayerManager";
 import BasemapManager from "@/services/BasemapManager";
 import OverlayManager from "@/services/OverlayManager";
-import Camera from "./CameraController";
+import CameraController from "./CameraController";
 import DatasetManager from "@/services/DatasetManager";
 import AnnotationManager from "@/services/AnnotationManager";
 import AnalysisManager from "@/services/AnalysisManager";
 import { useGiro3dStore } from "@/stores/giro3d";
-
-const DEFAULT_CRS = 'EPSG:2154';
+import Highlighter from "./Highlighter";
 
 Instance.registerCRS('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs');
 Instance.registerCRS('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs +type=crs');
@@ -24,7 +23,7 @@ Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46
 Instance.registerCRS('IGNF:WGS84G', '+title=World Geodetic System 1984 +proj=longlat +nadgrids=null +wktext +towgs84=0.0000,0.0000,0.0000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs');
 
 export default class Giro3DManager extends EventDispatcher {
-    readonly camera: Camera;
+    readonly camera: CameraController;
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
     readonly basemapManager: BasemapManager;
@@ -33,6 +32,7 @@ export default class Giro3DManager extends EventDispatcher {
     readonly annotationManager: AnnotationManager;
     readonly analysisManager: AnalysisManager;
     private readonly store = useGiro3dStore();
+    readonly highlighter: Highlighter;
 
     constructor(instance: Instance) {
         super();
@@ -41,8 +41,7 @@ export default class Giro3DManager extends EventDispatcher {
 
         this.mainInstance = instance;
 
-        this.camera = new Camera(this.mainInstance);
-        this.camera.bindKeys();
+        this.camera = new CameraController(this.mainInstance);
 
         const center = this.store.getDefaultCameraPosition().as(crs) as Coordinates;
         const xyz = new Vector3(center.x(), center.y(), center.z());
@@ -56,6 +55,7 @@ export default class Giro3DManager extends EventDispatcher {
         this.datasetManager = new DatasetManager(this.mainInstance, this.camera);
         this.annotationManager = new AnnotationManager(this.mainInstance, this.camera);
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
+        this.highlighter = new Highlighter(this.mainInstance);
 
         this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.onFrameEnd());
 

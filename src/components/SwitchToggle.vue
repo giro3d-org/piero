@@ -5,7 +5,13 @@ defineEmits(['update:modelValue'])
 
 <template>
     <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" :checked="modelValue"
-        @input="$emit('update:modelValue', $event.target.checked)">
+        <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="flexSwitchCheckDefault"
+            :checked="modelValue"
+            @input="$emit('update:modelValue', $event.target.checked)"
+        >
     </div>
 </template>

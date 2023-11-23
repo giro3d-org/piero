@@ -1,10 +1,9 @@
-import Instance from "@giro3d/giro3d/core/Instance";
-import ImageSource from "@giro3d/giro3d/sources/ImageSource";
 import LayerObject from "./LayerObject";
 import { EventDispatcher } from "three";
+import { LayerSource } from "./LayerSource";
 
 export interface Overlay extends EventDispatcher {
-    id: string;
+    uuid: string;
     name: string;
     get isLoading(): boolean;
     set isLoading(v: boolean);
@@ -13,33 +12,20 @@ export interface Overlay extends EventDispatcher {
     get opacity(): number;
     set opacity(v: number);
 
-    source(arg0: Instance): ImageSource;
-
-    moveUp() : void;
-    moveDown(): void;
+    source: LayerSource;
 }
 
 export class OverlayObject extends LayerObject implements Overlay {
     readonly name: string;
-    readonly id: string;
     private _loading: boolean;
     readonly source: any;
 
-    constructor(id: string, name: string, source: (arg0: Instance) => ImageSource) {
+    constructor(name: string, source: LayerSource) {
         super(name);
 
         this.name = name;
-        this.id = id;
         this._loading = false;
         this.source = source;
-    }
-
-    moveUp() {
-        this.dispatchEvent({ type: 'up' });
-    }
-
-    moveDown() {
-        this.dispatchEvent({ type: 'down' });
     }
 
     get isLoading() {

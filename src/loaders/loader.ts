@@ -58,8 +58,7 @@ async function processFile(
         filename = fileOrUrl.name;
         file = fileOrUrl;
     } else {
-        const urlobject = new URL(fileOrUrl);
-        filename = urlobject.pathname.split('/').at(-1);
+        filename = fileOrUrl.split('/').at(-1);
     }
 
     if (filename.endsWith('.gpkg')) {
