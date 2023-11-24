@@ -61,6 +61,11 @@
             }
         ]
     },
+    "pointcloud": {
+        "min": 160,
+        "max": 300,
+        "ramp": "Viridis"
+    },
     "analysis": {
         "cross_section": {
             "pivot": {

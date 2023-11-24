@@ -2,6 +2,8 @@ import { Color, Uniform } from 'three';
 import chroma from 'chroma-js'
 import PointsMaterial from '@giro3d/giro3d/renderer/PointsMaterial.js';
 
+import config from '../config.json';
+
 import PointsVS from './PointsVS.glsl.js';
 import PointsFS from './PointsFS.glsl.js';
 
@@ -19,7 +21,7 @@ class PointCloudMaterial extends PointsMaterial {
     updateUniforms() {
         super.updateUniforms();
         if (this.colorMapChanged) {
-            const lut = chroma.scale('Viridis')
+            const lut = chroma.scale(config.pointcloud.ramp)
                 .mode('lab')
                 .colors(256)
                 .map(c => {
@@ -29,8 +31,8 @@ class PointCloudMaterial extends PointsMaterial {
 
             this.uniforms.vLut = new Uniform(lut);
             this.uniforms.lutSize = new Uniform(256);
-            this.uniforms.dataMin = new Uniform(160);
-            this.uniforms.dataMax = new Uniform(300);
+            this.uniforms.dataMin = new Uniform(config.pointcloud.min);
+            this.uniforms.dataMax = new Uniform(config.pointcloud.max);
             this.colorMapChanged = false;
         }
     }

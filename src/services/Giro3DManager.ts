@@ -4,6 +4,7 @@ import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
 import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
 import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
+import { HttpConfiguration } from "@giro3d/giro3d/utils";
 
 import LayerManager from "@/services/LayerManager";
 import BasemapManager from "@/services/BasemapManager";
@@ -21,6 +22,10 @@ Instance.registerCRS('EPSG:2154', '+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat
 Instance.registerCRS('EPSG:4171', '+proj=longlat +ellps=GRS80 +no_defs +type=crs');
 Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46 +lon_0=3 +x_0=1700000 +y_0=5200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
 Instance.registerCRS('IGNF:WGS84G', '+title=World Geodetic System 1984 +proj=longlat +nadgrids=null +wktext +towgs84=0.0000,0.0000,0.0000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs');
+
+if (import.meta.env.VITE_AUTHORIZATION_DOMAIN && import.meta.env.VITE_AUTHORIZATION_VALUE) {
+    HttpConfiguration.setAuth(import.meta.env.VITE_AUTHORIZATION_DOMAIN, import.meta.env.VITE_AUTHORIZATION_VALUE);
+}
 
 export default class Giro3DManager extends EventDispatcher {
     readonly camera: CameraController;
