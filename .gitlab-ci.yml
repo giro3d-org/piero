@@ -1,5 +1,6 @@
 image: node:lts-alpine
 before_script:
+    - cp src/config.json.sample src/config.json
     - npm i
 
 pages-test:
