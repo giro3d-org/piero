@@ -12,18 +12,13 @@ pages-test:
 pages:
     stage: build
     rules:
-        - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
+        - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
           variables:
               DEPLOY_URL: $CI_PAGES_URL
               OUTPUT: ./dist
-        - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "next"
-          variables:
-              DEPLOY_URL: $CI_PAGES_URL/$CI_COMMIT_BRANCH
-              OUTPUT: ./dist/$CI_COMMIT_BRANCH
     cache:
         key: gitlab-pages
         paths:
-            - dist
             - node_modules
     environment:
         name: pages/$CI_COMMIT_BRANCH
