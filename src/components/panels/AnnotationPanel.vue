@@ -23,7 +23,7 @@ const annotations = useAnnotationStore();
 
     <div class="button-area">
         <hr>
-        <!-- <button title="Add annotation" class="btn btn-primary"><i class="bi-pin"/> New point</button> -->
+        <!-- <button title="Add point annotation" class="btn btn-primary" @click="annotations.createPoint()"><i class="bi-pin"/> New point</button> -->
         <button title="Add line annotation" class="btn btn-primary" @click="annotations.createLine()"><i class="bi bi-bezier2"/> New line</button>
         <button title="Add polygon annotation" class="btn btn-primary" @click="annotations.createPolygon()"><i class="bi-heptagon"/> New polygon</button>
     </div>

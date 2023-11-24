@@ -128,7 +128,7 @@ function pick(event: MouseEvent, clicked?: boolean) {
     }
   }
 
-  if (picked.pickResult) {
+  if (picked?.pickResult) {
     giro3d.highlighter.highlightFromPick(picked.pickResult);
   } else {
     giro3d.highlighter.clear();

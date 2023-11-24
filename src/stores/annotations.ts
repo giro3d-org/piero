@@ -14,6 +14,10 @@ export const useAnnotationStore = defineStore('annotations', () => {
         annotations.splice(annotations.indexOf(annotation), 1);
     }
 
+    function createPoint() {
+        // Nothing to do.
+    }
+
     function createLine() {
         // Nothing to do.
     }
@@ -26,5 +30,5 @@ export const useAnnotationStore = defineStore('annotations', () => {
         annotations.push(annotation);
     }
 
-    return { count, getAnnotations, add, remove, createLine, createPolygon, }
+    return { count, getAnnotations, add, remove, createPoint, createLine, createPolygon, }
 });

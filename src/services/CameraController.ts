@@ -25,6 +25,7 @@ import { useCameraStore } from '@/stores/camera';
 import { Extent } from '@giro3d/giro3d/core/geographic';
 import NavigationMode from '@/types/NavigationMode';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import Picker from './Picker';
 
 CameraControls.install({
     THREE: {
@@ -40,6 +41,8 @@ CameraControls.install({
         MathUtils,
     },
 });
+
+const picker = new Picker();
 
 /**
  * Wraps Camera-controls into Giro3D
@@ -72,16 +75,14 @@ class CameraController extends EventDispatcher {
         this.initializeOrbitControls();
         this.initializeFirstPersonControls();
 
-        this.pickObjectsAt = e => this.instance.pickObjectsAt(e, {
-            limit: 1,
-            radius: 1,
-            filter: p => (
-                // Make sure we pick a valid point
-                Number.isFinite(p.point.x)
-                    && Number.isFinite(p.point.y)
-                    && Number.isFinite(p.point.z)
-            ),
-        }).at(0);
+        this.pickObjectsAt = (event: MouseEvent) => {
+            const pickedObject = picker.getObjectAt(this.instance, event, 1);
+            if (pickedObject) {
+                return pickedObject;
+            }
+
+            return picker.getMapAt(this.instance, event);
+        };
 
         this.clock = new Clock();
 
@@ -138,6 +139,11 @@ class CameraController extends EventDispatcher {
                 this.orbitHelper.position.copy(picked.point);
                 this.orbitHelper.updateMatrixWorld();
                 this.orbitControls.setOrbitPoint(picked.point.x, picked.point.y, picked.point.z);
+            } else {
+                // We didn't pick anything, we'll orbit around the target
+                this.orbitHelper.visible = true;
+                this.orbitControls.getTarget(this.orbitHelper.position);
+                this.orbitHelper.updateMatrixWorld();
             }
         });
         this.instance.domElement.addEventListener('wheel', () => {

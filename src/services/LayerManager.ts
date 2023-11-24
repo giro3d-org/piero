@@ -148,6 +148,7 @@ export default class LayerManager extends EventDispatcher {
         const dims = extent.dimensions();
 
         this.grid = new GridHelper(1, 100);
+        this.grid.name = 'grid';
         this.grid.scale.set(dims.x, 1, dims.y);
         this.grid.visible = true;
         const center = extent.center() as Coordinates;
@@ -158,6 +159,7 @@ export default class LayerManager extends EventDispatcher {
         gridMat.transparent = true;
 
         this.plane = new Mesh(new PlaneGeometry(dims.x, dims.y, 1, 1), new MeshBasicMaterial({ color: 'black' }));
+        this.plane.name = 'plane';
         this.plane.position.set(center.x(), center.y(), -101);
 
         this.instance.add(this.basemap);

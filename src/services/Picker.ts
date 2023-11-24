@@ -126,15 +126,15 @@ export default class Picker {
      * @returns Result or null if notthing found
      */
     getObjectAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
-        const where = instance.getObjects((o: Object3D | Entity3D) => o.type !== 'Map');
+        const where = instance.getObjects((o: Object3D | Entity3D) => o.type !== 'Map' && (o as any).name !== 'plane');
         const picked = instance.pickObjectsAt(e, {
             radius,
             where,
         }).sort((a, b) => (a.distance - b.distance))
-          .at(0);
+            .at(0);
 
         let layer = null;
-        let rootobj : Object3D = null;
+        let rootobj: Object3D = null;
         let drawing = null;
         let ifcData = {};
 
@@ -171,8 +171,27 @@ export default class Picker {
         return null;
     }
 
-    getVectorFeatureAt(instance: Instance, e: MouseEvent, radius = 1): PickResult {
-        const pickedOnMap = instance.pickObjectsAt(e, { limit: 1, radius }).at(0);
+    /**
+     * Gets the point on map or grid where the user clicked.
+     *
+     * @param e Mouse event
+     * @param radius Radius - the smaller, the faster and more precise (but
+     * may return nothing)
+     * @returns Result or null if nothing found
+     */
+    getMapAt(instance: Instance, e: MouseEvent, radius = 0): PickResult | null {
+        const where = instance.getObjects((o: Object3D | Entity3D) => o.type === 'Map' || (o as any).name !== 'plane');
+        const picked = instance.pickObjectsAt(e, {
+            radius,
+            limit: (radius > 0 ? undefined : 1),
+            where,
+        }).sort((a, b) => (a.distance - b.distance))
+            .at(0);
+        return picked;
+    }
+
+    getVectorFeatureAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
+        const pickedOnMap = this.getMapAt(instance, e, radius);
         if (pickedOnMap && pickedOnMap.layer?.type === 'Map') {
             const coord = pickedOnMap.coord;
             const parentMap = pickedOnMap.layer;
@@ -191,9 +210,9 @@ export default class Picker {
         return null;
     }
 
-    getFirstFeatureAt(instance: Instance, e: MouseEvent, radius = 1): PickResult {
+    getFirstFeatureAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
         const picked = this.getObjectAt(instance, e, radius);
-        if (picked.layer || picked.rootobj) {
+        if (picked) {
             return picked;
         }
 
@@ -202,7 +221,7 @@ export default class Picker {
             return pickedOnMap;
         }
 
-        return picked;
+        return null;
     }
 
     getGeometryAttributes(object: Object3D, attributes: Array<Attribute>) {
@@ -246,11 +265,11 @@ export default class Picker {
             attributes.push({ key: 'Area', value: `${area.toFixed(2)}${unit}²` });
         }
         if (perimeter !== null) {
-            attributes.push({ key: 'Perimeter', value: `${perimeter.toFixed(2)}${unit}`});
+            attributes.push({ key: 'Perimeter', value: `${perimeter.toFixed(2)}${unit}` });
         }
         if (minmax !== null && Number.isFinite(minmax[0])) {
             attributes.push({ key: 'Min altitude', value: `${minmax[0].toFixed(2)}${unit}` });
-            attributes.push({ key: 'Max altitude', value: `${minmax[1].toFixed(2)}${unit}`});
+            attributes.push({ key: 'Max altitude', value: `${minmax[1].toFixed(2)}${unit}` });
         }
     }
 
@@ -308,23 +327,21 @@ export default class Picker {
         return new Feature(name, layer?.id, attributesGroups, pickedObject.point);
     }
 
-    getMouseCoordinate(instance: Instance, event: MouseEvent) : Vector3 | null {
+    getMouseCoordinate(instance: Instance, event: MouseEvent): Vector3 | null {
         const where = instance.getObjects((o: Object3D | Entity3D) => o.type === 'Map');
 
         const picked = instance.pickObjectsAt(event, {
-            radius: 1,
+            radius: 0,
+            limit: 1,
             where,
-        });
-
-        const first = picked
-            .sort((a, b) => (a.distance - b.distance))
-            .at(0) as { point?: Vector3 };
-
-        return first?.point;
+        }).at(0);
+        return picked?.point;
     }
 
     pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature, pickResult: PickResult } | null {
         const picked = this.getFirstFeatureAt(instance, event);
+        if (picked === null) return null;
+
         let feature = null;
         if (picked.layer || picked.rootobj) {
             feature = this.getFeatureFromPickedObject(picked);

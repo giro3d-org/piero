@@ -4,6 +4,7 @@ import DrawTool, { DRAWTOOL_EVENT_TYPE, DRAWTOOL_MODE, DRAWTOOL_STATE, GEOMETRY_
 import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 
+import Picker from './Picker';
 import Annotation from "@/types/Annotation"
 import CameraController from '@/services/CameraController';
 import { useAnnotationStore } from '@/stores/annotations';
@@ -35,6 +36,8 @@ const drawnPointMaterial = new PointsMaterial({
 function promptName(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
 }
+
+const picker = new Picker();
 
 /**
  * Creates a point to be added via CSS2DRenderer.
@@ -75,6 +78,25 @@ export default class AnnotationManager {
             enableDragging: true,
             splicingHitTolerance: 0,
             endDrawingOnRightClick: true,
+            getPointAt: (event: MouseEvent) => {
+                const pickedObject = picker.getObjectAt(this.instance, event, 1);
+                if (pickedObject) {
+                    return {
+                        ...pickedObject,
+                        picked: true,
+                    };
+                }
+
+                const pickedOnMap = picker.getMapAt(this.instance, event);
+                if (pickedOnMap) {
+                    return {
+                        ...picker.getMapAt(this.instance, event),
+                        picked: true,
+                    };
+                }
+
+                return null;
+            }
         });
         this.camera = camera;
 
@@ -96,6 +118,9 @@ export default class AnnotationManager {
                 switch (name) {
                     case 'remove':
                         this.deleteAnnotation(args[0]);
+                        break;
+                    case 'createPoint':
+                        this.drawPoint();
                         break;
                     case 'createLine':
                         this.drawLine();
@@ -119,6 +144,14 @@ export default class AnnotationManager {
     updateDrawing(annotation: Annotation) {
         annotation.object.visible = annotation.visible;
         this.instance.notifyChange();
+    }
+
+    private drawPoint() {
+        this.beforeDraw();
+
+        this.drawObject(GEOMETRY_TYPE.POINT).then(drawing => {
+            this.pushNewAnnotation(promptName('New point annotation'), drawing);
+        });
     }
 
     private drawPolygon() {
