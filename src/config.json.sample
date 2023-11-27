@@ -37,24 +37,24 @@
             },
             {
                 "type": "color",
-                "name": "Orthophotos IGN",
-                "visible": true,
-                "source": {
-                    "type": "wmts",
-                    "layer": "ORTHOIMAGERY.ORTHOPHOTOS",
-                    "format": "image/jpeg",
-                    "projection": "EPSG:3857",
-                    "url": "https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
-                }
-            },
-            {
-                "type": "color",
                 "name": "Plan IGN",
                 "visible": true,
                 "source": {
                     "type": "wmts",
                     "layer": "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
                     "format": "image/png",
+                    "projection": "EPSG:3857",
+                    "url": "https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+                }
+            },
+            {
+                "type": "color",
+                "name": "Orthophotos IGN",
+                "visible": true,
+                "source": {
+                    "type": "wmts",
+                    "layer": "ORTHOIMAGERY.ORTHOPHOTOS",
+                    "format": "image/jpeg",
                     "projection": "EPSG:3857",
                     "url": "https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
                 }
