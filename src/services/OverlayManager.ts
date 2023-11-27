@@ -5,7 +5,7 @@ import { useLayerStore } from '@/stores/layers';
 import LayerManager from '@/services/LayerManager.js'
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import { ImageSource } from '@giro3d/giro3d/sources';
-import { GPXSource, GeoJSONSource, KMLSource, VectorSource } from '@/types/LayerSource';
+import { MVTSource, VectorSource } from '@/types/LayerSource';
 import { Overlay } from '@/types/Overlay';
 
 export default class OverlayManager {
@@ -89,6 +89,9 @@ export default class OverlayManager {
             case 'gpx':
                 const gpx = overlay.source as VectorSource;
                 return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
+            case 'mvt':
+                const mvt = overlay.source as MVTSource;
+                return LayerBuilder.createMVTSource(mvt.url, mvt.backgroundColor, mvt.style);
             case 'wms':
                 return await LayerBuilder.getSource(overlay.source) as ImageSource;
         }
