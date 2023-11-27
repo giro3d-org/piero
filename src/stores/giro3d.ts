@@ -3,7 +3,7 @@ import { Coordinates, Extent } from "@giro3d/giro3d/core/geographic";
 import { defineStore } from "pinia";
 import { Color, Vector2 } from "three";
 import { ref, shallowRef } from "vue";
-import config from '../config.json';
+import config from '../config';
 import chroma from "chroma-js";
 import { ColorMap } from "@giro3d/giro3d/core/layer";
 import NavigationMode from "@/types/NavigationMode";

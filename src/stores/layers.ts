@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, reactive } from "vue";
 
-import config from '../config.json';
+import config from '../config';
 import { Color } from "three";
 import { ColorMap } from "@giro3d/giro3d/core/layer";
 import chroma from "chroma-js";

@@ -1,7 +1,7 @@
 import { ref, computed, Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset'
-import config from '../config.json';
+import config from '../config';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { Entity3D } from '@giro3d/giro3d/entities';
 import { getPublicFolderUrl } from '@/utils/Configuration';

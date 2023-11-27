@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { Box3, Vector3 } from "three";
 import { ref } from "vue";
-import config from '../config.json';
+import config from '../config';
 
 export const useAnalysisStore = defineStore('analysis', () => {
     const floodingPlaneHeight = ref(170);

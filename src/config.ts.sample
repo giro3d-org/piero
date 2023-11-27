@@ -1,4 +1,6 @@
-{
+import { Configuration } from "./types/Configuration";
+
+const config: Configuration = {
     "default_crs": "EPSG:2154",
     "camera": {
         "position": [
@@ -108,7 +110,8 @@
         },
         {
             "type": "bdtopo",
-            "name": "BD TOPO"
+            "name": "BD TOPO",
+            "url": "ignored",
         },
         {
             "type": "cityjson",
@@ -437,4 +440,6 @@
             }
         }
     ]
-}
+};
+
+export default config;

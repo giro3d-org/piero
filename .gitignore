@@ -4,5 +4,5 @@ node_modules
 dist
 
 # App config
-src/config.json
+src/config.ts
 src/styles.ts
