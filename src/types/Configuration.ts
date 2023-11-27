@@ -44,7 +44,8 @@ export type DatasetConfig = {
     name: string;
     position?: Vec3 & {
         crs: string,
-    }
+    },
+    alwaysOnTop?: boolean,
 };
 
 export type OverlayBaseConfig = {

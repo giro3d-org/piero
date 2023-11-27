@@ -19,8 +19,9 @@ import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
-import { Color, MeshLambertMaterial } from 'three';
+import { Color, Material, MeshLambertMaterial } from 'three';
 import { AxisGrid } from '@giro3d/giro3d/entities';
+import { CityObjectsInstancedMesh } from 'cityjson-threejs-loader';
 
 export default class DatasetManager {
     private readonly instance: Instance;
@@ -306,6 +307,21 @@ export default class DatasetManager {
             entity.visible = dataset.visible;
             this.entities.set(dataset.uuid, entity);
             this.instance.add(entity);
+
+            if (dataset.alwaysOnTop) {
+                console.log(entity);
+                entity.object3d.renderOrder = 10;
+                entity.object3d.frustumCulled = false;
+                entity.object3d.children.forEach((c) => {
+                    const mesh = c as CityObjectsInstancedMesh;
+                    mesh.renderOrder = 10;
+                    mesh.frustumCulled = false;
+                    (mesh.material as Material).depthTest = false;
+                    (mesh.material as Material).transparent = false;
+                });
+                entity.traverseMeshes(mesh => { mesh.renderOrder = 10; mesh.frustumCulled = false; });
+                entity.traverseMaterials(mat => { mat.depthTest = false; mat.transparent = false; });
+            }
         }
 
         this.onDatasetLoaded(dataset, entity);

@@ -48,6 +48,7 @@ function buildInitialList(): Dataset[] {
     }
 
     if (ds) {
+      if (conf.alwaysOnTop) ds.alwaysOnTop = true;
       result.push(ds);
     }
   }
