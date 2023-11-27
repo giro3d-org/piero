@@ -158,12 +158,7 @@
           "visible": false,
           "type": "mvt",
           "backgroundColor": "",
-          "style": {
-            "stroke": {
-              "color": "#3030FF",
-              "width": 2
-            }
-          }
+          "style": "river"
         },
         {
             "name": "Réseau fibre",
@@ -257,15 +252,7 @@
             "url": "https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson",
             "visible": false,
             "type": "geojson",
-            "style": {
-                "fill": {
-                    "color": "rgba(0, 128, 0, 0.5)"
-                },
-                "stroke": {
-                    "color": "white",
-                    "width": 2
-                }
-            }
+            "style": "canopee"
         }
     ],
     "bookmarks": [

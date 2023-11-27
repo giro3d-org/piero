@@ -1,0 +1,38 @@
+import { FeatureLike } from 'ol/Feature';
+import { Fill, Stroke, Style, Text } from 'ol/style';
+
+const styles = {
+    'canopee': (feature: FeatureLike): Style => new Style({
+        fill: new Fill({
+            color: `rgba(0, 128, 0, ${feature.get('indiccanop')})`,
+        }),
+        stroke: new Stroke({
+            color: 'white',
+        }),
+    }),
+    'river': (feature: FeatureLike, resolution: number): Style[] => {
+        const widthFromClass = feature.get("classe") ? (10 - parseInt(feature.get("classe"), 10)) : 3;
+        return [
+            new Style({
+                stroke: new Stroke({
+                    color: '#3030FF',
+                    width: (widthFromClass * 5) / resolution,
+                }),
+            }),
+            new Style({
+                text: new Text({
+                    text: feature.get("nomentiteh"),
+                    fill: new Fill({
+                        color: "#ffffff",
+                    }),
+                    placement: 'line',
+                    overflow: true,
+                }),
+            }),
+        ];
+    }
+};
+
+export type DynamicStyleId = keyof typeof styles;
+
+export default styles;
