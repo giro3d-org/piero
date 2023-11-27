@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import VisibilityControl from '../VisibilityControl.vue';
 
 defineProps({

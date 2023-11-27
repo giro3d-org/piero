@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 defineProps({
   progress: {
     type: Number,
@@ -23,7 +23,7 @@ defineProps({
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   methods: {
     tick() { this.$forceUpdate() }

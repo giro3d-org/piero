@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 defineProps(['url', 'name'])
 defineEmits(['delete', 'share', 'goto'])
 </script>

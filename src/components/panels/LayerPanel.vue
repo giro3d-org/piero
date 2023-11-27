@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import BasemapItem from './BasemapItem.vue';
 import OverlayItem from './OverlayItem.vue'
 import { useLayerStore } from '@/stores/layers';

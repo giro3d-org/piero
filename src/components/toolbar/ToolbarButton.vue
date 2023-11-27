@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 defineProps(['icon', 'tourkey', 'title', 'active'])
 </script>
 

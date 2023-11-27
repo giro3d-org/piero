@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useGiro3dStore } from '@/stores/giro3d';
 import Instance from '@giro3d/giro3d/core/Instance';
 import { onMounted, ref, shallowRef } from 'vue';

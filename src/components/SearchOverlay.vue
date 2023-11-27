@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import autoComplete from '@tarekraafat/autocomplete.js'
 import { Vector3 } from 'three';
 import { onMounted, ref } from 'vue'

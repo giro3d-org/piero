@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import OpacitySlider from '../OpacitySlider.vue';
 import VisibilityControl from '../VisibilityControl.vue';
 
