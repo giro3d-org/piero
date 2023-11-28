@@ -8,7 +8,7 @@ export type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
 export interface Dataset extends Named, EventDispatcher {
     isLoaded: boolean;
     type: DatasetType;
-    url?: string;
+    url: string | null;
     uuid: string;
     name: string;
     coordinates?: Coordinates;
@@ -25,7 +25,7 @@ export interface Dataset extends Named, EventDispatcher {
 
 export class DatasetObject extends LayerObject implements Dataset {
     readonly type: DatasetType;
-    readonly url?: string;
+    readonly url: string | null;
     private _isLoading: boolean = false;
 
     isLoaded: boolean;
@@ -41,7 +41,7 @@ export class DatasetObject extends LayerObject implements Dataset {
         return this._isLoading;
     }
 
-    constructor(name: string, type: DatasetType, url?: string)  {
+    constructor(name: string, type: DatasetType, url: string | null)  {
         super(name);
         this.type = type;
         this.url = url;

@@ -44,7 +44,7 @@ function buildInitialList(): Dataset[] {
         ds = buildPointCloudDataset(conf);
         break;
       case 'bdtopo':
-        ds = new DatasetObject(conf.name, 'bdtopo');
+        ds = new DatasetObject(conf.name, 'bdtopo', null);
     }
 
     if (ds) {

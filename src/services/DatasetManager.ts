@@ -111,6 +111,8 @@ export default class DatasetManager {
     }
 
     private loadPointCloud(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+
         const pointcloud = new Tiles3D(
             `pointcloud-${dataset.name}`,
             new Tiles3DSource(dataset.url),
@@ -132,17 +134,20 @@ export default class DatasetManager {
     }
 
     private loadIFC(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
         return loader.processFile(this.instance, dataset.url, {
             at:  dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
         });
     }
 
     private loadCityJSON(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
         return loader.processFile(this.instance, dataset.url, {
             projection: this.instance.referenceCrs,
         });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private loadBDTopo(dataset: Dataset): Entity3D {
         const crs = this.instance.referenceCrs;
 
@@ -232,7 +237,7 @@ export default class DatasetManager {
 
             if (type === undefined) throw new Error(`Could not import file type ${result.filetype}`);
 
-            const dataset = new DatasetObject(result.filename, type);
+            const dataset = new DatasetObject(result.filename, type, null);
 
             dataset.visible = true;
             this.entities.set(dataset.uuid, result.obj);
