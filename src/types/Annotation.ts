@@ -1,7 +1,11 @@
 import Drawing from "@giro3d/giro3d/interactions/Drawing";
 import { EventDispatcher } from "three";
 
-export default class Annotation extends EventDispatcher {
+type AnnotationEventMap = {
+    visible: {},
+};
+
+export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     readonly name: string;
     private _visible: boolean;
     readonly object: Drawing;

@@ -2,6 +2,7 @@ import { GeoJSON } from 'ol/format';
 import { tile } from 'ol/loadingstrategy.js';
 import { createXYZ } from 'ol/tilegrid.js';
 import VectorSource from 'ol/source/Vector';
+import Feature from 'ol/Feature';
 
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
@@ -20,7 +21,6 @@ import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 import { Color, MeshLambertMaterial } from 'three';
 import { AxisGrid } from '@giro3d/giro3d/entities';
-import { FeatureLike } from 'ol/Feature';
 
 export default class DatasetManager {
     private readonly instance: Instance;
@@ -174,14 +174,14 @@ export default class DatasetManager {
             source: vectorSource,
             extent: new Extent(crs, -111629.52, 1275028.84, 5976033.79, 7230161.64),
             material: new MeshLambertMaterial(),
-            extrusionOffset: (feature: FeatureLike) => {
+            extrusionOffset: (feature: Feature) => {
                 const hauteur = -feature.getProperties().hauteur;
                 if (Number.isNaN(hauteur)) {
-                    return null;
+                    return 0;
                 }
                 return hauteur;
             },
-            style: (feature: FeatureLike) => {
+            style: (feature: Feature) => {
                 const properties = feature.getProperties();
                 const fid = feature.getId();
                 let color = '#FFFFFF';
@@ -197,7 +197,7 @@ export default class DatasetManager {
                     visible = false;
                 }
 
-                return { color, visible };
+                return { color: new Color(color), visible };
             },
             minLevel: 11,
             maxLevel: 11,
@@ -294,6 +294,7 @@ export default class DatasetManager {
                 entity = (await this.loadIFC(dataset)).obj;
                 break;
             case 'pointcloud':
+                // @ts-ignore
                 entity = this.loadPointCloud(dataset);
                 break;
             case 'bdtopo':

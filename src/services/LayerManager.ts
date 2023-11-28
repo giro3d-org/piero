@@ -25,6 +25,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
     target: any[] = [],
 ) {
     if (hitTolerance === 0) {
+        // @ts-ignore
         for (const layer of this._attachedLayers) {
             if (layer.type !== 'MaskLayer' && layer.source && layer.source instanceof VectorSource && layer.visible) {
                 const coordinateLayer = coordinate.as(layer.extent.crs());
@@ -37,10 +38,10 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
     } else {
         let tile: any = tileHint;
         if (!tile) {
-            tile = this.tileIndex.tiles.get(TileIndex.getKey(0, 0, 0)).deref();
+            tile = this.tileIndex.tiles?.get(TileIndex.getKey(0, 0, 0))?.deref();
             for (const t of this.tileIndex.tiles) {
                 const n = t[1].deref();
-                if (n && n.material && n.material.visible && n.extent.isPointInside(coordinate)) {
+                if (n && n.material && n.material.visible && (n as any).extent.isPointInside(coordinate)) {
                     tile = n;
                     break;
                 }
@@ -51,6 +52,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
         const tileLayer = tile.extent.as(coordinate.crs);
 
         const tileExtent = tileLayer.dimensions();
+        // @ts-ignore
         const imageSize = this.imageSize;
         const xRes = tileExtent.x / imageSize.x;
         const yRes = tileExtent.y / imageSize.y;
@@ -67,6 +69,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
         // @ts-ignore
         const features = this.getVectorFeaturesInExtent(e);
         for (const feat of features) {
+            // @ts-ignore
             const layerProjection = feat.layer.getExtent()?.crs() ?? this._instance.referenceCrs;
             const coordinateLayer = coordinate.as(layerProjection);
             const coord = [coordinateLayer.x(), coordinateLayer.y()];
@@ -90,8 +93,10 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
 
 // @ts-ignore
 Map.prototype.getVectorFeaturesInExtent = function getVectorFeaturesInExtent(extent, target: any[] = []) {
+    // @ts-ignore
     for (const layer of this._attachedLayers) {
         if (layer.type !== 'MaskLayer' && layer.source && layer.source instanceof VectorSource && layer.visible) {
+            // @ts-ignore
             const layerProjection = layer.getExtent()?.crs() ?? this._instance.referenceCrs;
             const extentLayer = extent.as(layerProjection);
             const olExtent = [

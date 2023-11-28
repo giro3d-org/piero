@@ -7,7 +7,12 @@ type BookmarkJson = {
     focalOffset: [number, number, number],
 }
 
-export default class Bookmark extends EventDispatcher {
+type BookmarkEventMap = {
+    delete: {},
+    goto: {},
+};
+
+export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
     readonly name: string;
     readonly camera: CameraPosition;
 
