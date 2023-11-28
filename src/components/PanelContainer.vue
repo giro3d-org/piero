@@ -27,7 +27,7 @@ const panels = Configuration.panels;
 
 <template>
     <div class="panel" id="panel-container">
-        <h5 class="title">{{ panels.find(p => p.key === selected).title }}</h5>
+        <h5 class="title">{{ panels.find(p => p.key === selected)?.title }}</h5>
         <div class="content">
             <DatasetPanel v-if="selected === 'datasets'" />
             <AboutPanel v-if="selected === 'about'" @restart-tour="$emit('restart-tour')" />

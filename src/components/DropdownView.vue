@@ -5,15 +5,15 @@ import { ref } from 'vue';
 
 const props = defineProps<{
     items: Named[];
-    current: Named;
+    current: Named | null;
     label: string;
 }>();
 
 const emits = defineEmits<{
-    (e: 'updated:current', current: Named): void
+    (e: 'updated:current', current: Named | null): void
 }>()
 
-const currentSelection = ref<Named>(props.current);
+const currentSelection = ref<Named | null>(props.current);
 
 function setCurrent(index: number) {
     const item = props.items[index];

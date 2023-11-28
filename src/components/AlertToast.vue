@@ -4,13 +4,13 @@ import { ref } from 'vue';
 import Notification from '@/types/Notification'
 import { useNotificationStore } from '../stores/notifications';
 
-const alertToast = ref(null);
+const alertToast = ref<HTMLDivElement | null>(null);
 const notification = ref<Notification>(Notification.empty());
 
 function showNotification(notif: Notification) {
   notification.value = notif;
 
-  const toast = bootstrap.Toast.getOrCreateInstance(alertToast.value);
+  const toast = bootstrap.Toast.getOrCreateInstance(alertToast.value as HTMLDivElement);
   toast.show();
 }
 

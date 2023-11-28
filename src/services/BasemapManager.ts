@@ -86,7 +86,7 @@ export default class BasemapManager {
     }
 
     private getLayer(basemap: BaseLayer) {
-        let layer = this.layers.get(basemap.uuid);
+        const layer = this.layers.get(basemap.uuid);
         if (!layer) {
             this.loadBasemap(basemap);
             return null;

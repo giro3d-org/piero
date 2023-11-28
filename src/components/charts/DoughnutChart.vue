@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Chart } from 'chart.js';
+import { Chart, ChartConfiguration } from 'chart.js';
 import { onMounted, ref } from 'vue';
 
 const ctx = ref<HTMLCanvasElement>();
@@ -24,7 +24,7 @@ onMounted(() => {
                 hoverOffset: 4
             }]
         },
-    });
+    } as unknown as ChartConfiguration); // FIXME: hoverOffset not recognized?
 })
 </script>
 

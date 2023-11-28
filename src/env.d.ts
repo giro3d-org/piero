@@ -13,6 +13,9 @@ interface ImportMetaEnv {
      * If the app requires "Authorization" headers for a domain, set this variable to the header value (e.g. `Basic foobar=`)
      */
     readonly VITE_AUTHORIZATION_VALUE?: string;
+
+    readonly PROD: boolean;
+    readonly BASE_URL: string;
 }
 
 interface ImportMeta {

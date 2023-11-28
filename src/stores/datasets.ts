@@ -31,7 +31,7 @@ function buildInitialList(): Dataset[] {
   for (const conf of config.datasets) {
     const type = conf.type as DatasetType;
 
-    let ds : Dataset = null;
+    let ds : Dataset | null = null;
 
     switch (type) {
       case 'ifc':
@@ -73,18 +73,21 @@ export const useDatasetStore = defineStore('datasets', () => {
     datasets.value.splice(datasets.value.indexOf(ds), 1);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function goTo(ds: Dataset) {
     // Nothing to do, rely on action listeners.
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function clipTo(ds: Dataset) {
     // Nothing to do, rely on action listeners.
   }
 
-  function getEntity(ds: Dataset): Entity3D {
+  function getEntity(ds: Dataset): Entity3D | undefined {
     return entities.get(ds.uuid);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function importFromFile(file: File) {
     // Nothing to do, rely on action listeners.
   }
@@ -97,6 +100,7 @@ export const useDatasetStore = defineStore('datasets', () => {
     return datasets.value;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function toggleGrid(ds: Dataset) {
 
   }

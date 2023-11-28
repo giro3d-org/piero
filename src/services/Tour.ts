@@ -1,10 +1,15 @@
+import type { Instance } from '@giro3d/giro3d/core';
 import Shepherd from 'shepherd.js';
+import type CameraController from './CameraController';
 
-let instance;
-let layerManager;
-let camera;
-let drawing;
-let callback;
+let instance: Instance;
+let layerManager: any;
+let camera: CameraController;
+let drawing: any;
+let cameraCallback: (() => void) | null;
+let instanceCallback: ((ev: MouseEvent) => void) | null;
+let drawCallback: ((ev: MouseEvent) => void) | null;
+let drawtoolCallback: (() => void) | null;
 
 const mainTour = new Shepherd.Tour({
     useModalOverlay: true,
@@ -20,14 +25,17 @@ const analyzingTour = new Shepherd.Tour({
 });
 
 const buttonsOptions = [
-    { text: 'Next', action: () => Shepherd.activeTour.next() },
-    { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
+    { text: 'Next', action: () => Shepherd.activeTour?.next() },
+    { text: 'Exit', action: () => Shepherd.activeTour?.cancel(), secondary: true },
 ];
 
 const displayProgress = () => {
-    const currentStep = Shepherd.activeTour.getCurrentStep();
-    const currentStepElement = currentStep.getElement();
-    const content = currentStepElement.querySelector('.shepherd-text');
+    const currentStep = Shepherd.activeTour?.getCurrentStep();
+    const currentStepElement = currentStep?.getElement();
+    const content = currentStepElement?.querySelector('.shepherd-text');
+    const steps = Shepherd.activeTour?.steps;
+
+    if (currentStep == null || currentStepElement == null || content == null  || steps == null) return;
 
     const progress = document.createElement('div');
     progress.className = 'progress mt-3';
@@ -36,7 +44,7 @@ const displayProgress = () => {
 
     const progressbar = document.createElement('div');
     progressbar.className = 'progress-bar bg-success';
-    progressbar.style.width = `${100 * (Shepherd.activeTour.steps.indexOf(currentStep) / Shepherd.activeTour.steps.length)}%`;
+    progressbar.style.width = `${100 * (steps.indexOf(currentStep) / steps.length)}%`;
 
     progress.appendChild(progressbar);
     content.appendChild(progress);
@@ -51,18 +59,18 @@ mainTour.addStep({
         {
             text: 'Navigating',
             action: () => {
-                Shepherd.activeTour.complete();
+                Shepherd.activeTour?.complete();
                 navigatingTour.show(0);
             },
         },
         {
             text: 'Analyzing data',
             action: () => {
-                Shepherd.activeTour.complete();
+                Shepherd.activeTour?.complete();
                 analyzingTour.show(0);
             },
         },
-        { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
+        { text: 'Exit', action: () => Shepherd.activeTour?.cancel(), secondary: true },
     ],
     when: {
         show: displayProgress,
@@ -93,16 +101,16 @@ navigatingTour.addStep({
     when: {
         show: () => {
             let nbEvents = 0;
-            callback = () => {
+            cameraCallback = () => {
                 nbEvents += 1;
-                if (nbEvents > 2) { Shepherd.activeTour.next(); }
+                if (nbEvents > 2) { Shepherd.activeTour?.next(); }
             };
-            camera.addEventListener('interaction-end', callback);
+            camera.addEventListener('interaction-end', cameraCallback);
             displayProgress();
         },
         hide: () => {
-            camera.removeEventListener('interaction-end', callback);
-            callback = null;
+            if (cameraCallback) camera.removeEventListener('interaction-end', cameraCallback);
+            cameraCallback = null;
         },
     },
 });
@@ -118,7 +126,7 @@ navigatingTour.addStep({
     when: {
         show: () => {
             const link = document.getElementById('toolbar-layers');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
             displayProgress();
@@ -137,7 +145,7 @@ navigatingTour.addStep({
     when: {
         show: () => {
             const link = document.getElementById('toolbar-layers');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
             displayProgress();
@@ -156,7 +164,7 @@ navigatingTour.addStep({
     when: {
         show: () => {
             const link = document.getElementById('toolbar-layers');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
             displayProgress();
@@ -175,7 +183,7 @@ navigatingTour.addStep({
     when: {
         show: () => {
             const link = document.getElementById('toolbar-datasets');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
             displayProgress();
@@ -194,7 +202,7 @@ navigatingTour.addStep({
     when: {
         show: () => {
             const link = document.getElementById('toolbar-datasets');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
             displayProgress();
@@ -209,11 +217,11 @@ navigatingTour.addStep({
         {
             text: 'Analyzing data',
             action: () => {
-                Shepherd.activeTour.complete();
+                Shepherd.activeTour?.complete();
                 analyzingTour.show(0);
             },
         },
-        { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
+        { text: 'Exit', action: () => Shepherd.activeTour?.cancel(), secondary: true },
     ],
     attachTo: {
         element: '#search-place-autocomplete',
@@ -234,18 +242,18 @@ analyzingTour.addStep({
     },
     when: {
         show: () => {
-            callback = e => {
+            instanceCallback = e => {
                 const picked = layerManager.getFirstFeatureAt(e);
                 if (picked) {
-                    Shepherd.activeTour.next();
+                    Shepherd.activeTour?.next();
                 }
             };
-            instance.domElement.addEventListener('click', callback);
+            instance.domElement.addEventListener('click', instanceCallback);
             displayProgress();
         },
         hide: () => {
-            instance.domElement.removeEventListener('click', callback);
-            callback = null;
+            if (instanceCallback) instance.domElement.removeEventListener('click', instanceCallback);
+            cameraCallback = null;
         },
     },
 });
@@ -267,8 +275,8 @@ analyzingTour.addStep({
     id: 'measure',
     text: 'You can annotate any data displayed using Giro3D native tools',
     buttons: [
-        { text: 'Next', action: () => document.getElementById('measure-polygon').click() },
-        { text: 'Exit', action: () => Shepherd.activeTour.cancel(), secondary: true },
+        { text: 'Next', action: () => document.getElementById('measure-polygon')?.click() },
+        { text: 'Exit', action: () => Shepherd.activeTour?.cancel(), secondary: true },
     ],
     attachTo: {
         element: '#measurement > div',
@@ -277,19 +285,21 @@ analyzingTour.addStep({
     when: {
         show: () => {
             const link = document.getElementById('menu-annotations-link');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
 
-            callback = () => Shepherd.activeTour.next();
-            document.getElementById('measure-line').addEventListener('click', callback);
-            document.getElementById('measure-polygon').addEventListener('click', callback);
+            drawCallback = () => Shepherd.activeTour?.next();
+            document.getElementById('measure-line')?.addEventListener('click', drawCallback);
+            document.getElementById('measure-polygon')?.addEventListener('click', drawCallback);
             displayProgress();
         },
         hide: () => {
-            document.getElementById('measure-line').removeEventListener('click', callback);
-            document.getElementById('measure-polygon').removeEventListener('click', callback);
-            callback = null;
+            if (drawCallback) {
+                document.getElementById('measure-line')?.removeEventListener('click', drawCallback);
+                document.getElementById('measure-polygon')?.removeEventListener('click', drawCallback);
+            }
+            drawCallback = null;
         },
     },
 });
@@ -304,20 +314,20 @@ analyzingTour.addStep({
     when: {
         show: () => {
             if (drawing.drawTool.state !== 'active') {
-                Shepherd.activeTour.back();
+                Shepherd.activeTour?.back();
                 return;
             }
             let nbPoints = 0;
-            callback = () => {
+            cameraCallback = () => {
                 nbPoints += 1;
-                if (nbPoints > 2) { Shepherd.activeTour.next(); }
+                if (nbPoints > 2) { Shepherd.activeTour?.next(); }
             };
-            drawing.drawTool.addEventListener('add', callback);
+            drawing.drawTool.addEventListener('add', cameraCallback);
             displayProgress();
         },
         hide: () => {
-            drawing.drawTool.removeEventListener('add', callback);
-            callback = null;
+            drawing.drawTool.removeEventListener('add', cameraCallback);
+            cameraCallback = null;
         },
     },
 });
@@ -332,16 +342,16 @@ analyzingTour.addStep({
     when: {
         show: () => {
             if (drawing.drawTool.state !== 'active') {
-                Shepherd.activeTour.back();
+                Shepherd.activeTour?.back();
                 return;
             }
-            callback = () => Shepherd.activeTour.next();
-            drawing.drawTool.addEventListener('end', callback);
+            drawtoolCallback = () => Shepherd.activeTour?.next();
+            drawing.drawTool.addEventListener('end', drawtoolCallback);
             displayProgress();
         },
         hide: () => {
-            drawing.drawTool.removeEventListener('end', callback);
-            callback = null;
+            if (drawtoolCallback) drawing.drawTool.removeEventListener('end', drawtoolCallback);
+            drawtoolCallback = null;
         },
     },
 });
@@ -354,12 +364,12 @@ analyzingTour.addStep({
         on: 'right',
     },
     buttons: [
-        { text: 'Done!', action: () => Shepherd.activeTour.complete() },
+        { text: 'Done!', action: () => Shepherd.activeTour?.complete() },
     ],
     when: {
         show: () => {
             const link = document.getElementById('menu-annotations-link');
-            if (!link.classList.contains('active')) {
+            if (link && !link.classList.contains('active')) {
                 link.click();
             }
             displayProgress();
@@ -371,10 +381,10 @@ const markSkiptour = () => {
     const url = new URL(document.URL);
     url.searchParams.delete('tourStep');
     url.searchParams.set('tour', 'none');
-    window.history.replaceState({}, null, url.toString());
+    window.history.replaceState({}, "", url.toString());
 };
 
-const markTour = current => {
+const markTour = (current: any) => {
     const url = new URL(document.URL);
     console.log(current);
     let tourName = 'main';
@@ -385,7 +395,7 @@ const markTour = current => {
     }
     url.searchParams.set('tour', tourName);
     url.searchParams.set('tourStep', current.step.id);
-    window.history.replaceState({}, null, url.toString());
+    window.history.replaceState({}, "", url.toString());
 };
 
 mainTour.on('cancel', markSkiptour);
@@ -401,7 +411,7 @@ analyzingTour.on('complete', markSkiptour);
 analyzingTour.on('show', markTour);
 
 export default {
-    start(_instance, _layerManager, _camera, _drawing) {
+    start(_instance: Instance, _layerManager: any, _camera: CameraController, _drawing: any) {
         instance = _instance;
         layerManager = _layerManager;
         camera = _camera;

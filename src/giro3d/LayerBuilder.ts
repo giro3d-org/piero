@@ -9,7 +9,7 @@ import { optionsFromCapabilities } from 'ol/source/WMTS'
 import { ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources'
 import { ImageFormat } from '@giro3d/giro3d/formats'
 import GeoJSON from 'ol/format/GeoJSON';
-import { Circle, Fill, Image, Stroke, Style } from 'ol/style'
+import { Circle, Fill, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle'
 import { StyleFunction } from 'ol/style/Style'
 import { LayerSource, WMSSource, WMTSSource } from '@/types/LayerSource'
@@ -19,22 +19,21 @@ import dynamicStyles from '@/styles';
 async function createWMTSSource(layer: string, url: string, format?: string, matrixSet?: string) {
     const parser = new WMTSCapabilities();
 
-    return fetch(url)
-        .then(res => {
-            return res.text();
-        }).then(text => {
-            const result = parser.read(text);
-            const options = optionsFromCapabilities(result, {
-                layer,
-                //   matrixSet: matrixSet ?? 'EPSG:3857',
-                projection: 'EPSG:3857',
-                format,
-            });
-            return new WMTS(options);
-        });
+    const res = await fetch(url);
+    const text = await res.text();
+
+    const result = parser.read(text);
+    const options = optionsFromCapabilities(result, {
+        layer,
+        //   matrixSet: matrixSet ?? 'EPSG:3857',
+        projection: 'EPSG:3857',
+        format,
+    });
+    if (options === null) throw new Error('Cannot resolve WMTS source from capabilities');
+    return new WMTS(options);
 }
 
-function getFormat(mimeType: string): ImageFormat {
+function getFormat(mimeType: string): ImageFormat | undefined {
     switch (mimeType) {
         case 'image/x-bil;bits=32':
             return new BilFormat();
@@ -47,42 +46,48 @@ async function getSource(input: LayerSource) {
     let result: ImageSource;
     switch (input.type) {
         case 'wms':
-            const wmsParams = input as WMSSource;
-            result = new TiledImageSource({
-                source: new TileWMS({
-                    url: wmsParams.url,
-                    projection: wmsParams.projection,
-                    crossOrigin: 'anonymous',
-                    params: {
-                        LAYERS: [wmsParams.layer],
-                        FORMAT: wmsParams.format
-                    }
-                }),
-                noDataValue: wmsParams.nodata,
-                format: getFormat(wmsParams.format),
-            })
-            break;
+            {
+                const wmsParams = input as WMSSource;
+                result = new TiledImageSource({
+                    source: new TileWMS({
+                        url: wmsParams.url,
+                        projection: wmsParams.projection,
+                        crossOrigin: 'anonymous',
+                        params: {
+                            LAYERS: [wmsParams.layer],
+                            FORMAT: wmsParams.format
+                        }
+                    }),
+                    noDataValue: wmsParams.nodata,
+                    format: getFormat(wmsParams.format),
+                })
+                break;
+            }
         case 'wmts':
-            const wmtsParams = input as WMTSSource;
-            const source = await createWMTSSource(
-                wmtsParams.layer,
-                wmtsParams.url,
-                wmtsParams.format,
-                wmtsParams.projection,
-            );
-            result = new TiledImageSource({
-                source,
-                noDataValue: wmtsParams.nodata,
-                format: getFormat(wmtsParams.format)
-            })
-            break;
+            {
+                const wmtsParams = input as WMTSSource;
+                const source = await createWMTSSource(
+                    wmtsParams.layer,
+                    wmtsParams.url,
+                    wmtsParams.format,
+                    wmtsParams.projection,
+                );
+                result = new TiledImageSource({
+                    source,
+                    noDataValue: wmtsParams.nodata,
+                    format: getFormat(wmtsParams.format)
+                })
+                break;
+            }
+        default:
+            throw new Error(`Type ${input.type} not supported`);
     }
 
     return result;
 }
 
 function parseStaticStyle(style: StaticVectorStyle): Style {
-    function parseStroke(stroke: StrokeStyle) {
+    function parseStroke(stroke?: StrokeStyle) {
         if (stroke) {
             return new Stroke({
                 color: stroke.color,
@@ -91,7 +96,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
         }
         return undefined;
     }
-    function parseFill(fill: FillStyle) {
+    function parseFill(fill?: FillStyle) {
         if (fill) {
             return new Fill({
                 color: fill.color,
@@ -99,7 +104,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
         }
         return undefined;
     }
-    function parsePoint(point: PointStyle) {
+    function parsePoint(point?: PointStyle) {
         if (point) {
             return new CircleStyle({
                 radius: point.radius,
@@ -118,7 +123,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
 }
 
 function getStyle(style: VectorStyle): Style | StyleFunction {
-    if (typeof style === 'string' || style instanceof String) {
+    if (typeof style === 'string') {
         if (dynamicStyles[style] == undefined) {
             // As config is not checked against TS, we can't know if during build :(
             console.warn(`Could not find style ${style} in configuration`);

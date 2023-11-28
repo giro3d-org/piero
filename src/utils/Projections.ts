@@ -2,7 +2,7 @@ import proj4 from 'proj4';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 
 async function loadProjCrsIfNeeded(projection: string) {
-    let epsgCode;
+    let epsgCode: string | null = null;
 
     const regexes = [
         /EPSG:+(\d+)/,

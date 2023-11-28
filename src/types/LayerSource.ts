@@ -1,8 +1,8 @@
 import { VectorStyle } from "./VectorStyle";
 
 export interface LayerSource {
-    type: 'wms' | 'wmts' | 'geojson' | 'kml' | 'mvt'; // TODO complete
-    nodata: number;
+    type: 'wms' | 'wmts' | 'geojson' | 'kml' | 'gpx' | 'mvt'; // TODO complete
+    nodata?: number;
 }
 
 export interface WMSSource extends LayerSource {

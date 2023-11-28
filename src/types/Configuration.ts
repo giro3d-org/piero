@@ -34,7 +34,7 @@ export type BasemapSourceLayerConfig = {
 export type LayerConfig = {
     type: LayerType,
     name: string,
-    visible?: boolean,
+    visible: boolean,
     source: BasemapSourceLayerConfig,
 };
 
@@ -83,38 +83,38 @@ export type BookmarkConfig = {
 
 export type Configuration = {
     default_crs: string,
-    camera?: {
-        position?: [number, number],
-        altitude?: number,
+    camera: {
+        position: [number, number],
+        altitude: number,
     },
-    basemap?: {
-        center?: [number, number],
-        size?: [number, number],
-        colormap?: {
+    basemap: {
+        center: [number, number],
+        size: [number, number],
+        colormap: {
             min: number,
             max: number,
             ramp: ColorRamp,
         },
         layers: LayerConfig[],
     },
-    pointcloud?: {
+    pointcloud: {
         min: number,
         max: number,
         ramp: ColorRamp,
     },
-    analysis?: {
-        cross_section?: {
+    analysis: {
+        cross_section: {
             pivot: Vec2 & {
                 crs: string,
             },
             orientation: number,
         },
-        clipping_box?: {
+        clipping_box: {
             center: Vec3 & {
                 crs: string,
             },
             size: Vec3,
-            floor_preset?: {
+            floor_preset: {
                 altitude: number,
                 size: number,
                 floor: number,

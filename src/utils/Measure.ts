@@ -1,7 +1,7 @@
 import { Vector2, Vector3, ShapeUtils } from 'three';
 import Drawing from '@giro3d/giro3d/interactions/Drawing.js';
 
-function getPerimeter(coords) {
+function getPerimeter(coords: Drawing | Vector3[]) {
     if (coords instanceof Drawing) {
         if (coords.coordinates.length < 6) return null;
 
@@ -32,7 +32,7 @@ function getPerimeter(coords) {
     return length;
 }
 
-function getMinMaxAltitudes(coords) {
+function getMinMaxAltitudes(coords: Drawing | Vector3[]) {
     let min = +Infinity;
     let max = -Infinity;
 
@@ -52,7 +52,7 @@ function getMinMaxAltitudes(coords) {
     return [min, max];
 }
 
-function getArea(coords) {
+function getArea(coords: Drawing | Vector2[]) {
     if (coords instanceof Drawing) {
         if (coords.coordinates.length < 6) return null;
 

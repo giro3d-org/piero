@@ -8,10 +8,10 @@ export type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
 export interface Dataset extends Named, EventDispatcher {
     isLoaded: boolean;
     type: DatasetType;
-    url: string;
+    url?: string;
     uuid: string;
     name: string;
-    coordinates: Coordinates;
+    coordinates?: Coordinates;
 
     get isLoading(): boolean;
     set isLoading(v: boolean);
@@ -25,12 +25,12 @@ export interface Dataset extends Named, EventDispatcher {
 
 export class DatasetObject extends LayerObject implements Dataset {
     readonly type: DatasetType;
-    readonly url: string;
+    readonly url?: string;
     private _isLoading: boolean = false;
 
     isLoaded: boolean;
 
-    coordinates: Coordinates;
+    coordinates?: Coordinates;
 
     set isLoading(v: boolean) {
         this._isLoading = v;
@@ -45,5 +45,6 @@ export class DatasetObject extends LayerObject implements Dataset {
         super(name);
         this.type = type;
         this.url = url;
+        this.isLoaded = false;
     }
 }

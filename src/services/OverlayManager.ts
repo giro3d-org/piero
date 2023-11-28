@@ -54,7 +54,8 @@ export default class OverlayManager {
         const index = this.store.getOverlays().indexOf(overlay);
 
         if (index > 0) {
-            this.layerManager.moveOverlayUp(this.layers.get(overlay.uuid));
+            const layer = this.layers.get(overlay.uuid);
+            if (layer) this.layerManager.moveOverlayUp(layer);
         }
     }
 
@@ -62,39 +63,51 @@ export default class OverlayManager {
         const index = this.store.getOverlays().indexOf(overlay);
 
         if (index < this.store.overlayCount) {
-            this.layerManager.moveOverlayDown(this.layers.get(overlay.uuid));
+            const layer = this.layers.get(overlay.uuid);
+            if (layer) this.layerManager.moveOverlayDown(layer);
         }
     }
 
-    onOpacityChanged(overlay: Overlay, newOpacity: number) {
+    async onOpacityChanged(overlay: Overlay, newOpacity: number) {
         const id = overlay.uuid;
-        const layer = this.layers.get(id);
+        let layer = this.layers.get(id);
 
         if (!layer && overlay.source) {
-            this.loadOverlay(overlay);
+            layer = await this.loadOverlay(overlay);
         }
 
-        layer.opacity = newOpacity;
-        this.layerManager.notify(layer);
+        if (layer) {
+            layer.opacity = newOpacity;
+            this.layerManager.notify(layer);
+        }
     }
 
     private async getSource(overlay: Overlay): Promise<ImageSource> {
         switch (overlay.source.type) {
             case 'geojson':
-                const geojson = overlay.source as VectorSource;
-                return LayerBuilder.createGeoJsonSource(geojson.url, geojson.projection, geojson.style);
+                {
+                    const geojson = overlay.source as VectorSource;
+                    return LayerBuilder.createGeoJsonSource(geojson.url, geojson.projection, geojson.style);
+                }
             case 'kml':
-                const kml = overlay.source as VectorSource;
-                return LayerBuilder.createKMLSource(kml.url, kml.projection, kml.style);
+                {
+                    const kml = overlay.source as VectorSource;
+                    return LayerBuilder.createKMLSource(kml.url, kml.projection, kml.style);
+                }
             case 'gpx':
-                const gpx = overlay.source as VectorSource;
-                return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
+                {
+                    const gpx = overlay.source as VectorSource;
+                    return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
+                }
             case 'mvt':
-                const mvt = overlay.source as MVTSource;
-                return LayerBuilder.createMVTSource(mvt.url, mvt.backgroundColor, mvt.style);
+                {
+                    const mvt = overlay.source as MVTSource;
+                    return LayerBuilder.createMVTSource(mvt.url, mvt.backgroundColor, mvt.style);
+                }
             case 'wms':
                 return await LayerBuilder.getSource(overlay.source) as ImageSource;
         }
+        throw new Error(`Unsupported source type ${overlay.source.type}`);
     }
 
     private async loadOverlay(overlay: Overlay) {
@@ -110,13 +123,15 @@ export default class OverlayManager {
         return layer;
     }
 
-    onVisibilityChanged(overlay: Overlay, newVisibility: boolean) {
+    async onVisibilityChanged(overlay: Overlay, newVisibility: boolean) {
         const id = overlay.uuid;
-        const layer = this.layers.get(id);
+        let layer = this.layers.get(id);
 
         if (newVisibility && !layer && overlay.source) {
-            this.loadOverlay(overlay);
-        } else {
+            layer = await this.loadOverlay(overlay);
+        }
+
+        if (layer) {
             layer.visible = newVisibility;
             this.layerManager.notify(layer);
         }

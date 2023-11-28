@@ -142,6 +142,7 @@ export default class AnnotationManager {
     }
 
     updateDrawing(annotation: Annotation) {
+        // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
         annotation.object.visible = annotation.visible;
         this.instance.notifyChange();
     }
@@ -150,7 +151,8 @@ export default class AnnotationManager {
         this.beforeDraw();
 
         this.drawObject(GEOMETRY_TYPE.POINT).then(drawing => {
-            this.pushNewAnnotation(promptName('New point annotation'), drawing);
+            const name = promptName('New point annotation');
+            if (name) this.pushNewAnnotation(name, drawing);
         });
     }
 
@@ -158,7 +160,8 @@ export default class AnnotationManager {
         this.beforeDraw();
 
         this.drawObject(GEOMETRY_TYPE.POLYGON).then(drawing => {
-            this.pushNewAnnotation(promptName('New polygon annotation'), drawing);
+            const name = promptName('New polygon annotation');
+            if (name) this.pushNewAnnotation(name, drawing);
         });
     }
 
@@ -172,7 +175,8 @@ export default class AnnotationManager {
         this.beforeDraw();
 
         this.drawObject(GEOMETRY_TYPE.LINE).then(drawing => {
-            this.pushNewAnnotation(promptName('New line annotation'), drawing);
+            const name = promptName('New line annotation');
+            if (name) this.pushNewAnnotation(name, drawing);
         });
     }
 
@@ -185,11 +189,14 @@ export default class AnnotationManager {
             minExtrudeDepth: 1,
             maxExtrudeDepth: 5,
             use3Dpoints: false,
+            // @ts-ignore
             point2DFactory,
         }, geojson);
 
+        // @ts-ignore
         o.traverse(child => child.renderOrder = 2);
 
+        // @ts-ignore
         this.instance.add(o);
 
         return o;
@@ -197,6 +204,7 @@ export default class AnnotationManager {
 
     private deleteAnnotation(annotation: Annotation) {
         annotation.object.dispose();
+        // @ts-ignore
         annotation.object.removeFromParent();
         this.instance.notifyChange();
     }

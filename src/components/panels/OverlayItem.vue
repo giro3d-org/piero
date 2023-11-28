@@ -7,7 +7,7 @@ defineProps({
   name: String,
   opacity: Number
 })
-defineEmits(['update:visible', 'update:opacity', 'update:move-up', 'update:move-down'])
+defineEmits(['update:visible', 'update:opacity', 'update:move-up', 'update:move-down', 'zoom'])
 </script>
 
 <template>

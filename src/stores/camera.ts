@@ -11,6 +11,8 @@ export const useCameraStore = defineStore('camera', () => {
     const _isUserInteracting = ref<boolean>(false);
 
     function getCameraPosition(): CameraPosition {
+        if (cameraPosition.value === undefined) throw new Error('Cannot get cameraPosition');
+
         const json: Record<string, any> = {};
         json.title = 'foo';
         const pos = cameraPosition.value.camera;
@@ -59,6 +61,7 @@ export const useCameraStore = defineStore('camera', () => {
         _isUserInteracting.value = value;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function lookTopDownAt(obj: Box3 | Object3D | Entity3D) {
       // Nothing to do, rely on action listeners.
     }

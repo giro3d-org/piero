@@ -11,7 +11,7 @@ defineEmits(['update:modelValue'])
             role="switch"
             id="flexSwitchCheckDefault"
             :checked="modelValue"
-            @input="$emit('update:modelValue', $event.target.checked)"
+            @input="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
         >
     </div>
 </template>

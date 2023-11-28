@@ -58,7 +58,7 @@ function getClassificationRoot() {
     <div v-if="isLoaded">
         <ul>
             <li v-for="(item, index) in getClassificationRoot()" :key="index">
-                <IfcSubtree :ifc-entity="getIfcEntity()" :classification-element="item" />
+                <IfcSubtree :ifc-entity="(getIfcEntity() as IfcEntity)" :classification-element="item" />
             </li>
         </ul>
     </div>

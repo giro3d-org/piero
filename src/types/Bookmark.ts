@@ -11,7 +11,7 @@ export default class Bookmark extends EventDispatcher {
     readonly name: string;
     readonly camera: CameraPosition;
 
-    constructor(name: string, camera?: CameraPosition)  {
+    constructor(name: string, camera: CameraPosition)  {
         super();
         this.name = name;
         this.camera = camera;
@@ -54,6 +54,7 @@ export default class Bookmark extends EventDispatcher {
     static new(name: string, urlString: string): Bookmark {
         const url = new URL(urlString);
         const view = url.searchParams.get('view');
+        if (view === null) throw new Error('Could not deserialize bookmark');
         const json : BookmarkJson = JSON.parse(view);
 
         const camera = new Vector3(json.camera[0], json.camera[1], json.camera[2]);

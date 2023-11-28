@@ -37,7 +37,7 @@ export default {
         const fragmentManager = await components.tools.get(FragmentManager);
 
         const classifier = await components.tools.get(FragmentClassifier);
-        let fragmentIfcLoader = new FragmentIfcLoader(components);
+        const fragmentIfcLoader = new FragmentIfcLoader(components);
 
         // TODO replace with own WASM ?
         fragmentIfcLoader.settings.wasm = {

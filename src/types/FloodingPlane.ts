@@ -13,7 +13,7 @@ export default class FloodingPlane {
         this.object3D = new Mesh(this.geometry, this.material);
         this.object3D.renderOrder = 2;
         this.visible = false;
-        this.height = DEFAULT_HEIGHT;
+        this._height = DEFAULT_HEIGHT;
     }
 
     set height(z) {

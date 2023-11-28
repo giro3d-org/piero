@@ -21,7 +21,7 @@ export default class Picker {
         if (!attributesGroups.has("Feature")) {
             attributesGroups.set("Feature", []);
         }
-        const attributes = attributesGroups.get("Feature");
+        const attributes = attributesGroups.get("Feature") as Attribute[];
 
         if (feature.getId() !== undefined) {
             attributes.push({ key: 'fid', value: feature.getId() });
@@ -33,14 +33,14 @@ export default class Picker {
     }
 
     getAttributesFromPointCloud(pickedObject: PickResult, object: any, attributesGroups: AttributesGroups) {
-        attributesGroups.get("Dataset").push({ key: 'Tile', value: object.name });
+        attributesGroups.get("Dataset")?.push({ key: 'Tile', value: object.name });
     }
 
     getAttributesFromCityObject(pickedObject: PickResult, object: any, attributesGroups: AttributesGroups) {
         if (!attributesGroups.has("CityJSON")) {
             attributesGroups.set("CityJSON", []);
         }
-        const cityjsonAttributes = attributesGroups.get("CityJSON");
+        const cityjsonAttributes = attributesGroups.get("CityJSON") as Attribute[];
 
         const cityjsonInfo = object.resolveIntersectionInfo(pickedObject);
         const cityobject = object.citymodel.CityObjects[cityjsonInfo.objectId];
@@ -62,7 +62,7 @@ export default class Picker {
         if (!attributesGroups.has("Feature")) {
             attributesGroups.set("Feature", []);
         }
-        const attributes = attributesGroups.get("Feature");
+        const attributes = attributesGroups.get("Feature") as Attribute[];
 
         if (object?.userData) {
             if (layer?.type === 'FeatureCollection') {
@@ -83,13 +83,15 @@ export default class Picker {
     }
 
     getAttributesFromIfcFragment(ifcEntity: IfcEntity, fragment: Fragment, itemId: string, attributesGroups: AttributesGroups) {
-        if (fragment.group && fragment.group.properties[itemId]) {
+        // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
+        if (fragment.group && fragment.group.properties && fragment.group.properties[itemId]) {
             if (!attributesGroups.has("IFC")) {
                 attributesGroups.set("IFC", []);
             }
-            const attributes = attributesGroups.get("IFC");
+            const attributes = attributesGroups.get("IFC") as Attribute[];
 
             const properties = fragment.group.properties;
+            // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
             const itemProperties = properties[itemId];
             const ifcProperties = ifcEntity.getProperties(itemId);
 
@@ -109,7 +111,7 @@ export default class Picker {
                 if (!attributesGroups.has(parentName)) {
                     attributesGroups.set(parentName, []);
                 }
-                attributesGroups.get(parentName).push({ key: name, value });
+                attributesGroups.get(parentName)?.push({ key: name, value });
             }
 
             return name;
@@ -126,6 +128,7 @@ export default class Picker {
      * @returns Result or null if notthing found
      */
     getObjectAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
+        // @ts-ignore
         const where = instance.getObjects((o: Object3D | Entity3D) => o.type !== 'Map' && (o as any).name !== 'plane');
         const picked = instance.pickObjectsAt(e, {
             radius,
@@ -134,9 +137,9 @@ export default class Picker {
             .at(0);
 
         let layer = null;
-        let rootobj: Object3D = null;
+        let rootobj: Object3D | null = null;
         let drawing = null;
-        let ifcData = {};
+        let ifcData: any = {};
 
         if (picked) {
             rootobj = picked.object;
@@ -180,6 +183,7 @@ export default class Picker {
      * @returns Result or null if nothing found
      */
     getMapAt(instance: Instance, e: MouseEvent, radius = 0): PickResult | null {
+        // @ts-ignore
         const where = instance.getObjects((o: Object3D | Entity3D) => o.type === 'Map' || (o as any).name !== 'plane');
         const picked = instance.pickObjectsAt(e, {
             radius,
@@ -255,7 +259,7 @@ export default class Picker {
         if (!attributesGroups.has("Measurement")) {
             attributesGroups.set("Measurement", []);
         }
-        const attributes = attributesGroups.get("Measurement");
+        const attributes = attributesGroups.get("Measurement") as Attribute[];
 
         const perimeter = Measure.getPerimeter(drawing);
         const minmax = Measure.getMinMaxAltitudes(drawing);
@@ -275,7 +279,7 @@ export default class Picker {
 
     getFeatureFromPickedObject(pickedObject: PickResult): Feature {
         const {
-            layer, rootobj, drawing, object, feature,
+            layer, drawing, object, feature,
         } = pickedObject;
 
         const datasetAttributes: Array<Attribute> = [];
@@ -319,7 +323,7 @@ export default class Picker {
             this.getAttributesFromOLFeature(feature, attributesGroups);
         }
 
-        if (entity.isEntity3D && (entity as any)?.isIfcEntity && pickedObject.mesh) {
+        if (entity.isEntity3D && (entity as any)?.isIfcEntity && pickedObject.mesh && pickedObject.itemId) {
             const ifcEntity = entity as IfcEntity;
             this.getAttributesFromIfcFragment(ifcEntity, pickedObject.mesh.fragment, pickedObject.itemId, attributesGroups);
         }
@@ -328,6 +332,7 @@ export default class Picker {
     }
 
     getMouseCoordinate(instance: Instance, event: MouseEvent): Vector3 | null {
+        // @ts-ignore
         const where = instance.getObjects((o: Object3D | Entity3D) => o.type === 'Map');
 
         const picked = instance.pickObjectsAt(event, {
@@ -338,7 +343,7 @@ export default class Picker {
         return picked?.point;
     }
 
-    pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature, pickResult: PickResult } | null {
+    pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature | null, pickResult: PickResult } | null {
         const picked = this.getFirstFeatureAt(instance, event);
         if (picked === null) return null;
 

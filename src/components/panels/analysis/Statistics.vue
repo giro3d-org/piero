@@ -11,7 +11,7 @@ import { Dataset } from '@/types/Dataset';
 
 const store = useStatisticsStore();
 
-const source = ref<Dataset>(null);
+const source = ref<Dataset | null>(null);
 const isLoading = ref<boolean>(false);
 const showCharts = ref<boolean>(false);
 

@@ -51,15 +51,19 @@ async function processFile(
     options: ProcessOptions = {}
 ): Promise<ProcessedFileResult> {
     /** @type {File|Response} */
-    let file: File | Response = null;
-    let filename: string = null;
-    let filetype: FileType = null;
+    let file: File | Response | undefined = undefined;
+    let filename: string | undefined = undefined;
+    let filetype: FileType | undefined = undefined;
 
     if (fileOrUrl instanceof File) {
         filename = fileOrUrl.name;
         file = fileOrUrl;
     } else {
         filename = fileOrUrl.split('/').at(-1);
+    }
+
+    if (filename == null) {
+        throw new Error('Could not determine filename');
     }
 
     if (filename.endsWith('.gpkg')) {
@@ -76,7 +80,7 @@ async function processFile(
         filetype = 'ifc';
     }
 
-    if (filetype === null) {
+    if (filetype == null) {
         throw new Error('File not supported');
     }
 
@@ -89,7 +93,7 @@ async function processFile(
         file = await Fetcher.fetch(fileOrUrl);
     }
 
-    let obj: Entity3D = null;
+    let obj: Entity3D | undefined = undefined;
     switch (filetype) {
         case 'gpkg': {
             obj = await Loadersgl.loadGeoPackage(instance, filename, fileOrUrl, options);
@@ -104,23 +108,28 @@ async function processFile(
             break;
         }
         case 'cityjson': {
+            if (file == null) throw new Error('File not supported');
             const str = await file.text();
             obj = await CityJSON.loadString(instance, filename, str, options);
             break;
         }
         case 'ifc': {
+            if (file == null) throw new Error('File not supported');
             obj = await IFC.loadIfc(instance, filename, file, options);
             break;
         }
         case 'geojson': {
-            const str = await file.text();
+            if (file == null) throw new Error('File not supported');
+            // const str = await file.text();
             // TODO layerManager
-            obj = await GeoJSON.loadString(instance, layerManager, filename, str, options);
+            // obj = await GeoJSON.loadString(instance, layerManager, filename, str, options);
             break;
         }
         default:
             throw new Error('File not supported');
     }
+
+    if (!obj) throw new Error('File not supported');
 
     const visible = options?.visible ?? true;
     if (!visible) {
