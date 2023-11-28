@@ -27,7 +27,12 @@ if (import.meta.env.VITE_AUTHORIZATION_DOMAIN && import.meta.env.VITE_AUTHORIZAT
     HttpConfiguration.setAuth(import.meta.env.VITE_AUTHORIZATION_DOMAIN, import.meta.env.VITE_AUTHORIZATION_VALUE);
 }
 
-export default class Giro3DManager extends EventDispatcher {
+
+type Giro3DManagerEventMap = {
+    update: {},
+};
+
+export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
     readonly camera: CameraController;
     readonly mainInstance: Instance;
     readonly layerManager: LayerManager;
