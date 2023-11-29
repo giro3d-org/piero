@@ -1,11 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import VisibilityControl from '../VisibilityControl.vue';
 
-defineProps({
-  visible: Boolean,
-  name: String
-})
-defineEmits(['delete', 'download', 'update:visible'])
+defineProps<{
+    visible: boolean,
+    name: string,
+}>()
+defineEmits(['delete', 'download', 'update:visible', 'zoom'])
 </script>
 
 <template>

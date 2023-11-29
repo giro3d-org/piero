@@ -12,35 +12,37 @@ import { useBookmarkStore } from '@/stores/bookmarks';
 import { useCameraStore } from '@/stores/camera';
 
 const showShareModal = ref(false);
-const shareUrl = ref<string>(null);
-const modalTitle = ref<string>(null);
-const hiddenInput = ref<HTMLInputElement>(null);
+const shareUrl = ref<string | null>(null);
+const modalTitle = ref<string | null>(null);
+const hiddenInput = ref<HTMLInputElement | null>(null);
 
 const notificationStore = useNotificationStore();
 const bookmarkStore = useBookmarkStore();
 const cameraStore = useCameraStore();
 
 function shareBookmark(bookmark: Bookmark) {
-  shareUrl.value = bookmark.getUrl().toString();
-  modalTitle.value = 'Share bookmark';
-  showShareModal.value = true;
+    shareUrl.value = bookmark.getUrl().toString();
+    modalTitle.value = 'Share bookmark';
+    showShareModal.value = true;
 }
 
 function addBookmark() {
-  const name = window.prompt('Bookmark name', 'New bookmark');
-  const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
-  bookmarkStore.add(bookmark);
+    const name = window.prompt('Bookmark name', 'New bookmark');
+    if (name) {
+        const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
+        bookmarkStore.add(bookmark);
+    }
 }
 
 function shareCurrentView() {
-  const temp = new Bookmark('temp', cameraStore.getCameraPosition());
-  shareUrl.value = temp.getUrl().toString();
-  modalTitle.value = 'Share current view';
-  showShareModal.value = true;
+    const temp = new Bookmark('temp', cameraStore.getCameraPosition());
+    shareUrl.value = temp.getUrl().toString();
+    modalTitle.value = 'Share current view';
+    showShareModal.value = true;
 }
 
 function exportBookmarks() {
-  const json = [];
+    const json = [];
     for (const bookmark of bookmarkStore.getBookmarks()) {
         json.push({
             title: bookmark.name,
@@ -65,84 +67,87 @@ function exportBookmarks() {
 }
 
 async function importBookmarks(file: Blob) {
-  const str = await file.text();
-  const serializedBookmarks = JSON.parse(str);
+    const str = await file.text();
+    const serializedBookmarks = JSON.parse(str);
 
-  const existingBookmarks = new Set(bookmarkStore.getBookmarks().map(b => b.name));
+    const existingBookmarks = new Set(bookmarkStore.getBookmarks().map(b => b.name));
 
-  let nbImported = 0;
-  let nbSkipped = 0;
+    let nbImported = 0;
+    let nbSkipped = 0;
 
-  serializedBookmarks.forEach((bookmark: any) => {
-    if (!existingBookmarks.has(bookmark.title)) {
-      bookmarkStore.add(Bookmark.new(bookmark.title, bookmark.url))
-      nbImported++;
-    } else {
-      nbSkipped++;
-    }
-  });
+    serializedBookmarks.forEach((bookmark: any) => {
+        if (!existingBookmarks.has(bookmark.title)) {
+            bookmarkStore.add(Bookmark.new(bookmark.title, bookmark.url))
+            nbImported++;
+        } else {
+            nbSkipped++;
+        }
+    });
 
-  notificationStore.push(new Notification('Bookmarks', `${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success'));
+    notificationStore.push(new Notification('Bookmarks', `${nbImported} bookmarks imported (${nbSkipped} skipped)`, 'success'));
 };
 
 async function importBookmarkFile(e: Event) {
-  for (const file of (e.target as HTMLInputElement).files)
-    importBookmarks(file);
+    const files = (e.target as HTMLInputElement).files;
+
+    if (files) {
+        for (const file of files)
+            importBookmarks(file);
+    }
 }
 
 function goTo(bookmark: Bookmark) {
-  if (bookmark.camera) {
-    cameraStore.setCameraPosition(bookmark.camera);
-  }
+    if (bookmark.camera) {
+        cameraStore.setCameraPosition(bookmark.camera);
+    }
 }
 
 
 </script>
 
 <template>
-  <div>
-    <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
-
     <div>
-      <ul class="layers-list-group">
-        <BookmarkItem
-        v-for="bookmark in bookmarkStore.getBookmarks()"
-        :key="bookmark.name"
-        :name="bookmark.name"
-        v-on:share="shareBookmark(bookmark)"
-        v-on:delete="bookmarkStore.remove(bookmark)"
-        v-on:goto="goTo(bookmark)"
-        />
-      </ul>
+        <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
+
+        <div>
+            <ul class="layers-list-group">
+                <BookmarkItem v-for="bookmark in bookmarkStore.getBookmarks()" :key="bookmark.name" :name="bookmark.name"
+                    v-on:share="shareBookmark(bookmark)" v-on:delete="bookmarkStore.remove(bookmark)"
+                    v-on:goto="goTo(bookmark)" />
+            </ul>
+        </div>
+
+        <div class="button-area">
+            <hr>
+            <IconButton text="New bookmark" icon="bi-plus-lg" title="Create a new bookmark from the current view"
+                class="btn-primary" @click="() => { addBookmark(); $forceUpdate(); }" />
+            <IconButton text="Share view" icon="bi-share" title="Share current view" class="btn-outline-secondary"
+                @click="shareCurrentView" />
+            <IconButton title="Export bookmarks to GeoJSON" class="btn-outline-secondary" @click="exportBookmarks"
+                icon="bi-box-arrow-right" text="Export bookmarks" />
+
+            <!-- Import from GeoJSON -->
+            <IconButton title="Import bookmarks from GeoJSON" class="btn-outline-secondary" @click="(hiddenInput as HTMLInputElement).click()"
+                icon="bi-box-arrow-left" text="Import bookmarks" />
+            <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="formFile"
+                @input="(e) => importBookmarkFile(e)">
+        </div>
     </div>
 
-    <div class="button-area">
-        <hr>
-        <IconButton text="New bookmark" icon="bi-plus-lg" title="Create a new bookmark from the current view" class="btn-primary" @click="() => { addBookmark(); $forceUpdate(); }" />
-        <IconButton text="Share view" icon="bi-share" title="Share current view" class="btn-outline-secondary" @click="shareCurrentView" />
-        <IconButton title="Export bookmarks to GeoJSON" class="btn-outline-secondary" @click="exportBookmarks" icon="bi-box-arrow-right" text="Export bookmarks"/>
-
-        <!-- Import from GeoJSON -->
-        <IconButton title="Import bookmarks from GeoJSON" class="btn-outline-secondary" @click="hiddenInput.click()" icon="bi-box-arrow-left" text="Import bookmarks"/>
-        <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="formFile" @input="(e) => importBookmarkFile(e)">
-    </div>
-  </div>
-
-  <!-- FIXME the modal popup background does not take the entire screen -->
-  <!-- FIXME the modal popup slightly changes the layout of the page when it appears -->
-  <ModalOverlay :show="showShareModal" :title="modalTitle" v-on:close="() => showShareModal = false" >
-      <ShareBookmarkModal :url="shareUrl" />
-  </ModalOverlay>
-
+    <!-- FIXME the modal popup background does not take the entire screen -->
+    <!-- FIXME the modal popup slightly changes the layout of the page when it appears -->
+    <ModalOverlay :show="showShareModal" :title="(modalTitle as string)" v-on:close="() => showShareModal = false">
+        <ShareBookmarkModal :url="(shareUrl as string)" />
+    </ModalOverlay>
 </template>
 
 <style scoped>
 .import {
-  height: 30rem;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
+    height: 30rem;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 button {

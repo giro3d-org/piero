@@ -1,18 +1,15 @@
 import { Instance } from "@giro3d/giro3d/core";
 import { Coordinates, Extent } from "@giro3d/giro3d/core/geographic";
 import { defineStore } from "pinia";
-import { Color, Vector2 } from "three";
-import { ref, shallowRef } from "vue";
-import config from '../config.json';
-import chroma from "chroma-js";
-import { ColorMap } from "@giro3d/giro3d/core/layer";
-import NavigationMode from "@/types/NavigationMode";
+import { Vector2 } from "three";
+import { shallowRef } from "vue";
+import config from '../config';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
-    const mainView = shallowRef<Instance>(null);
-    const minimapView = shallowRef<Instance>(null);
+    const mainView = shallowRef<Instance | null>(null);
+    const minimapView = shallowRef<Instance | null>(null);
 
-    function getMainView(): Instance {
+    function getMainView(): Instance | null {
         return mainView.value;
     };
 
@@ -20,7 +17,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         mainView.value = instance;
     };
 
-    function getMinimapView(): Instance {
+    function getMinimapView(): Instance | null {
         return minimapView.value;
     };
 
@@ -51,7 +48,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function notifyChange() {
-        mainView.value.notifyChange();
+        mainView.value?.notifyChange();
     }
 
     return {

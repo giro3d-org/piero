@@ -8,11 +8,12 @@ export default class FloodingPlaneManager {
     private readonly instance: Instance;
     private readonly layerManager: LayerManager;
     private readonly store = useAnalysisStore();
-    private plane: FloodingPlane;
+    private plane: FloodingPlane | null;
 
     constructor(instance: Instance, layerManager: LayerManager) {
         this.instance = instance;
         this.layerManager = layerManager;
+        this.plane = null;
 
         this.store.$onAction(({
             name,

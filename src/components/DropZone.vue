@@ -27,7 +27,9 @@ function onDrop(e: DragEvent) {
 
 function onDragOver(e: DragEvent) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+    if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'copy';
+    }
 }
 
 </script>

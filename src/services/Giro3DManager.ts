@@ -1,4 +1,4 @@
-import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D, SphereGeometry, Mesh, MeshBasicMaterial, Vector2 } from "three";
+import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D } from "three";
 
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
@@ -100,7 +100,7 @@ export default class Giro3DManager extends EventDispatcher {
      * Gets the datasets & annotations as Object3D.
      */
     getObjects3d(): Object3D[] {
-        const result = [];
+        const result: Object3D[] = [];
         this.mainInstance.scene.traverse(o => {
             result.push(o);
         })

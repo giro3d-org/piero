@@ -26,9 +26,9 @@ export default {
      * @returns Entity created
      */
     async loadString(instance: Instance, layerManager: unknown, id: string, str: string, options: GeoJSONOptions = {}): Promise<Entity3D> {
-        const json = JSON.parse(str);
+        const json = JSON.parse(str) as GeoJSON.GeoJSON;
         const notifications = useNotificationStore();
-        if (json.geometry) {
+        if ("geometry" in json) {
             notifications.push(new Notification('GeoJSON', `Loaded ${id}; processing 1 features...`));
 
             // @ts-ignore - Coordinates are optional
@@ -37,46 +37,49 @@ export default {
             const coordinates = new Coordinates(instance.referenceCrs);
             switch (json.geometry.type) {
                 case GEOMETRY_TYPE.POINT: {
+                    const ptGeometry = (json.geometry) as GeoJSON.Point;
                     coordinatesWgs84.set(
                         'EPSG:4326',
-                        json.geometry.coordinates[0],
-                        json.geometry.coordinates[1],
-                        json.geometry.coordinates[2],
+                        ptGeometry.coordinates[0],
+                        ptGeometry.coordinates[1],
+                        ptGeometry.coordinates[2],
                     );
                     coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                    json.geometry.coordinates[0] = coordinates.values[0];
-                    json.geometry.coordinates[1] = coordinates.values[1];
-                    json.geometry.coordinates[2] = coordinates.values[2];
+                    ptGeometry.coordinates[0] = coordinates.values[0];
+                    ptGeometry.coordinates[1] = coordinates.values[1];
+                    ptGeometry.coordinates[2] = coordinates.values[2];
                     break;
                 }
                 case GEOMETRY_TYPE.LINE:
                 case GEOMETRY_TYPE.MULTIPOINT: {
-                    for (let i = 0; i < json.geometry.coordinates.length; i += 1) {
+                    const multiptGeometry = (json.geometry) as GeoJSON.LineString;
+                    for (let i = 0; i < multiptGeometry.coordinates.length; i += 1) {
                         coordinatesWgs84.set(
                             'EPSG:4326',
-                            json.geometry.coordinates[i][0],
-                            json.geometry.coordinates[i][1],
-                            json.geometry.coordinates[i][2],
+                            multiptGeometry.coordinates[i][0],
+                            multiptGeometry.coordinates[i][1],
+                            multiptGeometry.coordinates[i][2],
                         );
                         coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[i][0] = coordinates.values[0];
-                        json.geometry.coordinates[i][1] = coordinates.values[1];
-                        json.geometry.coordinates[i][2] = coordinates.values[2];
+                        multiptGeometry.coordinates[i][0] = coordinates.values[0];
+                        multiptGeometry.coordinates[i][1] = coordinates.values[1];
+                        multiptGeometry.coordinates[i][2] = coordinates.values[2];
                     }
                     break;
                 }
                 case GEOMETRY_TYPE.POLYGON: {
-                    for (let i = 0; i < json.geometry.coordinates[0].length; i += 1) {
+                    const polygonGeometry = (json.geometry) as GeoJSON.Polygon;
+                    for (let i = 0; i < polygonGeometry.coordinates[0].length; i += 1) {
                         coordinatesWgs84.set(
                             'EPSG:4326',
-                            json.geometry.coordinates[0][i][0],
-                            json.geometry.coordinates[0][i][1],
-                            json.geometry.coordinates[0][i][2],
+                            polygonGeometry.coordinates[0][i][0],
+                            polygonGeometry.coordinates[0][i][1],
+                            polygonGeometry.coordinates[0][i][2],
                         );
                         coordinatesWgs84.as(instance.referenceCrs, coordinates);
-                        json.geometry.coordinates[0][i][0] = coordinates.values[0];
-                        json.geometry.coordinates[0][i][1] = coordinates.values[1];
-                        json.geometry.coordinates[0][i][2] = coordinates.values[2];
+                        polygonGeometry.coordinates[0][i][0] = coordinates.values[0];
+                        polygonGeometry.coordinates[0][i][1] = coordinates.values[1];
+                        polygonGeometry.coordinates[0][i][2] = coordinates.values[2];
                     }
                     break;
                 }
@@ -86,82 +89,91 @@ export default {
             // TODO
             // const entity = layerManager.addAnnotation(json.geometry, false);
             // alert.dismiss();
+            // return entity;
+            throw new Error('Not supported yet');
+        }
+
+        if ("features" in json) {
+            notifications.push(new Notification('GeoJSON', `Loaded ${id}; processing ${json.features.length} features...`));
+
+            const projectionOrigin = options?.projection ?? 'EPSG:4326';
+            // @ts-ignore - Coordinates are optional
+            const coordinatesOrigin = new Coordinates(projectionOrigin);
+            // @ts-ignore - Coordinates are optional
+            const coordinates = new Coordinates(instance.referenceCrs);
+            const group = new Group();
+            const zDefault = options?.z ?? 0;
+
+            json.features.forEach(feature => {
+                switch (feature.geometry.type) {
+                    case GEOMETRY_TYPE.POINT: {
+                        // FIXME: THIS IS BROKEN
+                        const ptGeometry = (feature.geometry) as GeoJSON.Point;
+                        coordinatesOrigin.set(
+                            projectionOrigin,
+                            ptGeometry.coordinates[0],
+                            ptGeometry.coordinates[1],
+                            ptGeometry.coordinates[2] ?? zDefault,
+                        );
+                        coordinatesOrigin.as(instance.referenceCrs, coordinates);
+                        ptGeometry.coordinates[0] = coordinates.values[0];
+                        ptGeometry.coordinates[1] = coordinates.values[1];
+                        ptGeometry.coordinates[2] = coordinates.values[2];
+                        break;
+                    }
+                    case GEOMETRY_TYPE.LINE:
+                    case GEOMETRY_TYPE.MULTIPOINT: {
+                        const multiptGeometry = (feature.geometry) as GeoJSON.LineString;
+                        for (let i = 0; i < multiptGeometry.coordinates.length; i += 1) {
+                            coordinatesOrigin.set(
+                                projectionOrigin,
+                                multiptGeometry.coordinates[i][0],
+                                multiptGeometry.coordinates[i][1],
+                                multiptGeometry.coordinates[i][2] ?? zDefault,
+                            );
+                            coordinatesOrigin.as(instance.referenceCrs, coordinates);
+                            multiptGeometry.coordinates[i][0] = coordinates.values[0];
+                            multiptGeometry.coordinates[i][1] = coordinates.values[1];
+                            multiptGeometry.coordinates[i][2] = coordinates.values[2];
+                        }
+                        break;
+                    }
+                    case GEOMETRY_TYPE.POLYGON: {
+                        const polygonGeometry = (feature.geometry) as GeoJSON.Polygon;
+                        for (let i = 0; i < polygonGeometry.coordinates[0].length; i += 1) {
+                            coordinatesOrigin.set(
+                                projectionOrigin,
+                                polygonGeometry.coordinates[0][i][0],
+                                polygonGeometry.coordinates[0][i][1],
+                                polygonGeometry.coordinates[0][i][2] ?? zDefault,
+                            );
+                            coordinatesOrigin.as(instance.referenceCrs, coordinates);
+                            polygonGeometry.coordinates[0][i][0] = coordinates.values[0];
+                            polygonGeometry.coordinates[0][i][1] = coordinates.values[1];
+                            polygonGeometry.coordinates[0][i][2] = coordinates.values[2];
+                        }
+                        break;
+                    }
+                    default:
+                        return;
+                }
+
+                // @ts-ignore
+                const o = new Drawing(instance, {
+                    minExtrudeDepth: 1,
+                    maxExtrudeDepth: 5,
+                    use3Dpoints: false,
+                }, feature.geometry);
+                // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
+                o.userData = feature.properties;
+                // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
+                group.add(o);
+            });
+
+            const entity = new Entity3D(group.uuid, group);
             return entity;
         }
 
-        notifications.push(new Notification('GeoJSON', `Loaded ${id}; processing ${json.features.length} features...`));
-
-        const projectionOrigin = options?.projection ?? 'EPSG:4326';
-        // @ts-ignore - Coordinates are optional
-        const coordinatesOrigin = new Coordinates(projectionOrigin);
-        // @ts-ignore - Coordinates are optional
-        const coordinates = new Coordinates(instance.referenceCrs);
-        const group = new Group();
-        const zDefault = options?.z ?? 0;
-
-        json.features.forEach(feature => {
-            switch (feature.geometry.type) {
-                case GEOMETRY_TYPE.POINT: {
-                    // FIXME: THIS IS BROKEN
-                    coordinatesOrigin.set(
-                        projectionOrigin,
-                        feature.geometry.coordinates[0],
-                        feature.geometry.coordinates[1],
-                        feature.geometry.coordinates[2] ?? zDefault,
-                    );
-                    coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                    feature.geometry.coordinates[0] = coordinates.values[0];
-                    feature.geometry.coordinates[1] = coordinates.values[1];
-                    feature.geometry.coordinates[2] = coordinates.values[2];
-                    break;
-                }
-                case GEOMETRY_TYPE.LINE:
-                case GEOMETRY_TYPE.MULTIPOINT: {
-                    for (let i = 0; i < feature.geometry.coordinates.length; i += 1) {
-                        coordinatesOrigin.set(
-                            projectionOrigin,
-                            feature.geometry.coordinates[i][0],
-                            feature.geometry.coordinates[i][1],
-                            feature.geometry.coordinates[i][2] ?? zDefault,
-                        );
-                        coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                        feature.geometry.coordinates[i][0] = coordinates.values[0];
-                        feature.geometry.coordinates[i][1] = coordinates.values[1];
-                        feature.geometry.coordinates[i][2] = coordinates.values[2];
-                    }
-                    break;
-                }
-                case GEOMETRY_TYPE.POLYGON: {
-                    for (let i = 0; i < feature.geometry.coordinates[0].length; i += 1) {
-                        coordinatesOrigin.set(
-                            projectionOrigin,
-                            feature.geometry.coordinates[0][i][0],
-                            feature.geometry.coordinates[0][i][1],
-                            feature.geometry.coordinates[0][i][2] ?? zDefault,
-                        );
-                        coordinatesOrigin.as(instance.referenceCrs, coordinates);
-                        feature.geometry.coordinates[0][i][0] = coordinates.values[0];
-                        feature.geometry.coordinates[0][i][1] = coordinates.values[1];
-                        feature.geometry.coordinates[0][i][2] = coordinates.values[2];
-                    }
-                    break;
-                }
-                default:
-                    return;
-            }
-
-            // @ts-ignore
-            const o = new Drawing(instance, {
-                minExtrudeDepth: 1,
-                maxExtrudeDepth: 5,
-                use3Dpoints: false,
-            }, feature.geometry);
-            o.userData = feature.properties;
-            // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
-            group.add(o);
-        });
-
-        const entity = new Entity3D(group.uuid, group);
-        return entity;
+        throw new Error('Not supported yet');
     },
 };

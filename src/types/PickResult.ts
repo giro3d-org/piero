@@ -8,7 +8,7 @@ import { Coordinates } from "@giro3d/giro3d/core/geographic";
  * Picked object
  */
 interface PickResult {
-    point?: Vector3;
+    point: Vector3;
     coord?: Coordinates;
     layer?: any;
     rootobj?: Object3D;

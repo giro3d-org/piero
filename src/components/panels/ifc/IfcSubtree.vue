@@ -23,13 +23,15 @@ function highlight() {
 
 function zoomTo() {
     const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
-    cameraStore.lookTopDownAt(bbox);
+    if (bbox && !bbox.isEmpty()) cameraStore.lookTopDownAt(bbox);
 }
 
 function clipTo() {
     const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
-    analysis.setClippingBox(bbox);
-    analysis.enableClippingBox(true);
+    if (bbox && !bbox.isEmpty()) {
+        analysis.setClippingBox(bbox);
+        analysis.enableClippingBox(true);
+    }
 }
 
 

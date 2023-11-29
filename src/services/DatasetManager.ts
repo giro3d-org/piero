@@ -20,6 +20,7 @@ import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 import { Color, MeshLambertMaterial } from 'three';
 import { AxisGrid } from '@giro3d/giro3d/entities';
+import { FeatureLike } from 'ol/Feature';
 
 export default class DatasetManager {
     private readonly instance: Instance;
@@ -67,7 +68,7 @@ export default class DatasetManager {
     private onToggleGrid(dataset: Dataset) {
         if (this.axisGrids.has(dataset.uuid)) {
             const grid = this.axisGrids.get(dataset.uuid);
-            this.instance.remove(grid);
+            if (grid) this.instance.remove(grid);
             this.axisGrids.delete(dataset.uuid);
         } else {
             const entity = this.entities.get(dataset.uuid);
@@ -75,6 +76,10 @@ export default class DatasetManager {
                 return;
             }
             const box = entity.getBoundingBox();
+            if (!box || box.isEmpty()) {
+                return;
+            }
+
             const grid = new AxisGrid(`AxisGrid-${dataset.uuid}`, {
                 ticks: {
                     x: 50,
@@ -106,6 +111,8 @@ export default class DatasetManager {
     }
 
     private loadPointCloud(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+
         const pointcloud = new Tiles3D(
             `pointcloud-${dataset.name}`,
             new Tiles3DSource(dataset.url),
@@ -127,17 +134,20 @@ export default class DatasetManager {
     }
 
     private loadIFC(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
         return loader.processFile(this.instance, dataset.url, {
             at:  dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
         });
     }
 
     private loadCityJSON(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
         return loader.processFile(this.instance, dataset.url, {
             projection: this.instance.referenceCrs,
         });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private loadBDTopo(dataset: Dataset): Entity3D {
         const crs = this.instance.referenceCrs;
 
@@ -164,14 +174,14 @@ export default class DatasetManager {
             source: vectorSource,
             extent: new Extent(crs, -111629.52, 1275028.84, 5976033.79, 7230161.64),
             material: new MeshLambertMaterial(),
-            extrusionOffset: feature => {
+            extrusionOffset: (feature: FeatureLike) => {
                 const hauteur = -feature.getProperties().hauteur;
                 if (Number.isNaN(hauteur)) {
                     return null;
                 }
                 return hauteur;
             },
-            style: feature => {
+            style: (feature: FeatureLike) => {
                 const properties = feature.getProperties();
                 const fid = feature.getId();
                 let color = '#FFFFFF';
@@ -201,8 +211,8 @@ export default class DatasetManager {
         try {
             const result = await loader.processFile(this.instance, file);
 
-            let entity: Entity3D = result.obj;
-            let type: DatasetType;
+            const entity: Entity3D = result.obj;
+            let type: DatasetType | undefined;
 
             switch (result.filetype) {
                 case 'gpkg':
@@ -225,7 +235,9 @@ export default class DatasetManager {
                     break;
             }
 
-            const dataset = new DatasetObject(result.filename, type);
+            if (type === undefined) throw new Error(`Could not import file type ${result.filetype}`);
+
+            const dataset = new DatasetObject(result.filename, type, null);
 
             dataset.visible = true;
             this.entities.set(dataset.uuid, result.obj);

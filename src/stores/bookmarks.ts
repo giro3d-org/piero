@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import Bookmark from "@/types/Bookmark";
 import CameraPosition from "@/types/CameraPosition";
-import config from '@/config.json';
+import config from '@/config';
 
 function buildInitialList() {
     const result : Bookmark[] = [];

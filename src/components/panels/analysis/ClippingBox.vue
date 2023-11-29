@@ -3,7 +3,7 @@ import { Vector3 } from 'three';
 import { ref } from 'vue';
 import { useAnalysisStore } from '@/stores/analysis';
 import { useCameraStore } from '@/stores/camera';
-import config from '../../../config.json';
+import config from '@/config';
 
 const analysis = useAnalysisStore();
 const camera = useCameraStore();

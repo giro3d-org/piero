@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useAnalysisStore } from '@/stores/analysis';
 import FloodingPlane from './analysis/FloodingPlane.vue'
 import ToolWrapper from './analysis/ToolWrapper.vue';

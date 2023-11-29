@@ -14,7 +14,7 @@ import { Material, Matrix4, MeshBasicMaterial, Vector3 } from "three";
 
 const tempMatrix = new Matrix4();
 
-type FragmentTypeName  = "selection" | "bbox";
+type FragmentTypeName = "selection" | "bbox";
 
 type SelectionMap = {
     [name in FragmentTypeName]: FragmentIdMap;
@@ -89,8 +89,8 @@ export default class IfcEntity extends Entity3D {
     readonly fragmentClassifier: FragmentClassifier;
     private ifcSelection: SelectionMap; // Currently selected fragments
     private indexMap: IndexMap; // Properties relationships
-    private classificationCache: ClassificationItem[];
-    private fragmentBoundingBox: FragmentBoundingBox;
+    private classificationCache: ClassificationItem[] | null;
+    private fragmentBoundingBox: FragmentBoundingBox | null;
 
     override get object3d(): FragmentsGroup { return super.object3d as FragmentsGroup };
 
@@ -101,7 +101,10 @@ export default class IfcEntity extends Entity3D {
         this.fragmentManager = fragmentManager;
         this.fragmentClassifier = fragmentClassifier;
         this.type = 'IfcEntity';
-        this.ifcSelection = {"selection": {}, "bbox": {}};
+        this.ifcSelection = { "selection": {}, "bbox": {} };
+        this.indexMap = {};
+        this.classificationCache = null;
+        this.fragmentBoundingBox = null;
         this.initializeEntityIndexes();
         this.initializeIfcHightlight();
 
@@ -112,6 +115,7 @@ export default class IfcEntity extends Entity3D {
     private initializeEntityIndexes() {
         this.indexMap = {};
         const properties = this.object3d.properties;
+        if (properties === undefined) return;
 
         for (const relation of relationsToProcess) {
             IfcPropertiesUtils.getRelationMap(
@@ -137,13 +141,18 @@ export default class IfcEntity extends Entity3D {
 
     getProperty(
         expressID: number,
-    ): { name: string, value: any } {
+    ): { name: string, value: any } | null {
+        const properties = this.object3d.properties;
+        if (properties === undefined) return null;
+
         const { name } = IfcPropertiesUtils.getEntityName(
-            this.object3d.properties,
+            properties,
             expressID
         );
+        if (name === null) return null;
+
         const { value } = IfcPropertiesUtils.getQuantityValue(
-            this.object3d.properties,
+            properties,
             expressID
         );
         return { name, value };
@@ -151,34 +160,47 @@ export default class IfcEntity extends Entity3D {
 
     getProperties(expressID: string): { parentName: string, name: string, value: any }[] {
         const properties = [];
+        const objectRawProperties = this.object3d.properties;
+        if (!objectRawProperties) return [];
 
         for (const id of this.indexMap[expressID]) {
-            const entity = this.object3d.properties[id];
+            const entity = objectRawProperties[id];
             if (!entity) continue;
-            const { name } = IfcPropertiesUtils.getEntityName(this.object3d.properties, id);
+            const { name } = IfcPropertiesUtils.getEntityName(objectRawProperties, id);
+            if (name === null) continue
 
             if (entity.type === IFCPROPERTYSET) {
                 const psetPropsIds = IfcPropertiesUtils.getPsetProps(
-                    this.object3d.properties,
+                    objectRawProperties,
                     id);
-                for (const psetPropId of psetPropsIds) {
-                    const prop = this.object3d.properties[psetPropId];
-                    if (prop) properties.push({
-                        parentName: name,
-                        ...this.getProperty(psetPropId)
-                    });
-                };
+                if (psetPropsIds !== null) {
+                    for (const psetPropId of psetPropsIds) {
+                        const psetProp = objectRawProperties[psetPropId];
+                        if (!psetProp) continue;
+                        const psetProperties = this.getProperty(psetPropId);
+                        if (psetProperties === null) continue;
+                        properties.push({
+                            parentName: name,
+                            ...psetProperties,
+                        });
+                    };
+                }
             } else if (entity.type === IFCELEMENTQUANTITY) {
-                const qsetQuantityIds = IfcPropertiesUtils.getQsetQuantities(this.object3d.properties, id);
-                for (const quantityId of qsetQuantityIds) {
-                    const { key } = IfcPropertiesUtils.getQuantityValue(
-                        this.object3d.properties,
-                        quantityId
-                    );
-                    if (key) properties.push({
-                        parentName: name,
-                        ...this.getProperty(quantityId)
-                    });
+                const qsetQuantityIds = IfcPropertiesUtils.getQsetQuantities(objectRawProperties, id);
+                if (qsetQuantityIds !== null) {
+                    for (const quantityId of qsetQuantityIds) {
+                        const { key } = IfcPropertiesUtils.getQuantityValue(
+                            objectRawProperties,
+                            quantityId
+                        );
+                        if (key === null) continue;
+                        const qsetProperties = this.getProperty(quantityId);
+                        if (qsetProperties === null) continue;
+                        properties.push({
+                            parentName: name,
+                            ...qsetProperties,
+                        });
+                    }
                 }
             }
         }
@@ -226,6 +248,7 @@ export default class IfcEntity extends Entity3D {
     }
 
     getClassification(): ClassificationItem[] {
+        if (this.classificationCache === null) throw new Error('Must call initClassification before getClassification');
         return this.classificationCache;
     }
 
@@ -372,6 +395,8 @@ export default class IfcEntity extends Entity3D {
         this.highlightById(ids, "bbox");
 
         const bbox = this.fragmentBoundingBox;
+        if (bbox === null) throw new Error('Must call initClassification before getBoundingBoxById');
+
         const fragments = this.fragmentManager;
         bbox.reset();
 
@@ -389,8 +414,8 @@ export default class IfcEntity extends Entity3D {
 
         // since Giro3D is Z-up, we need to swap Y and Z, and then invert the sign of
         // the new Y (i.e the Z before the swap).
-        const { x: xmin, y: ymin, z: zmin} = box.min;
-        const { x: xmax, y: ymax, z: zmax} = box.max;
+        const { y: ymin, z: zmin } = box.min;
+        const { y: ymax, z: zmax } = box.max;
 
         box.min.y = -zmax;
         box.max.y = -zmin;

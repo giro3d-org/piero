@@ -11,10 +11,10 @@ const helperMaterial = new MeshBasicMaterial({ color: 'yellow', opacity: 0.1, tr
 export default class ClippingBoxManager {
     private readonly instance: Instance;
     private volumeHelpers: Group;
-    private clippingBox: Box3;
-    private clippingBoxHelper: Box3Helper;
-    private clippingBoxMesh: Mesh;
-    private transformControls: TransformControls;
+    private clippingBox: Box3 | null;
+    private clippingBoxHelper: Box3Helper | null;
+    private clippingBoxMesh: Mesh | null;
+    private transformControls: TransformControls | null;
     private previousTransformControls: NavigationMode;
 
     private readonly store = useAnalysisStore();
@@ -25,6 +25,12 @@ export default class ClippingBoxManager {
         this.instance = instance;
         this.volumeHelpers = new Group();
         instance.scene.add(this.volumeHelpers);
+
+        this.clippingBox = null;
+        this.clippingBoxHelper = null;
+        this.clippingBoxMesh = null;
+        this.transformControls = null;
+        this.previousTransformControls = this.cameraStore.getNavigationMode();
 
         this.store.$onAction(({
             name,
@@ -86,7 +92,7 @@ export default class ClippingBoxManager {
             // Now let's add some controls to move the box
             this.transformControls = new TransformControls(this.instance.camera.camera3D, this.instance.domElement);
             this.transformControls.addEventListener('change', () => {
-                if (this.cameraStore.getNavigationMode() !== "disabled") return;
+                if (this.cameraStore.getNavigationMode() !== "disabled" || this.clippingBoxMesh === null) return;
                 // If the change came from the control, let's move the box
                 this.store.clippingBoxCenter.copy(this.clippingBoxMesh.position);
                 this.moveClippingBox();
@@ -114,6 +120,8 @@ export default class ClippingBoxManager {
     }
 
     private getPlanesFromBoxSides(): Plane[] {
+        if (this.clippingBox === null) throw new Error('No clippingBox defined');
+
         const result: Plane[] = [];
 
         // Notice that when the plane has a positive normal, the distance to the box must be negated
@@ -170,13 +178,17 @@ export default class ClippingBoxManager {
      */
     private moveClippingBox() {
         if (this.store.isClippingBoxEnabled()) {
-            this.clippingBox.setFromCenterAndSize(this.store.clippingBoxCenter, this.store.clippingBoxSize);
+            if (this.clippingBox === null) {
+                this.createClippingBox(this.store.clippingBoxCenter, this.store.clippingBoxSize);
+            }
+
+            this.clippingBox?.setFromCenterAndSize(this.store.clippingBoxCenter, this.store.clippingBoxSize);
 
             if (this.store.isClippingBoxHelperDisplayed()) {
-                this.clippingBoxMesh.position.copy(this.store.clippingBoxCenter);
-                this.clippingBoxMesh.updateMatrixWorld();
-                this.clippingBoxHelper.updateMatrixWorld();
-                this.transformControls.updateMatrixWorld();
+                this.clippingBoxMesh?.position.copy(this.store.clippingBoxCenter);
+                this.clippingBoxMesh?.updateMatrixWorld();
+                this.clippingBoxHelper?.updateMatrixWorld();
+                this.transformControls?.updateMatrixWorld();
                 this.instance.notifyChange(this.volumeHelpers);
                 this.instance.notifyChange(this.transformControls);
             }

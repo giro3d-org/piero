@@ -5,7 +5,7 @@ import ColorLayer from "@giro3d/giro3d/core/layer/ColorLayer";
 import ElevationLayer from "@giro3d/giro3d/core/layer/ElevationLayer";
 import Layer from "@giro3d/giro3d/core/layer/Layer";
 import Map from "@giro3d/giro3d/entities/Map";
-import { EventDispatcher, GridHelper, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector2, Vector3 } from "three";
+import { EventDispatcher, GridHelper, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from "three";
 import VectorSource from "@giro3d/giro3d/sources/VectorSource";
 import TileIndex from "@giro3d/giro3d/core/TileIndex";
 import { useGiro3dStore } from "@/stores/giro3d";
@@ -17,11 +17,12 @@ Layer.prototype.loadFallbackImages = function doNothing() {
 }
 
 // Patch Giro3D, remove me when https://gitlab.com/giro3d/giro3d/-/issues/168 is closed
+// @ts-ignore
 Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordinate(
-    coordinate,
+    coordinate: Coordinates,
     hitTolerance = 0,
     tileHint = undefined,
-    target = [],
+    target: any[] = [],
 ) {
     if (hitTolerance === 0) {
         for (const layer of this._attachedLayers) {
@@ -34,7 +35,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
             }
         }
     } else {
-        let tile = tileHint;
+        let tile: any = tileHint;
         if (!tile) {
             tile = this.tileIndex.tiles.get(TileIndex.getKey(0, 0, 0)).deref();
             for (const t of this.tileIndex.tiles) {
@@ -45,6 +46,8 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
                 }
             }
         }
+        if (!tile) return [];
+
         const tileLayer = tile.extent.as(coordinate.crs);
 
         const tileExtent = tileLayer.dimensions();
@@ -61,6 +64,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
             coordinate.y() + yRes * hitTolerance,
         );
 
+        // @ts-ignore
         const features = this.getVectorFeaturesInExtent(e);
         for (const feat of features) {
             const layerProjection = feat.layer.getExtent()?.crs() ?? this._instance.referenceCrs;
@@ -84,7 +88,8 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
     return target;
 };
 
-Map.prototype.getVectorFeaturesInExtent = function getVectorFeaturesInExtent(extent, target = []) {
+// @ts-ignore
+Map.prototype.getVectorFeaturesInExtent = function getVectorFeaturesInExtent(extent, target: any[] = []) {
     for (const layer of this._attachedLayers) {
         if (layer.type !== 'MaskLayer' && layer.source && layer.source instanceof VectorSource && layer.visible) {
             const layerProjection = layer.getExtent()?.crs() ?? this._instance.referenceCrs;
@@ -105,10 +110,10 @@ Map.prototype.getVectorFeaturesInExtent = function getVectorFeaturesInExtent(ext
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
-    private basemap: Map;
+    private basemap!: Map;
     private readonly giro3dStore = useGiro3dStore();
-    private grid: GridHelper;
-    private plane: Mesh;
+    private grid!: GridHelper;
+    private plane!: Mesh;
 
     private readonly baseLayerOrdering: Set<string> = new Set();
     private readonly overlayOrdering: Set<string> = new Set();

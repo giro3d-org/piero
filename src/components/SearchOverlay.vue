@@ -1,9 +1,10 @@
 <script setup lang="ts">
+// @ts-ignore
 import autoComplete from '@tarekraafat/autocomplete.js'
 import { Vector3 } from 'three';
 import { onMounted, ref } from 'vue'
 
-const inputField = ref<HTMLInputElement>(null);
+const inputField = ref<HTMLInputElement | null>(null);
 
 const emits = defineEmits(['update:poi']);
 
@@ -18,8 +19,8 @@ onMounted(() => {
         const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`)
         const data = await source.json()
 
-        const lng = []
-        const lat = []
+        const lng: number[] = []
+        const lat: number[] = []
 
         data.features.forEach((feature: { geometry: { coordinates: any[]; }; }) => {
           lng.push(feature.geometry.coordinates[0])
@@ -52,8 +53,8 @@ onMounted(() => {
 
   const inputElement = inputField.value as HTMLInputElement;
 
-  inputElement.addEventListener('selection', (event: InputEvent) => {
-      const poi = event.detail.selection.value as Vector3;
+  inputElement.addEventListener('selection', (event: Event) => {
+      const poi = (event as any).detail.selection.value as Vector3;
 
       emits('update:poi', poi);
   });

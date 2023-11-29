@@ -1,7 +1,7 @@
 <script setup lang="ts">
-defineProps({
-    url: String
-})
+defineProps<{
+    url: string
+}>()
 
 function copyToClipboard(url: string) {
     navigator.clipboard.writeText(url);

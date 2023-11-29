@@ -5,10 +5,11 @@ import IfcEntity from "@/giro3d/IfcEntity";
 
 export default class Highlighter {
     private readonly instance_: Instance;
-    private highlighted: IfcEntity;
+    private highlighted: IfcEntity | null;
 
     constructor(instance: Instance) {
         this.instance_ = instance;
+        this.highlighted = null;
     }
 
     clear() {
@@ -24,7 +25,7 @@ export default class Highlighter {
             return;
         }
 
-        if (entity.isEntity3D && (entity as any)?.isIfcEntity && pick.mesh) {
+        if (entity.isEntity3D && (entity as any)?.isIfcEntity && pick.mesh && pick.itemId) {
             const ifcEntity = entity as IfcEntity;
             this.highlighted = ifcEntity;
             ifcEntity.highlight("selection", pick.mesh, pick.itemId);

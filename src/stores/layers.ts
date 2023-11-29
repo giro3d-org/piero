@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, reactive } from "vue";
 
-import config from '../config.json';
+import config from '../config';
 import { Color } from "three";
 import { ColorMap } from "@giro3d/giro3d/core/layer";
 import chroma from "chroma-js";
@@ -9,8 +9,9 @@ import { getPublicFolderUrl } from "@/utils/Configuration";
 import { BaseLayer, BaseLayerObject } from "@/types/BaseLayer";
 import { LayerSource, WMSSource, WMTSSource, VectorSource, MVTSource } from "@/types/LayerSource";
 import { Overlay, OverlayObject } from "@/types/Overlay";
+import { BasemapSourceLayerConfig } from "@/types/Configuration";
 
-function getSource(conf): LayerSource {
+function getSource(conf: BasemapSourceLayerConfig): LayerSource {
     switch (conf.type) {
         case 'wms':
             return {
@@ -29,8 +30,10 @@ function getSource(conf): LayerSource {
                 nodata: conf.nodata,
                 url: conf.url,
                 projection: conf.projection,
-        } as WMTSSource;
+            } as WMTSSource;
     }
+
+    throw new Error(`Unsupported source type ${conf.type}`);
 }
 
 function getBaseLayers() {
@@ -58,20 +61,26 @@ function getInitialOverlays() {
             case 'geojson':
             case 'kml':
             case 'gpx':
-                const vectorSource = source as VectorSource;
-                vectorSource.url = getPublicFolderUrl(item.url);
-                vectorSource.projection = item.projection;
-                vectorSource.style = item.style;
-                break;
+                {
+                    const vectorSource = source as VectorSource;
+                    vectorSource.url = getPublicFolderUrl(item.url);
+                    vectorSource.projection = item.projection;
+                    vectorSource.style = item.style;
+                    break;
+                }
             case 'mvt':
-                const mvtSource = source as MVTSource;
-                mvtSource.url = getPublicFolderUrl(item.url);
-                mvtSource.style = item.style;
-                mvtSource.backgroundColor = item.backgroundColor;
-                break;
+                {
+                    const mvtSource = source as MVTSource;
+                    mvtSource.url = getPublicFolderUrl(item.url);
+                    mvtSource.style = item.style;
+                    mvtSource.backgroundColor = item.backgroundColor;
+                    break;
+                }
             case 'wms':
-                source = getSource(item.source);
-                break;
+                {
+                    source = getSource(item.source);
+                    break;
+                }
         }
         const overlay = new OverlayObject(item.name, source);
         overlay.visible = item.visible;

@@ -4,14 +4,14 @@ import Inspector from '@giro3d/giro3d/gui/Inspector';
 import { Instance } from '@giro3d/giro3d/core';
 import { useGiro3dStore } from '@/stores/giro3d';
 
-const mainView = ref(null);
-const inspectorView = ref(null);
-const instance = shallowRef<Instance>(null);
+const mainView = ref<HTMLDivElement | null>(null);
+const inspectorView = ref<HTMLDivElement | null>(null);
+const instance = shallowRef<Instance | null>(null);
 
 const store = useGiro3dStore();
 
 onMounted(() => {
-    instance.value = new Instance(mainView.value, {
+    instance.value = new Instance(mainView.value as HTMLDivElement, {
             crs: store.getCRS(),
             renderer: {
                 clearColor: false,
@@ -19,7 +19,7 @@ onMounted(() => {
     })
     store.setMainView(instance.value);
 
-    Inspector.attach(inspectorView.value, instance.value, { title: 'Main view', width: 300 });
+    Inspector.attach(inspectorView.value as HTMLDivElement, instance.value, { title: 'Main view', width: 300 });
 })
 
 onUnmounted(() => {

@@ -27,12 +27,13 @@ function loadOSMLayer(map: Map) {
 }
 
 export default class MinimapController {
-    private mainInstance: Instance;
+    private mainInstance: Instance | null;
     private readonly minimapInstance: Instance;
     private readonly viewbox: Viewbox;
     private readonly basemap: Map;
 
     constructor(instance: Instance) {
+        this.mainInstance = null;
         this.minimapInstance = instance;
 
         this.viewbox = new Viewbox();
@@ -71,10 +72,12 @@ export default class MinimapController {
     getCorners() {
         const instance = this.mainInstance;
         const minimapInstance = this.minimapInstance;
-        const canvasSize = instance.mainLoop.gfxEngine.getWindowSize();
-        const camera = instance.camera.camera3D;
 
-        function raycast(x: number, y: number) {
+        if (instance === null) throw new Error('Must call setMainInstance before getCorners');
+
+        const canvasSize = instance.mainLoop.gfxEngine.getWindowSize();
+
+        const raycast = (x: number, y: number) => {
             const results = instance.pickObjectsAt(new Vector2(x, y), { limit: 1, radius: 0 });
             const point = results.at(0)?.point;
             if (point) {
@@ -104,6 +107,8 @@ export default class MinimapController {
     updateViewbox() {
         // Disabled as it consumes too much CPU
         // let corners = this.getCorners();
+        if (this.mainInstance === null) throw new Error('Must call setMainInstance before updateViewbox');
+
         const corners = null;
         const mainCamera = this.mainInstance.camera.camera3D;
         const minimapCamera = this.minimapInstance.camera.camera3D;

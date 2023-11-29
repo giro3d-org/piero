@@ -1,10 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import ToolbarButton from './ToolbarButton.vue'
 import Configuration from '../Configuration'
 
-defineProps({
-  active: String
-})
+defineProps<{
+    active: string | null;
+}>()
 defineEmits(['selected'])
 
 const panels = Configuration.panels;

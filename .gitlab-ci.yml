@@ -1,6 +1,6 @@
 image: node:lts-alpine
 before_script:
-    - cp src/config.json.sample src/config.json
+    - cp src/config.ts.sample src/config.ts
     - cp src/styles.ts.sample src/styles.ts
     - npm i
 

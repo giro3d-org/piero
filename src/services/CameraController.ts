@@ -12,8 +12,6 @@ import {
     MathUtils,
     EventDispatcher,
     Object3D,
-    Mesh,
-    SphereGeometry,
 } from 'three';
 import CameraControls from 'camera-controls';
 import FirstPersonControls from '@giro3d/giro3d/controls/FirstPersonControls';
@@ -69,7 +67,7 @@ class CameraController extends EventDispatcher {
         this.firstPersonControls = new FirstPersonControls(this.instance);
         this.instance.controls = this.orbitControls;
         this.defaultSpeed = this.orbitControls.maxSpeed;
-        this.orbitHelper = new CSS2DObject(document.getElementById('orbit-helper'));
+        this.orbitHelper = new CSS2DObject(document.getElementById('orbit-helper') as HTMLElement);
         this.instance.add(this.orbitHelper);
 
         this.initializeOrbitControls();
@@ -362,8 +360,10 @@ class CameraController extends EventDispatcher {
             bbox = (obj as Box3).clone();
         } else if ((obj as any).isEntity3D) {
             const entity3d = obj as Entity3D;
-            bbox = entity3d.getBoundingBox();
-            if (bbox.isEmpty() && 'extent' in entity3d) {
+            const entityBbox = entity3d.getBoundingBox();
+            if (entityBbox && !entityBbox.isEmpty()) {
+                bbox = entityBbox.clone();
+            } else if ('extent' in entity3d) {
                 // In case object is hidden
                 bbox = (entity3d.extent as Extent).toBox3(0, 200);
             }
@@ -372,6 +372,8 @@ class CameraController extends EventDispatcher {
         } else {
             throw new Error('obj should be instanceof Box3, Object3D or Entity3D');
         }
+        if (bbox.isEmpty()) throw new Error('Could not find bounding box of object');
+
         bbox.min.z = Math.max(bbox.min.z, 0);
         bbox.max.z = Math.min(bbox.max.z, 2000);
 
