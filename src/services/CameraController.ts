@@ -42,10 +42,15 @@ CameraControls.install({
 
 const picker = new Picker();
 
+type CameraControllerEventMap = {
+    'interaction-start': {},
+    'interaction-end': {},
+};
+
 /**
  * Wraps Camera-controls into Giro3D
  */
-class CameraController extends EventDispatcher {
+class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly instance: Instance;
     private readonly orbitControls: CameraControls;
     private readonly pickObjectsAt: (e: any) => any;
