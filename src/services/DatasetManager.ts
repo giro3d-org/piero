@@ -61,6 +61,9 @@ export default class DatasetManager {
                     case 'toggleGrid':
                         this.onToggleGrid(args[0]);
                         break;
+                    case 'toggleMask':
+                        this.onToggleMask(args[0]);
+                        break;
                 }
             });
         });
@@ -109,6 +112,73 @@ export default class DatasetManager {
         }
     }
 
+    private createMask(dataset: Dataset) {
+        const entity = this.entities.get(dataset.uuid);
+        if (!entity) {
+            return;
+        }
+
+        // TODO: this assumes the dataset covers the whole bounding box
+        // (in particular, that it is oriented the same way)
+        // which will most likely not be the case...
+        const box = entity.getBoundingBox();
+        if (!box || box.isEmpty()) {
+            return;
+        }
+
+        // Contract bounding box so it makes stitching a bit nicer
+        box.expandByVector(new Vector3(-5, -5, 0));
+
+        const feature = new Feature({
+            geometry: new Polygon([[
+                [box.min.x, box.min.y],
+                [box.min.x, box.max.y],
+                [box.max.x, box.max.y],
+                [box.max.x, box.min.y],
+                [box.min.x, box.min.y]
+            ]]),
+            name: 'Mask polygon',
+        });
+
+        const mask = new MaskLayer(`mask-${dataset.uuid}`, {
+            source: new Giro3dVectorSource({
+                data: [feature],
+                style: new Style({
+                    fill: new Fill({ color: 'white' }),
+                }),
+            }),
+        });
+        mask.maskMode = MaskMode.Inverted;
+
+        // Apply the mask to the map
+        const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+        maps.forEach(map => {
+            map.addLayer(mask);
+            this.instance.notifyChange(map);
+        });
+        this.masks.set(dataset.uuid, mask);
+    }
+
+    private deleteMask(dataset: Dataset) {
+        const mask = this.masks.get(dataset.uuid);
+        if (mask) {
+            const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+            maps.forEach(map => {
+                map.removeLayer(mask);
+                this.instance.notifyChange(map);
+            });
+        }
+        this.masks.delete(dataset.uuid);
+    }
+
+    private onToggleMask(dataset: Dataset) {
+        if (this.masks.has(dataset.uuid)) {
+            this.deleteMask(dataset);
+        } else {
+            this.createMask(dataset);
+        }
+    }
+
     private onVisibilityChanged(dataset: Dataset, newVisibility: boolean) {
         if (!dataset.isLoaded && newVisibility) {
             this.loadDataset(dataset).then(() => this.updateDataset(dataset));
@@ -143,7 +213,7 @@ export default class DatasetManager {
     private loadIFC(dataset: Dataset) {
         if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
         return loader.processFile(this.instance, dataset.url, {
-            at:  dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
+            at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
         });
     }
 
@@ -268,53 +338,9 @@ export default class DatasetManager {
         if (entity) {
             entity.visible = dataset.visible;
             if (dataset.visible && dataset.maskBasemap) {
-                const box = entity.getBoundingBox();
-                if (box && !box.isEmpty()) {
-                    // TODO: this assumes the dataset covers the whole bounding box
-                    // (in particular, that it is oriented the same way)
-                    // which will most likely not be the case
-
-                    // Contract the bbox to make stitching a bit less ugly
-                    box.expandByVector(new Vector3(-5, -5, 0));
-
-                    const feature = new Feature({
-                        geometry: new Polygon([[
-                            [box.min.x, box.min.y],
-                            [box.min.x, box.max.y],
-                            [box.max.x, box.max.y],
-                            [box.max.x, box.min.y],
-                            [box.min.x, box.min.y]
-                        ]]),
-                        name: 'Mask polygon',
-                      });
-
-
-                    const mask = new MaskLayer(`mask-${dataset.uuid}`, {
-                        source: new Giro3dVectorSource({
-                            data: [feature],
-                            style: new Style({
-                                fill: new Fill({ color: 'white' }),
-                            }),
-                        }),
-                    });
-                    mask.maskMode = MaskMode.Inverted;
-                    const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
-                    maps.forEach(map => {
-                        map.addLayer(mask);
-                        this.instance.notifyChange(map);
-                    });
-                    this.masks.set(dataset.uuid, mask);
-                }
+                this.createMask(dataset);
             } else if (!dataset.visible && this.masks.has(dataset.uuid)) {
-                const mask = this.masks.get(dataset.uuid);
-                if (mask) {
-                    const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
-                    maps.forEach(map => {
-                        map.removeLayer(mask);
-                        this.instance.notifyChange(map);
-                    });
-                    this.masks.delete(dataset.uuid);
-                }
+                this.deleteMask(dataset);
             }
             this.instance.notifyChange(entity);
         }

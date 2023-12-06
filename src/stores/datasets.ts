@@ -48,6 +48,7 @@ function buildInitialList(): Dataset[] {
     }
 
     if (ds) {
+      if (conf.canMaskBasemap) ds.canMaskBasemap = true;
       if (conf.maskBasemap) ds.maskBasemap = true;
       result.push(ds);
     }
@@ -106,5 +107,9 @@ export const useDatasetStore = defineStore('datasets', () => {
 
   }
 
-  return { count, getDatasets, add, remove, goTo, clipTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function toggleMask(ds: Dataset) {
+  }
+
+  return { count, getDatasets, add, remove, goTo, clipTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid, toggleMask }
 })
