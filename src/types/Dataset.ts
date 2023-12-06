@@ -12,6 +12,8 @@ export interface Dataset extends Named, EventDispatcher {
     uuid: string;
     name: string;
     coordinates?: Coordinates;
+    canMaskBasemap?: boolean;
+    isMaskingBasemap?: boolean;
 
     get isLoading(): boolean;
     set isLoading(v: boolean);
@@ -31,6 +33,9 @@ export class DatasetObject extends LayerObject implements Dataset {
     isLoaded: boolean;
 
     coordinates?: Coordinates;
+
+    canMaskBasemap?: boolean;
+    isMaskingBasemap?: boolean;
 
     set isLoading(v: boolean) {
         this._isLoading = v;

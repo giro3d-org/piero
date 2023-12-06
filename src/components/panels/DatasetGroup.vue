@@ -24,7 +24,8 @@ defineEmits(['zoom', 'clipTo', 'updated'])
           v-on:zoom="() => $emit('zoom', dataset)"
           v-on:clip-to="() => $emit('clipTo', dataset)"
           v-on:delete="store.remove(dataset)"
-          @udpdate:toggle-grid="store.toggleGrid(dataset)"
+          @update:toggle-grid="store.toggleGrid(dataset)"
+          @update:toggle-mask="store.toggleMask(dataset)"
           v-on:update:visible="v => store.setVisible(dataset, v)"
         />
       </ul>

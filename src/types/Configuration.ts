@@ -44,7 +44,11 @@ export type DatasetConfig = {
     name: string;
     position?: Vec3 & {
         crs: string,
-    }
+    },
+    /** Whether this dataset can mask the basemap (enables the "mask" button for this dataset) */
+    canMaskBasemap?: boolean,
+    /** Whether this dataset masks the basemap by default (can still be disabled via the "mask" button) */
+    isMaskingBasemap?: boolean,
 };
 
 export type OverlayBaseConfig = {

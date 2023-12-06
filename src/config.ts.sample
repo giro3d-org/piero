@@ -136,22 +136,26 @@ const config: Configuration = {
         {
             "type": "pointcloud",
             "url": "https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6520_LA93_IGN69/tileset.json",
-            "name": "Semis_2021_0841_6520_LA93_IGN69"
+            "name": "Semis_2021_0841_6520_LA93_IGN69",
+            canMaskBasemap: true,
         },
         {
             "type": "pointcloud",
             "url": "https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6521_LA93_IGN69/tileset.json",
-            "name": "Semis_2021_0841_6521_LA93_IGN69"
+            "name": "Semis_2021_0841_6521_LA93_IGN69",
+            canMaskBasemap: true,
         },
         {
             "type": "pointcloud",
             "url": "https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6520_LA93_IGN69/tileset.json",
-            "name": "Semis_2021_0842_6520_LA93_IGN69"
+            "name": "Semis_2021_0842_6520_LA93_IGN69",
+            canMaskBasemap: true,
         },
         {
             "type": "pointcloud",
             "url": "https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6521_LA93_IGN69/tileset.json",
-            "name": "Semis_2021_0842_6521_LA93_IGN69"
+            "name": "Semis_2021_0842_6521_LA93_IGN69",
+            canMaskBasemap: true,
         }
     ],
     "overlays": [

@@ -12,7 +12,7 @@ const props = defineProps<{
 const isLoading = ref(props.dataset.isLoading);
 props.dataset.addEventListener('isLoading', () => isLoading.value = props.dataset.isLoading);
 
-defineEmits(['delete', 'zoom', 'clipTo', 'update:visible', 'udpdate:toggle-grid'])
+defineEmits(['delete', 'zoom', 'clipTo', 'update:visible', 'update:toggle-grid', 'update:toggle-mask'])
 
 const propertyViews: Map<DatasetType, Component> = new Map();
 propertyViews.set('ifc', IfcPropertyView);
@@ -32,15 +32,19 @@ propertyViews.set('ifc', IfcPropertyView);
                     aria-controls="`#collapse-${dataset.uuid}`">
                     <i class="bi bi-card-list"></i>
                 </a>
+                <a v-if="dataset.isLoaded && (dataset.canMaskBasemap || dataset.isMaskingBasemap)" href="#" class="icon"
+                    title="Toggle basemap masking" @click="$emit('update:toggle-mask')">
+                    <i class="bi bi-mask"></i>
+                </a>
                 <a v-if="dataset.isLoaded" href="#" class="icon" title="Clip to" @click="$emit('clipTo')">
                     <i class="bi bi-bounding-box"></i>
                 </a>
                 <a v-if="dataset.isLoaded" href="#" class="icon" title="Toggle 3D grid"
-                    @click="$emit('udpdate:toggle-grid')">
+                    @click="$emit('update:toggle-grid')">
                     <i class="bi bi-box"></i>
                 </a>
                 <div class="icon spinner d-inline-block" v-if="isLoading">
-                    <SpinnerControl title="Loading..."/>
+                    <SpinnerControl title="Loading..." />
                 </div>
                 <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
                     <i class="bi bi-trash"></i>
