@@ -48,7 +48,7 @@ export type DatasetConfig = {
     /** Whether this dataset can mask the basemap (enables the "mask" button for this dataset) */
     canMaskBasemap?: boolean,
     /** Whether this dataset masks the basemap by default (can still be disabled via the "mask" button) */
-    maskBasemap?: boolean,
+    isMaskingBasemap?: boolean,
 };
 
 export type OverlayBaseConfig = {

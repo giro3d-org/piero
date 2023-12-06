@@ -32,7 +32,7 @@ propertyViews.set('ifc', IfcPropertyView);
                     aria-controls="`#collapse-${dataset.uuid}`">
                     <i class="bi bi-card-list"></i>
                 </a>
-                <a v-if="dataset.isLoaded && (dataset.canMaskBasemap || dataset.maskBasemap)" href="#" class="icon"
+                <a v-if="dataset.isLoaded && (dataset.canMaskBasemap || dataset.isMaskingBasemap)" href="#" class="icon"
                     title="Toggle basemap masking" @click="$emit('update:toggle-mask')">
                     <i class="bi bi-mask"></i>
                 </a>

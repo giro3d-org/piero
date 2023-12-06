@@ -337,7 +337,7 @@ export default class DatasetManager {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
-            if (dataset.visible && dataset.maskBasemap) {
+            if (dataset.visible && dataset.isMaskingBasemap) {
                 this.createMask(dataset);
             } else if (!dataset.visible && this.masks.has(dataset.uuid)) {
                 this.deleteMask(dataset);
