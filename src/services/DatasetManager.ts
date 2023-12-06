@@ -3,9 +3,22 @@ import { tile } from 'ol/loadingstrategy.js';
 import { createXYZ } from 'ol/tilegrid.js';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
+import { Fill, Style } from 'ol/style';
+import Polygon from 'ol/geom/Polygon';
 
+import { Color, MeshLambertMaterial, Vector3 } from 'three';
+
+import Instance from '@giro3d/giro3d/core/Instance';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import MaskLayer, { MaskMode } from '@giro3d/giro3d/core/layer/MaskLayer';
+import AxisGrid from '@giro3d/giro3d/entities/AxisGrid';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
+import Giro3DMap from '@giro3d/giro3d/entities/Map';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
+import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource'
+import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
 import CameraController from '@/services/CameraController';
 import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
@@ -14,18 +27,12 @@ import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
 import { Dataset, DatasetObject, DatasetType } from "@/types/Dataset";
 import Notification from '@/types/Notification';
-import Instance from '@giro3d/giro3d/core/Instance';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
-import { Color, MeshLambertMaterial } from 'three';
-import { AxisGrid } from '@giro3d/giro3d/entities';
 
 export default class DatasetManager {
     private readonly instance: Instance;
     private readonly entities: Map<string, Entity3D> = new Map();
     private readonly axisGrids: Map<string, AxisGrid> = new Map();
+    private readonly masks: Map<string, MaskLayer> = new Map();
     private readonly camera: CameraController;
     private readonly store = useDatasetStore();
 
@@ -260,6 +267,55 @@ export default class DatasetManager {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
+            if (dataset.visible && dataset.maskBasemap) {
+                const box = entity.getBoundingBox();
+                if (box && !box.isEmpty()) {
+                    // TODO: this assumes the dataset covers the whole bounding box
+                    // (in particular, that it is oriented the same way)
+                    // which will most likely not be the case
+
+                    // Contract the bbox to make stitching a bit less ugly
+                    box.expandByVector(new Vector3(-5, -5, 0));
+
+                    const feature = new Feature({
+                        geometry: new Polygon([[
+                            [box.min.x, box.min.y],
+                            [box.min.x, box.max.y],
+                            [box.max.x, box.max.y],
+                            [box.max.x, box.min.y],
+                            [box.min.x, box.min.y]
+                        ]]),
+                        name: 'Mask polygon',
+                      });
+
+
+                    const mask = new MaskLayer(`mask-${dataset.uuid}`, {
+                        source: new Giro3dVectorSource({
+                            data: [feature],
+                            style: new Style({
+                                fill: new Fill({ color: 'white' }),
+                            }),
+                        }),
+                    });
+                    mask.maskMode = MaskMode.Inverted;
+                    const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+                    maps.forEach(map => {
+                        map.addLayer(mask);
+                        this.instance.notifyChange(map);
+                    });
+                    this.masks.set(dataset.uuid, mask);
+                }
+            } else if (!dataset.visible && this.masks.has(dataset.uuid)) {
+                const mask = this.masks.get(dataset.uuid);
+                if (mask) {
+                    const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+                    maps.forEach(map => {
+                        map.removeLayer(mask);
+                        this.instance.notifyChange(map);
+                    });
+                    this.masks.delete(dataset.uuid);
+                }
+            }
             this.instance.notifyChange(entity);
         }
     }

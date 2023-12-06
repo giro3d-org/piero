@@ -48,6 +48,7 @@ function buildInitialList(): Dataset[] {
     }
 
     if (ds) {
+      if (conf.maskBasemap) ds.maskBasemap = true;
       result.push(ds);
     }
   }
