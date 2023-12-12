@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Chart, ChartConfiguration } from 'chart.js';
+import { Chart, ChartConfiguration, DoughnutController, ArcElement } from 'chart.js';
 import { onMounted, ref } from 'vue';
+
+Chart.register(DoughnutController, ArcElement);
 
 const ctx = ref<HTMLCanvasElement>();
 
