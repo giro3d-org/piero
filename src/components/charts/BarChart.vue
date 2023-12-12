@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Chart } from 'chart.js';
+import { Chart, BarController, BarElement, CategoryScale } from 'chart.js';
 import { onMounted, ref } from 'vue';
+
+Chart.register(BarController, BarElement, CategoryScale);
 
 const ctx = ref<HTMLCanvasElement>();
 
