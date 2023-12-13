@@ -1,4 +1,7 @@
-import { VectorStyle } from "./VectorStyle";
+import { type VectorStyle } from "./VectorStyle";
+import { type DatasetType } from "./Dataset";
+import { type BaseLayerType } from './BaseLayer';
+import { type BasemapSourceLayerType, type OverlayRasterType, type OverlayType, type OverlayVectorTileType, type OverlayVectorType } from "./LayerSource";
 
 interface Vec2 {
     x: number;
@@ -17,15 +20,6 @@ type GeoVec3 = Vec3 & { crs: string };
 
 export type ColorRamp = string;
 
-export type LayerType = "elevation" | "color";
-export type BasemapSourceLayerType = 'wms' | 'wmts';
-export type DatasetType = "ifc" | "ply" | "cityjson" | "pointcloud" | "bdtopo";
-
-export type OverlayVectorType = "geojson" | "kml" | "gpx";
-export type OverlayVectorTileType = "mvt";
-export type OverlayRasterType = "wms";
-export type OverlayType = OverlayVectorType | OverlayVectorTileType | OverlayRasterType;
-
 export type BasemapSourceLayerConfig = {
     type?: BasemapSourceLayerType,
     projection?: string;
@@ -36,7 +30,7 @@ export type BasemapSourceLayerConfig = {
 };
 
 export type LayerConfig = {
-    type: LayerType,
+    type: BaseLayerType,
     name: string,
     visible: boolean,
     source: BasemapSourceLayerConfig,

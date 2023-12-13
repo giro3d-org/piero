@@ -1,34 +1,22 @@
 import { ref, computed, Ref } from 'vue'
 import { defineStore } from 'pinia'
-import { Dataset, DatasetObject } from '@/types/Dataset'
+import { type Dataset, DatasetObject } from '@/types/Dataset'
 import config from '../config';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { Entity3D } from '@giro3d/giro3d/entities';
+import { type Entity3D } from '@giro3d/giro3d/entities';
 import { getPublicFolderUrl } from '@/utils/Configuration';
-import { DatasetPlyConfig, DatasetBaseConfig } from '@/types/Configuration';
+import { type DatasetConfig } from '@/types/Configuration';
 
-function buildIfcDataset(conf: DatasetBaseConfig) {
-    const ds = new DatasetObject(conf.name, 'ifc', getPublicFolderUrl(conf.url));
-    if (conf.position) {
-        const position = conf.position;
+function buildDataset(config: DatasetConfig): DatasetObject {
+    if (config.type === 'bdtopo') {
+        return new DatasetObject(config.name, 'bdtopo', null);
+    }
+
+    const ds = new DatasetObject(config.name, config.type, getPublicFolderUrl(config.url));
+    if (config.position) {
+        const position = config.position;
         ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
     }
-    return ds;
-}
-
-function buildPlyDataset(conf: DatasetPlyConfig) {
-    const ds = new DatasetObject(conf.name, 'ply', getPublicFolderUrl(conf.url));
-    ds.coordinates = new Coordinates(conf.position.crs, conf.position.x, conf.position.y, conf.position.z);
-    return ds;
-}
-
-function buildCityJsonDataset(conf: DatasetBaseConfig) {
-    const ds = new DatasetObject(conf.name, 'cityjson', getPublicFolderUrl(conf.url));
-    return ds;
-}
-
-function buildPointCloudDataset(conf: DatasetBaseConfig) {
-    const ds = new DatasetObject(conf.name, 'pointcloud', getPublicFolderUrl(conf.url));
     return ds;
 }
 
@@ -36,27 +24,7 @@ function buildInitialList(): Dataset[] {
     const result: Dataset[] = [];
 
     for (const conf of config.datasets) {
-        let ds: Dataset | null = null;
-
-        switch (conf.type) {
-            case 'ifc':
-                ds = buildIfcDataset(conf);
-                break;
-            case 'cityjson':
-                ds = buildCityJsonDataset(conf);
-                break;
-            case 'pointcloud':
-                ds = buildPointCloudDataset(conf);
-                break;
-            case 'bdtopo':
-                ds = new DatasetObject(conf.name, 'bdtopo', null);
-                break;
-            case 'ply':
-                ds = buildPlyDataset(conf as DatasetPlyConfig);
-                break;
-        }
-
-        if (ds === null) throw new Error(`Could not create dataset from configuration ${conf.name} (type ${conf.type})`);
+        const ds = buildDataset(conf);
 
         if (conf.canMaskBasemap) ds.canMaskBasemap = true;
         if (conf.isMaskingBasemap) ds.isMaskingBasemap = true;

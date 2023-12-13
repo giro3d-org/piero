@@ -45,7 +45,6 @@ export default class Picker {
 
         const cityjsonInfo = object.resolveIntersectionInfo(pickedObject);
         const cityobject = object.citymodel.CityObjects[cityjsonInfo.objectId];
-        console.log(cityjsonInfo);
 
         cityjsonAttributes.push({ key: 'ID', value: cityjsonInfo.objectId });
         cityjsonAttributes.push({ key: 'Type', value: cityobject.type });

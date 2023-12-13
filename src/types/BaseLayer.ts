@@ -1,10 +1,12 @@
 import { EventDispatcher } from "three";
 import LayerObject from "./LayerObject";
-import { LayerSource } from "./LayerSource";
+import { type LayerSource } from "./LayerSource";
+
+export type BaseLayerType = 'elevation' | 'color';
 
 export interface BaseLayer extends EventDispatcher {
     name: string;
-    type: 'elevation' | 'color';
+    type: BaseLayerType;
     source: LayerSource;
     uuid: string;
     get isLoading(): boolean;
@@ -17,10 +19,10 @@ export interface BaseLayer extends EventDispatcher {
 
 export class BaseLayerObject extends LayerObject implements BaseLayer {
     private _loading: boolean;
-    readonly type: 'elevation' | 'color';
+    readonly type: BaseLayerType;
     readonly source: LayerSource;
 
-    constructor(opts: { name: string, type: 'elevation' | 'color', source: LayerSource }) {
+    constructor(opts: { name: string, type: BaseLayerType, source: LayerSource }) {
         super(opts.name);
         this._loading = false;
         this.type = opts.type;
