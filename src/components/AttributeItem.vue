@@ -1,36 +1,54 @@
 <script setup lang="ts">
-import { Color } from 'three';
+import { VNode, h } from 'vue';
 import ColorFragment from './ColorFragment.vue';
 
-defineProps<{
+const props = defineProps<{
     attrName: string,
     attrValue: any
-}>()
+}>();
 
-function getTitle(attrValue: any) {
-    if (typeof (attrValue) !== 'object' || Array.isArray(attrValue)) return attrValue;
-    else if ('isColor' in attrValue) return attrValue.getHexString();
-    else return 'Object';
+let title: string;
+let formattedValue: string | VNode;
+let styles: string[];
+
+switch (props.attrName) {
+    case 'IFCType': styles = ['badge', 'bg-secondary', 'text-light']; break;
+    default: styles = [];
 }
 
-function getStyles(attrName: string) {
-    switch (attrName) {
-        case 'IFCType': return ['badge', 'bg-secondary', 'text-light'];
+if (typeof props.attrValue === 'object') {
+    if (Array.isArray(props.attrValue)) {
+        title = `${props.attrValue.join(';')}`;
+        formattedValue = `${props.attrValue.join(';')}`;
+    } else if ('isColor' in props.attrValue) {
+        title = props.attrValue.getHexString();
+        formattedValue = h(ColorFragment, {
+            key: title,
+            color: props.attrValue,
+        });
+    } else {
+        title = 'Object';
+        formattedValue = '<Object>';
     }
+} else {
+    title = props.attrValue;
+    formattedValue = props.attrValue;
+}
 
-    return [];
+if (typeof formattedValue === 'string' && formattedValue.startsWith('<') && formattedValue.endsWith('>')) {
+    formattedValue = formattedValue.slice(1, -1);
+    styles = ['text-secondary'];
 }
 </script>
 
 <template>
     <tr>
         <td :title="attrName"><b>{{ attrName.substring(0, 18) }}</b></td>
-        <td :title="getTitle(attrValue)" :class="getStyles(attrName)">
-            <template v-if="(typeof (attrValue) !== 'object') || (Array.isArray(attrValue))">{{ attrValue }}</template>
-            <template v-else-if="('isColor' in attrValue)">
-                <ColorFragment :key="attrValue" :color="attrValue as Color" />
+        <td :title="title" :class="styles">
+            <template v-if="(typeof formattedValue === 'object')">
+                <component :is="formattedValue" />
             </template>
-            <template v-else>Object</template>
+            <template v-else>{{  formattedValue }}</template>
         </td>
     </tr>
 </template>
