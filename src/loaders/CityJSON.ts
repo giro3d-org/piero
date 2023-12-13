@@ -7,7 +7,7 @@ import Projections from '../utils/Projections';
 /**
  * CityJSON options
  */
-type CityJSONOptions = {
+export type CityJSONOptions = {
     projection?: string;
 }
 

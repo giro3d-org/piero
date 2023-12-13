@@ -1,19 +1,16 @@
 <script setup lang="ts">
+import { Color } from 'three';
+import ColorFragment from './ColorFragment.vue';
+
 defineProps<{
     attrName: string,
     attrValue: any
 }>()
 
-function formatValue(item: any) {
-    if (typeof item === 'object') {
-        if (!Array.isArray(item)) {
-            // Any self-reference or circular reference in the object cannot be reliably stringified,
-            // thus we cannot properly display an arbitrary object as attribute value.
-            return 'object';
-        }
-    }
-
-    return item;
+function getTitle(attrValue: any) {
+    if (typeof (attrValue) !== 'object' || Array.isArray(attrValue)) return attrValue;
+    else if ('isColor' in attrValue) return attrValue.getHexString();
+    else return 'Object';
 }
 
 function getStyles(attrName: string) {
@@ -28,7 +25,13 @@ function getStyles(attrName: string) {
 <template>
     <tr>
         <td :title="attrName"><b>{{ attrName.substring(0, 18) }}</b></td>
-        <td :title="attrValue" :class="getStyles(attrName)">{{ formatValue(attrValue) }}</td>
+        <td :title="getTitle(attrValue)" :class="getStyles(attrName)">
+            <template v-if="(typeof (attrValue) !== 'object') || (Array.isArray(attrValue))">{{ attrValue }}</template>
+            <template v-else-if="('isColor' in attrValue)">
+                <ColorFragment :key="attrValue" :color="attrValue as Color" />
+            </template>
+            <template v-else>Object</template>
+        </td>
     </tr>
 </template>
 

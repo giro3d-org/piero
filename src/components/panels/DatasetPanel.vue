@@ -13,6 +13,7 @@ const groups = [
     { key: 'ifc', name: 'IFC' },
     { key: 'pointcloud', name: 'Point clouds' },
     { key: 'cityjson', name: 'CityJSON' },
+    { key: 'ply', name: 'PLY' },
     { key: 'bdtopo', name: '3D Buildings' },
 ]
 

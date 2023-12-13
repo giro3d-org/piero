@@ -7,7 +7,7 @@ import IfcEntity from '@/giro3d/IfcEntity';
 /**
  * IFC options
  */
-interface IFCOptions {
+export type IFCOptions = {
     at?: Coordinates;
 }
 

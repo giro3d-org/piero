@@ -217,6 +217,13 @@ export default class DatasetManager {
         });
     }
 
+    private loadPLY(dataset: Dataset) {
+        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+        return loader.processFile(this.instance, dataset.url, {
+            at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
+        });
+    }
+
     private loadCityJSON(dataset: Dataset) {
         if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
         return loader.processFile(this.instance, dataset.url, {
@@ -310,6 +317,9 @@ export default class DatasetManager {
                 case 'ifc':
                     type = 'ifc';
                     break;
+                case 'ply':
+                    type = 'ply';
+                    break;
             }
 
             if (type === undefined) throw new Error(`Could not import file type ${result.filetype}`);
@@ -374,6 +384,9 @@ export default class DatasetManager {
                 break;
             case 'ifc':
                 entity = (await this.loadIFC(dataset)).obj;
+                break;
+            case 'ply':
+                entity = (await this.loadPLY(dataset)).obj;
                 break;
             case 'pointcloud':
                 // @ts-ignore

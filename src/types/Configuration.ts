@@ -5,17 +5,21 @@ interface Vec2 {
     y: number;
 }
 
+type GeoVec2 = Vec2 & { crs: string };
+
 interface Vec3 {
     x: number;
     y: number;
     z: number;
 }
 
+type GeoVec3 = Vec3 & { crs: string };
+
 export type ColorRamp = string;
 
 export type LayerType = "elevation" | "color";
 export type BasemapSourceLayerType = 'wms' | 'wmts';
-export type DatasetType = "ifc" | "cityjson" | "pointcloud" | "bdtopo";
+export type DatasetType = "ifc" | "ply" | "cityjson" | "pointcloud" | "bdtopo";
 
 export type OverlayVectorType = "geojson" | "kml" | "gpx";
 export type OverlayVectorTileType = "mvt";
@@ -38,18 +42,23 @@ export type LayerConfig = {
     source: BasemapSourceLayerConfig,
 };
 
-export type DatasetConfig = {
+export type DatasetBaseConfig = {
     type: DatasetType,
     url: string;
     name: string;
-    position?: Vec3 & {
-        crs: string,
-    },
+    position?: GeoVec3,
     /** Whether this dataset can mask the basemap (enables the "mask" button for this dataset) */
     canMaskBasemap?: boolean,
     /** Whether this dataset masks the basemap by default (can still be disabled via the "mask" button) */
     isMaskingBasemap?: boolean,
 };
+
+export type DatasetPlyConfig = DatasetBaseConfig & {
+    type: 'ply',
+    position: GeoVec3,
+};
+
+export type DatasetConfig = DatasetBaseConfig | DatasetPlyConfig;
 
 export type OverlayBaseConfig = {
     type: OverlayType,
@@ -108,15 +117,11 @@ export type Configuration = {
     },
     analysis: {
         cross_section: {
-            pivot: Vec2 & {
-                crs: string,
-            },
+            pivot: GeoVec2,
             orientation: number,
         },
         clipping_box: {
-            center: Vec3 & {
-                crs: string,
-            },
+            center: GeoVec3,
             size: Vec3,
             floor_preset: {
                 altitude: number,

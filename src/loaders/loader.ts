@@ -1,29 +1,25 @@
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 
-import CityJSON from './CityJSON';
+import CityJSON, { type CityJSONOptions } from './CityJSON';
 import GeoJSON from './GeoJSON.js';
-import IFC from './IFC.js';
-import Loadersgl from './Loadersgl.js';
+import IFC, { type IFCOptions } from './IFC.js';
+import PLY, { type PLYOptions } from './PLY.js';
+import Loadersgl, { type LoaderglOptions } from './Loadersgl.js';
 import { useNotificationStore } from '@/stores/notifications';
 import Notification from '@/types/Notification';
+
+type BaseProcessOptions = {
+    visible?: boolean;
+};
 
 /**
  * Options
  */
-interface ProcessOptions {
-    projection?: string;
-    at?: Coordinates;
-    z?: number;
-    visible?: boolean;
-    isAnnotation?: boolean;
-    group?: string | undefined;
-    loader?: import('@loaders.gl/core').LoaderOptions;
-}
+type ProcessOptions = (LoaderglOptions | CityJSONOptions | IFCOptions | PLYOptions) & BaseProcessOptions;
 
-type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc';
+type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'ply';
 
 /**
  * Processed file results
@@ -78,6 +74,8 @@ async function processFile(
         filetype = 'geojson';
     } else if (filename.endsWith('.ifc')) {
         filetype = 'ifc';
+    } else if (filename.endsWith('.ply')) {
+        filetype = 'ply';
     }
 
     if (filetype == null) {
@@ -88,7 +86,7 @@ async function processFile(
     notifications.push(new Notification(decodeURI(filename), 'Loading...'));
 
     if (!(fileOrUrl instanceof File)
-        && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson')
+        && (filetype === 'cityjson' || filetype === 'ifc' || filetype === 'geojson' || filetype === 'ply')
     ) {
         file = await Fetcher.fetch(fileOrUrl);
     }
@@ -96,26 +94,26 @@ async function processFile(
     let obj: Entity3D | undefined = undefined;
     switch (filetype) {
         case 'gpkg': {
-            obj = await Loadersgl.loadGeoPackage(instance, filename, fileOrUrl, options);
+            obj = await Loadersgl.loadGeoPackage(instance, filename, fileOrUrl, options as LoaderglOptions);
             break;
         }
         case 'las': {
-            obj = await Loadersgl.loadLas(instance, filename, fileOrUrl, options);
+            obj = await Loadersgl.loadLas(instance, filename, fileOrUrl, options as LoaderglOptions);
             break;
         }
         case 'csv': {
-            obj = await Loadersgl.loadCsv(instance, filename, fileOrUrl, options);
+            obj = await Loadersgl.loadCsv(instance, filename, fileOrUrl, options as LoaderglOptions);
             break;
         }
         case 'cityjson': {
             if (file == null) throw new Error('File not supported');
             const str = await file.text();
-            obj = await CityJSON.loadString(instance, filename, str, options);
+            obj = await CityJSON.loadString(instance, filename, str, options as CityJSONOptions);
             break;
         }
         case 'ifc': {
             if (file == null) throw new Error('File not supported');
-            obj = await IFC.loadIfc(instance, filename, file, options);
+            obj = await IFC.loadIfc(instance, filename, file, options as IFCOptions);
             break;
         }
         case 'geojson': {
@@ -123,6 +121,11 @@ async function processFile(
             // const str = await file.text();
             // TODO layerManager
             // obj = await GeoJSON.loadString(instance, layerManager, filename, str, options);
+            break;
+        }
+        case 'ply': {
+            if (file == null) throw new Error('File not supported');
+            obj = await PLY.loadPly(instance, filename, file, options as PLYOptions);
             break;
         }
         default:
