@@ -22,11 +22,22 @@ import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
 import CameraController from '@/services/CameraController';
 import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
-import loader from '@/loaders/loader';
+import loader, { FileType, ProcessOptions } from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
 import { Dataset, DatasetObject, DatasetType } from "@/types/Dataset";
 import Notification from '@/types/Notification';
+
+/** Mapping between file types and the dataset types */
+const datasetTypePerFileType: Partial<Record<FileType, DatasetType>> = {
+    // 'gpkg': '', // TODO - once done, remove the Partial ^
+    'las': 'pointcloud',
+    'csv': 'pointcloud',
+    'cityjson': 'cityjson',
+    // 'geojson': '', // TODO
+    'ifc': 'ifc',
+    'ply': 'ply',
+} as const;
 
 export default class DatasetManager {
     private readonly instance: Instance;
@@ -187,7 +198,7 @@ export default class DatasetManager {
         }
     }
 
-    private loadPointCloud(dataset: Dataset) {
+    private loadPointCloud(dataset: Dataset): Tiles3D {
         if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
 
         const pointcloud = new Tiles3D(
@@ -210,23 +221,26 @@ export default class DatasetManager {
         }
     }
 
-    private loadIFC(dataset: Dataset) {
+    private async loadDefault(dataset: Dataset, options: ProcessOptions): Promise<Entity3D> {
         if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-        return loader.processFile(this.instance, dataset.url, {
+        const result = await loader.processFile(this.instance, dataset.url, options);
+        return result.obj;
+    }
+
+    private loadIFC(dataset: Dataset): Promise<Entity3D> {
+        return this.loadDefault(dataset, {
             at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
         });
     }
 
-    private loadPLY(dataset: Dataset) {
-        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-        return loader.processFile(this.instance, dataset.url, {
+    private loadPLY(dataset: Dataset): Promise<Entity3D> {
+        return this.loadDefault(dataset, {
             at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
         });
     }
 
-    private loadCityJSON(dataset: Dataset) {
-        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-        return loader.processFile(this.instance, dataset.url, {
+    private loadCityJSON(dataset: Dataset): Promise<Entity3D> {
+        return this.loadDefault(dataset, {
             projection: this.instance.referenceCrs,
         });
     }
@@ -293,41 +307,17 @@ export default class DatasetManager {
     private async importFromFile(file: File) {
         const notifications = useNotificationStore();
         try {
-            const result = await loader.processFile(this.instance, file);
+            const { obj: entity, filetype, filename } = await loader.processFile(this.instance, file);
+            const type = datasetTypePerFileType[filetype];
 
-            const entity: Entity3D = result.obj;
-            let type: DatasetType | undefined;
-
-            switch (result.filetype) {
-                case 'gpkg':
-                    // TODO
-                    break;
-                case 'las':
-                    type = 'pointcloud';
-                    break;
-                case 'csv':
-                    // TODO
-                    break;
-                case 'cityjson':
-                    type = 'cityjson';
-                    break;
-                case 'geojson':
-                    // TODO
-                    break;
-                case 'ifc':
-                    type = 'ifc';
-                    break;
-                case 'ply':
-                    type = 'ply';
-                    break;
+            if (!type) {
+                throw new Error(`File type ${filetype} not supported`);
             }
 
-            if (type === undefined) throw new Error(`Could not import file type ${result.filetype}`);
-
-            const dataset = new DatasetObject(result.filename, type, null);
+            const dataset = new DatasetObject(filename, type, null);
 
             dataset.visible = true;
-            this.entities.set(dataset.uuid, result.obj);
+            this.entities.set(dataset.uuid, entity);
             this.instance.add(entity);
             this.instance.notifyChange(entity);
 
@@ -335,7 +325,7 @@ export default class DatasetManager {
 
             this.onDatasetLoaded(dataset, entity);
 
-            notifications.push(new Notification(result.filename, 'Import successful.', 'success'));
+            notifications.push(new Notification(filename, 'Import successful.', 'success'));
         } catch (e) {
             console.error(e);
             const error = e as Error;
@@ -377,16 +367,16 @@ export default class DatasetManager {
     private async loadDataset(dataset: Dataset) {
         dataset.isLoading = true;
 
-        let entity: Entity3D;
+        let entity: Entity3D | undefined;
         switch (dataset.type) {
             case 'cityjson':
-                entity = (await this.loadCityJSON(dataset)).obj;
+                entity = await this.loadCityJSON(dataset);
                 break;
             case 'ifc':
-                entity = (await this.loadIFC(dataset)).obj;
+                entity = await this.loadIFC(dataset);
                 break;
             case 'ply':
-                entity = (await this.loadPLY(dataset)).obj;
+                entity = await this.loadPLY(dataset);
                 break;
             case 'pointcloud':
                 // @ts-ignore
@@ -401,9 +391,9 @@ export default class DatasetManager {
             entity.visible = dataset.visible;
             this.entities.set(dataset.uuid, entity);
             this.instance.add(entity);
-        }
 
-        this.onDatasetLoaded(dataset, entity);
+            this.onDatasetLoaded(dataset, entity);
+        }
 
         return dataset;
     }
