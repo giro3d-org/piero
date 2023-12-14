@@ -21,7 +21,7 @@ type FileOrUrl = File | string;
 /**
  * Loadersgl options
  */
-interface LoaderglOptions {
+export type LoaderglOptions = {
     loader?: LoaderOptions;
     // Altitude where to put the annotations
     z?: number;

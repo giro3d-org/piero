@@ -1,115 +1,93 @@
 import { ref, computed, Ref } from 'vue'
 import { defineStore } from 'pinia'
-import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset'
+import { type Dataset, DatasetObject } from '@/types/Dataset'
 import config from '../config';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { Entity3D } from '@giro3d/giro3d/entities';
+import { type Entity3D } from '@giro3d/giro3d/entities';
 import { getPublicFolderUrl } from '@/utils/Configuration';
+import { type DatasetConfig } from '@/types/Configuration';
 
-function buildIfcDataset(conf: Record<string, any>) {
-  const ds = new DatasetObject(conf.name, 'ifc', getPublicFolderUrl(conf.url));
-  if (conf.position) {
-    const position = conf.position;
-    ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
-  }
-  return ds;
-}
+function buildDataset(config: DatasetConfig): DatasetObject {
+    if (config.type === 'bdtopo') {
+        return new DatasetObject(config.name, 'bdtopo', null);
+    }
 
-function buildCityJsonDataset(conf: Record<string, any>) {
-  const ds = new DatasetObject(conf.name, 'cityjson', getPublicFolderUrl(conf.url));
-  return ds;
-}
-
-function buildPointCloudDataset(conf: Record<string, any>) {
-  const ds = new DatasetObject(conf.name, 'pointcloud', getPublicFolderUrl(conf.url));
-  return ds;
+    const ds = new DatasetObject(config.name, config.type, getPublicFolderUrl(config.url));
+    if (config.position) {
+        const position = config.position;
+        ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
+    }
+    return ds;
 }
 
 function buildInitialList(): Dataset[] {
-  const result : Dataset[] = [];
+    const result: Dataset[] = [];
 
-  for (const conf of config.datasets) {
-    const type = conf.type as DatasetType;
+    for (const conf of config.datasets) {
+        const ds = buildDataset(conf);
 
-    let ds : Dataset | null = null;
+        if (conf.canMaskBasemap) ds.canMaskBasemap = true;
+        if (conf.isMaskingBasemap) ds.isMaskingBasemap = true;
 
-    switch (type) {
-      case 'ifc':
-        ds = buildIfcDataset(conf);
-        break;
-      case 'cityjson':
-        ds = buildCityJsonDataset(conf);
-        break;
-      case 'pointcloud':
-        ds = buildPointCloudDataset(conf);
-        break;
-      case 'bdtopo':
-        ds = new DatasetObject(conf.name, 'bdtopo', null);
+        result.push(ds);
     }
 
-    if (ds) {
-      if (conf.canMaskBasemap) ds.canMaskBasemap = true;
-      if (conf.isMaskingBasemap) ds.isMaskingBasemap = true;
-      result.push(ds);
-    }
-  }
-
-  return result;
+    return result;
 }
 
 export const useDatasetStore = defineStore('datasets', () => {
-  const datasets = ref(buildInitialList()) as Ref<Dataset[]>;
-  const count = computed(() => datasets.value.length);
+    const datasets = ref(buildInitialList()) as Ref<Dataset[]>;
+    const count = computed(() => datasets.value.length);
 
-  const entities: Map<string, Entity3D> = new Map();
+    const entities: Map<string, Entity3D> = new Map();
 
-  function add(ds: Dataset) {
-    datasets.value.push(ds);
-  }
+    function add(ds: Dataset) {
+        datasets.value.push(ds);
+    }
 
-  function attachEntity(ds: Dataset, entity: Entity3D) {
-    entities.set(ds.uuid, entity);
-  }
+    function attachEntity(ds: Dataset, entity: Entity3D) {
+        entities.set(ds.uuid, entity);
+    }
 
-  function remove(ds: Dataset) {
-    datasets.value.splice(datasets.value.indexOf(ds), 1);
-  }
+    function remove(ds: Dataset) {
+        datasets.value.splice(datasets.value.indexOf(ds), 1);
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function goTo(ds: Dataset) {
-    // Nothing to do, rely on action listeners.
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function goTo(ds: Dataset) {
+        // Nothing to do, rely on action listeners.
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function clipTo(ds: Dataset) {
-    // Nothing to do, rely on action listeners.
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function clipTo(ds: Dataset) {
+        // Nothing to do, rely on action listeners.
+    }
 
-  function getEntity(ds: Dataset): Entity3D | undefined {
-    return entities.get(ds.uuid);
-  }
+    function getEntity(ds: Dataset): Entity3D | undefined {
+        return entities.get(ds.uuid);
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function importFromFile(file: File) {
-    // Nothing to do, rely on action listeners.
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function importFromFile(file: File) {
+        // Nothing to do, rely on action listeners.
+    }
 
-  function setVisible(ds: Dataset, newVisibility: boolean) {
-    ds.visible = newVisibility;
-  }
+    function setVisible(ds: Dataset, newVisibility: boolean) {
+        ds.visible = newVisibility;
+    }
 
-  function getDatasets() {
-    return datasets.value;
-  }
+    function getDatasets() {
+        return datasets.value;
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function toggleGrid(ds: Dataset) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function toggleGrid(ds: Dataset) {
 
-  }
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function toggleMask(ds: Dataset) {
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function toggleMask(ds: Dataset) {
+    }
 
-  return { count, getDatasets, add, remove, goTo, clipTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid, toggleMask }
+    return { count, getDatasets, add, remove, goTo, clipTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid, toggleMask }
 })

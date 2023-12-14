@@ -1,4 +1,4 @@
-import { Box3, Object3D, Vector3 } from "three";
+import { Box3, Color, Object3D, Vector3 } from "three";
 import { Fragment } from "bim-fragment/fragment";
 import { IfcCategoryMap } from 'openbim-components';
 import Instance from "@giro3d/giro3d/core/Instance";
@@ -9,6 +9,7 @@ import Feature, { Attribute, AttributesGroups } from "@/types/Feature";
 import Measure from "../utils/Measure";
 import PickResult from "@/types/PickResult";
 import IfcEntity from "@/giro3d/IfcEntity";
+import { type PlyMesh } from "@/loaders/PLY";
 
 export default class Picker {
     getNameFromOLFeature(feature: OLFeature): string {
@@ -44,7 +45,6 @@ export default class Picker {
 
         const cityjsonInfo = object.resolveIntersectionInfo(pickedObject);
         const cityobject = object.citymodel.CityObjects[cityjsonInfo.objectId];
-        console.log(cityjsonInfo);
 
         cityjsonAttributes.push({ key: 'ID', value: cityjsonInfo.objectId });
         cityjsonAttributes.push({ key: 'Type', value: cityobject.type });
@@ -55,6 +55,24 @@ export default class Picker {
         const surface = geometry.semantics?.surfaces[cityjsonInfo.surfaceTypeIndex];
         if (surface) {
             cityjsonAttributes.push({ key: 'Surface type', value: surface.type });
+        }
+    }
+
+    getAttributesFromPlyObject(pickedObject: PickResult, object: any, attributesGroups: AttributesGroups) {
+        if (!attributesGroups.has("PLY")) {
+            attributesGroups.set("PLY", []);
+        }
+        const plyAttributes = attributesGroups.get("PLY") as Attribute[];
+
+        const ply = pickedObject.object as PlyMesh;
+
+        if (ply.geometry.hasAttribute('color') && pickedObject.face) {
+            const colors = ply.geometry.getAttribute('color').array;
+            const face = pickedObject.face;
+
+            const color = new Color(colors[face.a * 3], colors[face.a * 3 + 1], colors[face.a * 3 + 2]);
+
+            plyAttributes.push({ key: 'Color', value: color });
         }
     }
 
@@ -311,6 +329,10 @@ export default class Picker {
 
         if ((object as any)?.isCityObject && pickedObject.face) {
             this.getAttributesFromCityObject(pickedObject, object, attributesGroups);
+        }
+
+        if ((object as any)?.isPly && pickedObject.face) {
+            this.getAttributesFromPlyObject(pickedObject, object, attributesGroups);
         }
 
         if (object?.userData) {

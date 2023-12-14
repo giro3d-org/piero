@@ -1,34 +1,55 @@
 <script setup lang="ts">
-defineProps<{
+import { VNode, h } from 'vue';
+import ColorFragment from './ColorFragment.vue';
+
+const props = defineProps<{
     attrName: string,
     attrValue: any
-}>()
+}>();
 
-function formatValue(item: any) {
-    if (typeof item === 'object') {
-        if (!Array.isArray(item)) {
-            // Any self-reference or circular reference in the object cannot be reliably stringified,
-            // thus we cannot properly display an arbitrary object as attribute value.
-            return 'object';
-        }
-    }
+let title: string;
+let formattedValue: string | VNode;
+let styles: string[];
 
-    return item;
+switch (props.attrName) {
+    case 'IFCType': styles = ['badge', 'bg-secondary', 'text-light']; break;
+    default: styles = [];
 }
 
-function getStyles(attrName: string) {
-    switch (attrName) {
-        case 'IFCType': return ['badge', 'bg-secondary', 'text-light'];
+if (typeof props.attrValue === 'object') {
+    if (Array.isArray(props.attrValue)) {
+        title = `${props.attrValue.join(';')}`;
+        formattedValue = `${props.attrValue.join(';')}`;
+    } else if ('isColor' in props.attrValue) {
+        title = props.attrValue.getHexString();
+        formattedValue = h(ColorFragment, {
+            key: title,
+            color: props.attrValue,
+        });
+    } else {
+        title = 'Object';
+        formattedValue = '<Object>';
     }
+} else {
+    title = props.attrValue;
+    formattedValue = props.attrValue;
+}
 
-    return [];
+if (typeof formattedValue === 'string' && formattedValue.startsWith('<') && formattedValue.endsWith('>')) {
+    formattedValue = formattedValue.slice(1, -1);
+    styles = ['text-secondary'];
 }
 </script>
 
 <template>
     <tr>
         <td :title="attrName"><b>{{ attrName.substring(0, 18) }}</b></td>
-        <td :title="attrValue" :class="getStyles(attrName)">{{ formatValue(attrValue) }}</td>
+        <td :title="title" :class="styles">
+            <template v-if="(typeof formattedValue === 'object')">
+                <component :is="formattedValue" />
+            </template>
+            <template v-else>{{  formattedValue }}</template>
+        </td>
     </tr>
 </template>
 

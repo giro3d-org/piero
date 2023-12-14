@@ -3,7 +3,7 @@ import LayerObject from "./LayerObject";
 import { Coordinates } from "@giro3d/giro3d/core/geographic";
 import Named from "./Named";
 
-export type DatasetType = 'cityjson' | 'ifc' | 'pointcloud' | 'bdtopo';
+export type DatasetType = 'cityjson' | 'ifc' | 'ply' | 'pointcloud' | 'bdtopo';
 
 export interface Dataset extends Named, EventDispatcher {
     isLoaded: boolean;

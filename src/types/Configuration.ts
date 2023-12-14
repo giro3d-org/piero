@@ -1,9 +1,14 @@
-import { VectorStyle } from "./VectorStyle";
+import { type VectorStyle } from "./VectorStyle";
+import { type DatasetType } from "./Dataset";
+import { type BaseLayerType } from './BaseLayer';
+import { type BasemapSourceLayerType, type OverlayRasterType, type OverlayType, type OverlayVectorTileType, type OverlayVectorType } from "./LayerSource";
 
 interface Vec2 {
     x: number;
     y: number;
 }
+
+type GeoVec2 = Vec2 & { crs: string };
 
 interface Vec3 {
     x: number;
@@ -11,16 +16,9 @@ interface Vec3 {
     z: number;
 }
 
+type GeoVec3 = Vec3 & { crs: string };
+
 export type ColorRamp = string;
-
-export type LayerType = "elevation" | "color";
-export type BasemapSourceLayerType = 'wms' | 'wmts';
-export type DatasetType = "ifc" | "cityjson" | "pointcloud" | "bdtopo";
-
-export type OverlayVectorType = "geojson" | "kml" | "gpx";
-export type OverlayVectorTileType = "mvt";
-export type OverlayRasterType = "wms";
-export type OverlayType = OverlayVectorType | OverlayVectorTileType | OverlayRasterType;
 
 export type BasemapSourceLayerConfig = {
     type?: BasemapSourceLayerType,
@@ -32,24 +30,29 @@ export type BasemapSourceLayerConfig = {
 };
 
 export type LayerConfig = {
-    type: LayerType,
+    type: BaseLayerType,
     name: string,
     visible: boolean,
     source: BasemapSourceLayerConfig,
 };
 
-export type DatasetConfig = {
+export type DatasetBaseConfig = {
     type: DatasetType,
     url: string;
     name: string;
-    position?: Vec3 & {
-        crs: string,
-    },
+    position?: GeoVec3,
     /** Whether this dataset can mask the basemap (enables the "mask" button for this dataset) */
     canMaskBasemap?: boolean,
     /** Whether this dataset masks the basemap by default (can still be disabled via the "mask" button) */
     isMaskingBasemap?: boolean,
 };
+
+export type DatasetPlyConfig = DatasetBaseConfig & {
+    type: 'ply',
+    position: GeoVec3,
+};
+
+export type DatasetConfig = DatasetBaseConfig | DatasetPlyConfig;
 
 export type OverlayBaseConfig = {
     type: OverlayType,
@@ -108,15 +111,11 @@ export type Configuration = {
     },
     analysis: {
         cross_section: {
-            pivot: Vec2 & {
-                crs: string,
-            },
+            pivot: GeoVec2,
             orientation: number,
         },
         clipping_box: {
-            center: Vec3 & {
-                crs: string,
-            },
+            center: GeoVec3,
             size: Vec3,
             floor_preset: {
                 altitude: number,
