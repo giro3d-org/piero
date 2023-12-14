@@ -1,5 +1,6 @@
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 
 import CityJSON, { type CityJSONOptions } from './CityJSON';
@@ -7,6 +8,7 @@ import GeoJSON from './GeoJSON.js';
 import IFC, { type IFCOptions } from './IFC.js';
 import PLY, { type PLYOptions } from './PLY.js';
 import Loadersgl, { type LoaderglOptions } from './Loadersgl.js';
+import { useCameraStore } from '@/stores/camera.js';
 import { useNotificationStore } from '@/stores/notifications';
 import Notification from '@/types/Notification';
 
@@ -55,6 +57,8 @@ export interface ProcessedFileResult {
     filetype: FileType;
     /** Giro3D entity */
     obj: Entity3D;
+    /** Warnings */
+    warning?: string,
 }
 
 /**
@@ -118,6 +122,8 @@ async function processFile(
     const { file, filename, filetype } = await preprocessFile(fileOrUrl);
 
     let obj: Entity3D | undefined;
+    let warning: string | undefined;
+
     switch (filetype) {
         case 'gpkg': {
             obj = await Loadersgl.loadGeoPackage(instance, filename, fileOrUrl, options as LoaderglOptions);
@@ -151,7 +157,15 @@ async function processFile(
         }
         case 'ply': {
             if (file == null) throw new Error('Could not load PLY file: file is null');
-            obj = await PLY.loadPly(instance, filename, file, options as PLYOptions);
+            const plyOptions = options as PLYOptions;
+            if (!plyOptions.at) {
+                warning = "We tried to place the object at the center of the scene, but it may not work perfectly";
+                const cameraStore = useCameraStore();
+                const { target } = cameraStore.getCameraPosition();
+                const coordinates = new Coordinates(instance.referenceCrs, target.x, target.y, target.z);
+                plyOptions.at = coordinates;
+            }
+            obj = await PLY.loadPly(instance, filename, file, plyOptions);
             break;
         }
         default:
@@ -165,7 +179,7 @@ async function processFile(
         obj.visible = false;
     }
 
-    return { filename, filetype, obj };
+    return { filename, filetype, obj, warning };
 };
 
 export default { processFile };

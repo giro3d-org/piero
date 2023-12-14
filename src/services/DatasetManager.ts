@@ -234,8 +234,9 @@ export default class DatasetManager {
     }
 
     private loadPLY(dataset: Dataset): Promise<Entity3D> {
+        if (!dataset.coordinates) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
         return this.loadDefault(dataset, {
-            at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
+            at: dataset.coordinates.as(this.instance.referenceCrs),
         });
     }
 
@@ -307,7 +308,7 @@ export default class DatasetManager {
     private async importFromFile(file: File) {
         const notifications = useNotificationStore();
         try {
-            const { obj: entity, filetype, filename } = await loader.processFile(this.instance, file);
+            const { obj: entity, filetype, filename, warning } = await loader.processFile(this.instance, file);
             const type = datasetTypePerFileType[filetype];
 
             if (!type) {
@@ -325,7 +326,11 @@ export default class DatasetManager {
 
             this.onDatasetLoaded(dataset, entity);
 
-            notifications.push(new Notification(filename, 'Import successful.', 'success'));
+            if (warning) {
+                notifications.push(new Notification(filename, `Import successful. ${warning}`, 'warning'));
+            } else {
+                notifications.push(new Notification(filename, 'Import successful.', 'success'));
+            }
         } catch (e) {
             console.error(e);
             const error = e as Error;
