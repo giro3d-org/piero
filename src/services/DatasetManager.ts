@@ -308,7 +308,9 @@ export default class DatasetManager {
     private async importFromFile(file: File) {
         const notifications = useNotificationStore();
         try {
-            const { obj: entity, filetype, filename, warning } = await loader.processFile(this.instance, file);
+            loader.checkCanProcessFile(file, true);
+
+            const { obj: entity, filetype, filename } = await loader.processFile(this.instance, file);
             const type = datasetTypePerFileType[filetype];
 
             if (!type) {
@@ -326,11 +328,7 @@ export default class DatasetManager {
 
             this.onDatasetLoaded(dataset, entity);
 
-            if (warning) {
-                notifications.push(new Notification(filename, `Import successful. ${warning}`, 'warning'));
-            } else {
-                notifications.push(new Notification(filename, 'Import successful.', 'success'));
-            }
+            notifications.push(new Notification(filename, 'Import successful.', 'success'));
         } catch (e) {
             console.error(e);
             const error = e as Error;

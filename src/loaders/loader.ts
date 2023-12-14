@@ -1,6 +1,5 @@
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 
 import CityJSON, { type CityJSONOptions } from './CityJSON';
@@ -8,7 +7,6 @@ import GeoJSON from './GeoJSON.js';
 import IFC, { type IFCOptions } from './IFC.js';
 import PLY, { type PLYOptions } from './PLY.js';
 import Loadersgl, { type LoaderglOptions } from './Loadersgl.js';
-import { useCameraStore } from '@/stores/camera.js';
 import { useNotificationStore } from '@/stores/notifications';
 import Notification from '@/types/Notification';
 
@@ -57,8 +55,48 @@ export interface ProcessedFileResult {
     filetype: FileType;
     /** Giro3D entity */
     obj: Entity3D;
-    /** Warnings */
-    warning?: string,
+}
+
+/**
+ * Gets the filename and extension from a File or URL
+ *
+ * @param fileOrUrl File or URL
+ * @returns File name and extension
+ */
+function getFilename(fileOrUrl: File | string): { filename?: string, fileext?: string } {
+    let filename: string | undefined = undefined;
+
+    if (fileOrUrl instanceof File) {
+        filename = fileOrUrl.name;
+    } else {
+        filename = fileOrUrl.split('/').at(-1);
+    }
+    const fileext = filename?.split('.').at(-1);
+
+    return { filename, fileext };
+}
+
+/**
+ * Checks if we can process the file given as parameter
+ *
+ * @param fileOrUrl File or URL
+ * @param fromDragAndDrop True if we dropped it into the app
+ */
+function checkCanProcessFile(fileOrUrl: File | string, fromDragAndDrop: boolean) {
+    const { filename, fileext } = getFilename(fileOrUrl);
+
+    if (filename == null || fileext == null) {
+        throw new Error('Could not determine filename');
+    }
+
+    if (!(fileext in filetypesPerExtension)) {
+        throw new Error(`File ${fileext} not supported`);
+    }
+    const filetype = filetypesPerExtension[fileext];
+
+    if (fromDragAndDrop && filetype === 'ply') {
+        throw new Error(`File ${fileext} not supported via drag and drop, as we are missing georeferencing`);
+    }
 }
 
 /**
@@ -68,15 +106,7 @@ export interface ProcessedFileResult {
  */
 async function preprocessFile(fileOrUrl: File | string): Promise<PreprocessedFileResult> {
     let file: File | Response | undefined = undefined;
-    let filename: string | undefined = undefined;
-
-    if (fileOrUrl instanceof File) {
-        filename = fileOrUrl.name;
-        file = fileOrUrl;
-    } else {
-        filename = fileOrUrl.split('/').at(-1);
-    }
-    const fileext = filename?.split('.').at(-1);
+    const { filename, fileext } = getFilename(fileOrUrl);
 
     if (filename == null || fileext == null) {
         throw new Error('Could not determine filename');
@@ -122,7 +152,6 @@ async function processFile(
     const { file, filename, filetype } = await preprocessFile(fileOrUrl);
 
     let obj: Entity3D | undefined;
-    let warning: string | undefined;
 
     switch (filetype) {
         case 'gpkg': {
@@ -159,11 +188,7 @@ async function processFile(
             if (file == null) throw new Error('Could not load PLY file: file is null');
             const plyOptions = options as PLYOptions;
             if (!plyOptions.at) {
-                warning = "We tried to place the object at the center of the scene, but it may not work perfectly";
-                const cameraStore = useCameraStore();
-                const { target } = cameraStore.getCameraPosition();
-                const coordinates = new Coordinates(instance.referenceCrs, target.x, target.y, target.z);
-                plyOptions.at = coordinates;
+                throw new Error('Could not load PLY file: no position to place the object');
             }
             obj = await PLY.loadPly(instance, filename, file, plyOptions);
             break;
@@ -179,7 +204,7 @@ async function processFile(
         obj.visible = false;
     }
 
-    return { filename, filetype, obj, warning };
+    return { filename, filetype, obj };
 };
 
-export default { processFile };
+export default { processFile, checkCanProcessFile };
