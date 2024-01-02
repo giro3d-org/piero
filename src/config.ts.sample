@@ -33,7 +33,7 @@ const config: Configuration = {
                     "projection": "EPSG:2154",
                     "layer": "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES",
                     "format": "image/x-bil;bits=32",
-                    "url": "https://wxs.ign.fr/altimetrie/geoportail/r/wms",
+                    "url": "https://data.geopf.fr/wms-r",
                     "nodata": -1000
                 }
             },
@@ -46,7 +46,7 @@ const config: Configuration = {
                     "layer": "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
                     "format": "image/png",
                     "projection": "EPSG:3857",
-                    "url": "https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+                    "url": "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities"
                 }
             },
             {
@@ -58,7 +58,7 @@ const config: Configuration = {
                     "layer": "ORTHOIMAGERY.ORTHOPHOTOS",
                     "format": "image/jpeg",
                     "projection": "EPSG:3857",
-                    "url": "https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+                    "url": "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities"
                 }
             }
         ]
