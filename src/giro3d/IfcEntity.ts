@@ -106,7 +106,6 @@ export default class IfcEntity extends Entity3D {
         this.classificationCache = null;
         this.fragmentBoundingBox = null;
         this.initializeEntityIndexes();
-        this.initializeIfcHightlight();
 
         this.fragmentClassifier.byStorey(root);
         this.fragmentClassifier.byEntity(root);
@@ -252,15 +251,6 @@ export default class IfcEntity extends Entity3D {
         return this.classificationCache;
     }
 
-    private initializeIfcHightlight() {
-        for (const fragmentID in this.fragmentManager.list) {
-            const fragment = this.fragmentManager.list[fragmentID];
-            for (const name of Object.keys(this.ifcSelection)) {
-                this.addHighlightToFragment(name as FragmentTypeName, fragment);
-            }
-        }
-    }
-
     private addHighlightToFragment(name: FragmentTypeName, fragment: Fragment) {
         if (!fragment.fragments[name]) {
             const subFragment = fragment.addFragment(name, [materials[name]]);
@@ -290,7 +280,7 @@ export default class IfcEntity extends Entity3D {
                 selection.mesh.removeFromParent();
             }
         }
-        this._instance.notifyChange();
+        this._instance.notifyChange(this);
 
         this.ifcSelection[name] = {};
     }
@@ -300,6 +290,7 @@ export default class IfcEntity extends Entity3D {
     }
 
     private addComposites(name: FragmentTypeName, mesh: FragmentMesh, itemID: number) {
+        this.addHighlightToFragment(name, mesh.fragment);
         const composites = mesh.fragment.composites[itemID];
         if (composites) {
             for (let i = 1; i < composites; i++) {
@@ -365,7 +356,7 @@ export default class IfcEntity extends Entity3D {
                 this.regenerate(name, fragID);
             }
         }
-        this._instance.notifyChange();
+        this._instance.notifyChange(this);
     }
 
     highlightById(ids: FragmentIdMap, name: FragmentTypeName = "selection") {
@@ -387,7 +378,7 @@ export default class IfcEntity extends Entity3D {
             this.regenerate(name, fragID);
         }
 
-        this._instance.notifyChange();
+        this._instance.notifyChange(this);
     }
 
     getBoundingBoxById(ids: FragmentIdMap) {
