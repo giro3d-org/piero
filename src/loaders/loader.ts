@@ -125,6 +125,8 @@ async function preprocessFile(fileOrUrl: File | string): Promise<PreprocessedFil
         notifications.push(new Notification(decodeURI(filename), 'Loading...'));
 
         file = await Fetcher.fetch(fileOrUrl);
+    } else if (fileOrUrl instanceof File) {
+        file = fileOrUrl;
     }
 
     return {
