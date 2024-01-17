@@ -84,7 +84,7 @@ export default class MinimapController {
             if (point) {
                 const result = new Coordinates(instance.referenceCrs, point.x, point.y, 1)
                     .as(minimapInstance.referenceCrs)
-                    .xyz();
+                    .toVector3();
 
                 result.z = 1;
 

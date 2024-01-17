@@ -53,7 +53,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.camera = new CameraController(this.mainInstance);
 
         const center = this.store.getDefaultCameraPosition().as(crs);
-        const xyz = center.xyz();
+        const xyz = center.toVector3();
         const basemapSize = this.store.getDefaultBasemapSize();
         const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, basemapSize.width, basemapSize.height);
         this.camera.setInitialPosition(extent);

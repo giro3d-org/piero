@@ -26,8 +26,7 @@ export default {
      * @returns Entity created
      */
     async loadPly(instance: Instance, id: string, file: File | Response, options: PLYOptions) {
-        // @ts-ignore - target is actually optional
-        const position = options.at.as(instance.referenceCrs).xyz(new Vector3());
+        const position = options.at.as(instance.referenceCrs).toVector3();
 
         const buffer = await file.arrayBuffer();
         const loader = new PLYLoader();

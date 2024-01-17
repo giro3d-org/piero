@@ -309,8 +309,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         const cameraPosition = new Coordinates(
             extent.crs(),
             extent.west(), extent.south(), altitude,
-        ).xyz();
-        const center = extent.center().xyz();
+        ).toVector3();
+        const center = extent.center().toVector3();
         this.lookAt(cameraPosition, center, false);
     }
 

@@ -54,10 +54,10 @@ export default {
         // IFC models are Y-up, so we need to rotate them to be Z-up.
         ifcModel.rotateX(Math.PI / 2);
 
-        let position: Vector3 = new Vector3();
+        const position = new Vector3();
         // If custom coordinates are provided, we ignore the IFC's placement
         if (options.at) {
-            position = options.at.as(instance.referenceCrs).xyz(position);
+            options.at.as(instance.referenceCrs).toVector3(position);
             ifcModel.position.copy(position);
         } else {
             // Since we are loading the model with COORDINATE_TO_ORIGIN = true, all vertices will be
@@ -73,8 +73,8 @@ export default {
             // Important note: the IFC's origin is not transformed to the instance's CRS. We assume that
             // The IFC file is in the same coordinate system as the instance.
             const coordinationMatrix = ifcModel.coordinationMatrix.clone().invert();
-            const pos = new Vector3().applyMatrix4(coordinationMatrix);
-            ifcModel.position.set(pos.x, -pos.z, pos.y);
+            position.applyMatrix4(coordinationMatrix);
+            ifcModel.position.set(position.x, -position.z, position.y);
         }
 
         ifcModel.updateWorldMatrix(true, true);
