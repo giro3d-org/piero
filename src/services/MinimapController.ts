@@ -52,9 +52,9 @@ export default class MinimapController {
 
         loadOSMLayer(this.basemap);
 
-        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(this.minimapInstance.referenceCrs) as Coordinates;
+        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(this.minimapInstance.referenceCrs);
 
-        const xyz = new Vector3(center.x(), center.y(), 0);
+        const xyz = new Vector3(center.x, center.y, 0);
         const camera = this.minimapInstance.camera.camera3D;
         camera.position.set(xyz.x, xyz.y, 20000);
         camera.lookAt(xyz.x, xyz.y + 1, 0);
@@ -129,10 +129,9 @@ export default class MinimapController {
 
             const xyz = mainCamera.position;
             const coordinate = new Coordinates(this.mainInstance.referenceCrs, xyz.x, xyz.y, 0)
-                .as(this.minimapInstance.referenceCrs) as Coordinates;
+                .as(this.minimapInstance.referenceCrs);
 
-            const x = coordinate.x();
-            const y = coordinate.y();
+            const { x, y } = coordinate;
             minimapCamera.position.set(x, y, minimapCamera.position.z);
             minimapCamera.lookAt(x, y + 1, 0);
         }

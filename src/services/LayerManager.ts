@@ -29,7 +29,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
         for (const layer of this._attachedLayers) {
             if (layer.type !== 'MaskLayer' && layer.source && layer.source instanceof VectorSource && layer.visible) {
                 const coordinateLayer = coordinate.as(layer.extent.crs());
-                const coord = [coordinateLayer.x(), coordinateLayer.y()];
+                const coord = [coordinateLayer.x, coordinateLayer.y];
                 for (const feature of layer.source.source.getFeaturesAtCoordinate(coord)) {
                     target.push({ layer, feature });
                 }
@@ -60,10 +60,10 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
 
         const e = new Extent(
             coordinate.crs,
-            coordinate.x() - xRes * hitTolerance,
-            coordinate.x() + xRes * hitTolerance,
-            coordinate.y() - yRes * hitTolerance,
-            coordinate.y() + yRes * hitTolerance,
+            coordinate.x - xRes * hitTolerance,
+            coordinate.x + xRes * hitTolerance,
+            coordinate.y - yRes * hitTolerance,
+            coordinate.y + yRes * hitTolerance,
         );
 
         // @ts-ignore
@@ -72,7 +72,7 @@ Map.prototype.getVectorFeaturesAtCoordinate = function getVectorFeaturesAtCoordi
             // @ts-ignore
             const layerProjection = feat.layer.getExtent()?.crs() ?? this._instance.referenceCrs;
             const coordinateLayer = coordinate.as(layerProjection);
-            const coord = [coordinateLayer.x(), coordinateLayer.y()];
+            const coord = [coordinateLayer.x, coordinateLayer.y];
             if (feat.feature.getGeometry().intersectsCoordinate(coord)) {
                 target.push(feat);
                 continue;
@@ -161,8 +161,8 @@ export default class LayerManager extends EventDispatcher {
         this.grid.name = 'grid';
         this.grid.scale.set(dims.x, 1, dims.y);
         this.grid.visible = true;
-        const center = extent.center() as Coordinates;
-        this.grid.position.set(center.x(), center.y(), -100);
+        const center = extent.center();
+        this.grid.position.set(center.x, center.y, -100);
         this.grid.rotateOnAxis(new Vector3(1, 0, 0,), Math.PI / 2);
         const gridMat = this.grid.material as Material;
         gridMat.opacity = 0.5;
@@ -170,7 +170,7 @@ export default class LayerManager extends EventDispatcher {
 
         this.plane = new Mesh(new PlaneGeometry(dims.x, dims.y, 1, 1), new MeshBasicMaterial({ color: 'black' }));
         this.plane.name = 'plane';
-        this.plane.position.set(center.x(), center.y(), -101);
+        this.plane.position.set(center.x, center.y, -101);
 
         this.instance.add(this.basemap);
         this.instance.add(this.grid);
