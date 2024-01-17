@@ -49,7 +49,8 @@ export default class BasemapManager {
         const source = await LayerBuilder.getSource(basemap.source);
         switch (basemap.type) {
             case 'elevation':
-                layer = new ElevationLayer(basemap.uuid, {
+                layer = new ElevationLayer({
+                    name: basemap.uuid,
                     source,
                     minmax: { min: 0, max: 5000 },
                     colorMap: this.store.getElevationColorMap(),
@@ -57,7 +58,8 @@ export default class BasemapManager {
                 this.layerManager.addElevationLayer(layer as ElevationLayer);
                 break;
             case 'color':
-                layer = new ColorLayer(basemap.uuid, {
+                layer = new ColorLayer({
+                    name: basemap.uuid,
                     source,
                 });
                 this.layerManager.addBaseLayer(layer as ColorLayer);

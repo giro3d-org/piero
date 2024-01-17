@@ -1,7 +1,7 @@
 import { LineBasicMaterial, MeshBasicMaterial, PointsMaterial } from 'three';
 
-import DrawTool, { DRAWTOOL_EVENT_TYPE, DRAWTOOL_MODE, DRAWTOOL_STATE, GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/DrawTool';
-import Drawing from '@giro3d/giro3d/interactions/Drawing';
+import DrawTool, { DRAWTOOL_MODE, DRAWTOOL_STATE, GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/DrawTool';
+import Drawing, { DrawingGeometryType } from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import Picker from './Picker';
@@ -78,6 +78,7 @@ export default class AnnotationManager {
             enableDragging: true,
             splicingHitTolerance: 0,
             endDrawingOnRightClick: true,
+            // @ts-ignore
             getPointAt: (event: MouseEvent) => {
                 const pickedObject = picker.getObjectAt(this.instance, event, 1);
                 if (pickedObject) {
@@ -180,7 +181,7 @@ export default class AnnotationManager {
         });
     }
 
-    private addAnnotation(geojson: object) {
+    private addAnnotation(geojson: GeoJSON.Geometry) {
         const o = new Drawing(this.instance, {
             faceMaterial: drawnFaceMaterial,
             sideMaterial: drawnSideMaterial,
@@ -209,16 +210,16 @@ export default class AnnotationManager {
         this.instance.notifyChange();
     }
 
-    private drawObject(type: GEOMETRY_TYPE): Promise<Drawing> {
+    private drawObject(type: DrawingGeometryType): Promise<Drawing> {
         return new Promise((resolve, reject) => {
-            this.drawTool.addEventListener(DRAWTOOL_EVENT_TYPE.END, evt => {
+            this.drawTool.addEventListener('end', evt => {
                 resolve(this.addAnnotation(evt.geojson));
                 // TODO
                 // measureLineButton.classList.remove('active');
                 // measurePolygonButton.classList.remove('active');
             });
 
-            this.drawTool.addEventListener(DRAWTOOL_EVENT_TYPE.ABORT, () => {
+            this.drawTool.addEventListener('abort', () => {
                 reject();
             });
 

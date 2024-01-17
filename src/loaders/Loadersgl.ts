@@ -174,9 +174,7 @@ export default {
         }
         const geometry = new BufferGeometry();
         geometry.setAttribute('position', new BufferAttribute(posArray, 3));
-        // @ts-ignore
         const mypoints = new PointCloud({
-            layer: null,
             geometry,
             material: new PointCloudMaterial({
                 size: 5,

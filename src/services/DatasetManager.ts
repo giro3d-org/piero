@@ -151,7 +151,8 @@ export default class DatasetManager {
             name: 'Mask polygon',
         });
 
-        const mask = new MaskLayer(`mask-${dataset.uuid}`, {
+        const mask = new MaskLayer({
+            name: `mask-${dataset.uuid}`,
             source: new Giro3dVectorSource({
                 data: [feature],
                 style: new Style({

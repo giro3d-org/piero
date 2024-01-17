@@ -59,8 +59,8 @@ function getArea(coords: Drawing | Vector2[]) {
         const localCoords = new Array(coords.coordinates.length / 3);
         for (let i = 0; i < coords.coordinates.length / 3; i += 1) {
             localCoords[i] = new Vector2(
-                coords.positionsTop[i * 3 + 0],
-                coords.positionsTop[i * 3 + 1],
+                coords.localCoordinates[i * 3 + 0],
+                coords.localCoordinates[i * 3 + 1],
             );
         }
         return Math.abs(ShapeUtils.area(localCoords));
