@@ -190,14 +190,11 @@ export default class AnnotationManager {
             minExtrudeDepth: 1,
             maxExtrudeDepth: 5,
             use3Dpoints: false,
-            // @ts-ignore
             point2DFactory,
         }, geojson);
 
-        // @ts-ignore
         o.traverse(child => child.renderOrder = 2);
 
-        // @ts-ignore
         this.instance.add(o);
 
         return o;
@@ -205,7 +202,6 @@ export default class AnnotationManager {
 
     private deleteAnnotation(annotation: Annotation) {
         annotation.object.dispose();
-        // @ts-ignore
         annotation.object.removeFromParent();
         this.instance.notifyChange();
     }

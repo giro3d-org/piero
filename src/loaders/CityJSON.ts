@@ -27,7 +27,6 @@ export default {
             const json = JSON.parse(str);
             // const alert = NotificationController.showNotification('CityJSON', `Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`);
             const parser = new CityJSONWorkerParser();
-            // @ts-ignore - CityJSON typing seems outdated
             const loader = new CityJSONLoader(parser);
 
             parser.chunkSize = 2000;
@@ -38,8 +37,6 @@ export default {
                 resolve(new CityJSONEntity(loader));
             };
 
-            // @ts-ignore - CityJSON typing seems outdated
-            parser.resetMaterial();
             loader.load(json);
 
             let z: number;
@@ -61,8 +58,7 @@ export default {
                 if (proj) {
                     const coords = new Coordinates(`EPSG:${proj}`, -m[12], -m[13], z);
                     const coordsReference = coords.as(instance.referenceCrs);
-                    // @ts-ignore - We don't care if geocentric or not, we just want the values!
-                    loader.scene.position.set(...coordsReference._values);
+                    loader.scene.position.set(coordsReference.values[0], coordsReference.values[1], coordsReference.values[2]);
                 } else {
                     loader.scene.position.set(-m[12], -m[13], z);
                 }

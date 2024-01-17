@@ -81,9 +81,7 @@ export default {
                 }
             }
 
-            // @ts-ignore
             const polygon = new Drawing(instance, {}, feature.geometry);
-            // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
             polygons.add(polygon);
             // TODO
             // StatusBar.doneTask();
@@ -132,7 +130,6 @@ export default {
                 gis: { format: 'geojson' },
             },
             ...options,
-            // @ts-ignore
         }, r => r.data);
     },
 
@@ -201,7 +198,6 @@ export default {
                 las: { shape: 'columnar-table' },
             },
             ...options,
-            // @ts-ignore
         }, data => data.attributes.POSITION.value);
     },
 
@@ -221,9 +217,7 @@ export default {
             },
             ...options,
         }, data => {
-            // @ts-ignore
             const posArray = new Float32Array(data.length * 3);
-            // @ts-ignore
             for (let i = 0; i < data.length; i += 1) {
                 posArray[i * 3 + 0] = data[i].X;
                 posArray[i * 3 + 1] = data[i].Y;

@@ -158,15 +158,12 @@ export default {
                         return;
                 }
 
-                // @ts-ignore
                 const o = new Drawing(instance, {
                     minExtrudeDepth: 1,
                     maxExtrudeDepth: 5,
                     use3Dpoints: false,
                 }, feature.geometry);
-                // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
-                o.userData = feature.properties;
-                // @ts-ignore - Not sure why Drawing doesn't inherit Object3D<Event>
+                if (feature.properties) o.userData = feature.properties;
                 group.add(o);
             });
 
