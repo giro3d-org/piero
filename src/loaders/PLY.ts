@@ -1,8 +1,9 @@
-import { DoubleSide, Mesh, MeshLambertMaterial, Vector3 } from 'three';
+import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Instance from '@giro3d/giro3d/core/Instance';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
+import { Entity3D } from '@giro3d/giro3d/entities';
 
 /**
  * PLY options
@@ -11,8 +12,31 @@ export type PLYOptions = {
     at: Coordinates;
 }
 
-export class PlyMesh extends Mesh {
-    public readonly isPly = true;
+
+export interface PlyFeature {
+    color: Color
+}
+
+export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
+    public readonly isPickableFeatures = true;
+    public readonly isPlyMesh = true;
+
+    pickFeaturesFrom(pickedResult: PickResult): PlyFeature[] {
+        if (this.geometry.hasAttribute('color') && pickedResult.face) {
+            const colors = this.geometry.getAttribute('color').array;
+            const face = pickedResult.face;
+
+            const color = new Color(colors[face.a * 3], colors[face.a * 3 + 1], colors[face.a * 3 + 2]);
+            const result = [{ color }];
+            pickedResult.features = result;
+            return result;
+        }
+
+        return [];
+    }
+
+    static isPlyMesh = (obj: any): obj is PlyMesh => obj?.isPlyMesh;
+    static isPlyPickResult = (obj: PickResult<any>): obj is PickResult<PlyFeature> => PlyMesh.isPlyMesh(obj?.object);
 }
 
 export default {

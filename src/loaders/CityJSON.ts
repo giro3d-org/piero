@@ -3,6 +3,7 @@ import Instance from '@giro3d/giro3d/core/Instance.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Projections from '../utils/Projections';
+import CityJSONEntity from '@/giro3d/CityJSONEntity';
 
 /**
  * CityJSON options
@@ -34,7 +35,7 @@ export default {
                 loader.scene.updateMatrix();
                 loader.scene.updateMatrixWorld(true);
                 // alert.dismiss();
-                resolve(new Entity3D(loader.scene.uuid, loader.scene));
+                resolve(new CityJSONEntity(loader));
             };
 
             // @ts-ignore - CityJSON typing seems outdated
