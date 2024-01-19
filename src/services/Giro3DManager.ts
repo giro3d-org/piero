@@ -2,7 +2,6 @@ import { EventDispatcher, Box3, AmbientLight, DirectionalLight, PerspectiveCamer
 
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
-import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
 import { HttpConfiguration } from "@giro3d/giro3d/utils";
 
 import LayerManager from "@/services/LayerManager";
@@ -66,7 +65,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter(this.mainInstance);
 
-        this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.onFrameEnd());
+        this.mainInstance.addEventListener('update-end', () => this.onFrameEnd());
 
         this.mainInstance.renderingOptions.enableEDL = true;
         this.mainInstance.renderingOptions.enableInpainting = true;

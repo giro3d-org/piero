@@ -8,7 +8,6 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
 import Map from '@giro3d/giro3d/entities/Map.js'
 import Viewbox from '@/types/Viewbox'
 import { Vector3, Vector2, Box3, MathUtils } from 'three'
-import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop'
 
 const DEFAULT_EXTENT = new Extent(
     'EPSG:3857',
@@ -65,7 +64,7 @@ export default class MinimapController {
 
     setMainInstance(instance: Instance) {
         this.mainInstance = instance;
-        instance.addFrameRequester(MAIN_LOOP_EVENTS.AFTER_CAMERA_UPDATE, () => {
+        instance.addEventListener('after-camera-update', () => {
             this.updateViewbox();
         });
     }
