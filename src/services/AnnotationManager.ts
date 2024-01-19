@@ -1,6 +1,6 @@
 import { LineBasicMaterial, MeshBasicMaterial, PointsMaterial } from 'three';
 
-import DrawTool, { DRAWTOOL_MODE, DRAWTOOL_STATE, GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/DrawTool';
+import DrawTool, { DrawToolMode, DrawToolState } from '@giro3d/giro3d/interactions/DrawTool';
 import Drawing, { DrawingGeometryType } from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 
@@ -42,10 +42,10 @@ const picker = new Picker();
 /**
  * Creates a point to be added via CSS2DRenderer.
  *
- * @param index Index of the point
+ * @param text Label of the point
  * @returns The created HTML element
  */
-function point2DFactory(index: number) {
+function point2DFactory(text: string) {
     const pt = document.createElement('div');
     pt.style.position = 'absolute';
     pt.style.borderRadius = '50%';
@@ -58,7 +58,7 @@ function point2DFactory(index: number) {
     pt.style.textAlign = 'center';
     pt.style.pointerEvents = 'auto';
     pt.style.cursor = 'pointer';
-    pt.innerText = `${index + 1}`;
+    pt.innerText = text;
     return pt;
 }
 
@@ -105,7 +105,7 @@ export default class AnnotationManager {
         this.camera.addEventListener('interaction-end', () => this.drawTool.continue());
 
         instance.domElement.addEventListener('keydown', e => {
-            if (e.code === 'Escape' && this.drawTool.state !== DRAWTOOL_STATE.READY) {
+            if (e.code === 'Escape' && this.drawTool.state !==  DrawToolState.READY) {
                 this.drawTool.reset();
             }
         });
@@ -135,9 +135,9 @@ export default class AnnotationManager {
     }
 
     private beforeDraw() {
-        if (this.drawTool.state !== DRAWTOOL_STATE.READY) {
+        if (this.drawTool.state !== DrawToolState.READY) {
             // We're already drawing, do something with the current drawing
-            if (this.drawTool.mode === DRAWTOOL_MODE.EDIT) this.drawTool.end();
+            if (this.drawTool.mode === DrawToolMode.EDIT) this.drawTool.end();
             else this.drawTool.reset();
         }
     }
@@ -151,7 +151,7 @@ export default class AnnotationManager {
     private drawPoint() {
         this.beforeDraw();
 
-        this.drawObject(GEOMETRY_TYPE.POINT).then(drawing => {
+        this.drawObject('MultiPoint').then(drawing => {
             const name = promptName('New point annotation');
             if (name) this.pushNewAnnotation(name, drawing);
         });
@@ -160,7 +160,7 @@ export default class AnnotationManager {
     private drawPolygon() {
         this.beforeDraw();
 
-        this.drawObject(GEOMETRY_TYPE.POLYGON).then(drawing => {
+        this.drawObject('Polygon').then(drawing => {
             const name = promptName('New polygon annotation');
             if (name) this.pushNewAnnotation(name, drawing);
         });
@@ -175,14 +175,14 @@ export default class AnnotationManager {
     private drawLine() {
         this.beforeDraw();
 
-        this.drawObject(GEOMETRY_TYPE.LINE).then(drawing => {
+        this.drawObject('LineString').then(drawing => {
             const name = promptName('New line annotation');
             if (name) this.pushNewAnnotation(name, drawing);
         });
     }
 
     private addAnnotation(geojson: GeoJSON.Geometry) {
-        const o = new Drawing(this.instance, {
+        const o = new Drawing({
             faceMaterial: drawnFaceMaterial,
             sideMaterial: drawnSideMaterial,
             lineMaterial: drawnLineMaterial,

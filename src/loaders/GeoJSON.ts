@@ -1,5 +1,5 @@
 import { Group } from 'three';
-import Drawing, { GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/Drawing.js';
+import Drawing from '@giro3d/giro3d/interactions/Drawing.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
@@ -36,7 +36,7 @@ export default {
             // @ts-ignore
             const coordinates = new Coordinates(instance.referenceCrs);
             switch (json.geometry.type) {
-                case GEOMETRY_TYPE.POINT: {
+                case 'Point': {
                     const ptGeometry = (json.geometry) as GeoJSON.Point;
                     coordinatesWgs84.set(
                         'EPSG:4326',
@@ -50,8 +50,8 @@ export default {
                     ptGeometry.coordinates[2] = coordinates.values[2];
                     break;
                 }
-                case GEOMETRY_TYPE.LINE:
-                case GEOMETRY_TYPE.MULTIPOINT: {
+                case 'LineString':
+                case 'MultiPoint': {
                     const multiptGeometry = (json.geometry) as GeoJSON.LineString;
                     for (let i = 0; i < multiptGeometry.coordinates.length; i += 1) {
                         coordinatesWgs84.set(
@@ -67,7 +67,7 @@ export default {
                     }
                     break;
                 }
-                case GEOMETRY_TYPE.POLYGON: {
+                case 'Polygon': {
                     const polygonGeometry = (json.geometry) as GeoJSON.Polygon;
                     for (let i = 0; i < polygonGeometry.coordinates[0].length; i += 1) {
                         coordinatesWgs84.set(
@@ -106,7 +106,7 @@ export default {
 
             json.features.forEach(feature => {
                 switch (feature.geometry.type) {
-                    case GEOMETRY_TYPE.POINT: {
+                    case 'Point': {
                         // FIXME: THIS IS BROKEN
                         const ptGeometry = (feature.geometry) as GeoJSON.Point;
                         coordinatesOrigin.set(
@@ -121,8 +121,8 @@ export default {
                         ptGeometry.coordinates[2] = coordinates.values[2];
                         break;
                     }
-                    case GEOMETRY_TYPE.LINE:
-                    case GEOMETRY_TYPE.MULTIPOINT: {
+                    case 'LineString':
+                    case 'MultiPoint': {
                         const multiptGeometry = (feature.geometry) as GeoJSON.LineString;
                         for (let i = 0; i < multiptGeometry.coordinates.length; i += 1) {
                             coordinatesOrigin.set(
@@ -138,7 +138,7 @@ export default {
                         }
                         break;
                     }
-                    case GEOMETRY_TYPE.POLYGON: {
+                    case 'Polygon': {
                         const polygonGeometry = (feature.geometry) as GeoJSON.Polygon;
                         for (let i = 0; i < polygonGeometry.coordinates[0].length; i += 1) {
                             coordinatesOrigin.set(
@@ -158,7 +158,7 @@ export default {
                         return;
                 }
 
-                const o = new Drawing(instance, {
+                const o = new Drawing({
                     minExtrudeDepth: 1,
                     maxExtrudeDepth: 5,
                     use3Dpoints: false,

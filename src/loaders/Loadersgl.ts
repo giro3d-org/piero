@@ -81,7 +81,7 @@ export default {
                 }
             }
 
-            const polygon = new Drawing(instance, {}, feature.geometry);
+            const polygon = new Drawing({}, feature.geometry);
             polygons.add(polygon);
             // TODO
             // StatusBar.doneTask();
