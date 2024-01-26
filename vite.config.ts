@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import path from 'path';
 
 import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -6,7 +7,6 @@ import vue from '@vitejs/plugin-vue'
 
 const openbimComponentsChunks = {
     // Big libs, put them in their own chunks
-    'three': 'three',
     'web-ifc': 'web-ifc',
 };
 
@@ -75,7 +75,9 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            three: path.resolve('./node_modules/three'),
+            'camera-controls': path.resolve('./node_modules/camera-controls'),
         }
     }
 })
