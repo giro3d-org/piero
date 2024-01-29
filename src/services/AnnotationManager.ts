@@ -139,6 +139,7 @@ export default class AnnotationManager {
                         break;
                     case 'importAnnotation':
                         this.importAnnotation(args[0]);
+                        break;
                 }
             });
         });

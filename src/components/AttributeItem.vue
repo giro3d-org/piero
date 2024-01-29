@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ColorFragment from './ColorFragment.vue';
+import CoordinateFragment from './CoordinateFragment.vue';
 import LinkFragment from './LinkFragment.vue';
 
 const props = defineProps<{
@@ -34,6 +35,13 @@ switch (props.attrName) {
                 </template>
                 <template v-else-if="'isColor' in props.attrValue">
                     <ColorFragment :key="props.attrValue.getHexString()" :color="props.attrValue" />
+                </template>
+                <template v-else-if="'isVector3' in props.attrValue">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <CoordinateFragment :value="props.attrValue.x.toFixed(0)" prefix="X:" />
+                        <CoordinateFragment :value="props.attrValue.y.toFixed(0)" prefix="Y:" />
+                        <CoordinateFragment :value="props.attrValue.z.toFixed(0)" prefix="Alt.:" suffix="m" />
+                    </div>
                 </template>
                 <template v-else><span class='text-secondary'>Object</span></template>
             </template>

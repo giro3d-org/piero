@@ -38,10 +38,7 @@ function downloadAnnotation(annotation: Annotation) {
 }
 
 function exportAnnotations() {
-    const features = [];
-    for (const annotation of annotations.getAnnotations()) {
-        features.push(annotation.toGeoJSON());
-    }
+    const features = annotations.getAnnotations().map(annotation => annotation.toGeoJSON());
 
     Download.downloadAsJson({
         type: 'FeatureCollection',

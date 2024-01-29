@@ -1,32 +1,34 @@
 <script setup lang="ts">
+import { Vector3 } from 'three'
+import { defineAsyncComponent, ref } from 'vue'
+import { Instance } from '@giro3d/giro3d/core'
+import { Extent } from '@giro3d/giro3d/core/geographic'
+
+import AlertToast from './components/AlertToast.vue'
 import ToolBar from './components/toolbar/ToolBar.vue'
 import MinimapView from './components/MinimapView.vue'
 import MainView from './components/MainView.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import SearchOverlay from './components/SearchOverlay.vue'
 import NavigationButtons from './components/NavigationButtons.vue'
-import { defineAsyncComponent, ref } from 'vue'
 import StatusBar from './components/StatusBar.vue'
+import { PanelType } from './components/Configuration'
+
 import Giro3DManager from '@/services/Giro3DManager'
+import MinimapController from '@/services/MinimapController'
 import Tour from '@/services/Tour'
-import AlertToast from './components/AlertToast.vue'
-import Feature from './types/Feature'
-import Picker from '@/services/Picker'
-import { Vector3 } from 'three'
 import { useGiro3dStore } from '@/stores/giro3d'
-import { Instance } from '@giro3d/giro3d/core'
-import MinimapController from './services/MinimapController'
-import { Extent } from '@giro3d/giro3d/core/geographic'
-import { useCameraStore } from './stores/camera'
-import { useAnnotationStore } from './stores/annotations'
+import { useCameraStore } from '@/stores/camera'
+import { useAnnotationStore } from '@/stores/annotations'
+import { useMeasurementStore } from '@/stores/measurement'
+import Feature from '@/types/Feature'
 
 const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
 const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
 
-const selectedTool = ref<string | null>(null);
+const selectedTool = ref<PanelType | null>(null);
 const progress = ref(1);
 const coordinates = ref(new Vector3(0, 0, 0));
-const picker = new Picker();
 const mouse = ref({ x: 0, y: 0 });
 const pickedFeature = ref<Feature | null>(null);
 const tooltip = ref<string | null>(null);
@@ -35,6 +37,7 @@ const isLoading = ref(false);
 const giro3dStore = useGiro3dStore();
 const cameraStore = useCameraStore();
 const annotationStore = useAnnotationStore();
+const measurementStore = useMeasurementStore();
 
 let giro3d: Giro3DManager;
 let minimap: MinimapController;
@@ -89,7 +92,7 @@ giro3dStore.$onAction(({
     });
 })
 
-function selectPanel(key: string) {
+function selectPanel(key: PanelType) {
     if (key === selectedTool.value) {
         selectedTool.value = null;
     } else {
@@ -98,23 +101,22 @@ function selectPanel(key: string) {
 }
 
 function pick(event: MouseEvent, clicked?: boolean) {
-    if (!giro3d) {
+    if (!giro3d || !giro3d.mainInstance) {
         return;
     }
 
-    if (cameraStore.getNavigationMode() !== 'orbit' || cameraStore.isUserInteracting() || annotationStore.isUserDrawing()) {
+    if (
+        cameraStore.getNavigationMode() !== 'orbit'
+        || cameraStore.isUserInteracting()
+        || annotationStore.isUserDrawing()
+        || measurementStore.isUserMeasuring()
+    ) {
         return;
     }
 
     mouse.value = { x: event.clientX, y: event.clientY };
 
-    const instance = giro3d?.mainInstance;
-
-    if (!instance) {
-        return;
-    }
-
-    const picked = picker.pick(giro3d.mainInstance, event);
+    const picked = giro3d.picker.pick(giro3d.mainInstance, event);
 
     if (picked?.point) {
         const point = picked.point;
@@ -144,7 +146,7 @@ function pick(event: MouseEvent, clicked?: boolean) {
 
 function updateCoordinates(event: MouseEvent) {
     if (giro3d) {
-        const point = picker.getMouseCoordinate(giro3d.mainInstance, event);
+        const point = giro3d.picker.getMouseCoordinate(giro3d.mainInstance, event);
 
         if (point) {
             coordinates.value.x = point.x;
@@ -156,7 +158,10 @@ function updateCoordinates(event: MouseEvent) {
 
 function updateCursor(event: MouseEvent) {
     if (giro3d) {
-        const picked = picker.hasFeature(giro3d.mainInstance, event);
+        if (annotationStore.isUserDrawing() || measurementStore.isUserMeasuring()) {
+            return;
+        }
+        const picked = giro3d.picker.hasFeature(giro3d.mainInstance, event);
         giro3d.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
     }
 }

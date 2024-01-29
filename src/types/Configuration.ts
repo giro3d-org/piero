@@ -3,6 +3,8 @@ import { type DatasetType } from "./Dataset";
 import { type BaseLayerType } from './BaseLayer';
 import { type BasemapSourceLayerType, type OverlayRasterType, type OverlayType, type OverlayVectorTileType, type OverlayVectorType } from "./LayerSource";
 
+export type ExperimentalFeatures = 'measurements';
+
 interface Vec2 {
     x: number;
     y: number;
@@ -95,6 +97,7 @@ export type BookmarkConfig = {
 
 export type Configuration = {
     default_crs: string,
+    enabled_features?: ExperimentalFeatures[],
     camera: {
         position: GeoVec2 | [number, number],
         altitude: number,

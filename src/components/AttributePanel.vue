@@ -41,7 +41,7 @@ defineEmits(['close'])
                 :children="item[1]" />
         </div>
         <div class="card-footer py-0">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center column-gap-3">
                 <CoordinateFragment :value="point.x.toFixed(0)" prefix="X:" />
                 <CoordinateFragment :value="point.y.toFixed(0)" prefix="Y:" />
                 <CoordinateFragment :value="point.z.toFixed(0)" prefix="Alt.:" suffix="m" />

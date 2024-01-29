@@ -7,13 +7,14 @@ import { HttpConfiguration } from "@giro3d/giro3d/utils";
 import LayerManager from "@/services/LayerManager";
 import BasemapManager from "@/services/BasemapManager";
 import OverlayManager from "@/services/OverlayManager";
-import CameraController from "./CameraController";
+import CameraController from "@/services/CameraController";
 import DatasetManager from "@/services/DatasetManager";
 import AnnotationManager from "@/services/AnnotationManager";
 import AnalysisManager from "@/services/AnalysisManager";
+import Highlighter from "@/services/Highlighter";
+import Picker from "@/services/Picker";
+import MeasurementManager from "@/services/MeasurementManager";
 import { useGiro3dStore } from "@/stores/giro3d";
-import Highlighter from "./Highlighter";
-import Picker from "./Picker";
 
 Instance.registerCRS('EPSG:2154', '+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs');
 Instance.registerCRS('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs');
@@ -33,17 +34,19 @@ type Giro3DManagerEventMap = {
 };
 
 export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
-    readonly camera: CameraController;
+    private readonly store = useGiro3dStore();
+
     readonly mainInstance: Instance;
+    readonly camera: CameraController;
     readonly layerManager: LayerManager;
     readonly basemapManager: BasemapManager;
     readonly overlayManager: OverlayManager;
     readonly datasetManager: DatasetManager;
     readonly annotationManager: AnnotationManager;
     readonly analysisManager: AnalysisManager;
-    private readonly store = useGiro3dStore();
     readonly highlighter: Highlighter;
     readonly picker: Picker;
+    readonly measurementManager: MeasurementManager;
 
     constructor(instance: Instance) {
         super();
@@ -68,6 +71,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.annotationManager = new AnnotationManager(this.mainInstance, this.camera, this.picker);
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter(this.mainInstance);
+        this.picker = new Picker();
+        this.measurementManager = new MeasurementManager(this.mainInstance, this.camera, this.picker);
 
         this.mainInstance.addEventListener('update-end', () => this.onFrameEnd());
 

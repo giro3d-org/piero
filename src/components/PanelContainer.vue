@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
-import Configuration from './Configuration';
+import Configuration, { PanelType} from './Configuration';
 
 const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
 const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
@@ -8,17 +8,15 @@ const BookmarkPanel = defineAsyncComponent(() => import('./panels/BookmarkPanel.
 const LayerPanel = defineAsyncComponent(() => import('./panels/LayerPanel.vue'));
 const AnalysisPanel = defineAsyncComponent(() => import('./panels/AnalysisPanel.vue'));
 const AnnotationPanel = defineAsyncComponent(() => import('./panels/AnnotationPanel.vue'));
+const MeasurementPanel = defineAsyncComponent(() => import('./panels/MeasurementPanel.vue'));
 
-defineProps({
+defineProps<{
     /**
      * The name of the panel (must match the tooltip
      * of the corresponding tool in the toolbar)
      */
-    selected: {
-        type: String,
-        required: true
-    }
-})
+    selected: PanelType | null,
+}>();
 
 defineEmits(['restart-tour'])
 
@@ -35,6 +33,7 @@ const panels = Configuration.panels;
             <LayerPanel v-if="selected === 'layers'" />
             <AnalysisPanel v-if="selected === 'analysis'" />
             <AnnotationPanel v-if="selected === 'annotations'" />
+            <MeasurementPanel v-if="selected === 'measures'" />
         </div>
     </div>
 </template>
