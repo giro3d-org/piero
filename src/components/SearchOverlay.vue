@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @ts-ignore
+// @ts-ignore autocomplete does not provide typing
 import autoComplete from '@tarekraafat/autocomplete.js'
 import { Vector3 } from 'three';
 import { onMounted, ref } from 'vue'

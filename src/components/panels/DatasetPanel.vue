@@ -55,11 +55,13 @@ defineEmits(['import'])
 </script>
 
 <template>
-    <div class="root">
+    <div class="d-flex flex-column h-100">
         <DropZone id="datasets-drop-zone" @drop="importDatasetFromDrop" label="Import file..." />
-        <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name"
-            :datasets="datasets.getDatasets().filter(ds => ds.type === item.key)" @zoom="zoomOnDataset"
-            @clipTo="clipToDataset" @updated="$forceUpdate()" />
+        <div class="flex-fill overflow-auto">
+            <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name"
+                :datasets="datasets.getDatasets().filter(ds => ds.type === item.key)" @zoom="zoomOnDataset"
+                @clipTo="clipToDataset" @updated="$forceUpdate()" />
+        </div>
     </div>
     <!-- <div class="button-area">
     <IconButton text="Add dataset..." @click="hiddenInput.click()" icon="bi-plus-lg" title="Add dataset from a local file"
@@ -73,9 +75,5 @@ defineEmits(['import'])
 button {
     margin-top: 0.2rem;
     width: 100%;
-}
-
-.root {
-    max-height: 100%;
 }
 </style>

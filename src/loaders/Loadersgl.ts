@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Group } from 'three';
+import { BufferAttribute, BufferGeometry } from 'three';
 import { Loader, LoaderOptions, load } from '@loaders.gl/core';
 import { CSVLoader } from '@loaders.gl/csv';
 import { LASLoader } from '@loaders.gl/las';
@@ -8,6 +8,7 @@ import { ShapefileLoader } from '@loaders.gl/shapefile';
 import Drawing from '@giro3d/giro3d/interactions/Drawing.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
+import DrawingCollection from '@giro3d/giro3d/entities/DrawingCollection.js';
 import PointCloud from '@giro3d/giro3d/core/PointCloud.js';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial.js';
 import Instance from '@giro3d/giro3d/core/Instance.js';
@@ -44,7 +45,7 @@ export default {
         const raw = await load(fileOrUrl, loader, options?.loader);
         const features = getdata(raw);
 
-        const polygons = new Group();
+        const polygons = new DrawingCollection();
 
         // const alert = NotificationController.showNotification('Loader', `Loaded ${fileOrUrl}; processing ${features.length} features...`);
         const notifications = useNotificationStore();
@@ -88,7 +89,7 @@ export default {
         });
         // TODO
         // alert.dismiss();
-        return new Entity3D(polygons.uuid, polygons);
+        return polygons;
     },
 
     /**
@@ -152,9 +153,9 @@ export default {
         const notifications = useNotificationStore();
         notifications.push(new Notification(filename, `Processing ${posArray.length / 3} points...`));
         if (options?.projection && options.projection !== instance.referenceCrs) {
-            // @ts-ignore
+            // @ts-ignore - Coordinates are optional
             const coords = new Coordinates(options.projection);
-            // @ts-ignore
+            // @ts-ignore - Coordinates are optional
             const coordsReference = new Coordinates(instance.referenceCrs);
             for (let i = 0; i < posArray.length / 3; i += 1) {
                 coords.set(

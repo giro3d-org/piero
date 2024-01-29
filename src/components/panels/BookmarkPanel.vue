@@ -4,12 +4,13 @@ import BookmarkItem from './BookmarkItem.vue'
 import ShareBookmarkModal from './ShareBookmarkModal.vue'
 import EmptyIndicator from './EmptyIndicator.vue';
 import ModalOverlay from '../ModalOverlay.vue';
-import Bookmark from '@/types/Bookmark';
 import IconButton from '../IconButton.vue';
-import { useNotificationStore } from '@/stores/notifications';
-import Notification from '@/types/Notification';
 import { useBookmarkStore } from '@/stores/bookmarks';
+import { useNotificationStore } from '@/stores/notifications';
 import { useCameraStore } from '@/stores/camera';
+import Download from '@/utils/Download';
+import Notification from '@/types/Notification';
+import Bookmark from '@/types/Bookmark';
 
 const showShareModal = ref(false);
 const shareUrl = ref<string | null>(null);
@@ -49,21 +50,7 @@ function exportBookmarks() {
             url: bookmark.getUrl().toString(),
         });
     }
-
-    const text = JSON.stringify(json, null, 2);
-
-    const blob = new Blob([text], {
-        type: 'application/json',
-    });
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = 'bookmarks.json';
-    link.innerHTML = 'Click here to download the file';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(blobUrl);
+    Download.downloadAsJson(json, 'bookmarks.json');
 }
 
 async function importBookmarks(file: Blob) {
@@ -106,16 +93,14 @@ function goTo(bookmark: Bookmark) {
 </script>
 
 <template>
-    <div>
+    <div class="d-flex flex-column h-100">
         <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
 
-        <div>
-            <ul class="layers-list-group">
-                <BookmarkItem v-for="bookmark in bookmarkStore.getBookmarks()" :key="bookmark.name" :name="bookmark.name"
-                    v-on:share="shareBookmark(bookmark)" v-on:delete="bookmarkStore.remove(bookmark)"
-                    v-on:goto="goTo(bookmark)" />
-            </ul>
-        </div>
+        <ul class="layers-list-group flex-fill overflow-auto">
+            <BookmarkItem v-for="bookmark in bookmarkStore.getBookmarks()" :key="bookmark.name" :name="bookmark.name"
+                v-on:share="shareBookmark(bookmark)" v-on:delete="bookmarkStore.remove(bookmark)"
+                v-on:goto="goTo(bookmark)" />
+        </ul>
 
         <div class="button-area">
             <hr>
