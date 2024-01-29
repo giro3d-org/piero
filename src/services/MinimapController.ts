@@ -8,7 +8,6 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
 import Map from '@giro3d/giro3d/entities/Map.js'
 import Viewbox from '@/types/Viewbox'
 import { Vector3, Vector2, Box3, MathUtils } from 'three'
-import { MAIN_LOOP_EVENTS } from '@giro3d/giro3d/core/MainLoop'
 
 const DEFAULT_EXTENT = new Extent(
     'EPSG:3857',
@@ -17,7 +16,8 @@ const DEFAULT_EXTENT = new Extent(
 );
 
 function loadOSMLayer(map: Map) {
-    const layer = new ColorLayer('osm', {
+    const layer = new ColorLayer({
+        name: 'osm',
         source: new TiledImageSource({ source: new OSM() }),
     });
 
@@ -52,9 +52,9 @@ export default class MinimapController {
 
         loadOSMLayer(this.basemap);
 
-        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(this.minimapInstance.referenceCrs) as Coordinates;
+        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(this.minimapInstance.referenceCrs);
 
-        const xyz = new Vector3(center.x(), center.y(), 0);
+        const xyz = new Vector3(center.x, center.y, 0);
         const camera = this.minimapInstance.camera.camera3D;
         camera.position.set(xyz.x, xyz.y, 20000);
         camera.lookAt(xyz.x, xyz.y + 1, 0);
@@ -64,7 +64,7 @@ export default class MinimapController {
 
     setMainInstance(instance: Instance) {
         this.mainInstance = instance;
-        instance.addFrameRequester(MAIN_LOOP_EVENTS.AFTER_CAMERA_UPDATE, () => {
+        instance.addEventListener('after-camera-update', () => {
             this.updateViewbox();
         });
     }
@@ -83,7 +83,7 @@ export default class MinimapController {
             if (point) {
                 const result = new Coordinates(instance.referenceCrs, point.x, point.y, 1)
                     .as(minimapInstance.referenceCrs)
-                    .xyz();
+                    .toVector3();
 
                 result.z = 1;
 
@@ -129,10 +129,9 @@ export default class MinimapController {
 
             const xyz = mainCamera.position;
             const coordinate = new Coordinates(this.mainInstance.referenceCrs, xyz.x, xyz.y, 0)
-                .as(this.minimapInstance.referenceCrs) as Coordinates;
+                .as(this.minimapInstance.referenceCrs);
 
-            const x = coordinate.x();
-            const y = coordinate.y();
+            const { x, y } = coordinate;
             minimapCamera.position.set(x, y, minimapCamera.position.z);
             minimapCamera.lookAt(x, y + 1, 0);
         }

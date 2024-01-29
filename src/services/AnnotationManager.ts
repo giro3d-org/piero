@@ -1,7 +1,7 @@
 import { LineBasicMaterial, MeshBasicMaterial, PointsMaterial } from 'three';
 
-import DrawTool, { DRAWTOOL_EVENT_TYPE, DRAWTOOL_MODE, DRAWTOOL_STATE, GEOMETRY_TYPE } from '@giro3d/giro3d/interactions/DrawTool';
-import Drawing from '@giro3d/giro3d/interactions/Drawing';
+import DrawTool, { DrawToolMode, DrawToolState } from '@giro3d/giro3d/interactions/DrawTool';
+import Drawing, { DrawingGeometryType } from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import Picker from './Picker';
@@ -42,10 +42,10 @@ const picker = new Picker();
 /**
  * Creates a point to be added via CSS2DRenderer.
  *
- * @param index Index of the point
+ * @param text Label of the point
  * @returns The created HTML element
  */
-function point2DFactory(index: number) {
+function point2DFactory(text: string) {
     const pt = document.createElement('div');
     pt.style.position = 'absolute';
     pt.style.borderRadius = '50%';
@@ -58,7 +58,7 @@ function point2DFactory(index: number) {
     pt.style.textAlign = 'center';
     pt.style.pointerEvents = 'auto';
     pt.style.cursor = 'pointer';
-    pt.innerText = `${index + 1}`;
+    pt.innerText = text;
     return pt;
 }
 
@@ -78,6 +78,7 @@ export default class AnnotationManager {
             enableDragging: true,
             splicingHitTolerance: 0,
             endDrawingOnRightClick: true,
+            // @ts-ignore
             getPointAt: (event: MouseEvent) => {
                 const pickedObject = picker.getObjectAt(this.instance, event, 1);
                 if (pickedObject) {
@@ -104,7 +105,7 @@ export default class AnnotationManager {
         this.camera.addEventListener('interaction-end', () => this.drawTool.continue());
 
         instance.domElement.addEventListener('keydown', e => {
-            if (e.code === 'Escape' && this.drawTool.state !== DRAWTOOL_STATE.READY) {
+            if (e.code === 'Escape' && this.drawTool.state !==  DrawToolState.READY) {
                 this.drawTool.reset();
             }
         });
@@ -134,9 +135,9 @@ export default class AnnotationManager {
     }
 
     private beforeDraw() {
-        if (this.drawTool.state !== DRAWTOOL_STATE.READY) {
+        if (this.drawTool.state !== DrawToolState.READY) {
             // We're already drawing, do something with the current drawing
-            if (this.drawTool.mode === DRAWTOOL_MODE.EDIT) this.drawTool.end();
+            if (this.drawTool.mode === DrawToolMode.EDIT) this.drawTool.end();
             else this.drawTool.reset();
         }
     }
@@ -150,7 +151,7 @@ export default class AnnotationManager {
     private drawPoint() {
         this.beforeDraw();
 
-        this.drawObject(GEOMETRY_TYPE.POINT).then(drawing => {
+        this.drawObject('MultiPoint').then(drawing => {
             const name = promptName('New point annotation');
             if (name) this.pushNewAnnotation(name, drawing);
         });
@@ -159,7 +160,7 @@ export default class AnnotationManager {
     private drawPolygon() {
         this.beforeDraw();
 
-        this.drawObject(GEOMETRY_TYPE.POLYGON).then(drawing => {
+        this.drawObject('Polygon').then(drawing => {
             const name = promptName('New polygon annotation');
             if (name) this.pushNewAnnotation(name, drawing);
         });
@@ -174,14 +175,14 @@ export default class AnnotationManager {
     private drawLine() {
         this.beforeDraw();
 
-        this.drawObject(GEOMETRY_TYPE.LINE).then(drawing => {
+        this.drawObject('LineString').then(drawing => {
             const name = promptName('New line annotation');
             if (name) this.pushNewAnnotation(name, drawing);
         });
     }
 
-    private addAnnotation(geojson: object) {
-        const o = new Drawing(this.instance, {
+    private addAnnotation(geojson: GeoJSON.Geometry) {
+        const o = new Drawing({
             faceMaterial: drawnFaceMaterial,
             sideMaterial: drawnSideMaterial,
             lineMaterial: drawnLineMaterial,
@@ -189,14 +190,11 @@ export default class AnnotationManager {
             minExtrudeDepth: 1,
             maxExtrudeDepth: 5,
             use3Dpoints: false,
-            // @ts-ignore
             point2DFactory,
         }, geojson);
 
-        // @ts-ignore
         o.traverse(child => child.renderOrder = 2);
 
-        // @ts-ignore
         this.instance.add(o);
 
         return o;
@@ -204,21 +202,20 @@ export default class AnnotationManager {
 
     private deleteAnnotation(annotation: Annotation) {
         annotation.object.dispose();
-        // @ts-ignore
         annotation.object.removeFromParent();
         this.instance.notifyChange();
     }
 
-    private drawObject(type: GEOMETRY_TYPE): Promise<Drawing> {
+    private drawObject(type: DrawingGeometryType): Promise<Drawing> {
         return new Promise((resolve, reject) => {
-            this.drawTool.addEventListener(DRAWTOOL_EVENT_TYPE.END, evt => {
+            this.drawTool.addEventListener('end', evt => {
                 resolve(this.addAnnotation(evt.geojson));
                 // TODO
                 // measureLineButton.classList.remove('active');
                 // measurePolygonButton.classList.remove('active');
             });
 
-            this.drawTool.addEventListener(DRAWTOOL_EVENT_TYPE.ABORT, () => {
+            this.drawTool.addEventListener('abort', () => {
                 reject();
             });
 

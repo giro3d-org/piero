@@ -91,11 +91,11 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         // Update controls from event loop - this replaces the requestAnimationFrame logic from
         // camera-controls sample code
-        this.instance.addFrameRequester('before_camera_update', () => {
+        this.instance.addEventListener('before-camera-update', () => {
             this.onBeforeCameraUpdate();
         });
 
-        this.instance.addFrameRequester('after_camera_update', () => {
+        this.instance.addEventListener('after-camera-update', () => {
             this.onAfterCameraUpdate();
         });
 
@@ -309,8 +309,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         const cameraPosition = new Coordinates(
             extent.crs(),
             extent.west(), extent.south(), altitude,
-        ).xyz();
-        const center = (extent.center() as Coordinates).xyz();
+        ).toVector3();
+        const center = extent.center().toVector3();
         this.lookAt(cameraPosition, center, false);
     }
 

@@ -1,9 +1,7 @@
-import { EventDispatcher, Box3, AmbientLight, Vector3, DirectionalLight, PerspectiveCamera, Object3D } from "three";
+import { EventDispatcher, Box3, AmbientLight, DirectionalLight, PerspectiveCamera, Object3D } from "three";
 
 import Instance from "@giro3d/giro3d/core/Instance";
 import Extent from "@giro3d/giro3d/core/geographic/Extent";
-import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
-import { MAIN_LOOP_EVENTS } from "@giro3d/giro3d/core/MainLoop";
 import { HttpConfiguration } from "@giro3d/giro3d/utils";
 
 import LayerManager from "@/services/LayerManager";
@@ -53,8 +51,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
 
         this.camera = new CameraController(this.mainInstance);
 
-        const center = this.store.getDefaultCameraPosition().as(crs) as Coordinates;
-        const xyz = new Vector3(center.x(), center.y(), center.z());
+        const center = this.store.getDefaultCameraPosition().as(crs);
+        const xyz = center.toVector3();
         const basemapSize = this.store.getDefaultBasemapSize();
         const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, basemapSize.width, basemapSize.height);
         this.camera.setInitialPosition(extent);
@@ -67,7 +65,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter(this.mainInstance);
 
-        this.mainInstance.addFrameRequester(MAIN_LOOP_EVENTS.UPDATE_END, () => this.onFrameEnd());
+        this.mainInstance.addEventListener('update-end', () => this.onFrameEnd());
 
         this.mainInstance.renderingOptions.enableEDL = true;
         this.mainInstance.renderingOptions.enableInpainting = true;
@@ -79,8 +77,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.scene.add(ambientLight);
 
         const dirLight = new DirectionalLight(lightColor, 2);
-        dirLight.position.set(center.x() - 10000, center.y() - 10000, 10000);
-        dirLight.target.position.set(center.x(), center.y(), 0);
+        dirLight.position.set(center.x - 10000, center.y - 10000, 10000);
+        dirLight.target.position.set(center.x, center.y, 0);
         this.mainInstance.scene.add(dirLight);
         this.mainInstance.scene.add(dirLight.target);
         dirLight.updateMatrixWorld();

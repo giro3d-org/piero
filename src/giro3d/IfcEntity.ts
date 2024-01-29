@@ -1,9 +1,11 @@
-import { Entity3D } from "@giro3d/giro3d/entities";
+import { Material, Matrix4, MeshBasicMaterial, Vector2 } from "three";
 import { Fragment } from "bim-fragment/fragment";
 import { FragmentsGroup } from 'bim-fragment/fragments-group';
 import { FragmentMesh } from 'bim-fragment/fragment-mesh';
-import { Components, FragmentManager, FragmentIdMap, toCompositeID, SimpleRaycaster, IfcPropertiesUtils, FragmentClassifier, FragmentBoundingBox } from 'openbim-components';
-import { Material, Matrix4, MeshBasicMaterial, Vector3 } from "three";
+import { Components, FragmentManager, FragmentIdMap, toCompositeID, IfcPropertiesUtils, FragmentClassifier, FragmentBoundingBox } from 'openbim-components';
+import { Entity3D } from "@giro3d/giro3d/entities";
+import { PickOptions, PickResult, PickableFeatures} from '@giro3d/giro3d/core/picking';
+
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting
@@ -81,9 +83,28 @@ export type ClassificationItem = {
     fragments: FragmentIdMap,
 }
 
+export interface IFCProperty {
+    parentName: string,
+    name: string,
+    value: any,
+}
 
-export default class IfcEntity extends Entity3D {
+export interface IFCFeature {
+    itemProperties: any,
+    ifcProperties: IFCProperty[],
+}
+
+export interface IFCPickResult extends PickResult<IFCFeature> {
+    entity: IfcEntity,
+    object: FragmentMesh,
+    features?: IFCFeature[];
+}
+
+export const isIFCPickResult = (obj: any): obj is IFCPickResult => obj?.isIFCPickResult;
+
+export default class IfcEntity extends Entity3D implements PickableFeatures<IFCFeature, IFCPickResult> {
     readonly isIfcEntity = true;
+    readonly isPickableFeatures = true;
     readonly components: Components;
     readonly fragmentManager: FragmentManager;
     readonly fragmentClassifier: FragmentClassifier;
@@ -109,6 +130,10 @@ export default class IfcEntity extends Entity3D {
 
         this.fragmentClassifier.byStorey(root);
         this.fragmentClassifier.byEntity(root);
+
+        this.object3d.traverse((obj) => {
+            this.onObjectCreated(obj);
+        });
     }
 
     private initializeEntityIndexes() {
@@ -157,7 +182,7 @@ export default class IfcEntity extends Entity3D {
         return { name, value };
     }
 
-    getProperties(expressID: string): { parentName: string, name: string, value: any }[] {
+    getProperties(expressID: string): IFCProperty[] {
         const properties = [];
         const objectRawProperties = this.object3d.properties;
         if (!objectRawProperties) return [];
@@ -419,38 +444,38 @@ export default class IfcEntity extends Entity3D {
         return box;
     }
 
-    raycast(origin: Vector3, direction: Vector3): {
-        mesh: FragmentMesh,
-        blockId: number,
-        itemId: string,
-    } | null {
-        const fragments = this.fragmentManager;
-
-        const result = (this.components.raycaster as SimpleRaycaster).castRayFromVector(origin, direction, fragments.meshes);
-
-        if (!result) {
-            return null;
-        }
-
-        const mesh = result.object as FragmentMesh;
-        const geometry = mesh.geometry;
-        const index = result.face?.a;
-        const instanceID = result.instanceId;
-
-        if (!geometry || index === undefined || instanceID === undefined) {
-            return null;
-        }
-
-        const blockId = mesh.fragment.getVertexBlockID(geometry, index);
-
-        const itemId = mesh.fragment
-            .getItemID(instanceID, blockId)
-            .replace(/\..*/, "");
-
-        return {
-            mesh,
-            blockId,
-            itemId,
-        };
+    pick(canvasCoords: Vector2, options?: PickOptions): IFCPickResult[] {
+        return super.pick(canvasCoords, options).map((p) => ({
+            ...p,
+            entity: this,
+            object: p.object as FragmentMesh,
+            isIFCPickResult: true,
+        }));
     }
+
+    pickFeaturesFrom(pickedResult: IFCPickResult) {
+        const mesh = pickedResult.object;
+        if (mesh.fragment && pickedResult.instanceId != undefined && pickedResult.face) {
+            const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pickedResult.face.a);
+
+            const itemId = mesh.fragment
+                .getItemID(pickedResult.instanceId, blockId)
+                ?.replace(/\..*/, "");
+
+            // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
+            if (itemId && mesh.fragment.group?.properties?.[itemId]) {
+                const properties = mesh.fragment.group.properties;
+                // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
+                const itemProperties = properties[itemId];
+                const ifcProperties = this.getProperties(itemId);
+
+                const result = [{ itemProperties, ifcProperties }];
+                pickedResult.features = result;
+                return result;
+            }
+        }
+        return [];
+    }
+
+    static isIFCEntity = (obj: any): obj is IfcEntity => obj?.isIfcEntity;
 }

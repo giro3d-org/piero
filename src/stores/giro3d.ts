@@ -40,7 +40,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         const center = config.basemap.center;
         const centerLocal = new Coordinates('EPSG:4326', center[0], center[1], 0).as(crs);
 
-        return Extent.fromCenterAndSize(crs, { x: centerLocal.x(), y: centerLocal.y() }, size[0], size[1]);
+        return Extent.fromCenterAndSize(crs, { x: centerLocal.x, y: centerLocal.y }, size[0], size[1]);
     }
 
     function getCRS() {

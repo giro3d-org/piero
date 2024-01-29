@@ -111,7 +111,8 @@ export default class OverlayManager {
     }
 
     private async loadOverlay(overlay: Overlay) {
-        const layer = new ColorLayer(overlay.name, {
+        const layer = new ColorLayer({
+            name: overlay.name,
             source: await this.getSource(overlay),
             extent: this.layerManager.extent,
         })

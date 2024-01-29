@@ -2,7 +2,6 @@ import Instance from "@giro3d/giro3d/core/Instance";
 import FloodingPlane from "@/types/FloodingPlane";
 import LayerManager from '@/services/LayerManager';
 import { useAnalysisStore } from '@/stores/analysis';
-import { Vector2 } from 'three';
 
 export default class FloodingPlaneManager {
     private readonly instance: Instance;
@@ -38,8 +37,8 @@ export default class FloodingPlaneManager {
             this.instance.add(this.plane.object3D);
         }
         const extent = this.layerManager.extent;
-        const center = extent.center(new Vector2()) as Vector2;
-        const dims = extent.dimensions() as Vector2;
+        const center = extent.centerAsVector2();
+        const dims = extent.dimensions();
 
         this.plane.visible = this.store.isFloodingPlaneEnabled();
         this.plane.setPosition(center.x, center.y, this.store.floodingPlaneHeight, dims.x, dims.y);
