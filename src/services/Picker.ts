@@ -14,9 +14,21 @@ import Measure from "../utils/Measure";
 export default class Picker {
     private readonly analysisStore = useAnalysisStore();
 
-    filterByClippingBox(result: PickResult): boolean {
-        const containsPoint = this.analysisStore.getClippingBox().containsPoint(result.point);
-        return this.analysisStore.isClippingBoxInverted() ? !containsPoint : containsPoint;
+    filterPick(instance: Instance, result: PickResult): boolean {
+        if (this.analysisStore.isClippingBoxEnabled()) {
+            const containsPoint = this.analysisStore.getClippingBox().containsPoint(result.point);
+            if (this.analysisStore.isClippingBoxInverted()) {
+                if (containsPoint) return false;
+            } else {
+                if (!containsPoint) return false;
+            }
+        }
+        if (result.distance < instance.camera.camera3D.near
+            || result.distance > instance.camera.camera3D.far) {
+                return false;
+        }
+
+        return true;
     }
 
     getNameFromOLFeature(feature: OLFeature): string {
@@ -147,18 +159,13 @@ export default class Picker {
     getObjectAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
         const where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
 
-        let filter;
-        if (this.analysisStore.isClippingBoxEnabled()) {
-            filter = this.filterByClippingBox.bind(this);
-        }
-
         const picked = instance.pickObjectsAt(e, {
             radius,
             where,
             sortByDistance: true,
             limit: 1,
             pickFeatures: true,
-            filter,
+            filter: res => this.filterPick(instance, res),
         }).at(0);
         return picked ?? null;
     }
