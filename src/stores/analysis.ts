@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { Box3, Vector3 } from "three";
 import { ref } from "vue";
+import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
+
 import config from '../config';
 
 export const useAnalysisStore = defineStore('analysis', () => {
@@ -9,11 +11,18 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
     const crossSectionOrientation = ref(config.analysis.cross_section.orientation);
     const crossSectionPivot = config.analysis.cross_section.pivot;
-    const crossSectionCenter = ref(new Vector3(crossSectionPivot.x, crossSectionPivot.y, 0));
+    const pivotLocal = new Coordinates(crossSectionPivot.crs ?? config.default_crs, crossSectionPivot.x, crossSectionPivot.y, 0).as(config.default_crs);
+    const crossSectionCenter = ref(pivotLocal.toVector3());
     const _enableCrossSection = ref(false);
 
     const { center: clippingPlanesCenter, size } = config.analysis.clipping_box;
-    const clippingBoxCenter = ref(new Vector3(clippingPlanesCenter.x, clippingPlanesCenter.y, clippingPlanesCenter.z));
+    const centerLocal = new Coordinates(
+        clippingPlanesCenter.crs ?? config.default_crs,
+        clippingPlanesCenter.x,
+        clippingPlanesCenter.y,
+        clippingPlanesCenter.z
+    ).as(config.default_crs);
+    const clippingBoxCenter = ref(centerLocal.toVector3());
     const clippingBoxSize = ref(new Vector3(size.x, size.y, size.z));
     const _enableClippingBox = ref(false);
     const _invertClippingBox = ref(false);

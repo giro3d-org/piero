@@ -8,7 +8,7 @@ interface Vec2 {
     y: number;
 }
 
-type GeoVec2 = Vec2 & { crs: string };
+type GeoVec2 = Vec2 & { crs?: string };
 
 interface Vec3 {
     x: number;
@@ -16,7 +16,7 @@ interface Vec3 {
     z: number;
 }
 
-type GeoVec3 = Vec3 & { crs: string };
+type GeoVec3 = Vec3 & { crs?: string };
 
 export type ColorRamp = string;
 
@@ -91,11 +91,11 @@ export type BookmarkConfig = {
 export type Configuration = {
     default_crs: string,
     camera: {
-        position: [number, number],
+        position: GeoVec2 | [number, number],
         altitude: number,
     },
     basemap: {
-        center: [number, number],
+        center: GeoVec2 | [number, number],
         size: [number, number],
         colormap: {
             min: number,
