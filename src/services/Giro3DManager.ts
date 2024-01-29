@@ -13,6 +13,7 @@ import AnnotationManager from "@/services/AnnotationManager";
 import AnalysisManager from "@/services/AnalysisManager";
 import { useGiro3dStore } from "@/stores/giro3d";
 import Highlighter from "./Highlighter";
+import Picker from "./Picker";
 
 Instance.registerCRS('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs');
 Instance.registerCRS('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs +type=crs');
@@ -41,6 +42,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     readonly analysisManager: AnalysisManager;
     private readonly store = useGiro3dStore();
     readonly highlighter: Highlighter;
+    readonly picker: Picker;
 
     constructor(instance: Instance) {
         super();
@@ -49,7 +51,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
 
         this.mainInstance = instance;
 
-        this.camera = new CameraController(this.mainInstance);
+        this.picker = new Picker();
+        this.camera = new CameraController(this.mainInstance, this.picker);
 
         const center = this.store.getDefaultCameraPosition().as(crs);
         const xyz = center.toVector3();
@@ -61,7 +64,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.basemapManager = new BasemapManager(this.layerManager);
         this.overlayManager = new OverlayManager(this.layerManager, this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance, this.camera);
-        this.annotationManager = new AnnotationManager(this.mainInstance, this.camera);
+        this.annotationManager = new AnnotationManager(this.mainInstance, this.camera, this.picker);
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter(this.mainInstance);
 

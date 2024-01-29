@@ -15,6 +15,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     const { center: clippingPlanesCenter, size } = config.analysis.clipping_box;
     const clippingBoxCenter = ref(new Vector3(clippingPlanesCenter.x, clippingPlanesCenter.y, clippingPlanesCenter.z));
     const clippingBoxSize = ref(new Vector3(size.x, size.y, size.z));
+    const clippingBox = ref(new Box3().setFromCenterAndSize(clippingBoxCenter.value, clippingBoxSize.value));
     const _enableClippingBox = ref(false);
     const _invertClippingBox = ref(false);
     const _displayClippingBoxHelper = ref(false);
@@ -59,21 +60,32 @@ export const useAnalysisStore = defineStore('analysis', () => {
         return _enableClippingBox.value
     }
 
+    function _recomputeClippingBox() {
+        clippingBox.value = new Box3().setFromCenterAndSize(clippingBoxCenter.value, clippingBoxSize.value);
+    }
+
     function setClippingBoxCenter(center: Vector3) {
         clippingBoxCenter.value = center;
+        _recomputeClippingBox();
     }
 
     function setClippingBoxSize(size: Vector3) {
         clippingBoxSize.value = size;
+        _recomputeClippingBox();
     }
 
     function setClippingBox(box: Box3) {
+        clippingBox.value = box.clone();
         const center = new Vector3();
         const size = new Vector3();
         box.getCenter(center);
         box.getSize(size);
         clippingBoxCenter.value = center;
         clippingBoxSize.value = size;
+    }
+
+    function getClippingBox(): Box3 {
+        return clippingBox.value;
     }
 
     function displayClippingBoxHelper(display: boolean) {
@@ -120,6 +132,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
         setClippingBoxCenter,
         setClippingBoxSize,
         setClippingBox,
+        getClippingBox,
         displayClippingBoxHelper,
         isClippingBoxHelperDisplayed,
         setClippingBoxInverted,
