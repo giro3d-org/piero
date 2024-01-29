@@ -37,8 +37,6 @@ function promptName(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
 }
 
-const picker = new Picker();
-
 /**
  * Creates a point to be added via CSS2DRenderer.
  *
@@ -65,11 +63,14 @@ function point2DFactory(text: string) {
 export default class AnnotationManager {
     private readonly drawTool: DrawTool;
     private readonly camera: CameraController;
+    private readonly picker: Picker;
     private readonly instance: Instance;
     private readonly store = useAnnotationStore();
 
-    constructor(instance: Instance, camera: CameraController) {
+    constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this.instance = instance;
+        this.picker = picker;
+
         this.drawTool = new DrawTool(instance, {
             drawObjectOptions: {
                 minExtrudeDepth: 10,
@@ -78,20 +79,11 @@ export default class AnnotationManager {
             enableDragging: true,
             splicingHitTolerance: 0,
             endDrawingOnRightClick: true,
-            // @ts-ignore
             getPointAt: (event: MouseEvent) => {
-                const pickedObject = picker.getObjectAt(this.instance, event, 1);
+                const pickedObject = this.picker.getFirstFeatureAt(this.instance, event, 1);
                 if (pickedObject) {
                     return {
                         ...pickedObject,
-                        picked: true,
-                    };
-                }
-
-                const pickedOnMap = picker.getMapAt(this.instance, event);
-                if (pickedOnMap) {
-                    return {
-                        ...picker.getMapAt(this.instance, event),
                         picked: true,
                     };
                 }

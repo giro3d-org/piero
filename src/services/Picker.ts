@@ -8,9 +8,17 @@ import Feature, { Attribute, AttributesGroups } from "@/types/Feature";
 import { CityJSONPickResult, isCityJSONPickResult } from "@/giro3d/CityJSONEntity";
 import { IFCPickResult, isIFCPickResult } from "@/giro3d/IfcEntity";
 import { PlyMesh } from "@/loaders/PLY";
+import { useAnalysisStore } from "@/stores/analysis";
 import Measure from "../utils/Measure";
 
 export default class Picker {
+    private readonly analysisStore = useAnalysisStore();
+
+    filterByClippingBox(result: PickResult): boolean {
+        const containsPoint = this.analysisStore.getClippingBox().containsPoint(result.point);
+        return this.analysisStore.isClippingBoxInverted() ? !containsPoint : containsPoint;
+    }
+
     getNameFromOLFeature(feature: OLFeature): string {
         return feature.get('nom')
             ?? feature.get('name')
@@ -138,12 +146,19 @@ export default class Picker {
      */
     getObjectAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
         const where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
+
+        let filter;
+        if (this.analysisStore.isClippingBoxEnabled()) {
+            filter = this.filterByClippingBox.bind(this);
+        }
+
         const picked = instance.pickObjectsAt(e, {
             radius,
             where,
             sortByDistance: true,
             limit: 1,
             pickFeatures: true,
+            filter,
         }).at(0);
         return picked ?? null;
     }

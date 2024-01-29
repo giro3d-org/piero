@@ -40,8 +40,6 @@ CameraControls.install({
     },
 });
 
-const picker = new Picker();
-
 type CameraControllerEventMap = {
     'interaction-start': {},
     'interaction-end': {},
@@ -52,6 +50,7 @@ type CameraControllerEventMap = {
  */
 class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly instance: Instance;
+    private readonly picker: Picker;
     private readonly orbitControls: CameraControls;
     private readonly pickObjectsAt: (e: any) => any;
     private readonly clock: Clock;
@@ -64,10 +63,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * Creates new Camera-controls and bind them to Giro3D.
      *
      * @param instance Giro3D instance
+     * @param picker Picker
      */
-    constructor(instance: Instance) {
+    constructor(instance: Instance, picker: Picker) {
         super();
         this.instance = instance;
+        this.picker = picker;
         this.orbitControls = new CameraControls(this.instance.camera.camera3D, this.instance.domElement);
         this.firstPersonControls = new FirstPersonControls(this.instance);
         this.instance.controls = this.orbitControls;
@@ -78,14 +79,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this.initializeOrbitControls();
         this.initializeFirstPersonControls();
 
-        this.pickObjectsAt = (event: MouseEvent) => {
-            const pickedObject = picker.getObjectAt(this.instance, event, 1);
-            if (pickedObject) {
-                return pickedObject;
-            }
-
-            return picker.getMapAt(this.instance, event);
-        };
+        this.pickObjectsAt = (event: MouseEvent) => this.picker.getFirstFeatureAt(this.instance, event, 1);
 
         this.clock = new Clock();
 
