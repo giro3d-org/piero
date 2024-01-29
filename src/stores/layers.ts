@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
 import { computed, reactive } from "vue";
-
-import config from '../config';
 import { Color } from "three";
-import { ColorMap } from "@giro3d/giro3d/core/layer";
 import chroma from "chroma-js";
+import { ColorMap } from "@giro3d/giro3d/core/layer";
+
+import config from '../config.ts';
 import { getPublicFolderUrl } from "@/utils/Configuration";
 import { BaseLayer, BaseLayerObject } from "@/types/BaseLayer";
 import { LayerSource, WMSSource, WMTSSource, VectorSource, MVTSource } from "@/types/LayerSource";

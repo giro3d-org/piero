@@ -7,15 +7,15 @@ import { type Entity3D } from '@giro3d/giro3d/entities';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 import { type DatasetConfig } from '@/types/Configuration';
 
-function buildDataset(config: DatasetConfig): DatasetObject {
-    if (config.type === 'bdtopo') {
-        return new DatasetObject(config.name, 'bdtopo', null);
+function buildDataset(datasetConfig: DatasetConfig): DatasetObject {
+    if (datasetConfig.type === 'bdtopo') {
+        return new DatasetObject(datasetConfig.name, 'bdtopo', null);
     }
 
-    const ds = new DatasetObject(config.name, config.type, getPublicFolderUrl(config.url));
-    if (config.position) {
-        const position = config.position;
-        ds.coordinates = new Coordinates(position.crs, position.x, position.y, position.z ?? 0);
+    const ds = new DatasetObject(datasetConfig.name, datasetConfig.type, getPublicFolderUrl(datasetConfig.url));
+    if (datasetConfig.position) {
+        const position = datasetConfig.position;
+        ds.coordinates = new Coordinates(position.crs ?? config.default_crs, position.x, position.y, position.z ?? 0);
     }
     return ds;
 }

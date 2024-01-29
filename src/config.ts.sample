@@ -3,17 +3,19 @@ import { Configuration } from "./types/Configuration";
 const config: Configuration = {
     "default_crs": "EPSG:2154",
     "camera": {
-        "position": [
-            4.84,
-            45.76
-        ],
+        "position": {
+            crs: "EPSG:4326",
+            x: 4.84,
+            y: 45.76
+        },
         "altitude": 4000
     },
     "basemap": {
-        "center": [
-            4.84,
-            45.76
-        ],
+        "center": {
+            crs: "EPSG:4326",
+            x: 4.84,
+            y: 45.76
+        },
         "size": [
             10000,
             10000
