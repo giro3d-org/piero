@@ -3,7 +3,7 @@ import LayerObject from "./LayerObject";
 import { Coordinates } from "@giro3d/giro3d/core/geographic";
 import Named from "./Named";
 
-export type DatasetType = 'cityjson' | 'ifc' | 'ply' | 'pointcloud' | 'bdtopo';
+export type DatasetType = 'cityjson' | 'ifc' | 'ply' | 'pointcloud' | 'bdtopo' | 'shp' | 'geojson' | 'gpkg';
 
 export interface Dataset extends Named, EventDispatcher {
     isLoaded: boolean;
@@ -12,6 +12,7 @@ export interface Dataset extends Named, EventDispatcher {
     uuid: string;
     name: string;
     coordinates?: Coordinates;
+    elevation?: number;
     canMaskBasemap?: boolean;
     isMaskingBasemap?: boolean;
 
@@ -33,6 +34,7 @@ export class DatasetObject extends LayerObject implements Dataset {
     isLoaded: boolean;
 
     coordinates?: Coordinates;
+    elevation?: number;
 
     canMaskBasemap?: boolean;
     isMaskingBasemap?: boolean;

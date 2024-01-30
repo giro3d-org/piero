@@ -3,7 +3,7 @@ import Instance from '@giro3d/giro3d/core/Instance.js';
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 
 import CityJSON, { type CityJSONOptions } from './CityJSON';
-import GeoJSON from './GeoJSON.js';
+import GeoJSON, { GeoJSONOptions } from './GeoJSON.js';
 import IFC, { type IFCOptions } from './IFC.js';
 import PLY, { type PLYOptions } from './PLY.js';
 import Loadersgl, { type LoaderglOptions } from './Loadersgl.js';
@@ -20,7 +20,7 @@ type BaseProcessOptions = {
 export type ProcessOptions = (LoaderglOptions | CityJSONOptions | IFCOptions | PLYOptions) & BaseProcessOptions;
 
 /** Supported file types */
-export type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'ply';
+export type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'ply' | 'shp';
 
 /** Mapping between file extensions and file types */
 const filetypesPerExtension: Record<string, FileType> = {
@@ -32,6 +32,7 @@ const filetypesPerExtension: Record<string, FileType> = {
     'geojson': 'geojson',
     'ifc': 'ifc',
     'ply': 'ply',
+    'shp': 'shp',
 } as const;
 
 /** File types that require downloading the file (e.g. their loaders don't support URLs and need fetching) */
@@ -94,8 +95,13 @@ function checkCanProcessFile(fileOrUrl: File | string, fromDragAndDrop: boolean)
     }
     const filetype = filetypesPerExtension[fileext];
 
-    if (fromDragAndDrop && filetype === 'ply') {
-        throw new Error(`File ${fileext} not supported via drag and drop, as we are missing georeferencing`);
+    if (fromDragAndDrop) {
+        if (filetype === 'ply') {
+           throw new Error(`File ${fileext} not supported via drag and drop, as we are missing georeferencing`);
+        }
+        if (filetype === 'shp') {
+            throw new Error(`File ${fileext} not supported via drag and drop`);
+        }
     }
 }
 
@@ -181,9 +187,8 @@ async function processFile(
         }
         case 'geojson': {
             if (file == null) throw new Error('Could not load GeoJSON file: file is null');
-            // const str = await file.text();
-            // TODO layerManager
-            // obj = await GeoJSON.loadString(instance, layerManager, filename, str, options);
+            const str = await file.text();
+            obj = await GeoJSON.loadString(instance, filename, str, options as GeoJSONOptions);
             break;
         }
         case 'ply': {
@@ -195,6 +200,9 @@ async function processFile(
             obj = await PLY.loadPly(instance, filename, file, plyOptions);
             break;
         }
+        case 'shp':
+            obj = await Loadersgl.loadShapefile(instance, filename, fileOrUrl, options as LoaderglOptions);
+            break;
         default:
             throw new Error(`File type ${filetype} is not supported`);
     }

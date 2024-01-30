@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useDatasetStore } from '../../stores/datasets';
-import { Dataset } from '@/types/Dataset';
+import { Dataset, DatasetType } from '@/types/Dataset';
 import DatasetGroup from './DatasetGroup.vue';
 import DropZone from '../DropZone.vue';
 import { useAnalysisStore } from '@/stores/analysis';
@@ -9,13 +8,16 @@ import { useAnalysisStore } from '@/stores/analysis';
 const datasets = useDatasetStore();
 const analysis = useAnalysisStore();
 
-const groups = [
-    { key: 'ifc', name: 'IFC' },
-    { key: 'pointcloud', name: 'Point clouds' },
-    { key: 'cityjson', name: 'CityJSON' },
-    { key: 'ply', name: 'PLY' },
-    { key: 'bdtopo', name: '3D Buildings' },
-]
+const groups: Record<DatasetType, string> = {
+    'ifc': 'IFC',
+    'pointcloud': 'Point clouds',
+    'cityjson': 'CityJSON',
+    'ply': 'PLY',
+    'shp': 'Shapefiles',
+    'geojson': 'GeoJSON',
+    'gpkg': 'Geopackages',
+    'bdtopo': '3D Buildings',
+} as const;
 
 function zoomOnDataset(dataset: Dataset) {
     datasets.goTo(dataset);
@@ -58,8 +60,8 @@ defineEmits(['import'])
     <div class="d-flex flex-column h-100">
         <DropZone id="datasets-drop-zone" @drop="importDatasetFromDrop" label="Import file..." />
         <div class="flex-fill overflow-auto">
-            <DatasetGroup v-for="(item, index) in groups" :key="index" :group="item.name"
-                :datasets="datasets.getDatasets().filter(ds => ds.type === item.key)" @zoom="zoomOnDataset"
+            <DatasetGroup v-for="(name, type) in groups" :key="type" :group="name"
+                :datasets="datasets.getDatasets().filter(ds => ds.type === type)" @zoom="zoomOnDataset"
                 @clipTo="clipToDataset" @updated="$forceUpdate()" />
         </div>
     </div>

@@ -17,6 +17,9 @@ function buildDataset(datasetConfig: DatasetConfig): DatasetObject {
         const position = datasetConfig.position;
         ds.coordinates = new Coordinates(position.crs ?? config.default_crs, position.x, position.y, position.z ?? 0);
     }
+    if ('elevation' in datasetConfig) {
+        ds.elevation = datasetConfig.elevation;
+    }
     return ds;
 }
 

@@ -29,14 +29,15 @@ import { Dataset, DatasetObject, DatasetType } from "@/types/Dataset";
 import Notification from '@/types/Notification';
 
 /** Mapping between file types and the dataset types */
-const datasetTypePerFileType: Partial<Record<FileType, DatasetType>> = {
-    // 'gpkg': '', // TODO - once done, remove the Partial ^
+const datasetTypePerFileType: Record<FileType, DatasetType> = {
+    'gpkg': 'gpkg',
     'las': 'pointcloud',
     'csv': 'pointcloud',
     'cityjson': 'cityjson',
-    // 'geojson': '', // TODO
+    'geojson': 'geojson',
     'ifc': 'ifc',
     'ply': 'ply',
+    'shp': 'shp',
 } as const;
 
 export default class DatasetManager {
@@ -228,25 +229,6 @@ export default class DatasetManager {
         return result.obj;
     }
 
-    private loadIFC(dataset: Dataset): Promise<Entity3D> {
-        return this.loadDefault(dataset, {
-            at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
-        });
-    }
-
-    private loadPLY(dataset: Dataset): Promise<Entity3D> {
-        if (!dataset.coordinates) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
-        return this.loadDefault(dataset, {
-            at: dataset.coordinates.as(this.instance.referenceCrs),
-        });
-    }
-
-    private loadCityJSON(dataset: Dataset): Promise<Entity3D> {
-        return this.loadDefault(dataset, {
-            projection: this.instance.referenceCrs,
-        });
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private loadBDTopo(dataset: Dataset): Entity3D {
         const crs = this.instance.referenceCrs;
@@ -374,20 +356,31 @@ export default class DatasetManager {
         let entity: Entity3D | undefined;
         switch (dataset.type) {
             case 'cityjson':
-                entity = await this.loadCityJSON(dataset);
+                entity = await this.loadDefault(dataset, { });
                 break;
             case 'ifc':
-                entity = await this.loadIFC(dataset);
+                entity = await this.loadDefault(dataset, {
+                    at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
+                });
                 break;
             case 'ply':
-                entity = await this.loadPLY(dataset);
+                if (!dataset.coordinates) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
+                entity = await this.loadDefault(dataset, {
+                    at: dataset.coordinates.as(this.instance.referenceCrs),
+                });
                 break;
             case 'pointcloud':
-                // @ts-ignore
                 entity = this.loadPointCloud(dataset);
                 break;
             case 'bdtopo':
                 entity = this.loadBDTopo(dataset);
+                break;
+            case 'shp':
+            case 'geojson':
+            case 'gpkg':
+                entity = await this.loadDefault(dataset, {
+                    elevation: dataset.elevation,
+                });
                 break;
         }
 
