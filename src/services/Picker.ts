@@ -92,26 +92,32 @@ export default class Picker {
         plyAttributes.push({ key: 'Color', value: feature.color });
     }
 
+    getAttributesFromUserData(userData: any, attributes: Attribute[]) {
+        for (const [key, value] of Object.entries(userData)) {
+            if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity' || key === 'bbox') continue;
+            if (key === 'properties') {
+                this.getAttributesFromUserData(value, attributes);
+                continue;
+            }
+            if (typeof value === 'object') continue;
+
+            if (key === 'id') {
+                attributes.push({ key: 'fid', value });
+                continue;
+            }
+            attributes.push({ key, value });
+        }
+    }
+
     getAttributesFromObject3D(pickResult: PickResult, attributesGroups: AttributesGroups) {
         if (!attributesGroups.has("Feature")) {
             attributesGroups.set("Feature", []);
         }
         const attributes = attributesGroups.get("Feature") as Attribute[];
 
-        const { object, entity } = pickResult;
+        const { object } = pickResult;
         if (object?.userData) {
-            if ((entity as any)?.isFeatureCollection) {
-                attributes.push({ key: 'fid', value: object.userData.id });
-                for (const [key, value] of Object.entries(object.userData.properties)) {
-                    if (key === 'geometry' || key === 'bbox') continue;
-                    attributes.push({ key, value });
-                }
-            } else {
-                for (const [key, value] of Object.entries(object.userData)) {
-                    if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
-                    attributes.push({ key, value });
-                }
-            }
+            this.getAttributesFromUserData(object.userData, attributes);
         }
     }
 
@@ -302,6 +308,8 @@ export default class Picker {
                 const annotation = pickedObject.drawing.userData?.annotation as Annotation;
                 name = annotation?.title ?? name;
                 this.getAttributesFromDrawing(pickedObject, attributesGroups);
+            } else if (object?.userData) {
+                this.getAttributesFromObject3D(pickedObject, attributesGroups);
             }
         } else if (PlyMesh.isPlyPickResult(pickedObject)) {
             this.getAttributesFromPlyObject(pickedObject, attributesGroups);
