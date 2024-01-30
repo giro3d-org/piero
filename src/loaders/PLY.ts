@@ -71,6 +71,10 @@ export default {
         mesh.position.copy(position);
         mesh.updateWorldMatrix(true, true);
 
-        return new Entity3D(mesh.uuid, mesh);
+        const entity = new Entity3D(mesh.uuid, mesh);
+        mesh.traverse((obj) => {
+            entity.onObjectCreated(obj);
+        });
+        return entity;
     },
 };

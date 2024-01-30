@@ -159,9 +159,12 @@ export default {
                 mode: MODE.ELEVATION,
             }),
         });
-        // TODO
-        // alert.dismiss();
-        return new Entity3D(mypoints.uuid, mypoints);
+
+        const entity = new Entity3D(mypoints.uuid, mypoints);
+        mypoints.traverse((obj) => {
+            entity.onObjectCreated(obj);
+        });
+        return entity;
     },
 
     /**

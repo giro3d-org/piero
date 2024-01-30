@@ -40,7 +40,11 @@ export default {
             root.add(mesh);
         }
 
-        return new Entity3D(root.uuid, root);
+        const entity = new Entity3D(root.uuid, root);
+        root.traverse((obj) => {
+            entity.onObjectCreated(obj);
+        });
+        return entity;
     },
 
     /**
