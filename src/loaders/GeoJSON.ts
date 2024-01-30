@@ -1,9 +1,9 @@
-import { Group } from 'three';
-import Drawing from '@giro3d/giro3d/interactions/Drawing.js';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
+import Drawing from '@giro3d/giro3d/interactions/Drawing';
+import DrawingCollection from '@giro3d/giro3d/entities/DrawingCollection';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Instance from '@giro3d/giro3d/core/Instance';
-import { useNotificationStore } from '../stores/notifications';
+import { useNotificationStore } from '@/stores/notifications';
 import Notification from '@/types/Notification';
 
 /**
@@ -33,7 +33,7 @@ export default {
 
             // @ts-ignore - Coordinates are optional
             const coordinatesWgs84 = new Coordinates('EPSG:4326');
-            // @ts-ignore
+            // @ts-ignore - Coordinates are optional
             const coordinates = new Coordinates(instance.referenceCrs);
             switch (json.geometry.type) {
                 case 'Point': {
@@ -101,7 +101,7 @@ export default {
             const coordinatesOrigin = new Coordinates(projectionOrigin);
             // @ts-ignore - Coordinates are optional
             const coordinates = new Coordinates(instance.referenceCrs);
-            const group = new Group();
+            const group = new DrawingCollection();
             const zDefault = options?.z ?? 0;
 
             json.features.forEach(feature => {
@@ -167,8 +167,7 @@ export default {
                 group.add(o);
             });
 
-            const entity = new Entity3D(group.uuid, group);
-            return entity;
+            return group;
         }
 
         throw new Error('Not supported yet');

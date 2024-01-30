@@ -18,6 +18,7 @@ import { Instance } from '@giro3d/giro3d/core'
 import MinimapController from './services/MinimapController'
 import { Extent } from '@giro3d/giro3d/core/geographic'
 import { useCameraStore } from './stores/camera'
+import { useAnnotationStore } from './stores/annotations'
 
 const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
 const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
@@ -33,6 +34,8 @@ const isLoading = ref(false);
 
 const giro3dStore = useGiro3dStore();
 const cameraStore = useCameraStore();
+const annotationStore = useAnnotationStore();
+
 let giro3d: Giro3DManager;
 let minimap: MinimapController;
 
@@ -99,7 +102,7 @@ function pick(event: MouseEvent, clicked?: boolean) {
         return;
     }
 
-    if (cameraStore.getNavigationMode() !== 'orbit' || cameraStore.isUserInteracting()) {
+    if (cameraStore.getNavigationMode() !== 'orbit' || cameraStore.isUserInteracting() || annotationStore.isUserDrawing()) {
         return;
     }
 
@@ -151,6 +154,18 @@ function updateCoordinates(event: MouseEvent) {
     }
 }
 
+function updateCursor(event: MouseEvent) {
+    if (giro3d) {
+        const picked = picker.hasFeature(giro3d.mainInstance, event);
+        giro3d.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
+    }
+}
+
+function onMouseMove(event: MouseEvent) {
+    updateCoordinates(event);
+    updateCursor(event);
+}
+
 function onPointOfInterestSelected(poi: Vector3) {
     if (!giro3d) {
         return;
@@ -180,8 +195,7 @@ function onPointOfInterestSelected(poi: Vector3) {
 </script>
 
 <template>
-    <MainView id="main-view" @click="(evt) => pick(evt, true)" @mousemove="(evt) => updateCoordinates(evt)"
-        class="mainview" />
+    <MainView id="main-view" @click="(evt) => pick(evt, true)" @mousemove="onMouseMove" class="mainview" />
     <AttributePanel v-if="pickedFeature != null" @close="pickedFeature = null" :attributes="pickedFeature.attributes"
         :name="pickedFeature.name" :parent="pickedFeature.parent" :point="pickedFeature.point"
         class="component attribute-panel" />
@@ -281,4 +295,5 @@ function onPointOfInterestSelected(poi: Vector3) {
     margin: 0.5rem;
     top: 0;
     right: 0;
-}</style>
+}
+</style>

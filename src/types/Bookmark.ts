@@ -1,5 +1,6 @@
 import { EventDispatcher, Vector3 } from "three";
 import CameraPosition from "./CameraPosition";
+import Download from "@/utils/Download";
 
 type BookmarkJson = {
     camera: [number, number, number],
@@ -30,16 +31,8 @@ export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
         this.dispatchEvent({ type: 'goto' });
     }
 
-    getBaseUrl() {
-        if (import.meta.env.PROD) {
-            return import.meta.env.BASE_URL;
-        }
-
-        return 'http://example.com';
-    }
-
     getUrl() {
-        const base = this.getBaseUrl() + '/?';
+        const base = Download.getBaseUrl() + '/?';
         const cam = this.camera;
         const json : BookmarkJson = {
             camera: [cam.camera.x, cam.camera.y, cam.camera.z],

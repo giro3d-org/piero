@@ -1,81 +1,95 @@
 <script setup lang="ts">
+import Annotation from '@/types/Annotation';
 import VisibilityControl from '../VisibilityControl.vue';
+import AttributeItem from '../AttributeItem.vue';
+import EmptyIndicator from './EmptyIndicator.vue';
 
 defineProps<{
     visible: boolean,
-    name: string,
+    annotation: Annotation,
 }>()
-defineEmits(['delete', 'download', 'update:visible', 'zoom'])
+defineEmits(['edit', 'delete', 'download', 'update:visible', 'zoom'])
 </script>
 
 <template>
-  <li class="list-group-item item d-flex">
-    <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
+    <li class="list-group-item item">
+        <div class="d-flex">
+            <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
 
-    <a class="title" :title="name" href="#" @click="$emit('zoom')">{{ name }}</a>
+            <a class="title" :title="annotation.title" href="#" @click="$emit('zoom')">{{ annotation.title }}</a>
 
-    <div class="icons">
-      <a href="#" class="icon" title="Download..." @click="$emit('download')">
-        <i class="bi bi-download"></i>
-      </a>
-      <a href="#" class="icon" title="Delete" @click="$emit('delete')">
-        <i class="bi bi-trash"></i>
-      </a>
-    </div>
-  </li>
+            <div class="icons">
+                <a href="#" class="icon" title="Attribute table"
+                    data-bs-toggle="collapse" :data-bs-target="`#collapse-${annotation.uuid}`" aria-expanded="false"
+                    aria-controls="`#collapse-${annotation.uuid}`">
+                    <i class="bi bi-card-list"></i>
+                </a>
+                <a href="#" class="icon" title="Edit geometry" @click="$emit('edit')">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="#" class="icon" title="Download..." @click="$emit('download')">
+                    <i class="bi bi-download"></i>
+                </a>
+                <a href="#" class="icon" title="Delete" @click="$emit('delete')">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="collapse m-2" :id="`collapse-${annotation.uuid}`">
+            <EmptyIndicator text="No properties" v-if="annotation.properties.length === 0" />
+            <table class="table table-striped table-sm table-responsive-sm" v-else>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <AttributeItem
+                        v-for="[key, value] of Object.entries(annotation.properties)"
+                        :key="key" :attr-name="key"
+                        :attr-value="value" />
+                </tbody>
+            </table>
+        </div>
+    </li>
 </template>
 
 <style scoped>
 .item {
-  padding: 0.1rem;
+    padding: 0.1rem;
 }
 
 a {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .icons {
-  width: 3rem;
-  display: flex;
+    display: flex;
 }
 
 .title {
-  white-space: nowrap;
-  display: block;
-  width: 100% !important;
-  margin-left: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    width: 100% !important;
+    margin-left: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .icon {
-  /* width: 1rem !important; */
-  padding-left: 0.4rem;
-  width: 2rem;
-  float: right;
-  color: rgb(180, 180, 180);
+    padding-left: 0.4rem;
+    color: rgb(180, 180, 180);
 }
 
 @media (hover: hover) {
-  .icon:hover {
-    color: rgb(75, 75, 75);
-  }
-}
-
-.spinner-container {
-  width: 1rem;
-}
-
-.layer-name {
-  width: 40%;
-  margin-left: 1rem;
-}
-
-.slider {
-  display: flex;
+    .icon:hover {
+        color: rgb(75, 75, 75);
+    }
 }
 </style>

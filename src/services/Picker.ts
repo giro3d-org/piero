@@ -1,15 +1,16 @@
 import { Box3, Object3D, Vector3 } from "three";
+import { Feature as OLFeature } from "ol";
 import { IfcCategoryMap } from 'openbim-components';
 import Instance from "@giro3d/giro3d/core/Instance";
-import Drawing from "@giro3d/giro3d/interactions/Drawing";
 import { PickResult, PointsPickResult, isMapPickResult, isPointsPickResult } from "@giro3d/giro3d/core/picking";
-import { Feature as OLFeature } from "ol";
+import Entity from "@giro3d/giro3d/entities/Entity";
+import { DrawingPickResult, isDrawingPickResult } from "@giro3d/giro3d/entities/DrawingCollection";
+import Annotation from "@/types/Annotation";
 import Feature, { Attribute, AttributesGroups } from "@/types/Feature";
 import { CityJSONPickResult, isCityJSONPickResult } from "@/giro3d/CityJSONEntity";
 import { IFCPickResult, isIFCPickResult } from "@/giro3d/IfcEntity";
 import { PlyMesh } from "@/loaders/PLY";
 import { useAnalysisStore } from "@/stores/analysis";
-import Measure from "../utils/Measure";
 
 export default class Picker {
     private readonly analysisStore = useAnalysisStore();
@@ -103,13 +104,11 @@ export default class Picker {
                 attributes.push({ key: 'fid', value: object.userData.id });
                 for (const [key, value] of Object.entries(object.userData.properties)) {
                     if (key === 'geometry' || key === 'bbox') continue;
-                    if (typeof value === 'object') continue;
                     attributes.push({ key, value });
                 }
             } else {
                 for (const [key, value] of Object.entries(object.userData)) {
                     if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
-                    if (typeof value === 'object') continue;
                     attributes.push({ key, value });
                 }
             }
@@ -156,8 +155,9 @@ export default class Picker {
      * may return nothing)
      * @returns Result or null if notthing found
      */
-    getObjectAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
-        const where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
+    getObjectAt(instance: Instance, e: MouseEvent, radius = 1, filterOnObjects?: (obj: Object3D | Entity) => boolean): PickResult | null {
+        let where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
+        if (filterOnObjects) where = where.filter(filterOnObjects);
 
         const picked = instance.pickObjectsAt(e, {
             radius,
@@ -190,8 +190,8 @@ export default class Picker {
         return picked ?? null;
     }
 
-    getFirstFeatureAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
-        const picked = this.getObjectAt(instance, e, radius);
+    getFirstFeatureAt(instance: Instance, e: MouseEvent, radius = 1, filterOnObjects?: (obj: Object3D | Entity) => boolean): PickResult | null {
+        const picked = this.getObjectAt(instance, e, radius, filterOnObjects);
         if (picked) {
             return picked;
         }
@@ -231,25 +231,39 @@ export default class Picker {
         });
     }
 
-    getAttributesFromDrawing(drawing: Drawing, attributesGroups: AttributesGroups) {
-        if (!attributesGroups.has("Measurement")) {
-            attributesGroups.set("Measurement", []);
+    getAttributesFromDrawing(pickResult: DrawingPickResult, attributesGroups: AttributesGroups) {
+        if (!attributesGroups.has("GeoJSON")) {
+            attributesGroups.set("GeoJSON", []);
         }
-        const attributes = attributesGroups.get("Measurement") as Attribute[];
+        const attributesGeoJSON = attributesGroups.get("GeoJSON") as Attribute[];
 
-        const perimeter = Measure.getPerimeter(drawing);
-        const minmax = Measure.getMinMaxAltitudes(drawing);
-        const area = Measure.getArea(drawing);
-        const unit = 'm';
-        if (area !== null) {
-            attributes.push({ key: 'Area', value: `${area.toFixed(2)}${unit}²` });
+        for (const [key, value] of Object.entries(pickResult.drawing.userData.annotation.properties)) {
+            if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
+            attributesGeoJSON.push({ key, value });
         }
-        if (perimeter !== null) {
-            attributes.push({ key: 'Perimeter', value: `${perimeter.toFixed(2)}${unit}` });
-        }
-        if (minmax !== null && Number.isFinite(minmax[0])) {
-            attributes.push({ key: 'Min altitude', value: `${minmax[0].toFixed(2)}${unit}` });
-            attributes.push({ key: 'Max altitude', value: `${minmax[1].toFixed(2)}${unit}` });
+
+        const measurements = pickResult.drawing.userData.measurements;
+        if (measurements) {
+            if (!attributesGroups.has("Measurement")) {
+                attributesGroups.set("Measurement", []);
+            }
+            const attributes = attributesGroups.get("Measurement") as Attribute[];
+
+            if (pickResult.drawing.geometryType === 'MultiPoint') {
+                attributes.push({ key: 'Number of points', value: measurements.nbPoints });
+            }
+
+            const unit = 'm';
+            if (measurements.area) {
+                attributes.push({ key: 'Area', value: `${measurements.area.toFixed(2)}${unit}²` });
+            }
+            if (measurements.perimeter) {
+                attributes.push({ key: 'Perimeter', value: `${measurements.perimeter.toFixed(2)}${unit}` });
+            }
+            if (measurements.minmax) {
+                attributes.push({ key: 'Min altitude', value: `${measurements.minmax[0].toFixed(2)}${unit}` });
+                attributes.push({ key: 'Max altitude', value: `${measurements.minmax[1].toFixed(2)}${unit}` });
+            }
         }
     }
 
@@ -284,6 +298,10 @@ export default class Picker {
                 this.getAttributesFromPointCloud(pickedObject, attributesGroups);
             } else if ((entity as any).isFeatureCollection) {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
+            } else if (isDrawingPickResult(pickedObject)) {
+                const annotation = pickedObject.drawing.userData?.annotation as Annotation;
+                name = annotation?.title ?? name;
+                this.getAttributesFromDrawing(pickedObject, attributesGroups);
             }
         } else if (PlyMesh.isPlyPickResult(pickedObject)) {
             this.getAttributesFromPlyObject(pickedObject, attributesGroups);
@@ -307,6 +325,17 @@ export default class Picker {
             where,
         }).at(0);
         return picked?.point ?? null;
+    }
+
+    hasFeature(instance: Instance, event: MouseEvent): boolean {
+        const where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
+
+        const picked = instance.pickObjectsAt(event, {
+            radius: 0,
+            limit: 1,
+            where,
+        }).at(0);
+        return picked != null;
     }
 
     pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature | null, pickResult: PickResult } | null {

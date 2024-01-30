@@ -17,6 +17,7 @@ import CameraControls from 'camera-controls';
 import FirstPersonControls from '@giro3d/giro3d/controls/FirstPersonControls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
+import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 import CameraPosition from '@/types/CameraPosition';
 import { useCameraStore } from '@/stores/camera';
@@ -365,6 +366,23 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             } else if ('extent' in entity3d) {
                 // In case object is hidden
                 bbox = (entity3d.extent as Extent).toBox3(0, 200);
+            }
+        } else if ((obj as any).isDrawing) {
+            const drawing = obj as Drawing;
+            // TODO: this should probably be part of Drawing in Giro3D
+            if (drawing.geometryType === 'Point') {
+                bbox.setFromCenterAndSize(
+                    new Vector3(drawing.coordinates[0], drawing.coordinates[1], drawing.coordinates[2]),
+                    new Vector3(10, 10, 10),
+                );
+            } else if (drawing.geometryType === 'MultiPoint') {
+                const pts = [];
+                for (let i=0; i < drawing.coordinates.length; i += 3) {
+                    pts.push(new Vector3(drawing.coordinates[i], drawing.coordinates[i+1], drawing.coordinates[i+2]));
+                }
+                bbox.setFromPoints(pts);
+            } else {
+                bbox.setFromObject(drawing);
             }
         } else if ((obj as any).isObject3D) {
             bbox.setFromObject(obj as Object3D);
