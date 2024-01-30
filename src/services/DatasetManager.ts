@@ -272,7 +272,7 @@ export default class DatasetManager {
 
         const entity = new FeatureCollection('BDTOPO_V3', {
             source: vectorSource,
-            extent: new Extent(crs, -111629.52, 1275028.84, 5976033.79, 7230161.64),
+            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
             material: new MeshLambertMaterial(),
             extrusionOffset: (feature: Feature) => {
                 const hauteur = -feature.getProperties().hauteur;
