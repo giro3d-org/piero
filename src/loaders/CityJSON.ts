@@ -52,7 +52,7 @@ export default {
             }
 
             const m = loader.matrix.toArray();
-            const projection = json?.metadata?.referenceSystem ?? options?.projection;
+            const projection = json?.metadata?.referenceSystem ?? options?.projection ?? instance.referenceCrs;
 
             Projections.loadProjCrsIfNeeded(projection).then(proj => {
                 if (proj) {

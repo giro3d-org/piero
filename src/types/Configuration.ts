@@ -52,7 +52,12 @@ export type DatasetPlyConfig = DatasetBaseConfig & {
     position: GeoVec3,
 };
 
-export type DatasetConfig = DatasetBaseConfig | DatasetPlyConfig;
+export type Dataset2DConfig = DatasetBaseConfig & {
+    type: 'shp' | 'geojson' | 'gpkg',
+    elevation: number,
+};
+
+export type DatasetConfig = DatasetBaseConfig | DatasetPlyConfig | Dataset2DConfig;
 
 export type OverlayBaseConfig = {
     type: OverlayType,

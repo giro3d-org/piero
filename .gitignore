@@ -9,3 +9,10 @@ dist
 # App config
 src/config.ts
 src/styles.ts
+
+# We should stop putting data in there
+public/cityjson
+public/geojson
+public/ifc
+public/ply
+public/shp
