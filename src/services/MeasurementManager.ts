@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import Measure3D from '@/giro3d/Measure3D';
@@ -6,7 +6,9 @@ import MeasureTool from '@/services/MeasureTool';
 import CameraController from '@/services/CameraController';
 import Picker from '@/services/Picker';
 import { useMeasurementStore } from '@/stores/measurement';
+import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/types/Measure';
+import Notification from '@/types/Notification';
 
 function promptTitle(defaultValue: string) {
     return window.prompt('Measure name', defaultValue);
@@ -17,6 +19,7 @@ export default class MeasurementManager {
     private readonly instance: Instance;
     private readonly camera: CameraController;
     private readonly store = useMeasurementStore();
+    private readonly notificationStore = useNotificationStore();
     private _paused = false;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
@@ -49,8 +52,11 @@ export default class MeasurementManager {
                     case 'remove':
                         this.deleteMeasure(args[0]);
                         break;
-                    case 'importMeasure':
-                        this.importMeasure(args[0]);
+                    case 'importMeasureFile':
+                        this.importMeasureFile(args[0]);
+                        break;
+                    case 'importMeasureFiles':
+                        this.importMeasureFiles(args[0]);
                         break;
                 }
             });
@@ -80,7 +86,15 @@ export default class MeasurementManager {
         if (!this._paused && this.store.isUserMeasuring()) {
             const measurement = this.measureTool.getLastMeasurement();
             if (measurement && !Number.isNaN(measurement.length)) {
-                const name = promptTitle('New measurement');
+                let title = 'New measurement';
+                if (this.store.hasMeasure(title)) {
+                    for (let i = 1; i < 1000; i += 1) {
+                        title = `New measurement (${i})`;
+                        if (!this.store.hasMeasure(title)) break;
+                    }
+                    if (this.store.hasMeasure(title)) title = 'Achieved unlocked: 1000 measurements with default name';
+                }
+                const name = promptTitle(title);
                 if (name) this.pushNewMeasure(name, measurement);
             }
         }
@@ -107,19 +121,81 @@ export default class MeasurementManager {
         this.instance.notifyChange();
     }
 
-    private importMeasure(object: GeoJSON.Feature) {
-        const geometry = object.geometry;
-        if (geometry.type !== 'LineString') throw new Error(`Cannot import geometry type ${geometry.type}`);
-        const from = new Vector3(...geometry.coordinates[0]);
-        const to = new Vector3(...geometry.coordinates[1]);
+    private importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
+        if (feature.geometry.type !== 'LineString') throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
+
+        if (!feature.properties) feature.properties = {};
+        if (!feature.properties.title) feature.properties.title = MathUtils.generateUUID();
+
+        if (skipNames.has(feature.properties.title)) return false;
+
+        const from = new Vector3(...feature.geometry.coordinates[0]);
+        const to = new Vector3(...feature.geometry.coordinates[1]);
 
         const o = new Measure3D();
         this.instance.threeObjects.add(o);
         o.update(from, to);
         this.instance.notifyChange(this.instance.threeObjects);
 
-        this.pushNewMeasure(object.properties?.title, o, object.properties);
+        this.pushNewMeasure(feature.properties?.title, o, feature.properties);
 
-        return o;
+        return true;
+    }
+
+    private async importBlob(file: Blob, skipNames: Set<string>) {
+        const str = await file.text();
+        const geojson = JSON.parse(str) as (GeoJSON.Feature | GeoJSON.FeatureCollection);
+
+        const features = (geojson.type === 'FeatureCollection') ? geojson.features : [geojson];
+
+        let nbImported = 0;
+        let nbSkipped = 0;
+
+        for (const feature of features) {
+            if (this.importMeasure(feature, skipNames)) nbImported++;
+            else nbSkipped++;
+        }
+        return { nbImported, nbSkipped };
+    }
+
+    private async importMeasureFile(file: Blob) {
+        const existingMeasures = new Set(this.store.getMeasures().map(m => m.title));
+        try {
+            const { nbImported, nbSkipped } = await this.importBlob(file, existingMeasures);
+            this.notificationStore.push(new Notification('Measures', `${nbImported} measures imported (${nbSkipped} skipped)`, 'success'));
+        } catch (e) {
+            new Notification('Measures', `Could not import file: ${e}`, 'warning');
+        }
+    }
+
+    private async importMeasureFiles(files: FileList) {
+        const promises = [];
+        let nbTotalImported = 0;
+        let nbTotalSkipped = 0;
+        const errors: string[] = [];
+
+        const existingMeasures = new Set(this.store.getMeasures().map(m => m.title));
+
+        for (const file of files) {
+            promises.push(
+                this.importBlob(file, existingMeasures)
+                    .then(({ nbImported, nbSkipped }) => {
+                        nbTotalImported += nbImported;
+                        nbTotalSkipped += nbSkipped;
+                    })
+                    .catch(reason => {
+                        errors.push((reason as Error).message)
+                    })
+            );
+        }
+        await Promise.allSettled(promises);
+
+        if (errors.length > 0) {
+            this.notificationStore.push(
+                new Notification('Measures', `${nbTotalImported} measures imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`, 'warning')
+            );
+        } else {
+            this.notificationStore.push(new Notification('Measures', `${nbTotalImported} measures imported (${nbTotalSkipped} skipped)`, 'success'));
+        }
     }
 }

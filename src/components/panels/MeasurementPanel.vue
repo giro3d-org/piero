@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { MathUtils } from 'three';
 import EmptyIndicator from './EmptyIndicator.vue';
 import MeasurementItem from './MeasurementItem.vue';
 import IconButton from '@/components/IconButton.vue';
 import { useCameraStore } from '@/stores/camera';
-import { useNotificationStore } from '@/stores/notifications';
 import { useMeasurementStore } from '@/stores/measurement';
 import Measure from '@/types/Measure';
-import Notification from '@/types/Notification';
 import Download from '@/utils/Download';
 
 const measures = useMeasurementStore();
 const cameraStore = useCameraStore();
-const notificationStore = useNotificationStore();
 
 const hiddenInput = ref<HTMLInputElement | null>(null);
 
@@ -27,67 +23,13 @@ function downloadMeasure(measure: Measure) {
 }
 
 function exportMeasures() {
-    const features = measures.getMeasures().map(measure => measure.toGeoJSON());
-
-    Download.downloadAsJson({
-        type: 'FeatureCollection',
-        features,
-        // GeoJSON spec does not allow properties on FeatureCollection
-        // But OWC requires it Oo
-        id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
-        properties: {
-            lang: "en",
-            title: "Giro3D measures",
-            updated: new Date().toISOString(),
-            creator: "Giro3D",
-            generator: {
-                title: "Giro3D",
-                uri: Download.getBaseUrl(),
-            },
-            links: [
-                {
-                    "rel": "profile",
-                    "href": "http://www.opengis.net/spec/owc-atom/1.0/req/core",
-                    "title": "This file is compliant with version 1.0 of OGC Context"
-                }
-            ]
-        }
-    }, 'measures.json');
+    const geojson = Measure.toCollection(measures.getMeasures());
+    Download.downloadAsJson(geojson, 'measures.json');
 }
-
-async function importMeasure(file: Blob) {
-    const str = await file.text();
-    const geojson = JSON.parse(str) as (GeoJSON.Feature | GeoJSON.FeatureCollection);
-
-    const existingMeasures = new Set(measures.getMeasures().map(a => a.title));
-
-    let nbImported = 0;
-    let nbSkipped = 0;
-
-    const features = (geojson.type === 'FeatureCollection') ? geojson.features : [geojson];
-
-    for (const feature of features) {
-        if (!feature.properties) feature.properties = {};
-        if (!feature.properties.title) feature.properties.title = MathUtils.generateUUID();
-
-        if (!existingMeasures.has(feature.properties.title)) {
-            measures.importMeasure(feature);
-            nbImported++;
-        } else {
-            nbSkipped++;
-        }
-    }
-
-    notificationStore.push(new Notification('Measures', `${nbImported} measures imported (${nbSkipped} skipped)`, 'success'));
-};
 
 async function importMeasureFile(e: Event) {
     const files = (e.target as HTMLInputElement).files;
-
-    if (files) {
-        for (const file of files)
-            importMeasure(file);
-    }
+    if (files) measures.importMeasureFiles(files);
 }
 </script>
 
@@ -120,7 +62,7 @@ async function importMeasureFile(e: Event) {
             <IconButton title="Import measures from GeoJSON" class="btn-outline-secondary"
                 @click="(hiddenInput as HTMLInputElement).click()" icon="bi-box-arrow-left" text="Import measures" />
             <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="measureFormFile"
-                @input="(e) => importMeasureFile(e)">
+                @input="(e) => importMeasureFile(e)" multiple="true">
         </fieldset>
     </div>
 </template>

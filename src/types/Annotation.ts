@@ -41,7 +41,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     }
 
     toGeoJSON() {
-        const coords = [];
+        const coords: GeoJSON.Position[] = [];
         const objectFlatCoords = this.object.coordinates;
         for (let i=0; i < objectFlatCoords.length; i += 3) {
             coords.push([
@@ -50,38 +50,71 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
                 objectFlatCoords[i+2],
             ]);
         }
-        let coordinates;
+        let geometry;
         switch (this.object.geometryType) {
             case 'Point':
-                coordinates = coords[0];
+                geometry = {
+                    type: this.object.geometryType,
+                    coordinates: coords[0],
+                }
                 break;
             case 'LineString':
             case 'MultiPoint':
-                coordinates = coords;
-                break;
-            case 'Polygon':
-            default:
-                {
-                    // Polygon is always closed
-                    const outerRing = coords;
-                    coordinates = [outerRing];
+                geometry = {
+                    type: this.object.geometryType,
+                    coordinates: coords,
                 }
                 break;
+            case 'Polygon':
+                geometry = {
+                    type: this.object.geometryType,
+                    coordinates: [coords],
+                }
+                break;
+            default:
+                throw new Error(`Unsupported type ${this.object.geometryType}`);
         }
-        const geojson = {
+        const geojson: GeoJSON.Feature = {
             type: 'Feature',
             id: `${Download.getBaseUrl()}/#${this.uuid}`,
-            geometry: {
-                type: this.object.geometryType,
-                coordinates,
-            },
+            geometry,
             properties: {
                 ...this.properties,
                 title: this.title,
                 updated: new Date().toISOString(),
             }
-        } as GeoJSON.Feature;
+        };
 
         return geojson;
+    }
+
+    static toCollection(annotations: Annotation[]): GeoJSON.FeatureCollection {
+        const features = annotations.map(annotation => annotation.toGeoJSON());
+
+        return {
+            type: 'FeatureCollection',
+            features,
+            // GeoJSON spec does not allow properties on FeatureCollection
+            // But OWC requires it Oo
+            // @ts-ignore
+            id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
+            properties: {
+                lang: "en",
+                title: "Giro3D annotations",
+                updated: new Date().toISOString(),
+                creator: "Giro3D",
+                generator: {
+                    title: "Giro3D",
+                    uri: Download.getBaseUrl(),
+                },
+                links: [
+                    {
+                        "rel": "profile",
+                        "href": "http://www.opengis.net/spec/owc-atom/1.0/req/core",
+                        "title": "This file is compliant with version 1.0 of OGC Context"
+                    }
+                ]
+            }
+        }
     }
 }

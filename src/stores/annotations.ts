@@ -49,15 +49,24 @@ export const useAnnotationStore = defineStore('annotations', () => {
         annotations.push(annotation);
     }
 
+    function hasAnnotation(name: string) {
+        return annotations.some(m => m.title === name);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function edit(annotation: Annotation) {
         // Nothing to do.
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importAnnotation(object: GeoJSON.Feature) {
+    function importAnnotationFile(file: Blob) {
         // Nothing to do
     }
 
-    return { count, isUserDrawing, setIsUserDrawing, getAnnotationMode, setAnnotationMode, getAnnotations, add, remove, createPoint, createLine, createPolygon, edit, importAnnotation, }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function importAnnotationsFiles(files: FileList) {
+        // Nothing to do
+    }
+
+    return { count, isUserDrawing, setIsUserDrawing, getAnnotationMode, setAnnotationMode, getAnnotations, hasAnnotation, add, remove, createPoint, createLine, createPolygon, edit, importAnnotationFile, importAnnotationsFiles, }
 });

@@ -60,4 +60,34 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
 
         return geojson;
     }
+
+    static toCollection(measures: Measure[]): GeoJSON.FeatureCollection {
+        const features = measures.map(measure => measure.toGeoJSON());
+
+        return {
+            type: 'FeatureCollection',
+            features,
+            // GeoJSON spec does not allow properties on FeatureCollection
+            // But OWC requires it Oo
+            // @ts-ignore
+            id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
+            properties: {
+                lang: "en",
+                title: "Giro3D measures",
+                updated: new Date().toISOString(),
+                creator: "Giro3D",
+                generator: {
+                    title: "Giro3D",
+                    uri: Download.getBaseUrl(),
+                },
+                links: [
+                    {
+                        "rel": "profile",
+                        "href": "http://www.opengis.net/spec/owc-atom/1.0/req/core",
+                        "title": "This file is compliant with version 1.0 of OGC Context"
+                    }
+                ]
+            }
+        }
+    }
 }

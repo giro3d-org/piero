@@ -27,8 +27,17 @@ export const useMeasurementStore = defineStore('measurement', () => {
         measurements.push(measure);
     }
 
+    function hasMeasure(name: string) {
+        return measurements.some(m => m.title === name);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importMeasure(object: GeoJSON.Feature) {
+    function importMeasureFile(file: Blob) {
+        // Nothing to do
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function importMeasureFiles(files: FileList) {
         // Nothing to do
     }
 
@@ -36,5 +45,5 @@ export const useMeasurementStore = defineStore('measurement', () => {
 
     function end() { }
 
-    return { count, getMeasures, isUserMeasuring, setIsUserMeasuring, remove, add, importMeasure, start, end }
+    return { count, getMeasures, hasMeasure, isUserMeasuring, setIsUserMeasuring, remove, add, importMeasureFile, importMeasureFiles, start, end }
 });
