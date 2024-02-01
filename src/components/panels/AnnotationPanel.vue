@@ -15,7 +15,7 @@ const annotations = useAnnotationStore();
 const cameraStore = useCameraStore();
 
 const annotationMode = ref<AnnotationMode>(annotations.getAnnotationMode());
-watch(annotationMode, (newMode, oldMode) => {
+watch(annotationMode, (newMode) => {
     annotations.setAnnotationMode(newMode);
 });
 const hiddenInput = ref<HTMLInputElement | null>(null);
@@ -62,7 +62,7 @@ async function importAnnotationFile(e: Event) {
         <fieldset class="button-area" :disabled="annotations.isUserDrawing()">
             <hr>
             <div class="mb-3">
-                <DropdownView label="Mode" :current="annotationModes[0]" :items="annotationModes"
+                <DropdownView label="Mode" description-position="top" :current="annotationModes[0]" :items="annotationModes"
                     @updated:current="src => setCurrentMode(src)" />
             </div>
             <button title="Add point annotation" class="btn btn-primary" @click="annotations.createPoint()"><i

@@ -1,7 +1,7 @@
-import Annotation from "@/types/Annotation";
-import AnnotationMode from "@/types/AnnotationMode";
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
+import Annotation from "@/types/Annotation";
+import AnnotationMode from "@/types/AnnotationMode";
 
 export const useAnnotationStore = defineStore('annotations', () => {
     const annotations = reactive<Annotation[]>([]) as Annotation[];
