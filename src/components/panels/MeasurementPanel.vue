@@ -1,17 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import DropdownView from '@/components/DropdownView.vue';
 import EmptyIndicator from './EmptyIndicator.vue';
 import MeasurementItem from './MeasurementItem.vue';
 import IconButton from '@/components/IconButton.vue';
 import { useCameraStore } from '@/stores/camera';
 import { useMeasurementStore } from '@/stores/measurement';
-import Measure from '@/types/Measure';
 import Download from '@/utils/Download';
+import MeasurementMode, { measurementModes } from '@/types/MeasurementMode';
+import Measure from '@/types/Measure';
+import Named from '@/types/Named';
 
 const measures = useMeasurementStore();
 const cameraStore = useCameraStore();
 
+const measurementMode = ref<MeasurementMode>(measures.getMeasurementMode());
+watch(measurementMode, (newMode) => {
+    measures.setMeasurementMode(newMode);
+});
+
 const hiddenInput = ref<HTMLInputElement | null>(null);
+
+function setCurrentMode(src: Named | null) {
+    measurementMode.value = src?.value as MeasurementMode;
+}
 
 function goTo(measure: Measure) {
     cameraStore.lookTopDownAt(measure.object);
@@ -53,6 +65,10 @@ async function importMeasureFile(e: Event) {
 
         <fieldset class="button-area">
             <hr>
+            <div class="mb-3">
+                <DropdownView label="Mode" description-position="top" :current="measurementModes[0]" :items="measurementModes"
+                    @updated:current="src => setCurrentMode(src)" />
+            </div>
             <button v-if="measures.isUserMeasuring()" title="Stop measuring" class="btn btn-primary" @click="measures.end()"><i
                     class="bi-stop-circle" /> Stop measuring</button>
             <button v-else title="Start measuring" class="btn btn-primary" @click="measures.start()"><i
