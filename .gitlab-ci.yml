@@ -4,15 +4,29 @@ before_script:
     - cp src/styles.ts.sample src/styles.ts
     - npm i
 
-pages-test:
+stages:
+    - build
+    - publish
+
+# Run pipelines on MR, tags and push on 'main'
+workflow:
+    rules:
+        - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+        - if: $CI_COMMIT_TAG
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+lint:
+    stage: build
+    script:
+        - npm run lint
+
+build:
     stage: build
     script:
         - npm run build
-    only:
-        - merge_requests
 
 pages:
-    stage: build
+    stage: publish
     rules:
         - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
           variables:
