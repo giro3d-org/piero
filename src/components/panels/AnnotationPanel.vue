@@ -1,25 +1,21 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { MathUtils } from 'three';
 import DropdownView from '@/components/DropdownView.vue';
 import IconButton from '@/components/IconButton.vue';
 import AnnotationItem from './AnnotationItem.vue'
 import EmptyIndicator from './EmptyIndicator.vue';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useCameraStore } from '@/stores/camera';
-import { useNotificationStore } from '@/stores/notifications';
 import Download from '@/utils/Download';
 import AnnotationMode, { annotationModes } from '@/types/AnnotationMode';
 import Named from '@/types/Named';
 import Annotation from '@/types/Annotation';
-import Notification from '@/types/Notification';
 
 const annotations = useAnnotationStore();
 const cameraStore = useCameraStore();
-const notificationStore = useNotificationStore();
 
 const annotationMode = ref<AnnotationMode>(annotations.getAnnotationMode());
-watch(annotationMode, (newMode, oldMode) => {
+watch(annotationMode, (newMode) => {
     annotations.setAnnotationMode(newMode);
 });
 const hiddenInput = ref<HTMLInputElement | null>(null);
@@ -38,70 +34,14 @@ function downloadAnnotation(annotation: Annotation) {
 }
 
 function exportAnnotations() {
-    const features = [];
-    for (const annotation of annotations.getAnnotations()) {
-        features.push(annotation.toGeoJSON());
-    }
-
-    Download.downloadAsJson({
-        type: 'FeatureCollection',
-        features,
-        // GeoJSON spec does not allow properties on FeatureCollection
-        // But OWC requires it Oo
-        id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
-        properties: {
-            lang: "en",
-            title: "Giro3D annotations",
-            updated: new Date().toISOString(),
-            creator: "Giro3D",
-            generator: {
-                title: "Giro3D",
-                uri: Download.getBaseUrl(),
-            },
-            links: [
-                {
-                    "rel": "profile",
-                    "href": "http://www.opengis.net/spec/owc-atom/1.0/req/core",
-                    "title": "This file is compliant with version 1.0 of OGC Context"
-                }
-            ]
-        }
-    }, 'annotations.json');
+    const geojson = Annotation.toCollection(annotations.getAnnotations());
+    Download.downloadAsJson(geojson, 'annotations.json');
 }
-
-async function importAnnotation(file: Blob) {
-    const str = await file.text();
-    const geojson = JSON.parse(str) as (GeoJSON.Feature | GeoJSON.FeatureCollection);
-
-    const existingAnnotations = new Set(annotations.getAnnotations().map(a => a.title));
-
-    let nbImported = 0;
-    let nbSkipped = 0;
-
-    const features = (geojson.type === 'FeatureCollection') ? geojson.features : [geojson];
-
-    for (const feature of features) {
-        if (!feature.properties) feature.properties = {};
-        if (!feature.properties.title) feature.properties.title = MathUtils.generateUUID();
-
-        if (!existingAnnotations.has(feature.properties.title)) {
-            annotations.importAnnotation(feature);
-            nbImported++;
-        } else {
-            nbSkipped++;
-        }
-    }
-
-    notificationStore.push(new Notification('Annotations', `${nbImported} annotations imported (${nbSkipped} skipped)`, 'success'));
-};
 
 async function importAnnotationFile(e: Event) {
     const files = (e.target as HTMLInputElement).files;
 
-    if (files) {
-        for (const file of files)
-            importAnnotation(file);
-    }
+    if (files) annotations.importAnnotationsFiles(files);
 }
 </script>
 
@@ -122,7 +62,7 @@ async function importAnnotationFile(e: Event) {
         <fieldset class="button-area" :disabled="annotations.isUserDrawing()">
             <hr>
             <div class="mb-3">
-                <DropdownView label="Mode" :current="annotationModes[0]" :items="annotationModes"
+                <DropdownView label="Mode" description-position="top" :current="annotationModes[0]" :items="annotationModes"
                     @updated:current="src => setCurrentMode(src)" />
             </div>
             <button title="Add point annotation" class="btn btn-primary" @click="annotations.createPoint()"><i
@@ -137,7 +77,7 @@ async function importAnnotationFile(e: Event) {
             <IconButton title="Import annotation from GeoJSON" class="btn-outline-secondary"
                 @click="(hiddenInput as HTMLInputElement).click()" icon="bi-box-arrow-left" text="Import annotations" />
             <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="annotationFormFile"
-                @input="(e) => importAnnotationFile(e)">
+                @input="(e) => importAnnotationFile(e)" multiple="true">
         </fieldset>
     </div>
 </template>

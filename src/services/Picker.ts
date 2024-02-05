@@ -5,10 +5,13 @@ import Instance from "@giro3d/giro3d/core/Instance";
 import { PickResult, PointsPickResult, isMapPickResult, isPointsPickResult } from "@giro3d/giro3d/core/picking";
 import Entity from "@giro3d/giro3d/entities/Entity";
 import { DrawingPickResult, isDrawingPickResult } from "@giro3d/giro3d/entities/DrawingCollection";
-import Annotation from "@/types/Annotation";
-import Feature, { Attribute, AttributesGroups } from "@/types/Feature";
+
 import { CityJSONPickResult, isCityJSONPickResult } from "@/giro3d/CityJSONEntity";
 import { IFCPickResult, isIFCPickResult } from "@/giro3d/IfcEntity";
+import Measure3D from "@/giro3d/Measure3D";
+import Annotation from "@/types/Annotation";
+import Feature, { Attribute, AttributesGroups } from "@/types/Feature";
+import Measure from "@/types/Measure";
 import { PlyMesh } from "@/loaders/PLY";
 import { useAnalysisStore } from "@/stores/analysis";
 
@@ -273,6 +276,28 @@ export default class Picker {
         }
     }
 
+    getAttributesFromMeasure(pickResult: PickResult, attributesGroups: AttributesGroups) {
+        if (!attributesGroups.has("GeoJSON")) {
+            attributesGroups.set("GeoJSON", []);
+        }
+        const attributesGeoJSON = attributesGroups.get("GeoJSON") as Attribute[];
+
+        const parent = pickResult.object.parent as Measure3D;
+
+        for (const [key, value] of Object.entries(parent.userData.measure.properties)) {
+            if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
+            attributesGeoJSON.push({ key, value });
+        }
+
+        if (!attributesGroups.has("Measurement")) {
+            attributesGroups.set("Measurement", []);
+        }
+        const attributes = attributesGroups.get("Measurement") as Attribute[];
+        attributes.push({ key: 'From', value: parent.from });
+        attributes.push({ key: 'To', value: parent.to });
+        attributes.push({ key: 'Length', value: `${parent.length.toFixed(2)}m` });
+    }
+
     getFeatureFromPickedObject(pickedObject: PickResult): Feature | null {
         const { entity, object, features } = pickedObject;
 
@@ -313,6 +338,10 @@ export default class Picker {
             }
         } else if (PlyMesh.isPlyPickResult(pickedObject)) {
             this.getAttributesFromPlyObject(pickedObject, attributesGroups);
+        } else if (Measure3D.isMeasure3D(pickedObject.object.parent)) {
+            const measure = pickedObject.object.parent.userData?.measure as Measure;
+            name = measure?.title ?? name;
+            this.getAttributesFromMeasure(pickedObject, attributesGroups);
         } else if (object?.userData) {
             this.getAttributesFromObject3D(pickedObject, attributesGroups);
         }

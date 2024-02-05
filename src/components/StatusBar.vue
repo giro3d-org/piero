@@ -10,7 +10,7 @@ defineProps({
 
 <template>
     <div>
-        <div class="d-flex">
+        <div class="d-flex column-gap-3">
             <i class="bi text-secondary bi-cursor-fill"></i>
             <CoordinateFragment :value="x?.toFixed(0)" prefix="X:" />
             <CoordinateFragment :value="y?.toFixed(0)" prefix="Y:" />

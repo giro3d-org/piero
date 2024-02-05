@@ -1,19 +1,19 @@
-import Download from "@/utils/Download";
-import Drawing from "@giro3d/giro3d/interactions/Drawing";
 import { EventDispatcher, MathUtils } from "three";
+import Measure3D from "@/giro3d/Measure3D";
+import Download from "@/utils/Download";
 
-type AnnotationEventMap = {
+type MeasureEventMap = {
     visible: {},
 };
 
-export default class Annotation extends EventDispatcher<AnnotationEventMap> {
+export default class Measure extends EventDispatcher<MeasureEventMap> {
     readonly uuid: string;
     readonly title: string;
     private _visible: boolean;
-    private _object: Drawing;
+    private _object: Measure3D;
     properties: any;
 
-    constructor(title: string, object: Drawing, properties: any = {}) {
+    constructor(title: string, object: Measure3D, properties: any = {}) {
         super();
 
         this.title = title;
@@ -41,55 +41,28 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     }
 
     toGeoJSON() {
-        const coords: GeoJSON.Position[] = [];
-        const objectFlatCoords = this.object.coordinates;
-        for (let i=0; i < objectFlatCoords.length; i += 3) {
-            coords.push([
-                objectFlatCoords[i],
-                objectFlatCoords[i+1],
-                objectFlatCoords[i+2],
-            ]);
-        }
-        let geometry;
-        switch (this.object.geometryType) {
-            case 'Point':
-                geometry = {
-                    type: this.object.geometryType,
-                    coordinates: coords[0],
-                }
-                break;
-            case 'LineString':
-            case 'MultiPoint':
-                geometry = {
-                    type: this.object.geometryType,
-                    coordinates: coords,
-                }
-                break;
-            case 'Polygon':
-                geometry = {
-                    type: this.object.geometryType,
-                    coordinates: [coords],
-                }
-                break;
-            default:
-                throw new Error(`Unsupported type ${this.object.geometryType}`);
-        }
-        const geojson: GeoJSON.Feature = {
+        const geojson = {
             type: 'Feature',
             id: `${Download.getBaseUrl()}/#${this.uuid}`,
-            geometry,
+            geometry: {
+                type: 'LineString',
+                coordinates: [
+                    this.object.from.toArray(),
+                    this.object.to.toArray(),
+                ],
+            },
             properties: {
                 ...this.properties,
                 title: this.title,
                 updated: new Date().toISOString(),
             }
-        };
+        } as GeoJSON.Feature;
 
         return geojson;
     }
 
-    static toCollection(annotations: Annotation[]): GeoJSON.FeatureCollection {
-        const features = annotations.map(annotation => annotation.toGeoJSON());
+    static toCollection(measures: Measure[]): GeoJSON.FeatureCollection {
+        const features = measures.map(measure => measure.toGeoJSON());
 
         return {
             type: 'FeatureCollection',
@@ -100,7 +73,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
             id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
             properties: {
                 lang: "en",
-                title: "Giro3D annotations",
+                title: "Giro3D measures",
                 updated: new Date().toISOString(),
                 creator: "Giro3D",
                 generator: {

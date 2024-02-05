@@ -2,6 +2,8 @@ import { Configuration } from "./types/Configuration";
 
 const config: Configuration = {
     "default_crs": "EPSG:2154",
+    // Switch-on experimental features
+    "enabled_features": ["measurements"],
     "camera": {
         "position": {
             crs: "EPSG:4326",

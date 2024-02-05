@@ -19,15 +19,17 @@ const panels = Configuration.panels;
         </a>
       </li>
 
-      <ToolbarButton
-        v-for="panel in panels"
-        :active="active === panel.key"
-        :key="panel.key"
-        :tourkey="panel.key"
-        :title="panel.title"
-        :icon="panel.icon"
-        @click="$emit('selected', panel.key)"
-      />
+      <template v-for="panel in panels">
+        <ToolbarButton
+            v-if="panel.enabled"
+            :active="active === panel.key"
+            :key="panel.key"
+            :tourkey="panel.key"
+            :title="panel.title"
+            :icon="panel.icon"
+            @click="$emit('selected', panel.key)"
+        />
+      </template>
     </ul>
   </div>
 </template>
