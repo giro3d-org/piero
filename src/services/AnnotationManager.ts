@@ -1,6 +1,10 @@
 import { LineBasicMaterial, MathUtils, MeshBasicMaterial, Object3D, PointsMaterial } from 'three';
 
-import DrawTool, { DrawToolMode, DrawToolOptions, DrawToolState } from '@giro3d/giro3d/interactions/DrawTool';
+import DrawTool, {
+    DrawToolMode,
+    DrawToolOptions,
+    DrawToolState,
+} from '@giro3d/giro3d/interactions/DrawTool';
 import Drawing, { DrawingGeometryType } from '@giro3d/giro3d/interactions/Drawing';
 import { PickResult } from '@giro3d/giro3d/core/picking';
 import DrawingCollection from '@giro3d/giro3d/entities/DrawingCollection';
@@ -11,7 +15,7 @@ import Picker from '@/services/Picker';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/utils/Measure';
-import Annotation from "@/types/Annotation"
+import Annotation from '@/types/Annotation';
 import AnnotationMode from '@/types/AnnotationMode';
 import Notification from '@/types/Notification';
 
@@ -91,7 +95,7 @@ export default class AnnotationManager {
             enableSplicing: false,
             splicingHitTolerance: 0,
             endDrawingOnRightClick: true,
-            getPointAt: this.getPointAt.bind(this)
+            getPointAt: this.getPointAt.bind(this),
         };
 
         this.drawTool = new DrawTool(instance, this.drawToolOptions);
@@ -114,41 +118,36 @@ export default class AnnotationManager {
         this.drawTool.addEventListener('add', () => {
             this.previousFeature = this.previousHoveredFeature;
         }),
-
-        this.store.$onAction(({
-            name,
-            args,
-            after
-        }) => {
-            after(() => {
-                switch (name) {
-                    case 'edit':
-                        this.editAnnotation(args[0]);
-                        break;
-                    case 'remove':
-                        this.deleteAnnotation(args[0]);
-                        break;
-                    case 'createPoint':
-                        this.drawPoint();
-                        break;
-                    case 'createLine':
-                        this.drawLine();
-                        break;
-                    case 'createPolygon':
-                        this.drawPolygon();
-                        break;
-                    case 'setAnnotationMode':
-                        this.onUpdateAnnotationMode(args[0]);
-                        break;
-                    case 'importAnnotationFile':
-                        this.importAnnotationFile(args[0]);
-                        break;
-                    case 'importAnnotationsFiles':
-                        this.importAnnotationFiles(args[0]);
-                        break;
-                }
+            this.store.$onAction(({ name, args, after }) => {
+                after(() => {
+                    switch (name) {
+                        case 'edit':
+                            this.editAnnotation(args[0]);
+                            break;
+                        case 'remove':
+                            this.deleteAnnotation(args[0]);
+                            break;
+                        case 'createPoint':
+                            this.drawPoint();
+                            break;
+                        case 'createLine':
+                            this.drawLine();
+                            break;
+                        case 'createPolygon':
+                            this.drawPolygon();
+                            break;
+                        case 'setAnnotationMode':
+                            this.onUpdateAnnotationMode(args[0]);
+                            break;
+                        case 'importAnnotationFile':
+                            this.importAnnotationFile(args[0]);
+                            break;
+                        case 'importAnnotationsFiles':
+                            this.importAnnotationFiles(args[0]);
+                            break;
+                    }
+                });
             });
-        });
     }
 
     getPointAt(event: MouseEvent) {
@@ -160,7 +159,7 @@ export default class AnnotationManager {
                     this.instance,
                     event,
                     radius,
-                    o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true
+                    o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true,
                 );
                 break;
             case 'snapToMap':
@@ -171,25 +170,28 @@ export default class AnnotationManager {
                     this.instance,
                     event,
                     radius,
-                    o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true
+                    o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true,
                 );
                 break;
             case 'snapToSameFeature':
                 if (this.previousFeature) {
-                    pickedObject = this.instance.pickObjectsAt(event, {
-                        radius,
-                        where: [this.previousFeature],
-                        sortByDistance: true,
-                        limit: 1,
-                        pickFeatures: true,
-                    }).at(0) ?? null;
+                    pickedObject =
+                        this.instance
+                            .pickObjectsAt(event, {
+                                radius,
+                                where: [this.previousFeature],
+                                sortByDistance: true,
+                                limit: 1,
+                                pickFeatures: true,
+                            })
+                            .at(0) ?? null;
                     break;
                 } else {
                     pickedObject = this.picker.getObjectAt(
                         this.instance,
                         event,
                         radius,
-                        o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true
+                        o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true,
                     );
                     break;
                 }
@@ -217,30 +219,33 @@ export default class AnnotationManager {
 
     updateDrawing(annotation: Annotation) {
         annotation.object.visible = annotation.visible;
-        annotation.object.traverse(o => o.visible = annotation.visible);
+        annotation.object.traverse(o => (o.visible = annotation.visible));
         this.instance.notifyChange();
     }
 
     private _draw(type: DrawingGeometryType, defaultName: string) {
         this.beforeDraw();
 
-        this.drawObject(type).then(geometry => {
-            let title = defaultName;
-            if (this.store.hasAnnotation(title)) {
-                for (let i = 1; i < 1000; i += 1) {
-                    title = `${defaultName} (${i})`;
-                    if (!this.store.hasAnnotation(title)) break;
+        this.drawObject(type)
+            .then(geometry => {
+                let title = defaultName;
+                if (this.store.hasAnnotation(title)) {
+                    for (let i = 1; i < 1000; i += 1) {
+                        title = `${defaultName} (${i})`;
+                        if (!this.store.hasAnnotation(title)) break;
+                    }
+                    if (this.store.hasAnnotation(title))
+                        title = 'Achieved unlocked: 1000 annotations with default name';
                 }
-                if (this.store.hasAnnotation(title)) title = 'Achieved unlocked: 1000 annotations with default name';
-            }
-            const name = promptTitle(title);
-            if (name) {
-                const o = this.addAnnotation(geometry);
-                this.pushNewAnnotation(name, o);
-            }
-        }).catch(() => {
-            // aborted, do nothing
-        });
+                const name = promptTitle(title);
+                if (name) {
+                    const o = this.addAnnotation(geometry);
+                    this.pushNewAnnotation(name, o);
+                }
+            })
+            .catch(() => {
+                // aborted, do nothing
+            });
     }
 
     private drawPoint() {
@@ -263,20 +268,25 @@ export default class AnnotationManager {
     }
 
     private addAnnotation(geojson: GeoJSON.Geometry) {
-        const { minExtrudeDepth, maxExtrudeDepth } = this.getExtrudeDepth(this.store.getAnnotationMode());
-        const o = new Drawing({
-            faceMaterial: drawnFaceMaterial,
-            sideMaterial: drawnSideMaterial,
-            lineMaterial: drawnLineMaterial,
-            pointMaterial: drawnPointMaterial,
-            minExtrudeDepth,
-            maxExtrudeDepth,
-            use3Dpoints: false,
-            point2DFactory,
-        }, geojson);
+        const { minExtrudeDepth, maxExtrudeDepth } = this.getExtrudeDepth(
+            this.store.getAnnotationMode(),
+        );
+        const o = new Drawing(
+            {
+                faceMaterial: drawnFaceMaterial,
+                sideMaterial: drawnSideMaterial,
+                lineMaterial: drawnLineMaterial,
+                pointMaterial: drawnPointMaterial,
+                minExtrudeDepth,
+                maxExtrudeDepth,
+                use3Dpoints: false,
+                point2DFactory,
+            },
+            geojson,
+        );
 
         this.computeMeasurements(o);
-        o.traverse(child => child.renderOrder = 2);
+        o.traverse(child => (child.renderOrder = 2));
 
         this.drawEntity.add(o);
         this.instance.notifyChange(this.drawEntity);
@@ -297,9 +307,9 @@ export default class AnnotationManager {
 
     private async importBlob(file: Blob, skipNames: Set<string>) {
         const str = await file.text();
-        const geojson = JSON.parse(str) as (GeoJSON.Feature | GeoJSON.FeatureCollection);
+        const geojson = JSON.parse(str) as GeoJSON.Feature | GeoJSON.FeatureCollection;
 
-        const features = (geojson.type === 'FeatureCollection') ? geojson.features : [geojson];
+        const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
 
         let nbImported = 0;
         let nbSkipped = 0;
@@ -315,7 +325,13 @@ export default class AnnotationManager {
         const existingAnnotations = new Set(this.store.getAnnotations().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingAnnotations);
-            this.notificationStore.push(new Notification('Annotations', `${nbImported} annotations imported (${nbSkipped} skipped)`, 'success'));
+            this.notificationStore.push(
+                new Notification(
+                    'Annotations',
+                    `${nbImported} annotations imported (${nbSkipped} skipped)`,
+                    'success',
+                ),
+            );
         } catch (e) {
             new Notification('Annotations', `Could not import file: ${e}`, 'warning');
         }
@@ -337,18 +353,28 @@ export default class AnnotationManager {
                         nbTotalSkipped += nbSkipped;
                     })
                     .catch(reason => {
-                        errors.push((reason as Error).message)
-                    })
+                        errors.push((reason as Error).message);
+                    }),
             );
         }
         await Promise.allSettled(promises);
 
         if (errors.length > 0) {
             this.notificationStore.push(
-                new Notification('Annotations', `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`, 'warning')
+                new Notification(
+                    'Annotations',
+                    `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
+                    'warning',
+                ),
             );
         } else {
-            this.notificationStore.push(new Notification('Annotations', `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped)`, 'success'));
+            this.notificationStore.push(
+                new Notification(
+                    'Annotations',
+                    `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped)`,
+                    'success',
+                ),
+            );
         }
     }
 
@@ -421,8 +447,8 @@ export default class AnnotationManager {
                 ...this.drawToolOptions.drawObjectOptions,
                 minExtrudeDepth,
                 maxExtrudeDepth,
-            }
-        })
+            },
+        });
     }
 
     private computeMeasurements(drawing: Drawing) {

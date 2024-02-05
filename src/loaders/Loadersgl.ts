@@ -23,7 +23,7 @@ type FileOrUrl = File | string;
  */
 export type LoaderglOptions = GeoJSONOptions & {
     loader?: LoaderOptions;
-}
+};
 
 export default {
     /**
@@ -62,27 +62,39 @@ export default {
      * @param options Options
      * @returns Processed entity
      */
-    loadGeoPackage(instance: Instance, id: string, fileOrUrl: FileOrUrl, options: LoaderglOptions = {}): Promise<Entity3D> {
-        return this.loadGeospatial(instance, id, fileOrUrl, GeoPackageLoader, {
-            loader: {
-                gis: {
-                    format: 'geojson',
-                    reproject: true,
-                    _targetCrs: instance.referenceCrs,
+    loadGeoPackage(
+        instance: Instance,
+        id: string,
+        fileOrUrl: FileOrUrl,
+        options: LoaderglOptions = {},
+    ): Promise<Entity3D> {
+        return this.loadGeospatial(
+            instance,
+            id,
+            fileOrUrl,
+            GeoPackageLoader,
+            {
+                loader: {
+                    gis: {
+                        format: 'geojson',
+                        reproject: true,
+                        _targetCrs: instance.referenceCrs,
+                    },
                 },
+                ...options,
             },
-            ...options,
-        }, r => {
-            const features: GeoJSON.Feature[] = [];
-            for (const [key, array] of Object.entries(r)) {
-                for (const feature of array as GeoJSON.Feature[]) {
-                    if (!feature.properties) feature.properties = {};
-                    feature.properties['table'] = key;
-                    features.push(feature);
+            r => {
+                const features: GeoJSON.Feature[] = [];
+                for (const [key, array] of Object.entries(r)) {
+                    for (const feature of array as GeoJSON.Feature[]) {
+                        if (!feature.properties) feature.properties = {};
+                        feature.properties['table'] = key;
+                        features.push(feature);
+                    }
                 }
-            }
-            return features;
-        });
+                return features;
+            },
+        );
     },
 
     /**
@@ -94,17 +106,29 @@ export default {
      * @param options Options
      * @returns Processed entity
      */
-    loadShapefile(instance: Instance, id: string, fileOrUrl: FileOrUrl, options: LoaderglOptions = {}): Promise<Entity3D> {
-        return this.loadGeospatial(instance, id, fileOrUrl, ShapefileLoader, {
-            loader: {
-                gis: {
-                    format: 'geojson',
-                    reproject: true,
-                    _targetCrs: instance.referenceCrs,
+    loadShapefile(
+        instance: Instance,
+        id: string,
+        fileOrUrl: FileOrUrl,
+        options: LoaderglOptions = {},
+    ): Promise<Entity3D> {
+        return this.loadGeospatial(
+            instance,
+            id,
+            fileOrUrl,
+            ShapefileLoader,
+            {
+                loader: {
+                    gis: {
+                        format: 'geojson',
+                        reproject: true,
+                        _targetCrs: instance.referenceCrs,
+                    },
                 },
+                ...options,
             },
-            ...options,
-        }, r => r.data);
+            r => r.data,
+        );
     },
 
     /**
@@ -131,7 +155,9 @@ export default {
 
         const filename = (fileOrUrl as File).name ?? fileOrUrl;
         const notifications = useNotificationStore();
-        notifications.push(new Notification(filename, `Processing ${posArray.length / 3} points...`));
+        notifications.push(
+            new Notification(filename, `Processing ${posArray.length / 3} points...`),
+        );
         if (options?.projection && options.projection !== instance.referenceCrs) {
             // @ts-ignore - Coordinates are optional
             const coords = new Coordinates(options.projection);
@@ -161,7 +187,7 @@ export default {
         });
 
         const entity = new Entity3D(mypoints.uuid, mypoints);
-        mypoints.traverse((obj) => {
+        mypoints.traverse(obj => {
             entity.onObjectCreated(obj);
         });
         return entity;
@@ -176,13 +202,25 @@ export default {
      * @param options Options
      * @returns Processed entity
      */
-    loadLas(instance: Instance, id: string, fileOrUrl: FileOrUrl, options: LoaderglOptions = {}): Promise<Entity3D> {
-        return this.loadPointCloud(instance, id, fileOrUrl, LASLoader, {
-            loader: {
-                las: { shape: 'columnar-table' },
+    loadLas(
+        instance: Instance,
+        id: string,
+        fileOrUrl: FileOrUrl,
+        options: LoaderglOptions = {},
+    ): Promise<Entity3D> {
+        return this.loadPointCloud(
+            instance,
+            id,
+            fileOrUrl,
+            LASLoader,
+            {
+                loader: {
+                    las: { shape: 'columnar-table' },
+                },
+                ...options,
             },
-            ...options,
-        }, data => data.attributes.POSITION.value);
+            data => data.attributes.POSITION.value,
+        );
     },
 
     /**
@@ -194,20 +232,32 @@ export default {
      * @param options Options
      * @returns Processed entity
      */
-    loadCsv(instance: Instance, id: string, fileOrUrl: FileOrUrl, options: LoaderglOptions = {}): Promise<Entity3D> {
-        return this.loadPointCloud(instance, id, fileOrUrl, CSVLoader, {
-            loader: {
-                csv: { shape: 'columnar-table' },
+    loadCsv(
+        instance: Instance,
+        id: string,
+        fileOrUrl: FileOrUrl,
+        options: LoaderglOptions = {},
+    ): Promise<Entity3D> {
+        return this.loadPointCloud(
+            instance,
+            id,
+            fileOrUrl,
+            CSVLoader,
+            {
+                loader: {
+                    csv: { shape: 'columnar-table' },
+                },
+                ...options,
             },
-            ...options,
-        }, data => {
-            const posArray = new Float32Array(data.length * 3);
-            for (let i = 0; i < data.length; i += 1) {
-                posArray[i * 3 + 0] = data[i].X;
-                posArray[i * 3 + 1] = data[i].Y;
-                posArray[i * 3 + 2] = data[i].Z;
-            }
-            return posArray;
-        });
+            data => {
+                const posArray = new Float32Array(data.length * 3);
+                for (let i = 0; i < data.length; i += 1) {
+                    posArray[i * 3 + 0] = data[i].X;
+                    posArray[i * 3 + 1] = data[i].Y;
+                    posArray[i * 3 + 2] = data[i].Z;
+                }
+                return posArray;
+            },
+        );
     },
 };

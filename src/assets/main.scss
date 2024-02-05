@@ -9,34 +9,33 @@ $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
 @import 'bootstrap/scss/utilities/api';
 
 #app {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
 
-  font-weight: normal;
+    font-weight: normal;
 }
 
-
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
 }
 
 .layers-list-group {
-  @extend .list-group;
-  @extend .list-group-flush;
+    @extend .list-group;
+    @extend .list-group-flush;
 }
 
 .button-area {
-  padding: 0.5rem;
+    padding: 0.5rem;
 }
 
 .disabled {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 
 .dropzone {
-  @extend .text-center;
-  border: var(--bs-border-width) dashed var(--bs-border-color) !important;
+    @extend .text-center;
+    border: var(--bs-border-width) dashed var(--bs-border-color) !important;
 }

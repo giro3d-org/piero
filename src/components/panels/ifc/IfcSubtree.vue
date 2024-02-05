@@ -1,40 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import IfcEntity, { ClassificationItem } from '@/giro3d/IfcEntity';
-import { useCameraStore } from '@/stores/camera';
-import { useAnalysisStore } from '@/stores/analysis';
+    import { ref } from 'vue';
+    import IfcEntity, { ClassificationItem } from '@/giro3d/IfcEntity';
+    import { useCameraStore } from '@/stores/camera';
+    import { useAnalysisStore } from '@/stores/analysis';
 
-const props = defineProps<{
-    ifcEntity: IfcEntity,
-    classificationElement: ClassificationItem,
-}>()
+    const props = defineProps<{
+        ifcEntity: IfcEntity;
+        classificationElement: ClassificationItem;
+    }>();
 
-const highlighted = ref(false);
-const cameraStore = useCameraStore();
-const analysis = useAnalysisStore();
+    const highlighted = ref(false);
+    const cameraStore = useCameraStore();
+    const analysis = useAnalysisStore();
 
-function highlight() {
-    highlighted.value = true;
-    props.ifcEntity.clearHighlight();
-    props.ifcEntity.highlightById(props.classificationElement.fragments);
+    function highlight() {
+        highlighted.value = true;
+        props.ifcEntity.clearHighlight();
+        props.ifcEntity.highlightById(props.classificationElement.fragments);
 
-    setTimeout(() => highlighted.value = false, 2000);
-}
-
-function zoomTo() {
-    const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
-    if (bbox && !bbox.isEmpty()) cameraStore.lookTopDownAt(bbox);
-}
-
-function clipTo() {
-    const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
-    if (bbox && !bbox.isEmpty()) {
-        analysis.setClippingBox(bbox);
-        analysis.enableClippingBox(true);
+        setTimeout(() => (highlighted.value = false), 2000);
     }
-}
 
+    function zoomTo() {
+        const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
+        if (bbox && !bbox.isEmpty()) cameraStore.lookTopDownAt(bbox);
+    }
 
+    function clipTo() {
+        const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
+        if (bbox && !bbox.isEmpty()) {
+            analysis.setClippingBox(bbox);
+            analysis.enableClippingBox(true);
+        }
+    }
 </script>
 
 <template>
@@ -43,13 +41,20 @@ function clipTo() {
             <!-- <a class="icon mx-1" href="#" @click="highlight">
                 <i class="bi bi-eye"></i>
             </a> -->
-            <span class="badge class" :class="highlighted ? 'text-bg-danger' : 'text-bg-secondary'" :title="classificationElement.treeItemName">{{
-                classificationElement.treeItemName }}</span>
-            <span class="flex-fill mx-2 text-truncate name" :class="highlighted ? 'text-danger-emphasis' : 'text-muted'" :title="classificationElement.name">{{
-                classificationElement.name }}</span>
+            <span
+                class="badge class"
+                :class="highlighted ? 'text-bg-danger' : 'text-bg-secondary'"
+                :title="classificationElement.treeItemName"
+                >{{ classificationElement.treeItemName }}</span
+            >
+            <span
+                class="flex-fill mx-2 text-truncate name"
+                :class="highlighted ? 'text-danger-emphasis' : 'text-muted'"
+                :title="classificationElement.name"
+                >{{ classificationElement.name }}</span
+            >
             <div class="icons">
-                <a href="#" class="icon" title="Highlight"
-                    @click="highlight">
+                <a href="#" class="icon" title="Highlight" @click="highlight">
                     <i class="bi bi-highlighter"></i>
                 </a>
                 <a href="#" class="icon" title="Zoom to" @click="zoomTo">
@@ -71,30 +76,30 @@ function clipTo() {
 </template>
 
 <style scoped>
-ul {
-    list-style-type: none;
-}
-
-li {
-    margin-top: 0.2rem;
-}
-
-.class {
-    font-weight: normal;
-}
-
-.name {
-    font-size: smaller;
-}
-
-.icon {
-    margin-left: 0.3rem;
-    color: rgb(180, 180, 180);
-}
-
-@media (hover: hover) {
-    .icon:hover {
-        color: rgb(75, 75, 75);
+    ul {
+        list-style-type: none;
     }
-}
+
+    li {
+        margin-top: 0.2rem;
+    }
+
+    .class {
+        font-weight: normal;
+    }
+
+    .name {
+        font-size: smaller;
+    }
+
+    .icon {
+        margin-left: 0.3rem;
+        color: rgb(180, 180, 180);
+    }
+
+    @media (hover: hover) {
+        .icon:hover {
+            color: rgb(75, 75, 75);
+        }
+    }
 </style>

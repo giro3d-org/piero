@@ -35,7 +35,8 @@ const displayProgress = () => {
     const content = currentStepElement?.querySelector('.shepherd-text');
     const steps = Shepherd.activeTour?.steps;
 
-    if (currentStep == null || currentStepElement == null || content == null  || steps == null) return;
+    if (currentStep == null || currentStepElement == null || content == null || steps == null)
+        return;
 
     const progress = document.createElement('div');
     progress.className = 'progress mt-3';
@@ -103,7 +104,9 @@ navigatingTour.addStep({
             let nbEvents = 0;
             cameraCallback = () => {
                 nbEvents += 1;
-                if (nbEvents > 2) { Shepherd.activeTour?.next(); }
+                if (nbEvents > 2) {
+                    Shepherd.activeTour?.next();
+                }
             };
             camera.addEventListener('interaction-end', cameraCallback);
             displayProgress();
@@ -174,7 +177,7 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'layers',
-    text: '<p>The <b>Datasets</b> panel contains all 3D objects in the scene.</><p>You can toggle their visibility and delete them.<p><p>Most objects leverage Giro3D\'s adaptive resolution to optimize their display.</p>',
+    text: "<p>The <b>Datasets</b> panel contains all 3D objects in the scene.</><p>You can toggle their visibility and delete them.<p><p>Most objects leverage Giro3D's adaptive resolution to optimize their display.</p>",
     buttons: buttonsOptions,
     attachTo: {
         element: '#panel-container',
@@ -193,7 +196,7 @@ navigatingTour.addStep({
 
 navigatingTour.addStep({
     id: 'adddata',
-    text: '<p>You can add your own data from your computer by <b>dragging the file</b> into this page.</p><p>While you won\'t benefit from Giro3D\'s tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.</p><p>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.</p>',
+    text: "<p>You can add your own data from your computer by <b>dragging the file</b> into this page.</p><p>While you won't benefit from Giro3D's tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.</p><p>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.</p>",
     buttons: buttonsOptions,
     attachTo: {
         element: '#panel-container',
@@ -252,7 +255,8 @@ analyzingTour.addStep({
             displayProgress();
         },
         hide: () => {
-            if (instanceCallback) instance.domElement.removeEventListener('click', instanceCallback);
+            if (instanceCallback)
+                instance.domElement.removeEventListener('click', instanceCallback);
             cameraCallback = null;
         },
     },
@@ -297,7 +301,9 @@ analyzingTour.addStep({
         hide: () => {
             if (drawCallback) {
                 document.getElementById('measure-line')?.removeEventListener('click', drawCallback);
-                document.getElementById('measure-polygon')?.removeEventListener('click', drawCallback);
+                document
+                    .getElementById('measure-polygon')
+                    ?.removeEventListener('click', drawCallback);
             }
             drawCallback = null;
         },
@@ -320,7 +326,9 @@ analyzingTour.addStep({
             let nbPoints = 0;
             cameraCallback = () => {
                 nbPoints += 1;
-                if (nbPoints > 2) { Shepherd.activeTour?.next(); }
+                if (nbPoints > 2) {
+                    Shepherd.activeTour?.next();
+                }
             };
             drawing.drawTool.addEventListener('add', cameraCallback);
             displayProgress();
@@ -363,9 +371,7 @@ analyzingTour.addStep({
         element: '#annotation-list-container',
         on: 'right',
     },
-    buttons: [
-        { text: 'Done!', action: () => Shepherd.activeTour?.complete() },
-    ],
+    buttons: [{ text: 'Done!', action: () => Shepherd.activeTour?.complete() }],
     when: {
         show: () => {
             const link = document.getElementById('menu-annotations-link');
@@ -381,7 +387,7 @@ const markSkiptour = () => {
     const url = new URL(document.URL);
     url.searchParams.delete('tourStep');
     url.searchParams.set('tour', 'none');
-    window.history.replaceState({}, "", url.toString());
+    window.history.replaceState({}, '', url.toString());
 };
 
 const markTour = (current: any) => {
@@ -395,7 +401,7 @@ const markTour = (current: any) => {
     }
     url.searchParams.set('tour', tourName);
     url.searchParams.set('tourStep', current.step.id);
-    window.history.replaceState({}, "", url.toString());
+    window.history.replaceState({}, '', url.toString());
 };
 
 mainTour.on('cancel', markSkiptour);

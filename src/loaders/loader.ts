@@ -17,22 +17,23 @@ type BaseProcessOptions = {
 };
 
 /** Options */
-export type ProcessOptions = (LoaderglOptions | CityJSONOptions | IFCOptions | PLYOptions) & BaseProcessOptions;
+export type ProcessOptions = (LoaderglOptions | CityJSONOptions | IFCOptions | PLYOptions) &
+    BaseProcessOptions;
 
 /** Supported file types */
 export type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'ply' | 'shp';
 
 /** Mapping between file extensions and file types */
 const filetypesPerExtension: Record<string, FileType> = {
-    'gpkg': 'gpkg',
-    'laz': 'las',
-    'las': 'las',
-    'csv': 'csv',
-    'json': 'cityjson',
-    'geojson': 'geojson',
-    'ifc': 'ifc',
-    'ply': 'ply',
-    'shp': 'shp',
+    gpkg: 'gpkg',
+    laz: 'las',
+    las: 'las',
+    csv: 'csv',
+    json: 'cityjson',
+    geojson: 'geojson',
+    ifc: 'ifc',
+    ply: 'ply',
+    shp: 'shp',
 } as const;
 
 /** File types that require downloading the file (e.g. their loaders don't support URLs and need fetching) */
@@ -64,7 +65,7 @@ export interface ProcessedFileResult {
  * @param fileOrUrl File or URL
  * @returns File name and extension
  */
-function getFilename(fileOrUrl: File | string): { filename?: string, fileext?: string } {
+function getFilename(fileOrUrl: File | string): { filename?: string; fileext?: string } {
     let filename: string | undefined = undefined;
 
     if (fileOrUrl instanceof File) {
@@ -97,7 +98,9 @@ function checkCanProcessFile(fileOrUrl: File | string, fromDragAndDrop: boolean)
 
     if (fromDragAndDrop) {
         if (filetype === 'ply') {
-           throw new Error(`File ${fileext} not supported via drag and drop, as we are missing georeferencing`);
+            throw new Error(
+                `File ${fileext} not supported via drag and drop, as we are missing georeferencing`,
+            );
         }
         if (filetype === 'shp') {
             throw new Error(`File ${fileext} not supported via drag and drop`);
@@ -124,9 +127,7 @@ async function preprocessFile(fileOrUrl: File | string): Promise<PreprocessedFil
 
     const filetype = filetypesPerExtension[fileext];
 
-    if (!(fileOrUrl instanceof File)
-        && (filetypesRequireDownloadedFile.includes(filetype))
-    ) {
+    if (!(fileOrUrl instanceof File) && filetypesRequireDownloadedFile.includes(filetype)) {
         const notifications = useNotificationStore();
         notifications.push(new Notification(decodeURI(filename), 'Loading...'));
 
@@ -138,7 +139,7 @@ async function preprocessFile(fileOrUrl: File | string): Promise<PreprocessedFil
     return {
         filename,
         filetype,
-        file
+        file,
     };
 }
 
@@ -155,7 +156,7 @@ async function processFile(
     instance: Instance,
     // layerManager: LayerManager,
     fileOrUrl: File | string,
-    options: ProcessOptions = {}
+    options: ProcessOptions = {},
 ): Promise<ProcessedFileResult> {
     const { file, filename, filetype } = await preprocessFile(fileOrUrl);
 
@@ -163,15 +164,30 @@ async function processFile(
 
     switch (filetype) {
         case 'gpkg': {
-            obj = await Loadersgl.loadGeoPackage(instance, filename, fileOrUrl, options as LoaderglOptions);
+            obj = await Loadersgl.loadGeoPackage(
+                instance,
+                filename,
+                fileOrUrl,
+                options as LoaderglOptions,
+            );
             break;
         }
         case 'las': {
-            obj = await Loadersgl.loadLas(instance, filename, fileOrUrl, options as LoaderglOptions);
+            obj = await Loadersgl.loadLas(
+                instance,
+                filename,
+                fileOrUrl,
+                options as LoaderglOptions,
+            );
             break;
         }
         case 'csv': {
-            obj = await Loadersgl.loadCsv(instance, filename, fileOrUrl, options as LoaderglOptions);
+            obj = await Loadersgl.loadCsv(
+                instance,
+                filename,
+                fileOrUrl,
+                options as LoaderglOptions,
+            );
             break;
         }
         case 'cityjson': {
@@ -201,7 +217,12 @@ async function processFile(
             break;
         }
         case 'shp':
-            obj = await Loadersgl.loadShapefile(instance, filename, fileOrUrl, options as LoaderglOptions);
+            obj = await Loadersgl.loadShapefile(
+                instance,
+                filename,
+                fileOrUrl,
+                options as LoaderglOptions,
+            );
             break;
         default:
             throw new Error(`File type ${filetype} is not supported`);
@@ -215,6 +236,6 @@ async function processFile(
     }
 
     return { filename, filetype, obj };
-};
+}
 
 export default { processFile, checkCanProcessFile };

@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import { Box3, Vector3 } from "three";
-import { ref } from "vue";
-import Coordinates from "@giro3d/giro3d/core/geographic/Coordinates";
+import { defineStore } from 'pinia';
+import { Box3, Vector3 } from 'three';
+import { ref } from 'vue';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 import config from '../config';
 
@@ -11,7 +11,12 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
     const crossSectionOrientation = ref(config.analysis.cross_section.orientation);
     const crossSectionPivot = config.analysis.cross_section.pivot;
-    const pivotLocal = new Coordinates(crossSectionPivot.crs ?? config.default_crs, crossSectionPivot.x, crossSectionPivot.y, 0).as(config.default_crs);
+    const pivotLocal = new Coordinates(
+        crossSectionPivot.crs ?? config.default_crs,
+        crossSectionPivot.x,
+        crossSectionPivot.y,
+        0,
+    ).as(config.default_crs);
     const crossSectionCenter = ref(pivotLocal.toVector3());
     const _enableCrossSection = ref(false);
 
@@ -20,11 +25,13 @@ export const useAnalysisStore = defineStore('analysis', () => {
         clippingPlanesCenter.crs ?? config.default_crs,
         clippingPlanesCenter.x,
         clippingPlanesCenter.y,
-        clippingPlanesCenter.z
+        clippingPlanesCenter.z,
     ).as(config.default_crs);
     const clippingBoxCenter = ref(centerLocal.toVector3());
     const clippingBoxSize = ref(new Vector3(size.x, size.y, size.z));
-    const clippingBox = ref(new Box3().setFromCenterAndSize(clippingBoxCenter.value, clippingBoxSize.value));
+    const clippingBox = ref(
+        new Box3().setFromCenterAndSize(clippingBoxCenter.value, clippingBoxSize.value),
+    );
     const _enableClippingBox = ref(false);
     const _invertClippingBox = ref(false);
     const _displayClippingBoxHelper = ref(false);
@@ -40,17 +47,15 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     function isFloodingPlaneEnabled() {
-        return _enableFloodingPlane.value
+        return _enableFloodingPlane.value;
     }
-
-
 
     function enableCrossSection(enable: boolean) {
         _enableCrossSection.value = enable;
     }
 
     function isCrossSectionEnabled() {
-        return _enableCrossSection.value
+        return _enableCrossSection.value;
     }
 
     function setCrossSectionOrientation(orientation: number) {
@@ -66,11 +71,14 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     function isClippingBoxEnabled() {
-        return _enableClippingBox.value
+        return _enableClippingBox.value;
     }
 
     function _recomputeClippingBox() {
-        clippingBox.value = new Box3().setFromCenterAndSize(clippingBoxCenter.value, clippingBoxSize.value);
+        clippingBox.value = new Box3().setFromCenterAndSize(
+            clippingBoxCenter.value,
+            clippingBoxSize.value,
+        );
     }
 
     function setClippingBoxCenter(center: Vector3) {
@@ -102,7 +110,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     function isClippingBoxHelperDisplayed() {
-        return _displayClippingBoxHelper.value
+        return _displayClippingBoxHelper.value;
     }
 
     function setClippingBoxInverted(inverted: boolean) {
@@ -110,7 +118,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     function isClippingBoxInverted() {
-        return _invertClippingBox.value
+        return _invertClippingBox.value;
     }
 
     function enableStatistics(enable: boolean) {
@@ -118,7 +126,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     function isStatisticsEnabled() {
-        return _enableStatistics.value
+        return _enableStatistics.value;
     }
 
     return {
@@ -149,5 +157,5 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
         isStatisticsEnabled,
         enableStatistics,
-    }
+    };
 });

@@ -19,9 +19,11 @@ async function loadProjCrsIfNeeded(projection: string) {
 
     if (epsgCode) {
         if (proj4.defs(`EPSG:${epsgCode}`) === undefined) {
-            await fetch(`https://epsg.io/${epsgCode}.proj4`).then(p => p.text()).then(t => {
-                Instance.registerCRS(`EPSG:${epsgCode}`, t);
-            });
+            await fetch(`https://epsg.io/${epsgCode}.proj4`)
+                .then(p => p.text())
+                .then(t => {
+                    Instance.registerCRS(`EPSG:${epsgCode}`, t);
+                });
         }
         return epsgCode;
     }

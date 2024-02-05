@@ -1,6 +1,6 @@
-import { Dataset } from "@/types/Dataset";
-import { defineStore } from "pinia";
-import { useDatasetStore } from "./datasets";
+import { Dataset } from '@/types/Dataset';
+import { defineStore } from 'pinia';
+import { useDatasetStore } from './datasets';
 
 const datasets = useDatasetStore();
 
@@ -15,5 +15,5 @@ export const useStatisticsStore = defineStore('statistics', () => {
         return result;
     }
 
-    return { getCompatibleDatasets, }
+    return { getCompatibleDatasets };
 });

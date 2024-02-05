@@ -17,7 +17,7 @@ import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import Giro3DMap from '@giro3d/giro3d/entities/Map';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
-import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource'
+import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
 import CameraController from '@/services/CameraController';
@@ -25,19 +25,19 @@ import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
 import loader, { FileType, ProcessOptions } from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Dataset, DatasetObject, DatasetType } from "@/types/Dataset";
+import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset';
 import Notification from '@/types/Notification';
 
 /** Mapping between file types and the dataset types */
 const datasetTypePerFileType: Record<FileType, DatasetType> = {
-    'gpkg': 'gpkg',
-    'las': 'pointcloud',
-    'csv': 'pointcloud',
-    'cityjson': 'cityjson',
-    'geojson': 'geojson',
-    'ifc': 'ifc',
-    'ply': 'ply',
-    'shp': 'shp',
+    gpkg: 'gpkg',
+    las: 'pointcloud',
+    csv: 'pointcloud',
+    cityjson: 'cityjson',
+    geojson: 'geojson',
+    ifc: 'ifc',
+    ply: 'ply',
+    shp: 'shp',
 } as const;
 
 export default class DatasetManager {
@@ -52,14 +52,11 @@ export default class DatasetManager {
         this.instance = instance;
         this.camera = camera;
 
-        this.store.$onAction(({
-            name,
-            args,
-            after,
-        }) => {
+        this.store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
-                    case 'remove': this.deleteDataset(args[0]);
+                    case 'remove':
+                        this.deleteDataset(args[0]);
                         break;
                     case 'goTo':
                         this.zoom(args[0]);
@@ -117,7 +114,7 @@ export default class DatasetManager {
                     floor: box.min.z - 10,
                     ceiling: box.max.z + 10,
                     extent: Extent.fromBox3(this.instance.referenceCrs, box).withMargin(20, 20),
-                }
+                },
             });
             this.instance.add(grid);
             this.axisGrids.set(dataset.uuid, grid);
@@ -142,13 +139,15 @@ export default class DatasetManager {
         box.expandByVector(new Vector3(-5, -5, 0));
 
         const feature = new Feature({
-            geometry: new Polygon([[
-                [box.min.x, box.min.y],
-                [box.min.x, box.max.y],
-                [box.max.x, box.max.y],
-                [box.max.x, box.min.y],
-                [box.min.x, box.min.y]
-            ]]),
+            geometry: new Polygon([
+                [
+                    [box.min.x, box.min.y],
+                    [box.min.x, box.max.y],
+                    [box.max.x, box.max.y],
+                    [box.max.x, box.min.y],
+                    [box.min.x, box.min.y],
+                ],
+            ]),
             name: 'Mask polygon',
         });
 
@@ -175,7 +174,9 @@ export default class DatasetManager {
     private deleteMask(dataset: Dataset) {
         const mask = this.masks.get(dataset.uuid);
         if (mask) {
-            const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+            const maps = this.instance.getObjects(
+                obj => 'isMap' in obj && !!obj.isMap,
+            ) as Giro3DMap[];
             maps.forEach(map => {
                 map.removeLayer(mask);
                 this.instance.notifyChange(map);
@@ -236,18 +237,18 @@ export default class DatasetManager {
         const vectorSource = new VectorSource({
             format: new GeoJSON(),
             url: function url(e) {
-                return (
-                    `${'https://wxs.ign.fr/topographie/geoportail/wfs'
+                return `${
+                    'https://wxs.ign.fr/topographie/geoportail/wfs' +
                     // 'https://download.data.grandlyon.com/wfs/rdata'
-                    + '?SERVICE=WFS'
-                    + '&VERSION=2.0.0'
-                    + '&request=GetFeature'
-                    + '&typename=BDTOPO_V3:batiment'
-                    + '&outputFormat=application/json'
-                    + `&SRSNAME=${crs}`
-                    + '&startIndex=0'
-                    + '&bbox='}${e.join(',')},${crs}`
-                );
+                    '?SERVICE=WFS' +
+                    '&VERSION=2.0.0' +
+                    '&request=GetFeature' +
+                    '&typename=BDTOPO_V3:batiment' +
+                    '&outputFormat=application/json' +
+                    `&SRSNAME=${crs}` +
+                    '&startIndex=0' +
+                    '&bbox='
+                }${e.join(',')},${crs}`;
             },
             strategy: tile(createXYZ({ tileSize: 512 })),
         });
@@ -274,8 +275,10 @@ export default class DatasetManager {
                     color = '#b0ffa7';
                 }
 
-                if (fid === 'batiment.BATIMENT0000000240851971'
-                    || fid === 'batiment.BATIMENT0000000240851972') {
+                if (
+                    fid === 'batiment.BATIMENT0000000240851971' ||
+                    fid === 'batiment.BATIMENT0000000240851972'
+                ) {
                     visible = false;
                 }
 
@@ -293,7 +296,11 @@ export default class DatasetManager {
         try {
             loader.checkCanProcessFile(file, true);
 
-            const { obj: entity, filetype, filename } = await loader.processFile(this.instance, file);
+            const {
+                obj: entity,
+                filetype,
+                filename,
+            } = await loader.processFile(this.instance, file);
             const type = datasetTypePerFileType[filetype];
 
             if (!type) {
@@ -356,15 +363,18 @@ export default class DatasetManager {
         let entity: Entity3D | undefined;
         switch (dataset.type) {
             case 'cityjson':
-                entity = await this.loadDefault(dataset, { });
+                entity = await this.loadDefault(dataset, {});
                 break;
             case 'ifc':
                 entity = await this.loadDefault(dataset, {
-                    at: dataset.coordinates ? dataset.coordinates.as(this.instance.referenceCrs) : undefined,
+                    at: dataset.coordinates
+                        ? dataset.coordinates.as(this.instance.referenceCrs)
+                        : undefined,
                 });
                 break;
             case 'ply':
-                if (!dataset.coordinates) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
+                if (!dataset.coordinates)
+                    throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
                 entity = await this.loadDefault(dataset, {
                     at: dataset.coordinates.as(this.instance.referenceCrs),
                 });

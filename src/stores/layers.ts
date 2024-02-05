@@ -1,15 +1,15 @@
-import { defineStore } from "pinia";
-import { computed, reactive } from "vue";
-import { Color } from "three";
-import chroma from "chroma-js";
-import { ColorMap } from "@giro3d/giro3d/core/layer";
+import { defineStore } from 'pinia';
+import { computed, reactive } from 'vue';
+import { Color } from 'three';
+import chroma from 'chroma-js';
+import { ColorMap } from '@giro3d/giro3d/core/layer';
 
 import config from '../config.ts';
-import { getPublicFolderUrl } from "@/utils/Configuration";
-import { BaseLayer, BaseLayerObject } from "@/types/BaseLayer";
-import { LayerSource, WMSSource, WMTSSource, VectorSource, MVTSource } from "@/types/LayerSource";
-import { Overlay, OverlayObject } from "@/types/Overlay";
-import { BasemapSourceLayerConfig } from "@/types/Configuration";
+import { getPublicFolderUrl } from '@/utils/Configuration';
+import { BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
+import { LayerSource, WMSSource, WMTSSource, VectorSource, MVTSource } from '@/types/LayerSource';
+import { Overlay, OverlayObject } from '@/types/Overlay';
+import { BasemapSourceLayerConfig } from '@/types/Configuration';
 
 function getSource(conf: BasemapSourceLayerConfig): LayerSource {
     switch (conf.type) {
@@ -60,27 +60,24 @@ function getInitialOverlays() {
         switch (item.type) {
             case 'geojson':
             case 'kml':
-            case 'gpx':
-                {
-                    const vectorSource = source as VectorSource;
-                    vectorSource.url = getPublicFolderUrl(item.url);
-                    vectorSource.projection = item.projection;
-                    vectorSource.style = item.style;
-                    break;
-                }
-            case 'mvt':
-                {
-                    const mvtSource = source as MVTSource;
-                    mvtSource.url = getPublicFolderUrl(item.url);
-                    mvtSource.style = item.style;
-                    mvtSource.backgroundColor = item.backgroundColor;
-                    break;
-                }
-            case 'wms':
-                {
-                    source = getSource(item.source);
-                    break;
-                }
+            case 'gpx': {
+                const vectorSource = source as VectorSource;
+                vectorSource.url = getPublicFolderUrl(item.url);
+                vectorSource.projection = item.projection;
+                vectorSource.style = item.style;
+                break;
+            }
+            case 'mvt': {
+                const mvtSource = source as MVTSource;
+                mvtSource.url = getPublicFolderUrl(item.url);
+                mvtSource.style = item.style;
+                mvtSource.backgroundColor = item.backgroundColor;
+                break;
+            }
+            case 'wms': {
+                source = getSource(item.source);
+                break;
+            }
         }
         const overlay = new OverlayObject(item.name, source);
         overlay.visible = item.visible;
@@ -165,5 +162,5 @@ export const useLayerStore = defineStore('layers', () => {
         setOverlayVisibility,
         moveOverlayUp,
         moveOverlayDown,
-    }
+    };
 });

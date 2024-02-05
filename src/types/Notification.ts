@@ -1,4 +1,4 @@
-export type NotificationLevel = "info" | "warning" | "error" | "success"
+export type NotificationLevel = 'info' | 'warning' | 'error' | 'success';
 
 export default class Notification {
     readonly title: string;

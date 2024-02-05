@@ -1,6 +1,6 @@
 <script setup lang="ts">
-defineProps(['modelValue'])
-defineEmits(['update:modelValue'])
+    defineProps(['modelValue']);
+    defineEmits(['update:modelValue']);
 </script>
 
 <template>
@@ -12,6 +12,6 @@ defineEmits(['update:modelValue'])
             id="flexSwitchCheckDefault"
             :checked="modelValue"
             @input="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
-        >
+        />
     </div>
 </template>

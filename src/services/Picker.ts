@@ -1,19 +1,24 @@
-import { Box3, Object3D, Vector3 } from "three";
-import { Feature as OLFeature } from "ol";
+import { Box3, Object3D, Vector3 } from 'three';
+import { Feature as OLFeature } from 'ol';
 import { IfcCategoryMap } from 'openbim-components';
-import Instance from "@giro3d/giro3d/core/Instance";
-import { PickResult, PointsPickResult, isMapPickResult, isPointsPickResult } from "@giro3d/giro3d/core/picking";
-import Entity from "@giro3d/giro3d/entities/Entity";
-import { DrawingPickResult, isDrawingPickResult } from "@giro3d/giro3d/entities/DrawingCollection";
+import Instance from '@giro3d/giro3d/core/Instance';
+import {
+    PickResult,
+    PointsPickResult,
+    isMapPickResult,
+    isPointsPickResult,
+} from '@giro3d/giro3d/core/picking';
+import Entity from '@giro3d/giro3d/entities/Entity';
+import { DrawingPickResult, isDrawingPickResult } from '@giro3d/giro3d/entities/DrawingCollection';
 
-import { CityJSONPickResult, isCityJSONPickResult } from "@/giro3d/CityJSONEntity";
-import { IFCPickResult, isIFCPickResult } from "@/giro3d/IfcEntity";
-import Measure3D from "@/giro3d/Measure3D";
-import Annotation from "@/types/Annotation";
-import Feature, { Attribute, AttributesGroups } from "@/types/Feature";
-import Measure from "@/types/Measure";
-import { PlyMesh } from "@/loaders/PLY";
-import { useAnalysisStore } from "@/stores/analysis";
+import { CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/CityJSONEntity';
+import { IFCPickResult, isIFCPickResult } from '@/giro3d/IfcEntity';
+import Measure3D from '@/giro3d/Measure3D';
+import Annotation from '@/types/Annotation';
+import Feature, { Attribute, AttributesGroups } from '@/types/Feature';
+import Measure from '@/types/Measure';
+import { PlyMesh } from '@/loaders/PLY';
+import { useAnalysisStore } from '@/stores/analysis';
 
 export default class Picker {
     private readonly analysisStore = useAnalysisStore();
@@ -27,25 +32,25 @@ export default class Picker {
                 if (!containsPoint) return false;
             }
         }
-        if (result.distance < instance.camera.camera3D.near
-            || result.distance > instance.camera.camera3D.far) {
-                return false;
+        if (
+            result.distance < instance.camera.camera3D.near ||
+            result.distance > instance.camera.camera3D.far
+        ) {
+            return false;
         }
 
         return true;
     }
 
     getNameFromOLFeature(feature: OLFeature): string {
-        return feature.get('nom')
-            ?? feature.get('name')
-            ?? feature.getId();
+        return feature.get('nom') ?? feature.get('name') ?? feature.getId();
     }
 
     getAttributesFromOLFeature(feature: OLFeature, attributesGroups: AttributesGroups) {
-        if (!attributesGroups.has("Feature")) {
-            attributesGroups.set("Feature", []);
+        if (!attributesGroups.has('Feature')) {
+            attributesGroups.set('Feature', []);
         }
-        const attributes = attributesGroups.get("Feature") as Attribute[];
+        const attributes = attributesGroups.get('Feature') as Attribute[];
 
         if (feature.getId() !== undefined) {
             attributes.push({ key: 'fid', value: feature.getId() });
@@ -57,17 +62,20 @@ export default class Picker {
     }
 
     getAttributesFromPointCloud(pickResult: PointsPickResult, attributesGroups: AttributesGroups) {
-        attributesGroups.get("Dataset")?.push({ key: 'Tile', value: pickResult.object.name });
+        attributesGroups.get('Dataset')?.push({ key: 'Tile', value: pickResult.object.name });
     }
 
-    getAttributesFromCityObject(pickResult: CityJSONPickResult, attributesGroups: AttributesGroups) {
+    getAttributesFromCityObject(
+        pickResult: CityJSONPickResult,
+        attributesGroups: AttributesGroups,
+    ) {
         const feature = pickResult.features?.at(0);
         if (!feature) return;
 
-        if (!attributesGroups.has("CityJSON")) {
-            attributesGroups.set("CityJSON", []);
+        if (!attributesGroups.has('CityJSON')) {
+            attributesGroups.set('CityJSON', []);
         }
-        const cityjsonAttributes = attributesGroups.get("CityJSON") as Attribute[];
+        const cityjsonAttributes = attributesGroups.get('CityJSON') as Attribute[];
 
         const { cityjsonInfo, citymodel } = feature;
 
@@ -87,17 +95,24 @@ export default class Picker {
         const feature = pickResult.features?.at(0);
         if (!feature) return;
 
-        if (!attributesGroups.has("PLY")) {
-            attributesGroups.set("PLY", []);
+        if (!attributesGroups.has('PLY')) {
+            attributesGroups.set('PLY', []);
         }
-        const plyAttributes = attributesGroups.get("PLY") as Attribute[];
+        const plyAttributes = attributesGroups.get('PLY') as Attribute[];
 
         plyAttributes.push({ key: 'Color', value: feature.color });
     }
 
     getAttributesFromUserData(userData: any, attributes: Attribute[]) {
         for (const [key, value] of Object.entries(userData)) {
-            if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity' || key === 'bbox') continue;
+            if (
+                key === 'geometry' ||
+                key === 'geometryProperty' ||
+                key === 'metadata' ||
+                key === 'entity' ||
+                key === 'bbox'
+            )
+                continue;
             if (key === 'properties') {
                 this.getAttributesFromUserData(value, attributes);
                 continue;
@@ -113,10 +128,10 @@ export default class Picker {
     }
 
     getAttributesFromObject3D(pickResult: PickResult, attributesGroups: AttributesGroups) {
-        if (!attributesGroups.has("Feature")) {
-            attributesGroups.set("Feature", []);
+        if (!attributesGroups.has('Feature')) {
+            attributesGroups.set('Feature', []);
         }
-        const attributes = attributesGroups.get("Feature") as Attribute[];
+        const attributes = attributesGroups.get('Feature') as Attribute[];
 
         const { object } = pickResult;
         if (object?.userData) {
@@ -128,24 +143,33 @@ export default class Picker {
         const feature = pickResult.features?.at(0);
         if (!feature) return;
 
-        if (!attributesGroups.has("IFC")) {
-            attributesGroups.set("IFC", []);
+        if (!attributesGroups.has('IFC')) {
+            attributesGroups.set('IFC', []);
         }
-        const attributes = attributesGroups.get("IFC") as Attribute[];
+        const attributes = attributesGroups.get('IFC') as Attribute[];
 
         const { itemProperties, ifcProperties } = feature;
 
         const nullValue = 'NULL';
         const name = itemProperties.Name?.value ?? nullValue;
 
-        attributes.push({ key: 'Site', value: pickResult.entity.object3d.userData?.dataset?.name ?? nullValue });
-        attributes.push({ key: 'IFCType', value: IfcCategoryMap[itemProperties.type] ?? nullValue });
+        attributes.push({
+            key: 'Site',
+            value: pickResult.entity.object3d.userData?.dataset?.name ?? nullValue,
+        });
+        attributes.push({
+            key: 'IFCType',
+            value: IfcCategoryMap[itemProperties.type] ?? nullValue,
+        });
         attributes.push({ key: 'Name', value: name });
         attributes.push({ key: 'ID', value: itemProperties.expressID });
         attributes.push({ key: 'GlobalId', value: itemProperties.GlobalId?.value ?? nullValue });
-        if (itemProperties.Description?.value) attributes.push({ key: 'Description', value: itemProperties.Description.value });
-        if (itemProperties.PredefinedType?.value) attributes.push({ key: 'PredefinedType', value: itemProperties.PredefinedType.value });
-        if (itemProperties.ObjectType?.value) attributes.push({ key: 'ObjectType', value: itemProperties.ObjectType.value });
+        if (itemProperties.Description?.value)
+            attributes.push({ key: 'Description', value: itemProperties.Description.value });
+        if (itemProperties.PredefinedType?.value)
+            attributes.push({ key: 'PredefinedType', value: itemProperties.PredefinedType.value });
+        if (itemProperties.ObjectType?.value)
+            attributes.push({ key: 'ObjectType', value: itemProperties.ObjectType.value });
 
         for (const { parentName, name, value } of ifcProperties) {
             if (!attributesGroups.has(parentName)) {
@@ -164,18 +188,30 @@ export default class Picker {
      * may return nothing)
      * @returns Result or null if notthing found
      */
-    getObjectAt(instance: Instance, e: MouseEvent, radius = 1, filterOnObjects?: (obj: Object3D | Entity) => boolean): PickResult | null {
-        let where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
+    getObjectAt(
+        instance: Instance,
+        e: MouseEvent,
+        radius = 1,
+        filterOnObjects?: (obj: Object3D | Entity) => boolean,
+    ): PickResult | null {
+        let where = instance.getObjects(
+            o =>
+                (o as any).isMap !== true &&
+                (o as any).name !== 'plane' &&
+                (o as any).name !== 'grid',
+        );
         if (filterOnObjects) where = where.filter(filterOnObjects);
 
-        const picked = instance.pickObjectsAt(e, {
-            radius,
-            where,
-            sortByDistance: true,
-            limit: 1,
-            pickFeatures: true,
-            filter: res => this.filterPick(instance, res),
-        }).at(0);
+        const picked = instance
+            .pickObjectsAt(e, {
+                radius,
+                where,
+                sortByDistance: true,
+                limit: 1,
+                pickFeatures: true,
+                filter: res => this.filterPick(instance, res),
+            })
+            .at(0);
         return picked ?? null;
     }
 
@@ -189,17 +225,24 @@ export default class Picker {
      */
     getMapAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
         const where = instance.getObjects(o => (o as any).isMap);
-        const picked = instance.pickObjectsAt(e, {
-            radius,
-            limit: 1,
-            where,
-            sortByDistance: true,
-            pickFeatures: true,
-        }).at(0);
+        const picked = instance
+            .pickObjectsAt(e, {
+                radius,
+                limit: 1,
+                where,
+                sortByDistance: true,
+                pickFeatures: true,
+            })
+            .at(0);
         return picked ?? null;
     }
 
-    getFirstFeatureAt(instance: Instance, e: MouseEvent, radius = 1, filterOnObjects?: (obj: Object3D | Entity) => boolean): PickResult | null {
+    getFirstFeatureAt(
+        instance: Instance,
+        e: MouseEvent,
+        radius = 1,
+        filterOnObjects?: (obj: Object3D | Entity) => boolean,
+    ): PickResult | null {
         const picked = this.getObjectAt(instance, e, radius, filterOnObjects);
         if (picked) {
             return picked;
@@ -223,11 +266,7 @@ export default class Picker {
 
         attributes.push({
             key: 'Center',
-            value: [
-                center.x.toFixed(2),
-                center.y.toFixed(2),
-                center.z.toFixed(2),
-            ],
+            value: [center.x.toFixed(2), center.y.toFixed(2), center.z.toFixed(2)],
         });
         const unit = 'm';
         attributes.push({
@@ -241,22 +280,30 @@ export default class Picker {
     }
 
     getAttributesFromDrawing(pickResult: DrawingPickResult, attributesGroups: AttributesGroups) {
-        if (!attributesGroups.has("GeoJSON")) {
-            attributesGroups.set("GeoJSON", []);
+        if (!attributesGroups.has('GeoJSON')) {
+            attributesGroups.set('GeoJSON', []);
         }
-        const attributesGeoJSON = attributesGroups.get("GeoJSON") as Attribute[];
+        const attributesGeoJSON = attributesGroups.get('GeoJSON') as Attribute[];
 
-        for (const [key, value] of Object.entries(pickResult.drawing.userData.annotation.properties)) {
-            if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
+        for (const [key, value] of Object.entries(
+            pickResult.drawing.userData.annotation.properties,
+        )) {
+            if (
+                key === 'geometry' ||
+                key === 'geometryProperty' ||
+                key === 'metadata' ||
+                key === 'entity'
+            )
+                continue;
             attributesGeoJSON.push({ key, value });
         }
 
         const measurements = pickResult.drawing.userData.measurements;
         if (measurements) {
-            if (!attributesGroups.has("Measurement")) {
-                attributesGroups.set("Measurement", []);
+            if (!attributesGroups.has('Measurement')) {
+                attributesGroups.set('Measurement', []);
             }
-            const attributes = attributesGroups.get("Measurement") as Attribute[];
+            const attributes = attributesGroups.get('Measurement') as Attribute[];
 
             if (pickResult.drawing.geometryType === 'MultiPoint') {
                 attributes.push({ key: 'Number of points', value: measurements.nbPoints });
@@ -267,32 +314,47 @@ export default class Picker {
                 attributes.push({ key: 'Area', value: `${measurements.area.toFixed(2)}${unit}²` });
             }
             if (measurements.perimeter) {
-                attributes.push({ key: 'Perimeter', value: `${measurements.perimeter.toFixed(2)}${unit}` });
+                attributes.push({
+                    key: 'Perimeter',
+                    value: `${measurements.perimeter.toFixed(2)}${unit}`,
+                });
             }
             if (measurements.minmax) {
-                attributes.push({ key: 'Min altitude', value: `${measurements.minmax[0].toFixed(2)}${unit}` });
-                attributes.push({ key: 'Max altitude', value: `${measurements.minmax[1].toFixed(2)}${unit}` });
+                attributes.push({
+                    key: 'Min altitude',
+                    value: `${measurements.minmax[0].toFixed(2)}${unit}`,
+                });
+                attributes.push({
+                    key: 'Max altitude',
+                    value: `${measurements.minmax[1].toFixed(2)}${unit}`,
+                });
             }
         }
     }
 
     getAttributesFromMeasure(pickResult: PickResult, attributesGroups: AttributesGroups) {
-        if (!attributesGroups.has("GeoJSON")) {
-            attributesGroups.set("GeoJSON", []);
+        if (!attributesGroups.has('GeoJSON')) {
+            attributesGroups.set('GeoJSON', []);
         }
-        const attributesGeoJSON = attributesGroups.get("GeoJSON") as Attribute[];
+        const attributesGeoJSON = attributesGroups.get('GeoJSON') as Attribute[];
 
         const parent = pickResult.object.parent as Measure3D;
 
         for (const [key, value] of Object.entries(parent.userData.measure.properties)) {
-            if (key === 'geometry' || key === 'geometryProperty' || key === 'metadata' || key === 'entity') continue;
+            if (
+                key === 'geometry' ||
+                key === 'geometryProperty' ||
+                key === 'metadata' ||
+                key === 'entity'
+            )
+                continue;
             attributesGeoJSON.push({ key, value });
         }
 
-        if (!attributesGroups.has("Measurement")) {
-            attributesGroups.set("Measurement", []);
+        if (!attributesGroups.has('Measurement')) {
+            attributesGroups.set('Measurement', []);
         }
-        const attributes = attributesGroups.get("Measurement") as Attribute[];
+        const attributes = attributesGroups.get('Measurement') as Attribute[];
         attributes.push({ key: 'From', value: parent.from });
         attributes.push({ key: 'To', value: parent.to });
         attributes.push({ key: 'Length', value: `${parent.length.toFixed(2)}m` });
@@ -307,7 +369,7 @@ export default class Picker {
 
         const datasetAttributes: Array<Attribute> = [];
         const attributesGroups = new Map<string, Array<Attribute>>();
-        attributesGroups.set("Dataset", datasetAttributes);
+        attributesGroups.set('Dataset', datasetAttributes);
 
         if (entity) {
             if (isMapPickResult(pickedObject)) {
@@ -356,26 +418,38 @@ export default class Picker {
     getMouseCoordinate(instance: Instance, event: MouseEvent): Vector3 | null {
         const where = instance.getObjects(o => (o as any).isMap);
 
-        const picked = instance.pickObjectsAt(event, {
-            radius: 0,
-            limit: 1,
-            where,
-        }).at(0);
+        const picked = instance
+            .pickObjectsAt(event, {
+                radius: 0,
+                limit: 1,
+                where,
+            })
+            .at(0);
         return picked?.point ?? null;
     }
 
     hasFeature(instance: Instance, event: MouseEvent): boolean {
-        const where = instance.getObjects(o => (o as any).isMap !== true && (o as any).name !== 'plane' && (o as any).name !== 'grid');
+        const where = instance.getObjects(
+            o =>
+                (o as any).isMap !== true &&
+                (o as any).name !== 'plane' &&
+                (o as any).name !== 'grid',
+        );
 
-        const picked = instance.pickObjectsAt(event, {
-            radius: 0,
-            limit: 1,
-            where,
-        }).at(0);
+        const picked = instance
+            .pickObjectsAt(event, {
+                radius: 0,
+                limit: 1,
+                where,
+            })
+            .at(0);
         return picked != null;
     }
 
-    pick(instance: Instance, event: MouseEvent): { point: Vector3, feature: Feature | null, pickResult: PickResult } | null {
+    pick(
+        instance: Instance,
+        event: MouseEvent,
+    ): { point: Vector3; feature: Feature | null; pickResult: PickResult } | null {
         const picked = this.getFirstFeatureAt(instance, event);
         if (picked) {
             const feature = this.getFeatureFromPickedObject(picked);

@@ -1,12 +1,11 @@
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer'
-
-import LayerManager from '@/services/LayerManager'
-import { useLayerStore } from '@/stores/layers'
-import { BaseLayer } from "@/types/BaseLayer"
-import Layer from '@giro3d/giro3d/core/layer/Layer'
-import LayerBuilder from '@/giro3d/LayerBuilder'
+import LayerManager from '@/services/LayerManager';
+import { useLayerStore } from '@/stores/layers';
+import { BaseLayer } from '@/types/BaseLayer';
+import Layer from '@giro3d/giro3d/core/layer/Layer';
+import LayerBuilder from '@/giro3d/LayerBuilder';
 
 /**
  * Service responsible of maintaining the visual representation of basemaps in the Giro3D view.
@@ -20,11 +19,7 @@ export default class BasemapManager {
         this.layerManager = layerManager;
         this.layers = new Map();
 
-        this.store.$onAction(({
-            name,
-            args,
-            after
-        }) => {
+        this.store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'setBasemapVisibility':

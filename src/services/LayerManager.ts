@@ -1,11 +1,19 @@
-import Instance from "@giro3d/giro3d/core/Instance";
-import Extent from "@giro3d/giro3d/core/geographic/Extent";
-import ColorLayer from "@giro3d/giro3d/core/layer/ColorLayer";
-import ElevationLayer from "@giro3d/giro3d/core/layer/ElevationLayer";
-import Layer from "@giro3d/giro3d/core/layer/Layer";
-import Map from "@giro3d/giro3d/entities/Map";
-import { EventDispatcher, GridHelper, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from "three";
-import { useGiro3dStore } from "@/stores/giro3d";
+import Instance from '@giro3d/giro3d/core/Instance';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import Layer from '@giro3d/giro3d/core/layer/Layer';
+import Map from '@giro3d/giro3d/entities/Map';
+import {
+    EventDispatcher,
+    GridHelper,
+    Material,
+    Mesh,
+    MeshBasicMaterial,
+    PlaneGeometry,
+    Vector3,
+} from 'three';
+import { useGiro3dStore } from '@/stores/giro3d';
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
@@ -57,12 +65,15 @@ export default class LayerManager extends EventDispatcher {
         this.grid.visible = true;
         const center = extent.center();
         this.grid.position.set(center.x, center.y, -100);
-        this.grid.rotateOnAxis(new Vector3(1, 0, 0,), Math.PI / 2);
+        this.grid.rotateOnAxis(new Vector3(1, 0, 0), Math.PI / 2);
         const gridMat = this.grid.material as Material;
         gridMat.opacity = 0.5;
         gridMat.transparent = true;
 
-        this.plane = new Mesh(new PlaneGeometry(dims.x, dims.y, 1, 1), new MeshBasicMaterial({ color: 'black' }));
+        this.plane = new Mesh(
+            new PlaneGeometry(dims.x, dims.y, 1, 1),
+            new MeshBasicMaterial({ color: 'black' }),
+        );
         this.plane.name = 'plane';
         this.plane.position.set(center.x, center.y, -101);
 
@@ -98,7 +109,7 @@ export default class LayerManager extends EventDispatcher {
         layer.addEventListener('visible-property-changed', () => {
             this.basemap.visible = layer.visible;
             this.instance.notifyChange(this.basemap);
-        })
+        });
     }
 
     addBaseLayer(layer: ColorLayer) {

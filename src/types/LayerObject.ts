@@ -1,10 +1,10 @@
-import { EventDispatcher, MathUtils } from "three";
+import { EventDispatcher, MathUtils } from 'three';
 
 type LayerObjectEventMap = {
-    visible: {},
-    opacity: {},
-    delete: {},
-    isLoading: {},
+    visible: {};
+    opacity: {};
+    delete: {};
+    isLoading: {};
 };
 
 export default abstract class LayerObject extends EventDispatcher<LayerObjectEventMap> {

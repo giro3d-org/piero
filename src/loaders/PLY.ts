@@ -1,5 +1,5 @@
 import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
-import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
+import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Instance from '@giro3d/giro3d/core/Instance';
 import { PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
@@ -10,11 +10,10 @@ import { Entity3D } from '@giro3d/giro3d/entities';
  */
 export type PLYOptions = {
     at: Coordinates;
-}
-
+};
 
 export interface PlyFeature {
-    color: Color
+    color: Color;
 }
 
 export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
@@ -26,7 +25,11 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
             const colors = this.geometry.getAttribute('color').array;
             const face = pickedResult.face;
 
-            const color = new Color(colors[face.a * 3], colors[face.a * 3 + 1], colors[face.a * 3 + 2]);
+            const color = new Color(
+                colors[face.a * 3],
+                colors[face.a * 3 + 1],
+                colors[face.a * 3 + 2],
+            );
             const result = [{ color }];
             pickedResult.features = result;
             return result;
@@ -36,7 +39,8 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
     }
 
     static isPlyMesh = (obj: any): obj is PlyMesh => obj?.isPlyMesh;
-    static isPlyPickResult = (obj: PickResult<any>): obj is PickResult<PlyFeature> => PlyMesh.isPlyMesh(obj?.object);
+    static isPlyPickResult = (obj: PickResult<any>): obj is PickResult<PlyFeature> =>
+        PlyMesh.isPlyMesh(obj?.object);
 }
 
 export default {
@@ -59,10 +63,10 @@ export default {
         const material = new MeshLambertMaterial({
             side: DoubleSide,
         });
-        if (geometry.hasAttribute("color")) {
+        if (geometry.hasAttribute('color')) {
             material.vertexColors = true;
         }
-        geometry.computeVertexNormals()
+        geometry.computeVertexNormals();
 
         const mesh = new PlyMesh(geometry, material);
         mesh.name = 'plyModel';
@@ -72,7 +76,7 @@ export default {
         mesh.updateWorldMatrix(true, true);
 
         const entity = new Entity3D(mesh.uuid, mesh);
-        mesh.traverse((obj) => {
+        mesh.traverse(obj => {
             entity.onObjectCreated(obj);
         });
         return entity;

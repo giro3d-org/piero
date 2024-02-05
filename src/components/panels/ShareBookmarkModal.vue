@@ -1,11 +1,11 @@
 <script setup lang="ts">
-defineProps<{
-    url: string
-}>()
+    defineProps<{
+        url: string;
+    }>();
 
-function copyToClipboard(url: string) {
-    navigator.clipboard.writeText(url);
-}
+    function copyToClipboard(url: string) {
+        navigator.clipboard.writeText(url);
+    }
 </script>
 
 <template>
@@ -15,7 +15,12 @@ function copyToClipboard(url: string) {
         <div class="input-group mb-3">
             <span class="form-control text-truncate">{{ url }}</span>
             <span class="input-group-text" id="basic-addon2">
-                <a title="Copy to clipboard" href="#" class="text-secondary" @click="() => copyToClipboard(url)" >
+                <a
+                    title="Copy to clipboard"
+                    href="#"
+                    class="text-secondary"
+                    @click="() => copyToClipboard(url)"
+                >
                     <i class="bi bi-clipboard"></i>
                 </a>
             </span>

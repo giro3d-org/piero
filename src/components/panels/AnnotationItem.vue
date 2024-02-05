@@ -1,27 +1,38 @@
 <script setup lang="ts">
-import Annotation from '@/types/Annotation';
-import VisibilityControl from '../VisibilityControl.vue';
-import AttributeItem from '../AttributeItem.vue';
-import EmptyIndicator from './EmptyIndicator.vue';
+    import Annotation from '@/types/Annotation';
+    import VisibilityControl from '../VisibilityControl.vue';
+    import AttributeItem from '../AttributeItem.vue';
+    import EmptyIndicator from './EmptyIndicator.vue';
 
-defineProps<{
-    visible: boolean,
-    annotation: Annotation,
-}>()
-defineEmits(['edit', 'delete', 'download', 'update:visible', 'zoom'])
+    defineProps<{
+        visible: boolean;
+        annotation: Annotation;
+    }>();
+    defineEmits(['edit', 'delete', 'download', 'update:visible', 'zoom']);
 </script>
 
 <template>
     <li class="list-group-item item">
         <div class="d-flex">
-            <VisibilityControl :visible="visible" v-on:update:visible="(v) => $emit('update:visible', v)" />
+            <VisibilityControl
+                :visible="visible"
+                v-on:update:visible="v => $emit('update:visible', v)"
+            />
 
-            <a class="title" :title="annotation.title" href="#" @click="$emit('zoom')">{{ annotation.title }}</a>
+            <a class="title" :title="annotation.title" href="#" @click="$emit('zoom')">{{
+                annotation.title
+            }}</a>
 
             <div class="icons">
-                <a href="#" class="icon" title="Attribute table"
-                    data-bs-toggle="collapse" :data-bs-target="`#collapse-${annotation.uuid}`" aria-expanded="false"
-                    aria-controls="`#collapse-${annotation.uuid}`">
+                <a
+                    href="#"
+                    class="icon"
+                    title="Attribute table"
+                    data-bs-toggle="collapse"
+                    :data-bs-target="`#collapse-${annotation.uuid}`"
+                    aria-expanded="false"
+                    aria-controls="`#collapse-${annotation.uuid}`"
+                >
                     <i class="bi bi-card-list"></i>
                 </a>
                 <a href="#" class="icon" title="Edit geometry" @click="$emit('edit')">
@@ -48,8 +59,10 @@ defineEmits(['edit', 'delete', 'download', 'update:visible', 'zoom'])
                 <tbody>
                     <AttributeItem
                         v-for="[key, value] of Object.entries(annotation.properties)"
-                        :key="key" :attr-name="key"
-                        :attr-value="value" />
+                        :key="key"
+                        :attr-name="key"
+                        :attr-value="value"
+                    />
                 </tbody>
             </table>
         </div>
@@ -57,39 +70,39 @@ defineEmits(['edit', 'delete', 'download', 'update:visible', 'zoom'])
 </template>
 
 <style scoped>
-.item {
-    padding: 0.1rem;
-}
-
-a {
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-.icons {
-    display: flex;
-}
-
-.title {
-    white-space: nowrap;
-    display: block;
-    width: 100% !important;
-    margin-left: 1rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.icon {
-    padding-left: 0.4rem;
-    color: rgb(180, 180, 180);
-}
-
-@media (hover: hover) {
-    .icon:hover {
-        color: rgb(75, 75, 75);
+    .item {
+        padding: 0.1rem;
     }
-}
+
+    a {
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .icons {
+        display: flex;
+    }
+
+    .title {
+        white-space: nowrap;
+        display: block;
+        width: 100% !important;
+        margin-left: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .icon {
+        padding-left: 0.4rem;
+        color: rgb(180, 180, 180);
+    }
+
+    @media (hover: hover) {
+        .icon:hover {
+            color: rgb(75, 75, 75);
+        }
+    }
 </style>

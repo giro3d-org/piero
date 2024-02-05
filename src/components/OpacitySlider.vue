@@ -1,39 +1,44 @@
 <script setup lang="ts">
-defineProps({
-  opacity: Number
-})
-defineEmits(['update:opacity'])
+    defineProps({
+        opacity: Number,
+    });
+    defineEmits(['update:opacity']);
 </script>
 
 <template>
     <div class="slider">
-      <i title="Transparent" class="bi-x-diamond mx-2"></i>
-      <input
-        title="Opacity"
-        type="range"
-        class="form-range"
-        min="0"
-        step="0.01"
-        max="1"
-        @input="$emit('update:opacity', Number.parseFloat(($event.target as HTMLInputElement).value))"
-        :value="opacity"
-      />
-      <i title="Opaque" class="bi-x-diamond-fill mx-2"></i>
+        <i title="Transparent" class="bi-x-diamond mx-2"></i>
+        <input
+            title="Opacity"
+            type="range"
+            class="form-range"
+            min="0"
+            step="0.01"
+            max="1"
+            @input="
+                $emit(
+                    'update:opacity',
+                    Number.parseFloat(($event.target as HTMLInputElement).value),
+                )
+            "
+            :value="opacity"
+        />
+        <i title="Opaque" class="bi-x-diamond-fill mx-2"></i>
     </div>
 </template>
 
 <style scoped>
-.slider {
-  display: flex;
-}
+    .slider {
+        display: flex;
+    }
 
-input {
-  display: flex;
-  border-color: lightgray;
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 0.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
+    input {
+        display: flex;
+        border-color: lightgray;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
 </style>

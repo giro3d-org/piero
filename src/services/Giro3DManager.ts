@@ -1,36 +1,60 @@
-import { EventDispatcher, Box3, AmbientLight, DirectionalLight, PerspectiveCamera, Object3D } from "three";
+import {
+    EventDispatcher,
+    Box3,
+    AmbientLight,
+    DirectionalLight,
+    PerspectiveCamera,
+    Object3D,
+} from 'three';
 
-import Instance from "@giro3d/giro3d/core/Instance";
-import Extent from "@giro3d/giro3d/core/geographic/Extent";
-import { HttpConfiguration } from "@giro3d/giro3d/utils";
+import Instance from '@giro3d/giro3d/core/Instance';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import { HttpConfiguration } from '@giro3d/giro3d/utils';
 
-import LayerManager from "@/services/LayerManager";
-import BasemapManager from "@/services/BasemapManager";
-import OverlayManager from "@/services/OverlayManager";
-import CameraController from "@/services/CameraController";
-import DatasetManager from "@/services/DatasetManager";
-import AnnotationManager from "@/services/AnnotationManager";
-import AnalysisManager from "@/services/AnalysisManager";
-import Highlighter from "@/services/Highlighter";
-import Picker from "@/services/Picker";
-import MeasurementManager from "@/services/MeasurementManager";
-import { useGiro3dStore } from "@/stores/giro3d";
+import LayerManager from '@/services/LayerManager';
+import BasemapManager from '@/services/BasemapManager';
+import OverlayManager from '@/services/OverlayManager';
+import CameraController from '@/services/CameraController';
+import DatasetManager from '@/services/DatasetManager';
+import AnnotationManager from '@/services/AnnotationManager';
+import AnalysisManager from '@/services/AnalysisManager';
+import Highlighter from '@/services/Highlighter';
+import Picker from '@/services/Picker';
+import MeasurementManager from '@/services/MeasurementManager';
+import { useGiro3dStore } from '@/stores/giro3d';
 
-Instance.registerCRS('EPSG:2154', '+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs');
-Instance.registerCRS('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs');
-Instance.registerCRS('EPSG:3946', '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46 +lon_0=3 +x_0=1700000 +y_0=5200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
-Instance.registerCRS('EPSG:3948', '+proj=lcc +lat_0=48 +lon_0=3 +lat_1=47.25 +lat_2=48.75 +x_0=1700000 +y_0=7200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs');
+Instance.registerCRS(
+    'EPSG:2154',
+    '+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs',
+);
+Instance.registerCRS(
+    'EPSG:3857',
+    '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs',
+);
+Instance.registerCRS(
+    'EPSG:3946',
+    '+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46 +lon_0=3 +x_0=1700000 +y_0=5200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+);
+Instance.registerCRS(
+    'EPSG:3948',
+    '+proj=lcc +lat_0=48 +lon_0=3 +lat_1=47.25 +lat_2=48.75 +x_0=1700000 +y_0=7200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs',
+);
 Instance.registerCRS('EPSG:4171', '+proj=longlat +ellps=GRS80 +no_defs +type=crs');
 Instance.registerCRS('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs +type=crs');
-Instance.registerCRS('IGNF:WGS84G', '+title=World Geodetic System 1984 +proj=longlat +nadgrids=null +wktext +towgs84=0.0000,0.0000,0.0000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs');
+Instance.registerCRS(
+    'IGNF:WGS84G',
+    '+title=World Geodetic System 1984 +proj=longlat +nadgrids=null +wktext +towgs84=0.0000,0.0000,0.0000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs',
+);
 
 if (import.meta.env.VITE_AUTHORIZATION_DOMAIN && import.meta.env.VITE_AUTHORIZATION_VALUE) {
-    HttpConfiguration.setAuth(import.meta.env.VITE_AUTHORIZATION_DOMAIN, import.meta.env.VITE_AUTHORIZATION_VALUE);
+    HttpConfiguration.setAuth(
+        import.meta.env.VITE_AUTHORIZATION_DOMAIN,
+        import.meta.env.VITE_AUTHORIZATION_VALUE,
+    );
 }
 
-
 type Giro3DManagerEventMap = {
-    update: {},
+    update: {};
 };
 
 export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
@@ -61,7 +85,12 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         const center = this.store.getDefaultCameraPosition().as(crs);
         const xyz = center.toVector3();
         const basemapSize = this.store.getDefaultBasemapSize();
-        const extent = Extent.fromCenterAndSize(crs, { x: xyz.x, y: xyz.y }, basemapSize.width, basemapSize.height);
+        const extent = Extent.fromCenterAndSize(
+            crs,
+            { x: xyz.x, y: xyz.y },
+            basemapSize.width,
+            basemapSize.height,
+        );
         this.camera.setInitialPosition(extent);
 
         this.layerManager = new LayerManager(this.mainInstance);
@@ -72,7 +101,11 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter(this.mainInstance);
         this.picker = new Picker();
-        this.measurementManager = new MeasurementManager(this.mainInstance, this.camera, this.picker);
+        this.measurementManager = new MeasurementManager(
+            this.mainInstance,
+            this.camera,
+            this.picker,
+        );
 
         this.mainInstance.addEventListener('update-end', () => this.onFrameEnd());
 
@@ -102,10 +135,10 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     onFrameEnd() {
         // Temporary solution to avoid annoying horizontal line artifacts
         // on point cloud due to constantly shifting near clipping plane.
-        const camera : PerspectiveCamera = this.mainInstance.camera.camera3D;
+        const camera: PerspectiveCamera = this.mainInstance.camera.camera3D;
         camera.near = 2;
 
-        this.dispatchEvent({ type: 'update' })
+        this.dispatchEvent({ type: 'update' });
     }
 
     /**
@@ -115,7 +148,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         const result: Object3D[] = [];
         this.mainInstance.scene.traverse(o => {
             result.push(o);
-        })
+        });
         return result;
     }
 
