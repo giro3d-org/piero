@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import { Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
 
 const DEFAULT_HEIGHT = 170;
 
@@ -8,7 +8,7 @@ export default class FloodingPlane {
     object3D: Mesh<any, any>;
     private _height: number;
     constructor() {
-        this.geometry =  new PlaneGeometry(1, 1, 1, 1);
+        this.geometry = new PlaneGeometry(1, 1, 1, 1);
         this.material = new MeshBasicMaterial({ color: 0x00aaaa, transparent: true, opacity: 0.5 });
         this.object3D = new Mesh(this.geometry, this.material);
         this.object3D.renderOrder = 2;

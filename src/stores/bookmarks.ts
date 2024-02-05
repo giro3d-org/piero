@@ -1,12 +1,12 @@
-import { Vector3 } from "three";
-import { defineStore } from "pinia";
-import { computed, ref } from "vue";
-import Bookmark from "@/types/Bookmark";
-import CameraPosition from "@/types/CameraPosition";
+import { Vector3 } from 'three';
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
+import Bookmark from '@/types/Bookmark';
+import CameraPosition from '@/types/CameraPosition';
 import config from '@/config';
 
 function buildInitialList() {
-    const result : Bookmark[] = [];
+    const result: Bookmark[] = [];
 
     for (const conf of config.bookmarks) {
         const pos = conf.position;
@@ -42,5 +42,5 @@ export const useBookmarkStore = defineStore('bookmarks', () => {
         return [...bookmarks.value];
     }
 
-    return { count, add, remove, getBookmarks }
+    return { count, add, remove, getBookmarks };
 });

@@ -10,7 +10,7 @@ import CityJSONEntity from '@/giro3d/CityJSONEntity';
  */
 export type CityJSONOptions = {
     projection?: string;
-}
+};
 
 export default {
     /**
@@ -22,7 +22,12 @@ export default {
      * @param options Options
      * @returns Entity created
      */
-    loadString(instance: Instance, id: string, str: string, options: CityJSONOptions = {}): Promise<Entity3D> {
+    loadString(
+        instance: Instance,
+        id: string,
+        str: string,
+        options: CityJSONOptions = {},
+    ): Promise<Entity3D> {
         return new Promise(resolve => {
             const json = JSON.parse(str);
             // const alert = NotificationController.showNotification('CityJSON', `Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`);
@@ -48,17 +53,26 @@ export default {
                 z = 0;
             } else {
                 // We have to take Z into account - FIXME
-                z = json.metadata?.geographicalExtent[5] - (json.CityObjects['1']?.attributes['ArrDissolve-LoD12.global_elevation_max'] ? json.CityObjects['1'].attributes['ArrDissolve-LoD12.global_elevation_max'] : 0);
+                z =
+                    json.metadata?.geographicalExtent[5] -
+                    (json.CityObjects['1']?.attributes['ArrDissolve-LoD12.global_elevation_max']
+                        ? json.CityObjects['1'].attributes['ArrDissolve-LoD12.global_elevation_max']
+                        : 0);
             }
 
             const m = loader.matrix.toArray();
-            const projection = json?.metadata?.referenceSystem ?? options?.projection ?? instance.referenceCrs;
+            const projection =
+                json?.metadata?.referenceSystem ?? options?.projection ?? instance.referenceCrs;
 
             Projections.loadProjCrsIfNeeded(projection).then(proj => {
                 if (proj) {
                     const coords = new Coordinates(`EPSG:${proj}`, -m[12], -m[13], z);
                     const coordsReference = coords.as(instance.referenceCrs);
-                    loader.scene.position.set(coordsReference.values[0], coordsReference.values[1], coordsReference.values[2]);
+                    loader.scene.position.set(
+                        coordsReference.values[0],
+                        coordsReference.values[1],
+                        coordsReference.values[2],
+                    );
                 } else {
                     loader.scene.position.set(-m[12], -m[13], z);
                 }

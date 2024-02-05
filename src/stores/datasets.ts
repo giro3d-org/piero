@@ -1,6 +1,6 @@
-import { ref, computed, Ref } from 'vue'
-import { defineStore } from 'pinia'
-import { type Dataset, DatasetObject } from '@/types/Dataset'
+import { ref, computed, Ref } from 'vue';
+import { defineStore } from 'pinia';
+import { type Dataset, DatasetObject } from '@/types/Dataset';
 import config from '../config';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { type Entity3D } from '@giro3d/giro3d/entities';
@@ -12,10 +12,19 @@ function buildDataset(datasetConfig: DatasetConfig): DatasetObject {
         return new DatasetObject(datasetConfig.name, 'bdtopo', null);
     }
 
-    const ds = new DatasetObject(datasetConfig.name, datasetConfig.type, getPublicFolderUrl(datasetConfig.url));
+    const ds = new DatasetObject(
+        datasetConfig.name,
+        datasetConfig.type,
+        getPublicFolderUrl(datasetConfig.url),
+    );
     if (datasetConfig.position) {
         const position = datasetConfig.position;
-        ds.coordinates = new Coordinates(position.crs ?? config.default_crs, position.x, position.y, position.z ?? 0);
+        ds.coordinates = new Coordinates(
+            position.crs ?? config.default_crs,
+            position.x,
+            position.y,
+            position.z ?? 0,
+        );
     }
     if ('elevation' in datasetConfig) {
         ds.elevation = datasetConfig.elevation;
@@ -84,13 +93,23 @@ export const useDatasetStore = defineStore('datasets', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function toggleGrid(ds: Dataset) {
-
-    }
+    function toggleGrid(ds: Dataset) {}
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function toggleMask(ds: Dataset) {
-    }
+    function toggleMask(ds: Dataset) {}
 
-    return { count, getDatasets, add, remove, goTo, clipTo, importFromFile, setVisible, getEntity, attachEntity, toggleGrid, toggleMask }
-})
+    return {
+        count,
+        getDatasets,
+        add,
+        remove,
+        goTo,
+        clipTo,
+        importFromFile,
+        setVisible,
+        getEntity,
+        attachEntity,
+        toggleGrid,
+        toggleMask,
+    };
+});

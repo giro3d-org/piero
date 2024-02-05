@@ -1,9 +1,17 @@
-import { EventDispatcher } from "three";
-import LayerObject from "./LayerObject";
-import { Coordinates } from "@giro3d/giro3d/core/geographic";
-import Named from "./Named";
+import { EventDispatcher } from 'three';
+import LayerObject from './LayerObject';
+import { Coordinates } from '@giro3d/giro3d/core/geographic';
+import Named from './Named';
 
-export type DatasetType = 'cityjson' | 'ifc' | 'ply' | 'pointcloud' | 'bdtopo' | 'shp' | 'geojson' | 'gpkg';
+export type DatasetType =
+    | 'cityjson'
+    | 'ifc'
+    | 'ply'
+    | 'pointcloud'
+    | 'bdtopo'
+    | 'shp'
+    | 'geojson'
+    | 'gpkg';
 
 export interface Dataset extends Named, EventDispatcher {
     isLoaded: boolean;
@@ -48,7 +56,7 @@ export class DatasetObject extends LayerObject implements Dataset {
         return this._isLoading;
     }
 
-    constructor(name: string, type: DatasetType, url: string | null)  {
+    constructor(name: string, type: DatasetType, url: string | null) {
         super(name);
         this.type = type;
         this.url = url;

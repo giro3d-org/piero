@@ -1,9 +1,8 @@
 <script setup lang="ts">
-
-defineProps<{
-  visible: Boolean
-}>()
-defineEmits(['update:visible'])
+    defineProps<{
+        visible: Boolean;
+    }>();
+    defineEmits(['update:visible']);
 </script>
 
 <template>
@@ -13,25 +12,25 @@ defineEmits(['update:visible'])
 </template>
 
 <style scoped>
-.icon {
-  width: 1rem !important;
-  float: right;
-  color: var(--bs-secondary);
-}
+    .icon {
+        width: 1rem !important;
+        float: right;
+        color: var(--bs-secondary);
+    }
 
-.inactive {
-    color: rgb(180, 180, 180);
-}
+    .inactive {
+        color: rgb(180, 180, 180);
+    }
 
-.active {
-  width: 1rem !important;
-  float: right;
-}
+    .active {
+        width: 1rem !important;
+        float: right;
+    }
 
-@media (hover: hover) {
-  .icon:hover {
-    /* opacity: 0.8; */
-    color: var(--bs-primary);
-  }
-}
+    @media (hover: hover) {
+        .icon:hover {
+            /* opacity: 0.8; */
+            color: var(--bs-primary);
+        }
+    }
 </style>

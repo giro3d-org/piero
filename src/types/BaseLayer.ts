@@ -1,6 +1,6 @@
-import { EventDispatcher } from "three";
-import LayerObject from "./LayerObject";
-import { type LayerSource } from "./LayerSource";
+import { EventDispatcher } from 'three';
+import LayerObject from './LayerObject';
+import { type LayerSource } from './LayerSource';
 
 export type BaseLayerType = 'elevation' | 'color';
 
@@ -22,7 +22,7 @@ export class BaseLayerObject extends LayerObject implements BaseLayer {
     readonly type: BaseLayerType;
     readonly source: LayerSource;
 
-    constructor(opts: { name: string, type: BaseLayerType, source: LayerSource }) {
+    constructor(opts: { name: string; type: BaseLayerType; source: LayerSource }) {
         super(opts.name);
         this._loading = false;
         this.type = opts.type;

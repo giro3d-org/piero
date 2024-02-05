@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import { computed, reactive, ref } from "vue";
-import Measure from "@/types/Measure";
-import MeasurementMode from "@/types/MeasurementMode";
+import { defineStore } from 'pinia';
+import { computed, reactive, ref } from 'vue';
+import Measure from '@/types/Measure';
+import MeasurementMode from '@/types/MeasurementMode';
 
 export const useMeasurementStore = defineStore('measurement', () => {
     const measurements = reactive<Measure[]>([]) as Measure[];
@@ -51,9 +51,23 @@ export const useMeasurementStore = defineStore('measurement', () => {
         // Nothing to do
     }
 
-    function start() { }
+    function start() {}
 
-    function end() { }
+    function end() {}
 
-    return { count, getMeasures, hasMeasure, isUserMeasuring, setIsUserMeasuring, getMeasurementMode, setMeasurementMode, remove, add, importMeasureFile, importMeasureFiles, start, end }
+    return {
+        count,
+        getMeasures,
+        hasMeasure,
+        isUserMeasuring,
+        setIsUserMeasuring,
+        getMeasurementMode,
+        setMeasurementMode,
+        remove,
+        add,
+        importMeasureFile,
+        importMeasureFiles,
+        start,
+        end,
+    };
 });

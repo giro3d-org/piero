@@ -1,8 +1,8 @@
-import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from "three";
-import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
-import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
-import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
-import { Line2 } from "three/examples/jsm/lines/Line2";
+import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
+import { Line2 } from 'three/examples/jsm/lines/Line2';
 
 const _axe = new Vector3();
 const _negatedAxe = new Vector3();
@@ -24,9 +24,15 @@ class Measure3D extends Group {
     public readonly isMeasure3D = true;
     public readonly isPickableFeatures = true;
 
-    get from() { return this._from; }
-    get to() { return this._to; }
-    get length() { return this._length; }
+    get from() {
+        return this._from;
+    }
+    get to() {
+        return this._to;
+    }
+    get length() {
+        return this._length;
+    }
 
     constructor() {
         super();
@@ -45,12 +51,16 @@ class Measure3D extends Group {
 
         // Create circle meshes (we'll position them later)
         const circleGeom = new CircleGeometry(1);
-        const circleMaterial = new MeshBasicMaterial({ color: 0xECE100 });
+        const circleMaterial = new MeshBasicMaterial({ color: 0xece100 });
         this._circleFrom = new Mesh(circleGeom, circleMaterial);
         this._circleTo = new Mesh(circleGeom, circleMaterial);
 
         // Create the fatline (we'll position it later)
-        this._lineMaterial = new LineMaterial({ color: 0xECE100, linewidth: 0.001, worldUnits: false });
+        this._lineMaterial = new LineMaterial({
+            color: 0xece100,
+            linewidth: 0.001,
+            worldUnits: false,
+        });
         this._lineMaterial.transparent = false;
         this._lineGeometry = new LineGeometry();
         this._line = new Line2(this._lineGeometry, this._lineMaterial);
@@ -76,13 +86,13 @@ class Measure3D extends Group {
         _offset.copy(_axe).multiplyScalar(this._length / 10000);
 
         const scale = Math.min(this._length * 0.01, 0.2);
-        this._circleFrom.position.set(0,0,0);
+        this._circleFrom.position.set(0, 0, 0);
         this._circleFrom.lookAt(_axe);
         this._circleFrom.position.copy(from).add(_offset);
         this._circleFrom.scale.set(scale, scale, scale);
         this._circleFrom.updateMatrixWorld();
 
-        this._circleTo.position.set(0,0,0);
+        this._circleTo.position.set(0, 0, 0);
         this._circleTo.lookAt(_negatedAxe);
         this._circleTo.position.copy(to).sub(_offset);
         this._circleTo.scale.set(scale, scale, scale);
@@ -98,7 +108,14 @@ class Measure3D extends Group {
         // And finally we update the line with local-ish coordinates
         // for correct rendering
         _translatedTo.subVectors(to, from);
-        this._lineGeometry.setPositions([0, 0, 0, _translatedTo.x, _translatedTo.y, _translatedTo.z]);
+        this._lineGeometry.setPositions([
+            0,
+            0,
+            0,
+            _translatedTo.x,
+            _translatedTo.y,
+            _translatedTo.z,
+        ]);
         this._line.position.copy(from);
         this._line.updateMatrix();
         this._line.updateMatrixWorld();

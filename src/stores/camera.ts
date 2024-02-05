@@ -1,9 +1,9 @@
-import CameraPosition from "@/types/CameraPosition";
-import NavigationMode from "@/types/NavigationMode";
-import Entity3D from "@giro3d/giro3d/entities/Entity3D";
-import { defineStore } from "pinia";
-import { Box3, Object3D } from "three";
-import { ref } from "vue";
+import CameraPosition from '@/types/CameraPosition';
+import NavigationMode from '@/types/NavigationMode';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { defineStore } from 'pinia';
+import { Box3, Object3D } from 'three';
+import { ref } from 'vue';
 
 export const useCameraStore = defineStore('camera', () => {
     const cameraPosition = ref<CameraPosition>();
@@ -22,17 +22,17 @@ export const useCameraStore = defineStore('camera', () => {
             x: pos.x,
             y: pos.y,
             z: pos.z,
-        }
+        };
         json.target = {
             x: target.x,
             y: target.y,
             z: target.z,
-        }
+        };
         json.focalOffset = {
             x: fo.x,
             y: fo.y,
             z: fo.z,
-        }
+        };
         console.log(json);
         return cameraPosition.value;
     }
@@ -63,7 +63,7 @@ export const useCameraStore = defineStore('camera', () => {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function lookTopDownAt(obj: Box3 | Object3D | Entity3D) {
-      // Nothing to do, rely on action listeners.
+        // Nothing to do, rely on action listeners.
     }
 
     return {
@@ -75,5 +75,5 @@ export const useCameraStore = defineStore('camera', () => {
         isUserInteracting,
         setIsUserInteracting,
         lookTopDownAt,
-    }
+    };
 });

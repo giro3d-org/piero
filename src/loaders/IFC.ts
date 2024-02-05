@@ -1,5 +1,14 @@
 import { Vector3 } from 'three';
-import { Components, SimpleScene, SimpleRenderer, SimpleCamera, SimpleRaycaster, FragmentManager, FragmentIfcLoader, FragmentClassifier } from 'openbim-components';
+import {
+    Components,
+    SimpleScene,
+    SimpleRenderer,
+    SimpleCamera,
+    SimpleRaycaster,
+    FragmentManager,
+    FragmentIfcLoader,
+    FragmentClassifier,
+} from 'openbim-components';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
 import IfcEntity from '@/giro3d/IfcEntity';
@@ -9,7 +18,7 @@ import IfcEntity from '@/giro3d/IfcEntity';
  */
 export type IFCOptions = {
     at?: Coordinates;
-}
+};
 
 export default {
     /**
@@ -41,9 +50,9 @@ export default {
 
         // TODO replace with own WASM ?
         fragmentIfcLoader.settings.wasm = {
-            path: "https://unpkg.com/web-ifc@0.0.44/",
-            absolute: true
-        }
+            path: 'https://unpkg.com/web-ifc@0.0.44/',
+            absolute: true,
+        };
 
         fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
         fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;

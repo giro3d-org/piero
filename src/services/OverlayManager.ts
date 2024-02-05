@@ -1,8 +1,8 @@
 import Instance from '@giro3d/giro3d/core/Instance';
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 
 import { useLayerStore } from '@/stores/layers';
-import LayerManager from '@/services/LayerManager.js'
+import LayerManager from '@/services/LayerManager.js';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import { ImageSource } from '@giro3d/giro3d/sources';
 import { MVTSource, VectorSource } from '@/types/LayerSource';
@@ -26,11 +26,7 @@ export default class OverlayManager {
             }
         }
 
-        this.store.$onAction(({
-            name,
-            args,
-            after
-        }) => {
+        this.store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'setOverlayOpacity':
@@ -84,28 +80,28 @@ export default class OverlayManager {
 
     private async getSource(overlay: Overlay): Promise<ImageSource> {
         switch (overlay.source.type) {
-            case 'geojson':
-                {
-                    const geojson = overlay.source as VectorSource;
-                    return LayerBuilder.createGeoJsonSource(geojson.url, geojson.projection, geojson.style);
-                }
-            case 'kml':
-                {
-                    const kml = overlay.source as VectorSource;
-                    return LayerBuilder.createKMLSource(kml.url, kml.projection, kml.style);
-                }
-            case 'gpx':
-                {
-                    const gpx = overlay.source as VectorSource;
-                    return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
-                }
-            case 'mvt':
-                {
-                    const mvt = overlay.source as MVTSource;
-                    return LayerBuilder.createMVTSource(mvt.url, mvt.backgroundColor, mvt.style);
-                }
+            case 'geojson': {
+                const geojson = overlay.source as VectorSource;
+                return LayerBuilder.createGeoJsonSource(
+                    geojson.url,
+                    geojson.projection,
+                    geojson.style,
+                );
+            }
+            case 'kml': {
+                const kml = overlay.source as VectorSource;
+                return LayerBuilder.createKMLSource(kml.url, kml.projection, kml.style);
+            }
+            case 'gpx': {
+                const gpx = overlay.source as VectorSource;
+                return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
+            }
+            case 'mvt': {
+                const mvt = overlay.source as MVTSource;
+                return LayerBuilder.createMVTSource(mvt.url, mvt.backgroundColor, mvt.style);
+            }
             case 'wms':
-                return await LayerBuilder.getSource(overlay.source) as ImageSource;
+                return (await LayerBuilder.getSource(overlay.source)) as ImageSource;
         }
         throw new Error(`Unsupported source type ${overlay.source.type}`);
     }
@@ -115,7 +111,7 @@ export default class OverlayManager {
             name: overlay.name,
             source: await this.getSource(overlay),
             extent: this.layerManager.extent,
-        })
+        });
         this.layers.set(overlay.uuid, layer);
         this.layerManager.addOverlay(layer);
         layer.visible = overlay.visible;

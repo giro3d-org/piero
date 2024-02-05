@@ -1,6 +1,6 @@
-import LayerObject from "./LayerObject";
-import { EventDispatcher } from "three";
-import { LayerSource } from "./LayerSource";
+import LayerObject from './LayerObject';
+import { EventDispatcher } from 'three';
+import { LayerSource } from './LayerSource';
 
 export interface Overlay extends EventDispatcher {
     uuid: string;

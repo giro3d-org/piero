@@ -1,5 +1,5 @@
 import { Color, Uniform } from 'three';
-import chroma from 'chroma-js'
+import chroma from 'chroma-js';
 import PointsMaterial from '@giro3d/giro3d/renderer/PointsMaterial.js';
 
 import config from '../config';
@@ -21,7 +21,8 @@ class PointCloudMaterial extends PointsMaterial {
     updateUniforms() {
         super.updateUniforms();
         if (this.colorMapChanged) {
-            const lut = chroma.scale(config.pointcloud.ramp)
+            const lut = chroma
+                .scale(config.pointcloud.ramp)
                 .mode('lab')
                 .colors(256)
                 .map(c => {

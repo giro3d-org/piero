@@ -16,11 +16,18 @@ export interface GeoJSONOptions {
 const geojsonFormat = new GeoJSON();
 
 export default {
-    async loadFeatures(instance: Instance, id: string, features: GeoJSON.Feature[], options: GeoJSONOptions): Promise<Entity3D> {
-        const olFeatures = features.flatMap(f => geojsonFormat.readFeatures(f, {
-            dataProjection: options.projection ?? 'EPSG:4326',
-            featureProjection: instance.referenceCrs,
-        })) as Feature[];
+    async loadFeatures(
+        instance: Instance,
+        id: string,
+        features: GeoJSON.Feature[],
+        options: GeoJSONOptions,
+    ): Promise<Entity3D> {
+        const olFeatures = features.flatMap(f =>
+            geojsonFormat.readFeatures(f, {
+                dataProjection: options.projection ?? 'EPSG:4326',
+                featureProjection: instance.referenceCrs,
+            }),
+        ) as Feature[];
 
         const root = new Group();
 
@@ -41,7 +48,7 @@ export default {
         }
 
         const entity = new Entity3D(root.uuid, root);
-        root.traverse((obj) => {
+        root.traverse(obj => {
             entity.onObjectCreated(obj);
         });
         return entity;
@@ -56,17 +63,22 @@ export default {
      * @param options Options
      * @returns Entity created
      */
-    async loadString(instance: Instance, id: string, str: string, options: GeoJSONOptions = {}): Promise<Entity3D> {
+    async loadString(
+        instance: Instance,
+        id: string,
+        str: string,
+        options: GeoJSONOptions = {},
+    ): Promise<Entity3D> {
         const json = JSON.parse(str) as GeoJSON.GeoJSON;
 
         switch (json.type) {
-            case "Feature":
+            case 'Feature':
                 return this.loadFeatures(instance, id, [json], options);
-            case "FeatureCollection":
+            case 'FeatureCollection':
                 return this.loadFeatures(instance, id, json.features, options);
-            case "GeometryCollection": {
-                const features: GeoJSON.Feature[] = json.geometries.map((geometry) => ({
-                    type: "Feature",
+            case 'GeometryCollection': {
+                const features: GeoJSON.Feature[] = json.geometries.map(geometry => ({
+                    type: 'Feature',
                     geometry,
                     properties: {},
                 }));
@@ -74,7 +86,7 @@ export default {
             }
             default: {
                 const feature: GeoJSON.Feature = {
-                    type: "Feature",
+                    type: 'Feature',
                     geometry: json,
                     properties: {},
                 };

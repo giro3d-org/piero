@@ -1,11 +1,18 @@
-import { Material, Matrix4, MeshBasicMaterial, Vector2 } from "three";
-import { Fragment } from "bim-fragment/fragment";
+import { Material, Matrix4, MeshBasicMaterial, Vector2 } from 'three';
+import { Fragment } from 'bim-fragment/fragment';
 import { FragmentsGroup } from 'bim-fragment/fragments-group';
 import { FragmentMesh } from 'bim-fragment/fragment-mesh';
-import { Components, FragmentManager, FragmentIdMap, toCompositeID, IfcPropertiesUtils, FragmentClassifier, FragmentBoundingBox } from 'openbim-components';
-import { Entity3D } from "@giro3d/giro3d/entities";
-import { PickOptions, PickResult, PickableFeatures} from '@giro3d/giro3d/core/picking';
-
+import {
+    Components,
+    FragmentManager,
+    FragmentIdMap,
+    toCompositeID,
+    IfcPropertiesUtils,
+    FragmentClassifier,
+    FragmentBoundingBox,
+} from 'openbim-components';
+import { Entity3D } from '@giro3d/giro3d/entities';
+import { PickOptions, PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting
@@ -16,7 +23,7 @@ import { PickOptions, PickResult, PickableFeatures} from '@giro3d/giro3d/core/pi
 
 const tempMatrix = new Matrix4();
 
-type FragmentTypeName = "selection" | "bbox";
+type FragmentTypeName = 'selection' | 'bbox';
 
 type SelectionMap = {
     [name in FragmentTypeName]: FragmentIdMap;
@@ -27,23 +34,23 @@ type MaterialMap = {
 
 const materials: MaterialMap = {
     selection: new MeshBasicMaterial({
-        color: "#FF0000",
+        color: '#FF0000',
         transparent: true,
         opacity: 0.6,
         depthTest: false,
     }),
     bbox: new MeshBasicMaterial({
-        color: "#FFFF00",
+        color: '#FFFF00',
         transparent: true,
         opacity: 0.2,
         depthTest: true,
-    })
-}
+    }),
+};
 
 ///// PROPERTIES
 
 interface IndexMap {
-    [expressID: string]: Set<number>
+    [expressID: string]: Set<number>;
 }
 
 // Re-defined from Web-ifc
@@ -72,37 +79,40 @@ const relationsToProcess = [
 ///// CLASSIFICATION
 
 export enum ClassificationSystem {
-    STOREY = "storeys",
-    ENTITY = "entities",
+    STOREY = 'storeys',
+    ENTITY = 'entities',
 }
 
 export type ClassificationItem = {
     name: string;
     treeItemName: string;
-    children: ClassificationItem[],
-    fragments: FragmentIdMap,
-}
+    children: ClassificationItem[];
+    fragments: FragmentIdMap;
+};
 
 export interface IFCProperty {
-    parentName: string,
-    name: string,
-    value: any,
+    parentName: string;
+    name: string;
+    value: any;
 }
 
 export interface IFCFeature {
-    itemProperties: any,
-    ifcProperties: IFCProperty[],
+    itemProperties: any;
+    ifcProperties: IFCProperty[];
 }
 
 export interface IFCPickResult extends PickResult<IFCFeature> {
-    entity: IfcEntity,
-    object: FragmentMesh,
+    entity: IfcEntity;
+    object: FragmentMesh;
     features?: IFCFeature[];
 }
 
 export const isIFCPickResult = (obj: any): obj is IFCPickResult => obj?.isIFCPickResult;
 
-export default class IfcEntity extends Entity3D implements PickableFeatures<IFCFeature, IFCPickResult> {
+export default class IfcEntity
+    extends Entity3D
+    implements PickableFeatures<IFCFeature, IFCPickResult>
+{
     readonly isIfcEntity = true;
     readonly isPickableFeatures = true;
     readonly components: Components;
@@ -113,16 +123,23 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
     private classificationCache: ClassificationItem[] | null;
     private fragmentBoundingBox: FragmentBoundingBox | null;
 
-    override get object3d(): FragmentsGroup { return super.object3d as FragmentsGroup };
+    override get object3d(): FragmentsGroup {
+        return super.object3d as FragmentsGroup;
+    }
 
-    constructor(root: FragmentsGroup, components: Components, fragmentManager: FragmentManager, fragmentClassifier: FragmentClassifier) {
+    constructor(
+        root: FragmentsGroup,
+        components: Components,
+        fragmentManager: FragmentManager,
+        fragmentClassifier: FragmentClassifier,
+    ) {
         super(root.uuid, root);
 
         this.components = components;
         this.fragmentManager = fragmentManager;
         this.fragmentClassifier = fragmentClassifier;
         this.type = 'IfcEntity';
-        this.ifcSelection = { "selection": {}, "bbox": {} };
+        this.ifcSelection = { selection: {}, bbox: {} };
         this.indexMap = {};
         this.classificationCache = null;
         this.fragmentBoundingBox = null;
@@ -131,7 +148,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
         this.fragmentClassifier.byStorey(root);
         this.fragmentClassifier.byEntity(root);
 
-        this.object3d.traverse((obj) => {
+        this.object3d.traverse(obj => {
             this.onObjectCreated(obj);
         });
     }
@@ -142,43 +159,29 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
         if (properties === undefined) return;
 
         for (const relation of relationsToProcess) {
-            IfcPropertiesUtils.getRelationMap(
-                properties,
-                relation,
-                (relationID, relatedIDs) => {
-                    const relationEntity = properties[relationID];
-                    if (!setEntities.includes(relationEntity.type))
-                        this.setEntityIndex(relationID);
-                    for (const expressID of relatedIDs) {
-                        this.setEntityIndex(expressID).add(relationID);
-                    }
+            IfcPropertiesUtils.getRelationMap(properties, relation, (relationID, relatedIDs) => {
+                const relationEntity = properties[relationID];
+                if (!setEntities.includes(relationEntity.type)) this.setEntityIndex(relationID);
+                for (const expressID of relatedIDs) {
+                    this.setEntityIndex(expressID).add(relationID);
                 }
-            );
+            });
         }
     }
 
     private setEntityIndex(expressID: number) {
-        if (!this.indexMap[expressID])
-            this.indexMap[expressID] = new Set();
+        if (!this.indexMap[expressID]) this.indexMap[expressID] = new Set();
         return this.indexMap[expressID];
     }
 
-    getProperty(
-        expressID: number,
-    ): { name: string, value: any } | null {
+    getProperty(expressID: number): { name: string; value: any } | null {
         const properties = this.object3d.properties;
         if (properties === undefined) return null;
 
-        const { name } = IfcPropertiesUtils.getEntityName(
-            properties,
-            expressID
-        );
+        const { name } = IfcPropertiesUtils.getEntityName(properties, expressID);
         if (name === null) return null;
 
-        const { value } = IfcPropertiesUtils.getQuantityValue(
-            properties,
-            expressID
-        );
+        const { value } = IfcPropertiesUtils.getQuantityValue(properties, expressID);
         return { name, value };
     }
 
@@ -191,12 +194,10 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
             const entity = objectRawProperties[id];
             if (!entity) continue;
             const { name } = IfcPropertiesUtils.getEntityName(objectRawProperties, id);
-            if (name === null) continue
+            if (name === null) continue;
 
             if (entity.type === IFCPROPERTYSET) {
-                const psetPropsIds = IfcPropertiesUtils.getPsetProps(
-                    objectRawProperties,
-                    id);
+                const psetPropsIds = IfcPropertiesUtils.getPsetProps(objectRawProperties, id);
                 if (psetPropsIds !== null) {
                     for (const psetPropId of psetPropsIds) {
                         const psetProp = objectRawProperties[psetPropId];
@@ -207,15 +208,18 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
                             parentName: name,
                             ...psetProperties,
                         });
-                    };
+                    }
                 }
             } else if (entity.type === IFCELEMENTQUANTITY) {
-                const qsetQuantityIds = IfcPropertiesUtils.getQsetQuantities(objectRawProperties, id);
+                const qsetQuantityIds = IfcPropertiesUtils.getQsetQuantities(
+                    objectRawProperties,
+                    id,
+                );
                 if (qsetQuantityIds !== null) {
                     for (const quantityId of qsetQuantityIds) {
                         const { key } = IfcPropertiesUtils.getQuantityValue(
                             objectRawProperties,
-                            quantityId
+                            quantityId,
                         );
                         if (key === null) continue;
                         const qsetProperties = this.getProperty(quantityId);
@@ -232,7 +236,10 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
         return properties;
     }
 
-    private async regenerateClassification(groupSystemNames: string[], result = {}): Promise<ClassificationItem[]> {
+    private async regenerateClassification(
+        groupSystemNames: string[],
+        result = {},
+    ): Promise<ClassificationItem[]> {
         const systems = this.fragmentClassifier.get();
         const groups: ClassificationItem[] = [];
         const currentSystemName = groupSystemNames[0]; // storeys
@@ -245,7 +252,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
             // name is N00, N01, N02...
             // { storeys: "N00" }, { storeys: "N01" }...
             const filter = { ...result, [currentSystemName]: [name] };
-            const found = await this.fragmentClassifier.find(filter) as FragmentIdMap;
+            const found = (await this.fragmentClassifier.find(filter)) as FragmentIdMap;
             const hasElements = Object.keys(found).length > 0;
 
             if (hasElements) {
@@ -253,7 +260,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
                 const treeItemName = firstLetter + currentSystemName.slice(1); // Storeys
                 const children = await this.regenerateClassification(
                     groupSystemNames.slice(1),
-                    filter
+                    filter,
                 );
 
                 groups.push({ name, treeItemName, children, fragments: found });
@@ -263,16 +270,22 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
     }
 
     async initClassification(): Promise<void> {
-        this.classificationCache = await this.regenerateClassification([ClassificationSystem.STOREY, ClassificationSystem.ENTITY]);
+        this.classificationCache = await this.regenerateClassification([
+            ClassificationSystem.STOREY,
+            ClassificationSystem.ENTITY,
+        ]);
         if (this.classificationCache.length === 0) {
             // Maybe we don't have storeys, try to classify by entity
-            this.classificationCache = await this.regenerateClassification([ClassificationSystem.ENTITY]);
+            this.classificationCache = await this.regenerateClassification([
+                ClassificationSystem.ENTITY,
+            ]);
         }
         this.fragmentBoundingBox = await this.components.tools.get(FragmentBoundingBox);
     }
 
     getClassification(): ClassificationItem[] {
-        if (this.classificationCache === null) throw new Error('Must call initClassification before getClassification');
+        if (this.classificationCache === null)
+            throw new Error('Must call initClassification before getClassification');
         return this.classificationCache;
     }
 
@@ -296,7 +309,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
         }
     }
 
-    clearHighlight(name: FragmentTypeName = "selection") {
+    clearHighlight(name: FragmentTypeName = 'selection') {
         for (const fragID in this.ifcSelection[name]) {
             const fragment = this.fragmentManager.list[fragID];
             if (!fragment) continue;
@@ -384,7 +397,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
         this._instance.notifyChange(this);
     }
 
-    highlightById(ids: FragmentIdMap, name: FragmentTypeName = "selection") {
+    highlightById(ids: FragmentIdMap, name: FragmentTypeName = 'selection') {
         for (const fragID in ids) {
             if (!this.ifcSelection[name][fragID]) {
                 this.ifcSelection[name][fragID] = new Set<string>();
@@ -407,11 +420,12 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
     }
 
     getBoundingBoxById(ids: FragmentIdMap) {
-        this.clearHighlight("bbox");
-        this.highlightById(ids, "bbox");
+        this.clearHighlight('bbox');
+        this.highlightById(ids, 'bbox');
 
         const bbox = this.fragmentBoundingBox;
-        if (bbox === null) throw new Error('Must call initClassification before getBoundingBoxById');
+        if (bbox === null)
+            throw new Error('Must call initClassification before getBoundingBoxById');
 
         const fragments = this.fragmentManager;
         bbox.reset();
@@ -422,7 +436,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
         }
         for (const fragID in selected) {
             const fragment = fragments.list[fragID];
-            const highlight = fragment.fragments["bbox"];
+            const highlight = fragment.fragments['bbox'];
             bbox.addMesh(highlight.mesh);
         }
 
@@ -440,12 +454,12 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
 
         box.translate(this.object3d.position);
 
-        this.clearHighlight("bbox");
+        this.clearHighlight('bbox');
         return box;
     }
 
     pick(canvasCoords: Vector2, options?: PickOptions): IFCPickResult[] {
-        return super.pick(canvasCoords, options).map((p) => ({
+        return super.pick(canvasCoords, options).map(p => ({
             ...p,
             entity: this,
             object: p.object as FragmentMesh,
@@ -460,7 +474,7 @@ export default class IfcEntity extends Entity3D implements PickableFeatures<IFCF
 
             const itemId = mesh.fragment
                 .getItemID(pickedResult.instanceId, blockId)
-                ?.replace(/\..*/, "");
+                ?.replace(/\..*/, '');
 
             // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
             if (itemId && mesh.fragment.group?.properties?.[itemId]) {

@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { Vector3 } from 'three';
 
 export default class CameraPosition {
     readonly camera: Vector3;

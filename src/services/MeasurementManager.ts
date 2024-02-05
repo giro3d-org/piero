@@ -27,8 +27,8 @@ export default class MeasurementManager {
         this.measureTool = new MeasureTool(picker);
         this.camera = camera;
 
-        this.camera.addEventListener('interaction-start', () => this._paused = true);
-        this.camera.addEventListener('interaction-end', () => this._paused = false);
+        this.camera.addEventListener('interaction-start', () => (this._paused = true));
+        this.camera.addEventListener('interaction-end', () => (this._paused = false));
 
         document.addEventListener('keydown', e => {
             if (e.code === 'Escape' && this.store.isUserMeasuring()) {
@@ -36,11 +36,7 @@ export default class MeasurementManager {
             }
         });
 
-        this.store.$onAction(({
-            name,
-            args,
-            after
-        }) => {
+        this.store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'start':
@@ -92,7 +88,8 @@ export default class MeasurementManager {
                         title = `New measurement (${i})`;
                         if (!this.store.hasMeasure(title)) break;
                     }
-                    if (this.store.hasMeasure(title)) title = 'Achieved unlocked: 1000 measurements with default name';
+                    if (this.store.hasMeasure(title))
+                        title = 'Achieved unlocked: 1000 measurements with default name';
                 }
                 const name = promptTitle(title);
                 if (name) this.pushNewMeasure(name, measurement);
@@ -111,7 +108,7 @@ export default class MeasurementManager {
 
     updateMeasure(measure: Measure) {
         measure.object.visible = measure.visible;
-        measure.object.traverse(o => o.visible = measure.visible);
+        measure.object.traverse(o => (o.visible = measure.visible));
         this.instance.notifyChange();
     }
 
@@ -122,7 +119,8 @@ export default class MeasurementManager {
     }
 
     private importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
-        if (feature.geometry.type !== 'LineString') throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
+        if (feature.geometry.type !== 'LineString')
+            throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
 
         if (!feature.properties) feature.properties = {};
         if (!feature.properties.title) feature.properties.title = MathUtils.generateUUID();
@@ -144,9 +142,9 @@ export default class MeasurementManager {
 
     private async importBlob(file: Blob, skipNames: Set<string>) {
         const str = await file.text();
-        const geojson = JSON.parse(str) as (GeoJSON.Feature | GeoJSON.FeatureCollection);
+        const geojson = JSON.parse(str) as GeoJSON.Feature | GeoJSON.FeatureCollection;
 
-        const features = (geojson.type === 'FeatureCollection') ? geojson.features : [geojson];
+        const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
 
         let nbImported = 0;
         let nbSkipped = 0;
@@ -162,7 +160,13 @@ export default class MeasurementManager {
         const existingMeasures = new Set(this.store.getMeasures().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingMeasures);
-            this.notificationStore.push(new Notification('Measures', `${nbImported} measures imported (${nbSkipped} skipped)`, 'success'));
+            this.notificationStore.push(
+                new Notification(
+                    'Measures',
+                    `${nbImported} measures imported (${nbSkipped} skipped)`,
+                    'success',
+                ),
+            );
         } catch (e) {
             new Notification('Measures', `Could not import file: ${e}`, 'warning');
         }
@@ -184,18 +188,28 @@ export default class MeasurementManager {
                         nbTotalSkipped += nbSkipped;
                     })
                     .catch(reason => {
-                        errors.push((reason as Error).message)
-                    })
+                        errors.push((reason as Error).message);
+                    }),
             );
         }
         await Promise.allSettled(promises);
 
         if (errors.length > 0) {
             this.notificationStore.push(
-                new Notification('Measures', `${nbTotalImported} measures imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`, 'warning')
+                new Notification(
+                    'Measures',
+                    `${nbTotalImported} measures imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
+                    'warning',
+                ),
             );
         } else {
-            this.notificationStore.push(new Notification('Measures', `${nbTotalImported} measures imported (${nbTotalSkipped} skipped)`, 'success'));
+            this.notificationStore.push(
+                new Notification(
+                    'Measures',
+                    `${nbTotalImported} measures imported (${nbTotalSkipped} skipped)`,
+                    'success',
+                ),
+            );
         }
     }
 }

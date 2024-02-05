@@ -1,18 +1,20 @@
-import OSM from 'ol/source/OSM'
-import GiroMap from '@giro3d/giro3d/entities/Map.js'
-import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js'
-import Extent from '@giro3d/giro3d/core/geographic/Extent.js'
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer'
-import Instance from '@giro3d/giro3d/core/Instance'
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates'
-import Map from '@giro3d/giro3d/entities/Map.js'
-import Viewbox from '@/types/Viewbox'
-import { Vector3, Vector2, Box3, MathUtils } from 'three'
+import OSM from 'ol/source/OSM';
+import GiroMap from '@giro3d/giro3d/entities/Map.js';
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js';
+import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import Instance from '@giro3d/giro3d/core/Instance';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Map from '@giro3d/giro3d/entities/Map.js';
+import Viewbox from '@/types/Viewbox';
+import { Vector3, Vector2, Box3, MathUtils } from 'three';
 
 const DEFAULT_EXTENT = new Extent(
     'EPSG:3857',
-    -20037508.342789244, 20037508.342789244,
-    -20037508.342789244, 20037508.342789244,
+    -20037508.342789244,
+    20037508.342789244,
+    -20037508.342789244,
+    20037508.342789244,
 );
 
 function loadOSMLayer(map: Map) {
@@ -42,24 +44,26 @@ export default class MinimapController {
 
         this.viewbox.object3D.updateMatrixWorld();
 
-        this.minimapInstance.notifyChange()
+        this.minimapInstance.notifyChange();
 
         this.basemap = new GiroMap('minimap', {
             extent: DEFAULT_EXTENT,
-        })
+        });
 
         this.minimapInstance.add(this.basemap);
 
         loadOSMLayer(this.basemap);
 
-        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(this.minimapInstance.referenceCrs);
+        const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(
+            this.minimapInstance.referenceCrs,
+        );
 
         const xyz = new Vector3(center.x, center.y, 0);
         const camera = this.minimapInstance.camera.camera3D;
         camera.position.set(xyz.x, xyz.y, 20000);
         camera.lookAt(xyz.x, xyz.y + 1, 0);
 
-       this.minimapInstance.notifyChange()
+        this.minimapInstance.notifyChange();
     }
 
     setMainInstance(instance: Instance) {
@@ -90,7 +94,7 @@ export default class MinimapController {
                 return result;
             }
             return undefined;
-        }
+        };
 
         const ul = raycast(0, 0);
         const ur = raycast(canvasSize.x - 1, 0);
@@ -101,13 +105,14 @@ export default class MinimapController {
             return undefined;
         }
 
-        return { ul, ur, ll, lr }
+        return { ul, ur, ll, lr };
     }
 
     updateViewbox() {
         // Disabled as it consumes too much CPU
         // let corners = this.getCorners();
-        if (this.mainInstance === null) throw new Error('Must call setMainInstance before updateViewbox');
+        if (this.mainInstance === null)
+            throw new Error('Must call setMainInstance before updateViewbox');
 
         const corners = null;
         const mainCamera = this.mainInstance.camera.camera3D;
@@ -123,13 +128,13 @@ export default class MinimapController {
             const altitude = mainCamera.position.z + 2000;
             minimapCamera.position.set(xyz.x, xyz.y, MathUtils.clamp(altitude, 1000, 50000));
             minimapCamera.lookAt(xyz.x, xyz.y + 1, 0);
-
         } else {
             this.viewbox.object3D.visible = false;
 
             const xyz = mainCamera.position;
-            const coordinate = new Coordinates(this.mainInstance.referenceCrs, xyz.x, xyz.y, 0)
-                .as(this.minimapInstance.referenceCrs);
+            const coordinate = new Coordinates(this.mainInstance.referenceCrs, xyz.x, xyz.y, 0).as(
+                this.minimapInstance.referenceCrs,
+            );
 
             const { x, y } = coordinate;
             minimapCamera.position.set(x, y, minimapCamera.position.z);

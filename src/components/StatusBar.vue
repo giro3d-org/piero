@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import CoordinateFragment from './CoordinateFragment.vue';
+    import CoordinateFragment from './CoordinateFragment.vue';
 
-defineProps({
-    x: Number,
-    y: Number,
-    z: Number,
-})
+    defineProps({
+        x: Number,
+        y: Number,
+        z: Number,
+    });
 </script>
 
 <template>
@@ -20,11 +20,10 @@ defineProps({
 </template>
 
 <style scoped>
-i {
-    font-size: small;
-
-}
-div {
-    margin-left: 1rem;
-}
+    i {
+        font-size: small;
+    }
+    div {
+        margin-left: 1rem;
+    }
 </style>

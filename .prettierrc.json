@@ -1,7 +1,7 @@
 {
-  "$schema": "https://json.schemastore.org/prettierrc",
-  "singleQuote": true,
-  "printWidth": 100,
-  "arrowParens": "avoid",
-  "vueIndentScriptAndStyle": true
+    "$schema": "https://json.schemastore.org/prettierrc",
+    "singleQuote": true,
+    "printWidth": 100,
+    "arrowParens": "avoid",
+    "vueIndentScriptAndStyle": true
 }

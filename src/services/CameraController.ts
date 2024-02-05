@@ -42,8 +42,8 @@ CameraControls.install({
 });
 
 type CameraControllerEventMap = {
-    'interaction-start': {},
-    'interaction-end': {},
+    'interaction-start': {};
+    'interaction-end': {};
 };
 
 /**
@@ -70,7 +70,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         super();
         this.instance = instance;
         this.picker = picker;
-        this.orbitControls = new CameraControls(this.instance.camera.camera3D, this.instance.domElement);
+        this.orbitControls = new CameraControls(
+            this.instance.camera.camera3D,
+            this.instance.domElement,
+        );
         this.firstPersonControls = new FirstPersonControls(this.instance);
         this.instance.controls = this.orbitControls;
         this.defaultSpeed = this.orbitControls.maxSpeed;
@@ -80,7 +83,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this.initializeOrbitControls();
         this.initializeFirstPersonControls();
 
-        this.pickObjectsAt = (event: MouseEvent) => this.picker.getFirstFeatureAt(this.instance, event, 1);
+        this.pickObjectsAt = (event: MouseEvent) =>
+            this.picker.getFirstFeatureAt(this.instance, event, 1);
 
         this.clock = new Clock();
 
@@ -94,10 +98,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.onAfterCameraUpdate();
         });
 
-        this.store.$onAction(({
-            name,
-            args
-        }) => {
+        this.store.$onAction(({ name, args }) => {
             switch (name) {
                 case 'setCameraPosition':
                     this.setCamera(args[0]);
@@ -163,8 +164,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         // the controls update the view.
         // We need both events to make sure the view is updated from user interactions and from
         // animations
-        this.orbitControls.addEventListener('update', () => this.instance.notifyChange(this.instance.camera.camera3D));
-        this.orbitControls.addEventListener('control', () => this.instance.notifyChange(this.instance.camera.camera3D));
+        this.orbitControls.addEventListener('update', () =>
+            this.instance.notifyChange(this.instance.camera.camera3D),
+        );
+        this.orbitControls.addEventListener('control', () =>
+            this.instance.notifyChange(this.instance.camera.camera3D),
+        );
 
         this.orbitControls.addEventListener('control', () => {
             if (this.orbitControls.active || this.orbitControls.currentAction !== 0) {
@@ -172,10 +177,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 this.store.setIsUserInteracting(true);
             }
         });
-        this.orbitControls.addEventListener('controlend', () => setTimeout(() => {
-            this.store.setIsUserInteracting(false);
-            this.dispatchEvent({ type: 'interaction-end' });
-        }));
+        this.orbitControls.addEventListener('controlend', () =>
+            setTimeout(() => {
+                this.store.setIsUserInteracting(false);
+                this.dispatchEvent({ type: 'interaction-end' });
+            }),
+        );
 
         this.bindKeys();
     }
@@ -232,14 +239,17 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private bindKeys() {
         // Add some controls on keyboard
         const keys = {
-            LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown',
+            LEFT: 'ArrowLeft',
+            UP: 'ArrowUp',
+            RIGHT: 'ArrowRight',
+            BOTTOM: 'ArrowDown',
         };
         this.instance.domElement.addEventListener('keydown', e => {
             if (this.store.getNavigationMode() !== 'orbit') return;
 
             let forwardDirection = 0;
             let truckDirectionX = 0;
-            const factor = (e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20);
+            const factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
             switch (e.code) {
                 case keys.UP:
                     forwardDirection = 1;
@@ -261,14 +271,21 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 // do nothing
             }
             if (forwardDirection) {
-                this.executeInteraction(() => this.orbitControls.forward(
-                    forwardDirection * this.orbitControls.truckSpeed * factor, true,
-                ));
+                this.executeInteraction(() =>
+                    this.orbitControls.forward(
+                        forwardDirection * this.orbitControls.truckSpeed * factor,
+                        true,
+                    ),
+                );
             }
             if (truckDirectionX) {
-                this.executeInteraction(() => this.orbitControls.truck(
-                    truckDirectionX * this.orbitControls.truckSpeed * factor, 0, true,
-                ));
+                this.executeInteraction(() =>
+                    this.orbitControls.truck(
+                        truckDirectionX * this.orbitControls.truckSpeed * factor,
+                        0,
+                        true,
+                    ),
+                );
             }
         });
     }
@@ -303,7 +320,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     setInitialPosition(extent: Extent, altitude = 4000) {
         const cameraPosition = new Coordinates(
             extent.crs(),
-            extent.west(), extent.south(), altitude,
+            extent.west(),
+            extent.south(),
+            altitude,
         ).toVector3();
         const center = extent.center().toVector3();
         this.lookAt(cameraPosition, center, false);
@@ -318,9 +337,17 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * @returns Resolves when interaction is done
      */
     lookAt(position: Vector3, lookAt: Vector3, enableTransition: boolean = false): Promise<any> {
-        return this.executeInteraction(() => this.orbitControls.setLookAt(
-            position.x, position.y, position.z, lookAt.x, lookAt.y, lookAt.z, enableTransition,
-        ));
+        return this.executeInteraction(() =>
+            this.orbitControls.setLookAt(
+                position.x,
+                position.y,
+                position.z,
+                lookAt.x,
+                lookAt.y,
+                lookAt.z,
+                enableTransition,
+            ),
+        );
     }
 
     getCameraPosition(): CameraPosition {
@@ -337,8 +364,21 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     setCamera(pos: CameraPosition) {
         this.executeInteraction(() => {
             this.orbitControls.setOrbitPoint(0, 0, 0);
-            this.orbitControls.setLookAt(pos.camera.x, pos.camera.y, pos.camera.z, pos.target.x, pos.target.y, pos.target.z, false);
-            this.orbitControls.setFocalOffset(pos.focalOffset.z, pos.focalOffset.y, pos.focalOffset.z, false);
+            this.orbitControls.setLookAt(
+                pos.camera.x,
+                pos.camera.y,
+                pos.camera.z,
+                pos.target.x,
+                pos.target.y,
+                pos.target.z,
+                false,
+            );
+            this.orbitControls.setFocalOffset(
+                pos.focalOffset.z,
+                pos.focalOffset.y,
+                pos.focalOffset.z,
+                false,
+            );
             this.orbitControls.update(0);
         });
     }
@@ -351,9 +391,16 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * @param options Camera-controls' fitToBox options
      * @returns Resolves when interaction is done
      */
-    goToBox(obj: Box3 | Object3D | Entity3D, enableTransition: boolean = true, options: object = {
-        paddingTop: 10, paddingLeft: 10, paddingBottom: 10, paddingRight: 10,
-    }): Promise<any> {
+    goToBox(
+        obj: Box3 | Object3D | Entity3D,
+        enableTransition: boolean = true,
+        options: object = {
+            paddingTop: 10,
+            paddingLeft: 10,
+            paddingBottom: 10,
+            paddingRight: 10,
+        },
+    ): Promise<any> {
         // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
         let bbox = new Box3();
         if ((obj as any).isBox3) {
@@ -372,13 +419,23 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             // TODO: this should probably be part of Drawing in Giro3D
             if (drawing.geometryType === 'Point') {
                 bbox.setFromCenterAndSize(
-                    new Vector3(drawing.coordinates[0], drawing.coordinates[1], drawing.coordinates[2]),
+                    new Vector3(
+                        drawing.coordinates[0],
+                        drawing.coordinates[1],
+                        drawing.coordinates[2],
+                    ),
                     new Vector3(10, 10, 10),
                 );
             } else if (drawing.geometryType === 'MultiPoint') {
                 const pts = [];
-                for (let i=0; i < drawing.coordinates.length; i += 3) {
-                    pts.push(new Vector3(drawing.coordinates[i], drawing.coordinates[i+1], drawing.coordinates[i+2]));
+                for (let i = 0; i < drawing.coordinates.length; i += 3) {
+                    pts.push(
+                        new Vector3(
+                            drawing.coordinates[i],
+                            drawing.coordinates[i + 1],
+                            drawing.coordinates[i + 2],
+                        ),
+                    );
                 }
                 bbox.setFromPoints(pts);
             } else {
@@ -394,9 +451,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         bbox.min.z = Math.max(bbox.min.z, 0);
         bbox.max.z = Math.min(bbox.max.z, 2000);
 
-        return this.executeInteraction(() => this.orbitControls.fitToBox(
-            bbox, enableTransition, options,
-        ));
+        return this.executeInteraction(() =>
+            this.orbitControls.fitToBox(bbox, enableTransition, options),
+        );
     }
 
     lookTopDownAt(obj: Box3 | Object3D | Entity3D, enableTransition = true) {

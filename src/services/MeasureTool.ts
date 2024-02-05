@@ -1,7 +1,7 @@
-import { Raycaster } from "three";
-import Instance from "@giro3d/giro3d/core/Instance";
-import Measure3D from "@/giro3d/Measure3D";
-import Picker from "@/services/Picker";
+import { Raycaster } from 'three';
+import Instance from '@giro3d/giro3d/core/Instance';
+import Measure3D from '@/giro3d/Measure3D';
+import Picker from '@/services/Picker';
 
 export default class MeasureTool {
     private readonly _picker: Picker;
@@ -24,7 +24,10 @@ export default class MeasureTool {
 
             this._raycaster.camera = instance.camera.camera3D;
             this._raycaster.set(picked.point, n);
-            const intersects = this._raycaster.intersectObject(instance.scene, true).filter(i => i.distance > 1e-5).at(0);
+            const intersects = this._raycaster
+                .intersectObject(instance.scene, true)
+                .filter(i => i.distance > 1e-5)
+                .at(0);
 
             if (intersects) {
                 if (!this._hoverMeasurement) {

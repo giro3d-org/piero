@@ -1,9 +1,9 @@
-import { type VectorStyle } from "./VectorStyle";
+import { type VectorStyle } from './VectorStyle';
 
 export type BasemapSourceLayerType = 'wms' | 'wmts';
-export type OverlayVectorType = "geojson" | "kml" | "gpx";
-export type OverlayVectorTileType = "mvt";
-export type OverlayRasterType = "wms";
+export type OverlayVectorType = 'geojson' | 'kml' | 'gpx';
+export type OverlayVectorTileType = 'mvt';
+export type OverlayRasterType = 'wms';
 export type OverlayType = OverlayVectorType | OverlayVectorTileType | OverlayRasterType;
 export type BasemapSourceLayerFormat = 'bil' | 'png' | 'jpg';
 

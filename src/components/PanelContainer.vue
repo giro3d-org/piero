@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
-import Configuration, { PanelType} from './Configuration';
+    import { defineAsyncComponent } from 'vue';
+    import Configuration, { PanelType } from './Configuration';
 
-const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
-const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
-const BookmarkPanel = defineAsyncComponent(() => import('./panels/BookmarkPanel.vue'));
-const LayerPanel = defineAsyncComponent(() => import('./panels/LayerPanel.vue'));
-const AnalysisPanel = defineAsyncComponent(() => import('./panels/AnalysisPanel.vue'));
-const AnnotationPanel = defineAsyncComponent(() => import('./panels/AnnotationPanel.vue'));
-const MeasurementPanel = defineAsyncComponent(() => import('./panels/MeasurementPanel.vue'));
+    const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
+    const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
+    const BookmarkPanel = defineAsyncComponent(() => import('./panels/BookmarkPanel.vue'));
+    const LayerPanel = defineAsyncComponent(() => import('./panels/LayerPanel.vue'));
+    const AnalysisPanel = defineAsyncComponent(() => import('./panels/AnalysisPanel.vue'));
+    const AnnotationPanel = defineAsyncComponent(() => import('./panels/AnnotationPanel.vue'));
+    const MeasurementPanel = defineAsyncComponent(() => import('./panels/MeasurementPanel.vue'));
 
-defineProps<{
-    /**
-     * The name of the panel (must match the tooltip
-     * of the corresponding tool in the toolbar)
-     */
-    selected: PanelType | null,
-}>();
+    defineProps<{
+        /**
+         * The name of the panel (must match the tooltip
+         * of the corresponding tool in the toolbar)
+         */
+        selected: PanelType | null;
+    }>();
 
-defineEmits(['restart-tour'])
+    defineEmits(['restart-tour']);
 
-const panels = Configuration.panels;
+    const panels = Configuration.panels;
 </script>
 
 <template>
@@ -39,23 +39,23 @@ const panels = Configuration.panels;
 </template>
 
 <style scoped>
-.title {
-    margin: 1rem;
-}
+    .title {
+        margin: 1rem;
+    }
 
-.content {
-    flex-grow: 1;
-    overflow: auto;
-    width: 100% auto;
-    margin: 1rem;
-}
+    .content {
+        flex-grow: 1;
+        overflow: auto;
+        width: 100% auto;
+        margin: 1rem;
+    }
 
-.panel {
-    border-color: var(--bs-border-color);
-    border-width: 0 2px 0 2px;
-    border-style: solid;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
+    .panel {
+        border-color: var(--bs-border-color);
+        border-width: 0 2px 0 2px;
+        border-style: solid;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
 </style>

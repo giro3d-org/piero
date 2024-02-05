@@ -1,9 +1,9 @@
-import { EventDispatcher, MathUtils } from "three";
-import Measure3D from "@/giro3d/Measure3D";
-import Download from "@/utils/Download";
+import { EventDispatcher, MathUtils } from 'three';
+import Measure3D from '@/giro3d/Measure3D';
+import Download from '@/utils/Download';
 
 type MeasureEventMap = {
-    visible: {},
+    visible: {};
 };
 
 export default class Measure extends EventDispatcher<MeasureEventMap> {
@@ -46,16 +46,13 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
             id: `${Download.getBaseUrl()}/#${this.uuid}`,
             geometry: {
                 type: 'LineString',
-                coordinates: [
-                    this.object.from.toArray(),
-                    this.object.to.toArray(),
-                ],
+                coordinates: [this.object.from.toArray(), this.object.to.toArray()],
             },
             properties: {
                 ...this.properties,
                 title: this.title,
                 updated: new Date().toISOString(),
-            }
+            },
         } as GeoJSON.Feature;
 
         return geojson;
@@ -72,22 +69,22 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
             // @ts-ignore
             id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
             properties: {
-                lang: "en",
-                title: "Giro3D measures",
+                lang: 'en',
+                title: 'Giro3D measures',
                 updated: new Date().toISOString(),
-                creator: "Giro3D",
+                creator: 'Giro3D',
                 generator: {
-                    title: "Giro3D",
+                    title: 'Giro3D',
                     uri: Download.getBaseUrl(),
                 },
                 links: [
                     {
-                        "rel": "profile",
-                        "href": "http://www.opengis.net/spec/owc-atom/1.0/req/core",
-                        "title": "This file is compliant with version 1.0 of OGC Context"
-                    }
-                ]
-            }
-        }
+                        rel: 'profile',
+                        href: 'http://www.opengis.net/spec/owc-atom/1.0/req/core',
+                        title: 'This file is compliant with version 1.0 of OGC Context',
+                    },
+                ],
+            },
+        };
     }
 }

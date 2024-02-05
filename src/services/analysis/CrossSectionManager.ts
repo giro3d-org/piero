@@ -1,6 +1,6 @@
-import Instance from "@giro3d/giro3d/core/Instance";
+import Instance from '@giro3d/giro3d/core/Instance';
 import { useAnalysisStore } from '@/stores/analysis';
-import { MathUtils, Plane, Vector3 } from "three";
+import { MathUtils, Plane, Vector3 } from 'three';
 
 export default class CrossSectionManager {
     private readonly instance: Instance;
@@ -8,10 +8,7 @@ export default class CrossSectionManager {
 
     constructor(instance: Instance) {
         this.instance = instance;
-        this.store.$onAction(({
-            name,
-            after
-        }) => {
+        this.store.$onAction(({ name, after }) => {
             after(() => {
                 switch (name) {
                     case 'enableCrossSection':

@@ -1,5 +1,5 @@
-import Instance from "@giro3d/giro3d/core/Instance";
-import FloodingPlane from "@/types/FloodingPlane";
+import Instance from '@giro3d/giro3d/core/Instance';
+import FloodingPlane from '@/types/FloodingPlane';
 import LayerManager from '@/services/LayerManager';
 import { useAnalysisStore } from '@/stores/analysis';
 
@@ -14,10 +14,7 @@ export default class FloodingPlaneManager {
         this.layerManager = layerManager;
         this.plane = null;
 
-        this.store.$onAction(({
-            name,
-            after
-        }) => {
+        this.store.$onAction(({ name, after }) => {
             after(() => {
                 switch (name) {
                     case 'enableFloodingPlane':

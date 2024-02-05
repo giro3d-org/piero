@@ -1,10 +1,20 @@
-import { Box3, Box3Helper, BoxGeometry, Color, Group, Mesh, MeshBasicMaterial, Plane, Vector3 } from "three";
+import {
+    Box3,
+    Box3Helper,
+    BoxGeometry,
+    Color,
+    Group,
+    Mesh,
+    MeshBasicMaterial,
+    Plane,
+    Vector3,
+} from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import Instance from "@giro3d/giro3d/core/Instance";
+import Instance from '@giro3d/giro3d/core/Instance';
 import { useAnalysisStore } from '@/stores/analysis';
-import { useDatasetStore } from "@/stores/datasets";
-import { useCameraStore } from "@/stores/camera";
-import NavigationMode from "@/types/NavigationMode";
+import { useDatasetStore } from '@/stores/datasets';
+import { useCameraStore } from '@/stores/camera';
+import NavigationMode from '@/types/NavigationMode';
 
 const helperMaterial = new MeshBasicMaterial({ color: 'yellow', opacity: 0.1, transparent: true });
 
@@ -32,10 +42,7 @@ export default class ClippingBoxManager {
         this.transformControls = null;
         this.previousTransformControls = this.cameraStore.getNavigationMode();
 
-        this.store.$onAction(({
-            name,
-            after
-        }) => {
+        this.store.$onAction(({ name, after }) => {
             after(() => {
                 switch (name) {
                     case 'enableClippingBox':
@@ -56,10 +63,7 @@ export default class ClippingBoxManager {
             });
         });
 
-        this.datasetStore.$onAction(({
-            name,
-            after
-        }) => {
+        this.datasetStore.$onAction(({ name, after }) => {
             after(() => {
                 switch (name) {
                     case 'attachEntity':
@@ -90,18 +94,25 @@ export default class ClippingBoxManager {
             this.clippingBoxHelper.updateMatrixWorld();
 
             // Now let's add some controls to move the box
-            this.transformControls = new TransformControls(this.instance.camera.camera3D, this.instance.domElement);
+            this.transformControls = new TransformControls(
+                this.instance.camera.camera3D,
+                this.instance.domElement,
+            );
             this.transformControls.addEventListener('change', () => {
-                if (this.cameraStore.getNavigationMode() !== "disabled" || this.clippingBoxMesh === null) return;
+                if (
+                    this.cameraStore.getNavigationMode() !== 'disabled' ||
+                    this.clippingBoxMesh === null
+                )
+                    return;
                 // If the change came from the control, let's move the box
                 this.store.clippingBoxCenter.copy(this.clippingBoxMesh.position);
                 this.moveClippingBox();
             });
-            this.transformControls.addEventListener('dragging-changed', (event) => {
+            this.transformControls.addEventListener('dragging-changed', event => {
                 if (event.value) {
                     // Disable controls while we are playing with the transform controls
                     this.previousTransformControls = this.cameraStore.getNavigationMode();
-                    this.cameraStore.setNavigationMode("disabled");
+                    this.cameraStore.setNavigationMode('disabled');
                     this.cameraStore.setIsUserInteracting(true);
                 } else {
                     this.cameraStore.setNavigationMode(this.previousTransformControls);
@@ -167,7 +178,9 @@ export default class ClippingBoxManager {
             const entity = this.datasetStore.getEntity(o);
             if (entity) {
                 entity.clippingPlanes = planes;
-                entity.traverseMaterials(mat => { mat.clipIntersection = this.store.isClippingBoxInverted(); });
+                entity.traverseMaterials(mat => {
+                    mat.clipIntersection = this.store.isClippingBoxInverted();
+                });
                 this.instance.notifyChange(entity);
             }
         }
@@ -182,7 +195,10 @@ export default class ClippingBoxManager {
                 this.createClippingBox(this.store.clippingBoxCenter, this.store.clippingBoxSize);
             }
 
-            this.clippingBox?.setFromCenterAndSize(this.store.clippingBoxCenter, this.store.clippingBoxSize);
+            this.clippingBox?.setFromCenterAndSize(
+                this.store.clippingBoxCenter,
+                this.store.clippingBoxSize,
+            );
 
             if (this.store.isClippingBoxHelperDisplayed()) {
                 this.clippingBoxMesh?.position.copy(this.store.clippingBoxCenter);

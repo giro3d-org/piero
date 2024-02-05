@@ -1,9 +1,9 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
 
-import { defineConfig } from 'vite'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import vue from '@vitejs/plugin-vue';
 
 const openbimComponentsChunks = {
     // Big libs, put them in their own chunks
@@ -16,7 +16,7 @@ export default defineConfig({
         // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it
         // however it depends on earcut which _has_ to be optimized (because giro3d also depends on it)
         include: ['earcut'],
-        exclude: ['cityjson-threejs-loader']
+        exclude: ['cityjson-threejs-loader'],
     },
     build: {
         sourcemap: false,
@@ -47,7 +47,8 @@ export default defineConfig({
                             if (openbim_path === 'node_modules') {
                                 // And go a step further...
                                 const openbim_modules_path = paths.at(i + 3);
-                                if (openbim_modules_path in openbimComponentsChunks) return `${npm_module}-${openbimComponentsChunks[openbim_modules_path]}`;
+                                if (openbim_modules_path in openbimComponentsChunks)
+                                    return `${npm_module}-${openbimComponentsChunks[openbim_modules_path]}`;
                             }
                             return npm_module;
                         }
@@ -80,7 +81,7 @@ export default defineConfig({
             three: path.resolve('./node_modules/three'),
             'camera-controls': path.resolve('./node_modules/camera-controls'),
             // Use our dependencies for @math.gl
-            'proj4': path.resolve('./node_modules/proj4'),
-        }
-    }
-})
+            proj4: path.resolve('./node_modules/proj4'),
+        },
+    },
+});

@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import { computed, reactive, ref } from "vue";
-import Annotation from "@/types/Annotation";
-import AnnotationMode from "@/types/AnnotationMode";
+import { defineStore } from 'pinia';
+import { computed, reactive, ref } from 'vue';
+import Annotation from '@/types/Annotation';
+import AnnotationMode from '@/types/AnnotationMode';
 
 export const useAnnotationStore = defineStore('annotations', () => {
     const annotations = reactive<Annotation[]>([]) as Annotation[];
@@ -68,5 +68,21 @@ export const useAnnotationStore = defineStore('annotations', () => {
         // Nothing to do
     }
 
-    return { count, isUserDrawing, setIsUserDrawing, getAnnotationMode, setAnnotationMode, getAnnotations, hasAnnotation, add, remove, createPoint, createLine, createPolygon, edit, importAnnotationFile, importAnnotationsFiles, }
+    return {
+        count,
+        isUserDrawing,
+        setIsUserDrawing,
+        getAnnotationMode,
+        setAnnotationMode,
+        getAnnotations,
+        hasAnnotation,
+        add,
+        remove,
+        createPoint,
+        createLine,
+        createPolygon,
+        edit,
+        importAnnotationFile,
+        importAnnotationsFiles,
+    };
 });
