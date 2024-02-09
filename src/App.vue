@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { Vector3 } from 'three';
+    import { Vector2, Vector3 } from 'three';
     import { defineAsyncComponent, ref } from 'vue';
     import { Instance } from '@giro3d/giro3d/core';
     import { Extent } from '@giro3d/giro3d/core/geographic';
@@ -29,10 +29,11 @@
     const selectedTool = ref<PanelType | null>('datasets');
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
-    const mouse = ref({ x: 0, y: 0 });
+    let mouse = new Vector2();
     const pickedFeature = ref<Feature | null>(null);
     const tooltip = ref<string | null>(null);
     const isLoading = ref(false);
+    let hasMovedDuringFrame = false;
 
     const giro3dStore = useGiro3dStore();
     const cameraStore = useCameraStore();
@@ -112,8 +113,6 @@
             return;
         }
 
-        mouse.value = { x: event.clientX, y: event.clientY };
-
         const picked = giro3d.picker.pick(giro3d.mainInstance, event);
 
         if (picked?.point) {
@@ -142,9 +141,9 @@
         }
     }
 
-    function updateCoordinates(event: MouseEvent) {
+    function updateCoordinates(mouse: Vector2) {
         if (giro3d) {
-            const point = giro3d.picker.getMouseCoordinate(giro3d.mainInstance, event);
+            const point = giro3d.picker.getMouseCoordinate(giro3d.mainInstance, mouse);
 
             if (point) {
                 coordinates.value.x = point.x;
@@ -154,20 +153,29 @@
         }
     }
 
-    function updateCursor(event: MouseEvent) {
+    function updateCursor(mouse: Vector2) {
         if (giro3d) {
             if (annotationStore.isUserDrawing() || measurementStore.isUserMeasuring()) {
                 return;
             }
-            const picked = giro3d.picker.hasFeature(giro3d.mainInstance, event);
+            const picked = giro3d.picker.hasFeature(giro3d.mainInstance, mouse);
             giro3d.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
         }
     }
 
     function onMouseMove(event: MouseEvent) {
-        updateCoordinates(event);
-        updateCursor(event);
+        giro3d.mainInstance.eventToCanvasCoords(event, mouse);
+        hasMovedDuringFrame = true;
     }
+
+    // debouncing costly functions
+    setInterval(() => {
+        if (hasMovedDuringFrame) {
+            updateCoordinates(mouse);
+            updateCursor(mouse);
+            hasMovedDuringFrame = false;
+        }
+    }, 50);
 
     function onPointOfInterestSelected(poi: Vector3) {
         if (!giro3d) {
