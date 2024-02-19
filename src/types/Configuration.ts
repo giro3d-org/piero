@@ -1,5 +1,5 @@
 import { type VectorStyle } from './VectorStyle';
-import { type DatasetType, type DatasetTypeImportable } from './Dataset';
+import { type DatasetType, type DatasetTypeImportable, type DatasetTypeMultiple } from './Dataset';
 import { type BaseLayerType } from './BaseLayer';
 import {
     type BasemapSourceLayerType,
@@ -65,7 +65,14 @@ export type DatasetRemoteBaseConfig<TType extends DatasetType> = DatasetBaseConf
     url: string;
 };
 
-export type DatasetConfig = DatasetRemoteBaseConfig<DatasetType>;
+export type DatasetMultipleRemoteBaseConfig<TType extends DatasetType> =
+    DatasetBaseConfig<TType> & {
+        url: string[];
+    };
+
+export type DatasetConfig =
+    | DatasetRemoteBaseConfig<DatasetType>
+    | DatasetMultipleRemoteBaseConfig<DatasetTypeMultiple>;
 export type DatasetImportedConfig = DatasetImportedBaseConfig<DatasetTypeImportable>;
 
 export type OverlayBaseConfig = {

@@ -5,6 +5,7 @@ import { DatasetConfig, DatasetImportedConfig } from '@/types/Configuration';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 import config from '@/config';
 
+/** All types of datasets supported in this app */
 export type DatasetType =
     | 'cityjson'
     | 'ifc'
@@ -14,7 +15,10 @@ export type DatasetType =
     | 'shp'
     | 'geojson'
     | 'gpkg';
+/** List of dataset types that can be drag-and-dropped into the app */
 export type DatasetTypeImportable = Exclude<DatasetType, 'bdtopo' | 'ply' | 'shp'>;
+/** List of dataset types that support multiple URL sources in their configuration */
+export type DatasetTypeMultiple = Extract<DatasetType, 'geojson' | 'gpkg' | 'shp'>;
 
 export type DatasetEventMap = {
     visible: {};
