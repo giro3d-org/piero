@@ -13,26 +13,32 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Instance from '@giro3d/giro3d/core/Instance';
 import IfcEntity from '@/giro3d/IfcEntity';
 
-/**
- * IFC options
- */
-export type IFCOptions = {
+import Fetcher from '@/utils/Fetcher';
+import loader from './loader';
+
+/** Parameters for creating IFC object */
+export type IFCParameters = {
+    name: string;
     at?: Coordinates;
 };
 
 export default {
-    /**
-     * Loads an IFC file.
-     *
-     * @param instance Giro3d instance
-     * @param id Layer id
-     * @param file IFC file
-     * @param options Options
-     * @returns Entity created
-     */
-    async loadIfc(instance: Instance, id: string, file: File | Response, options: IFCOptions = {}) {
-        const data = await file.arrayBuffer();
+    async load(
+        instance: Instance,
+        url: string | ArrayBuffer | Blob | Response,
+        parameters: IFCParameters,
+    ): Promise<IfcEntity> {
+        const data = await Fetcher.arrayBuffer(url);
+        const entity = await this.loadArrayBuffer(instance, data, parameters);
+        loader.fillOrigin(entity.object3d, url);
+        return entity;
+    },
 
+    async loadArrayBuffer(
+        instance: Instance,
+        data: ArrayBuffer,
+        parameters: IFCParameters,
+    ): Promise<IfcEntity> {
         const components = new Components();
         components.ui.enabled = false;
 
@@ -52,15 +58,15 @@ export default {
         fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
 
         const buffer = new Uint8Array(data);
-        const ifcModel = await fragmentIfcLoader.load(buffer, id);
+        const ifcModel = await fragmentIfcLoader.load(buffer, parameters.name);
 
         // IFC models are Y-up, so we need to rotate them to be Z-up.
         ifcModel.rotateX(Math.PI / 2);
 
         const position = new Vector3();
         // If custom coordinates are provided, we ignore the IFC's placement
-        if (options.at) {
-            options.at.as(instance.referenceCrs).toVector3(position);
+        if (parameters.at) {
+            parameters.at.as(instance.referenceCrs).toVector3(position);
             ifcModel.position.copy(position);
         } else {
             // Since we are loading the model with COORDINATE_TO_ORIGIN = true, all vertices will be

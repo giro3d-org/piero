@@ -1,6 +1,11 @@
 import proj4 from 'proj4';
-import Instance from '@giro3d/giro3d/core/Instance.js';
+import Instance from '@giro3d/giro3d/core/Instance';
 
+/**
+ * Loads a Projection info and registers it in Giro3D if needed
+ * @param projection Projection code
+ * @returns EPSG string (e.g. `EPSG:2154`)
+ */
 async function loadProjCrsIfNeeded(projection: string) {
     let epsgCode: string | null = null;
 
@@ -18,14 +23,15 @@ async function loadProjCrsIfNeeded(projection: string) {
     }
 
     if (epsgCode) {
-        if (proj4.defs(`EPSG:${epsgCode}`) === undefined) {
+        const epsgString = `EPSG:${epsgCode}`;
+        if (proj4.defs(epsgString) === undefined) {
             await fetch(`https://epsg.io/${epsgCode}.proj4`)
                 .then(p => p.text())
                 .then(t => {
-                    Instance.registerCRS(`EPSG:${epsgCode}`, t);
+                    Instance.registerCRS(epsgString, t);
                 });
         }
-        return epsgCode;
+        return epsgString;
     }
     throw new Error(`Could not find projection for ${projection}`);
 }

@@ -1,7 +1,9 @@
-import { EventDispatcher } from 'three';
-import LayerObject from './LayerObject';
+import { EventDispatcher, MathUtils } from 'three';
 import { Coordinates } from '@giro3d/giro3d/core/geographic';
-import Named from './Named';
+
+import { DatasetConfig, DatasetImportedConfig } from '@/types/Configuration';
+import { getPublicFolderUrl } from '@/utils/Configuration';
+import config from '@/config';
 
 export type DatasetType =
     | 'cityjson'
@@ -12,54 +14,106 @@ export type DatasetType =
     | 'shp'
     | 'geojson'
     | 'gpkg';
+export type DatasetTypeImportable = Exclude<DatasetType, 'bdtopo' | 'ply' | 'shp'>;
 
-export interface Dataset extends Named, EventDispatcher {
-    isLoaded: boolean;
-    type: DatasetType;
-    url: string | null;
-    uuid: string;
-    name: string;
-    coordinates?: Coordinates;
-    elevation?: number;
-    canMaskBasemap?: boolean;
-    isMaskingBasemap?: boolean;
+export type DatasetEventMap = {
+    visible: {};
+    opacity: {};
+    delete: {};
+    isLoading: {};
+    isLoaded: {};
+};
 
-    get isLoading(): boolean;
-    set isLoading(v: boolean);
-    get visible(): boolean;
-    set visible(v: boolean);
-    get opacity(): number;
-    set opacity(v: number);
-
-    delete(): void;
-}
-
-export class DatasetObject extends LayerObject implements Dataset {
+export class Dataset extends EventDispatcher<DatasetEventMap> {
     readonly type: DatasetType;
-    readonly url: string | null;
-    private _isLoading: boolean = false;
+    readonly uuid: string;
+    readonly url: string | string[] | null;
+    protected _visible: boolean;
+    protected _opacity: number;
+    protected _name: string;
+    protected _isLoading: boolean;
+    protected _isLoaded: boolean;
 
-    isLoaded: boolean;
+    readonly coordinates?: Coordinates;
+    readonly elevation?: number;
+    readonly canMaskBasemap?: boolean;
+    readonly isMaskingBasemap?: boolean;
 
-    coordinates?: Coordinates;
-    elevation?: number;
+    constructor(conf: DatasetConfig | DatasetImportedConfig) {
+        super();
+        this.type = conf.type;
+        this.uuid = MathUtils.generateUUID();
+        this._visible = conf.visible ?? false;
+        this._opacity = conf.opacity ?? 1;
+        this._name = conf.name;
+        this._isLoading = false;
+        this._isLoaded = false;
 
-    canMaskBasemap?: boolean;
-    isMaskingBasemap?: boolean;
+        this.canMaskBasemap = conf.canMaskBasemap;
+        this.isMaskingBasemap = conf.isMaskingBasemap;
 
-    set isLoading(v: boolean) {
-        this._isLoading = v;
-        this.dispatchEvent({ type: 'isLoading' });
+        if (conf.position) {
+            const position = conf.position;
+            this.coordinates = new Coordinates(
+                position.crs ?? config.default_crs,
+                position.x,
+                position.y,
+                position.z ?? 0,
+            );
+        }
+        this.elevation = conf.elevation;
+
+        if (conf.url) {
+            if (Array.isArray(conf.url)) {
+                this.url = conf.url.map(url => getPublicFolderUrl(url));
+            } else {
+                this.url = getPublicFolderUrl(conf.url);
+            }
+        } else {
+            this.url = null;
+        }
+    }
+
+    get name() {
+        return this._name;
     }
 
     get isLoading() {
         return this._isLoading;
     }
-
-    constructor(name: string, type: DatasetType, url: string | null) {
-        super(name);
-        this.type = type;
-        this.url = url;
-        this.isLoaded = false;
+    set isLoading(v) {
+        this._isLoading = v;
+        this.dispatchEvent({ type: 'isLoading' });
     }
+    get isLoaded() {
+        return this._isLoaded;
+    }
+    set isLoaded(v) {
+        this._isLoaded = v;
+        this.dispatchEvent({ type: 'isLoaded' });
+    }
+
+    get visible() {
+        return this._visible;
+    }
+    set visible(v) {
+        this._visible = v;
+        this.dispatchEvent({ type: 'visible' });
+    }
+
+    get opacity() {
+        return this._opacity;
+    }
+    set opacity(v) {
+        this._opacity = v;
+        this.dispatchEvent({ type: 'opacity' });
+    }
+
+    delete() {
+        this.dispatchEvent({ type: 'delete' });
+    }
+}
+
+export function parseDatasetConfig(datasets: DatasetConfig[]): Dataset[] {
+    return datasets.map(childconf => new Dataset(childconf));
 }

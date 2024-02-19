@@ -1,5 +1,5 @@
 import { type VectorStyle } from './VectorStyle';
-import { type DatasetType } from './Dataset';
+import { type DatasetType, type DatasetTypeImportable } from './Dataset';
 import { type BaseLayerType } from './BaseLayer';
 import {
     type BasemapSourceLayerType,
@@ -44,28 +44,29 @@ export type LayerConfig = {
     source: BasemapSourceLayerConfig;
 };
 
-export type DatasetBaseConfig = {
-    type: DatasetType;
-    url: string;
+export type DatasetBaseConfig<TType extends DatasetType> = {
+    type: TType;
     name: string;
+    visible?: boolean;
+    opacity?: number;
     position?: GeoVec3;
     /** Whether this dataset can mask the basemap (enables the "mask" button for this dataset) */
     canMaskBasemap?: boolean;
     /** Whether this dataset masks the basemap by default (can still be disabled via the "mask" button) */
     isMaskingBasemap?: boolean;
+    elevation?: number;
 };
 
-export type DatasetPlyConfig = DatasetBaseConfig & {
-    type: 'ply';
-    position: GeoVec3;
+export type DatasetImportedBaseConfig<TType extends DatasetType> = DatasetBaseConfig<TType> & {
+    url: null;
 };
 
-export type Dataset2DConfig = DatasetBaseConfig & {
-    type: 'shp' | 'geojson' | 'gpkg';
-    elevation: number;
+export type DatasetRemoteBaseConfig<TType extends DatasetType> = DatasetBaseConfig<TType> & {
+    url: string;
 };
 
-export type DatasetConfig = DatasetBaseConfig | DatasetPlyConfig | Dataset2DConfig;
+export type DatasetConfig = DatasetRemoteBaseConfig<DatasetType>;
+export type DatasetImportedConfig = DatasetImportedBaseConfig<DatasetTypeImportable>;
 
 export type OverlayBaseConfig = {
     type: OverlayType;

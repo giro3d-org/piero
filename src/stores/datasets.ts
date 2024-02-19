@@ -1,54 +1,13 @@
 import { ref, computed, Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { type Dataset, DatasetObject } from '@/types/Dataset';
-import config from '../config';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import { Box3 } from 'three';
 import { type Entity3D } from '@giro3d/giro3d/entities';
-import { getPublicFolderUrl } from '@/utils/Configuration';
-import { type DatasetConfig } from '@/types/Configuration';
 
-function buildDataset(datasetConfig: DatasetConfig): DatasetObject {
-    if (datasetConfig.type === 'bdtopo') {
-        return new DatasetObject(datasetConfig.name, 'bdtopo', null);
-    }
-
-    const ds = new DatasetObject(
-        datasetConfig.name,
-        datasetConfig.type,
-        getPublicFolderUrl(datasetConfig.url),
-    );
-    if (datasetConfig.position) {
-        const position = datasetConfig.position;
-        ds.coordinates = new Coordinates(
-            position.crs ?? config.default_crs,
-            position.x,
-            position.y,
-            position.z ?? 0,
-        );
-    }
-    if ('elevation' in datasetConfig) {
-        ds.elevation = datasetConfig.elevation;
-    }
-    return ds;
-}
-
-function buildInitialList(): Dataset[] {
-    const result: Dataset[] = [];
-
-    for (const conf of config.datasets) {
-        const ds = buildDataset(conf);
-
-        if (conf.canMaskBasemap) ds.canMaskBasemap = true;
-        if (conf.isMaskingBasemap) ds.isMaskingBasemap = true;
-
-        result.push(ds);
-    }
-
-    return result;
-}
+import { type Dataset, parseDatasetConfig } from '@/types/Dataset';
+import config from '../config';
 
 export const useDatasetStore = defineStore('datasets', () => {
-    const datasets = ref(buildInitialList()) as Ref<Dataset[]>;
+    const datasets = ref(parseDatasetConfig(config.datasets)) as Ref<Dataset[]>;
     const count = computed(() => datasets.value.length);
 
     const entities: Map<string, Entity3D> = new Map();
@@ -73,6 +32,11 @@ export const useDatasetStore = defineStore('datasets', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function clipTo(ds: Dataset) {
         // Nothing to do, rely on action listeners.
+    }
+
+    function getBoundingBox(dataset: Dataset): Box3 {
+        const entity = getEntity(dataset);
+        return entity?.getBoundingBox() ?? new Box3();
     }
 
     function getEntity(ds: Dataset): Entity3D | undefined {
@@ -107,6 +71,7 @@ export const useDatasetStore = defineStore('datasets', () => {
         clipTo,
         importFromFile,
         setVisible,
+        getBoundingBox,
         getEntity,
         attachEntity,
         toggleGrid,

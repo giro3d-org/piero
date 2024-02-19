@@ -1,27 +1,23 @@
-import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-import Instance from '@giro3d/giro3d/core/Instance.js';
-import Fetcher from '@giro3d/giro3d/utils/Fetcher';
+import { Object3D } from 'three';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import Instance from '@giro3d/giro3d/core/Instance';
 
-import CityJSON, { type CityJSONOptions } from './CityJSON';
-import GeoJSON, { GeoJSONOptions } from './GeoJSON.js';
-import IFC, { type IFCOptions } from './IFC.js';
-import PLY, { type PLYOptions } from './PLY.js';
-import Loadersgl, { type LoaderglOptions } from './Loadersgl.js';
-import { useNotificationStore } from '@/stores/notifications';
-import Notification from '@/types/Notification';
-
-/** Base options */
-type BaseProcessOptions = {
-    /** Indicates whether the file should be visible immediately */
-    visible?: boolean;
-};
-
-/** Options */
-export type ProcessOptions = (LoaderglOptions | CityJSONOptions | IFCOptions | PLYOptions) &
-    BaseProcessOptions;
+import { DatasetImportedConfig } from '@/types/Configuration';
+import { Dataset, DatasetTypeImportable } from '@/types/Dataset';
+import { UrlOrGlDataType } from '@/utils/Fetcher';
+import CityJSON from './CityJSON';
+import GeoJSON from './GeoJSON';
+import IFC from './IFC';
+import PLY from './PLY';
+import BDTopo from './BDTopo';
+import TiledPointCloud from './TiledPointCloud';
+import Shapefile from './Shapefile';
+import Geopackage from './Geopackage';
+import CSVPointCloud from './CSVPointCloud';
+import LAS from './LAS';
 
 /** Supported file types */
-export type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'ply' | 'shp';
+type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc';
 
 /** Mapping between file extensions and file types */
 const filetypesPerExtension: Record<string, FileType> = {
@@ -32,32 +28,40 @@ const filetypesPerExtension: Record<string, FileType> = {
     json: 'cityjson',
     geojson: 'geojson',
     ifc: 'ifc',
-    ply: 'ply',
-    shp: 'shp',
 } as const;
 
-/** File types that require downloading the file (e.g. their loaders don't support URLs and need fetching) */
-const filetypesRequireDownloadedFile: FileType[] = ['cityjson', 'geojson', 'ifc', 'ply'] as const;
+/** Mapping between file types and the dataset types */
+const datasetTypePerFileType: Record<FileType, DatasetTypeImportable> = {
+    gpkg: 'gpkg',
+    las: 'pointcloud',
+    csv: 'pointcloud',
+    cityjson: 'cityjson',
+    geojson: 'geojson',
+    ifc: 'ifc',
+} as const;
 
-/** Pre-processed file results */
-interface PreprocessedFileResult {
+/** Information on a File */
+interface FileInfo {
     /** Filename */
-    filename: string;
-    /** File type */
-    filetype: FileType;
-    /** Downloaded file, if needed */
-    file?: File | Response;
+    name?: string;
+    /** File extension */
+    ext?: string;
+    /** File type (if recognized) */
+    type?: FileType;
+    /** Dataset type (if recognized) */
+    datasetType?: DatasetTypeImportable;
 }
 
-/** Processed file results */
-export interface ProcessedFileResult {
-    /** Filename */
-    filename: string;
-    /** File type */
-    filetype: FileType;
-    /** Giro3D entity */
-    obj: Entity3D;
-}
+/** Information on a File that we know is importable */
+type ImportableFileInfo = Required<FileInfo>;
+
+/** Result of import */
+export type ImportFileResult = {
+    /** Entity created */
+    entity: Entity3D;
+    /** Dataset created */
+    dataset: Dataset;
+};
 
 /**
  * Gets the filename and extension from a File or URL
@@ -65,177 +69,187 @@ export interface ProcessedFileResult {
  * @param fileOrUrl File or URL
  * @returns File name and extension
  */
-function getFilename(fileOrUrl: File | string): { filename?: string; fileext?: string } {
+function getFilename(fileOrUrl: UrlOrGlDataType): FileInfo {
     let filename: string | undefined = undefined;
 
     if (fileOrUrl instanceof File) {
         filename = fileOrUrl.name;
-    } else {
+    } else if (fileOrUrl instanceof Response) {
+        filename = fileOrUrl.url.split('/').at(-1);
+    } else if (typeof fileOrUrl === 'string' || fileOrUrl instanceof String) {
         filename = fileOrUrl.split('/').at(-1);
     }
+
     const fileext = filename?.split('.').at(-1);
+    const filetype = fileext ? filetypesPerExtension[fileext] : undefined;
+    const datasetType = filetype ? datasetTypePerFileType[filetype] : undefined;
 
-    return { filename, fileext };
+    return { name: filename, ext: fileext, type: filetype, datasetType };
 }
 
 /**
- * Checks if we can process the file given as parameter
+ * Loads a dataset and creates its Entity3D.
  *
- * @param fileOrUrl File or URL
- * @param fromDragAndDrop True if we dropped it into the app
+ * @param instance Giro3D instance
+ * @param dataset Dataset to load
+ * @returns Entity3D
+ * @throws `Error` if bad dataset parameters
  */
-function checkCanProcessFile(fileOrUrl: File | string, fromDragAndDrop: boolean) {
-    const { filename, fileext } = getFilename(fileOrUrl);
+async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity3D> {
+    let entity: Promise<Entity3D>;
 
-    if (filename == null || fileext == null) {
-        throw new Error('Could not determine filename');
-    }
-
-    if (!(fileext in filetypesPerExtension)) {
-        throw new Error(`File ${fileext} not supported`);
-    }
-    const filetype = filetypesPerExtension[fileext];
-
-    if (fromDragAndDrop) {
-        if (filetype === 'ply') {
-            throw new Error(
-                `File ${fileext} not supported via drag and drop, as we are missing georeferencing`,
-            );
-        }
-        if (filetype === 'shp') {
-            throw new Error(`File ${fileext} not supported via drag and drop`);
-        }
-    }
-}
-
-/**
- * Pre-processes a file
- * @param fileOrUrl File object to load, or URL to fetch and load
- * @returns Pre-processed result
- */
-async function preprocessFile(fileOrUrl: File | string): Promise<PreprocessedFileResult> {
-    let file: File | Response | undefined = undefined;
-    const { filename, fileext } = getFilename(fileOrUrl);
-
-    if (filename == null || fileext == null) {
-        throw new Error('Could not determine filename');
-    }
-
-    if (!(fileext in filetypesPerExtension)) {
-        throw new Error(`File ${fileext} not supported`);
-    }
-
-    const filetype = filetypesPerExtension[fileext];
-
-    if (!(fileOrUrl instanceof File) && filetypesRequireDownloadedFile.includes(filetype)) {
-        const notifications = useNotificationStore();
-        notifications.push(new Notification(decodeURI(filename), 'Loading...'));
-
-        file = await Fetcher.fetch(fileOrUrl);
-    } else if (fileOrUrl instanceof File) {
-        file = fileOrUrl;
-    }
-
-    return {
-        filename,
-        filetype,
-        file,
-    };
-}
-
-/**
- * Processes a file and adds it into Giro3d scene.
- *
- * @param instance Giro3d instance
- * @param layerManager Layer manager
- * @param fileOrUrl File object to load, or URL to fetch and load
- * @param options Options
- * @returns Processed entity
- */
-async function processFile(
-    instance: Instance,
-    // layerManager: LayerManager,
-    fileOrUrl: File | string,
-    options: ProcessOptions = {},
-): Promise<ProcessedFileResult> {
-    const { file, filename, filetype } = await preprocessFile(fileOrUrl);
-
-    let obj: Entity3D | undefined;
-
-    switch (filetype) {
-        case 'gpkg': {
-            obj = await Loadersgl.loadGeoPackage(
-                instance,
-                filename,
-                fileOrUrl,
-                options as LoaderglOptions,
-            );
-            break;
-        }
-        case 'las': {
-            obj = await Loadersgl.loadLas(
-                instance,
-                filename,
-                fileOrUrl,
-                options as LoaderglOptions,
-            );
-            break;
-        }
-        case 'csv': {
-            obj = await Loadersgl.loadCsv(
-                instance,
-                filename,
-                fileOrUrl,
-                options as LoaderglOptions,
-            );
+    switch (dataset.type) {
+        case 'bdtopo': {
+            entity = BDTopo.load(instance, { name: dataset.name });
             break;
         }
         case 'cityjson': {
-            if (file == null) throw new Error('Could not load CityJSON file: file is null');
-            const str = await file.text();
-            obj = await CityJSON.loadString(instance, filename, str, options as CityJSONOptions);
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            entity = CityJSON.load(instance, dataset.url);
             break;
         }
         case 'ifc': {
-            if (file == null) throw new Error('Could not load IFC file: file is null');
-            obj = await IFC.loadIfc(instance, filename, file, options as IFCOptions);
-            break;
-        }
-        case 'geojson': {
-            if (file == null) throw new Error('Could not load GeoJSON file: file is null');
-            const str = await file.text();
-            obj = await GeoJSON.loadString(instance, filename, str, options as GeoJSONOptions);
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            const at = dataset.coordinates;
+            entity = IFC.load(instance, dataset.url, {
+                name: dataset.name,
+                at: at?.as(instance.referenceCrs),
+            });
             break;
         }
         case 'ply': {
-            if (file == null) throw new Error('Could not load PLY file: file is null');
-            const plyOptions = options as PLYOptions;
-            if (!plyOptions.at) {
-                throw new Error('Could not load PLY file: no position to place the object');
-            }
-            obj = await PLY.loadPly(instance, filename, file, plyOptions);
+            const at = dataset.coordinates;
+            if (!at) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            entity = PLY.load(instance, dataset.url, {
+                at: at.as(instance.referenceCrs),
+            });
             break;
         }
-        case 'shp':
-            obj = await Loadersgl.loadShapefile(
-                instance,
-                filename,
-                fileOrUrl,
-                options as LoaderglOptions,
-            );
+        case 'shp': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            entity = Shapefile.loadAll(instance, dataset.url, {
+                elevation: dataset.elevation,
+            });
             break;
-        default:
-            throw new Error(`File type ${filetype} is not supported`);
+        }
+        case 'geojson': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            entity = GeoJSON.loadAll(instance, dataset.url, {
+                elevation: dataset.elevation,
+            });
+            break;
+        }
+        case 'gpkg': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            entity = Geopackage.loadAll(instance, dataset.url, {
+                elevation: dataset.elevation,
+            });
+            break;
+        }
+        case 'pointcloud': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            entity = TiledPointCloud.load(instance, dataset.url, { name: dataset.name });
+            break;
+        }
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = dataset.type;
+            return _exhaustiveCheck;
+        }
     }
 
-    if (!obj) throw new Error('Could not create Giro3D object');
-
-    const visible = options?.visible ?? true;
-    if (!visible) {
-        obj.visible = false;
-    }
-
-    return { filename, filetype, obj };
+    const e = await entity;
+    if (!('dataset' in e.object3d.userData)) e.object3d.userData.dataset = {};
+    e.object3d.userData.dataset.name = dataset.name;
+    return e;
 }
 
-export default { processFile, checkCanProcessFile };
+/**
+ * Loads a supported file and creates its Entity3D
+ *
+ * @param instance Giro3D instance
+ * @param file File to load
+ * @param fileinfo File info
+ * @returns Entity3D
+ */
+async function loadFile(
+    instance: Instance,
+    file: File,
+    fileinfo: ImportableFileInfo,
+): Promise<Entity3D> {
+    switch (fileinfo.type) {
+        case 'cityjson':
+            return CityJSON.load(instance, file);
+        case 'csv':
+            return CSVPointCloud.load(instance, file);
+        case 'geojson':
+            return GeoJSON.load(instance, file);
+        case 'gpkg':
+            return Geopackage.load(instance, file);
+        case 'ifc':
+            return IFC.load(instance, file, { name: fileinfo.name });
+        case 'las':
+            return LAS.load(instance, file);
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = fileinfo.type;
+            return _exhaustiveCheck;
+        }
+    }
+}
+
+/**
+ * Loads a file and creates its Entity3D and Dataset.
+ *
+ * @param instance Giro3D instance
+ * @param file File to load
+ * @returns Created objects
+ * @throws `Error` if file cannot be imported (unsupported, etc.)
+ */
+async function importFile(instance: Instance, file: File): Promise<ImportFileResult> {
+    const fileinfo = getFilename(file);
+
+    if (fileinfo.name == null || fileinfo.ext == null) {
+        throw new Error('Could not determine filename');
+    }
+    if (fileinfo.type == null || fileinfo.datasetType == null) {
+        throw new Error(`File ${fileinfo.ext} not supported`);
+    }
+
+    const entity = await loadFile(instance, file, fileinfo as ImportableFileInfo);
+    if (!('dataset' in entity.object3d.userData)) entity.object3d.userData.dataset = {};
+    entity.object3d.userData.dataset.name = fileinfo.name;
+
+    const datasetConfig: DatasetImportedConfig = {
+        name: fileinfo.name,
+        type: fileinfo.datasetType,
+        url: null,
+        visible: true,
+    };
+    const dataset = new Dataset(datasetConfig);
+    return { entity, dataset };
+}
+
+function fillOrigin(object: Object3D, url: UrlOrGlDataType) {
+    const fileinfo = getFilename(url);
+    if (fileinfo.name) {
+        if (!('dataset' in object.userData)) object.userData.dataset = {};
+        object.userData.dataset.filename = fileinfo.name;
+    }
+}
+
+export default {
+    loadDataset,
+    importFile,
+    getFilename,
+    fillOrigin,
+};

@@ -3,12 +3,13 @@ import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Instance from '@giro3d/giro3d/core/Instance';
 import { PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
-import { Entity3D } from '@giro3d/giro3d/entities';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-/**
- * PLY options
- */
-export type PLYOptions = {
+import Fetcher, { UrlOrBlob } from '@/utils/Fetcher';
+import loader from './loader';
+
+/** Parameters for creating PLY object */
+export type PLYParameters = {
     at: Coordinates;
 };
 
@@ -44,21 +45,26 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
 }
 
 export default {
-    /**
-     * Loads a PLY file.
-     *
-     * @param instance Giro3d instance
-     * @param id Layer id
-     * @param file PLY file
-     * @param options Options
-     * @returns Entity created
-     */
-    async loadPly(instance: Instance, id: string, file: File | Response, options: PLYOptions) {
-        const position = options.at.as(instance.referenceCrs).toVector3();
+    async load(
+        instance: Instance,
+        url: UrlOrBlob | ArrayBuffer,
+        parameters: PLYParameters,
+    ): Promise<Entity3D> {
+        const data = await Fetcher.arrayBuffer(url);
+        const entity = await this.loadArrayBuffer(instance, data, parameters);
+        loader.fillOrigin(entity.object3d, url);
+        return entity;
+    },
 
-        const buffer = await file.arrayBuffer();
+    async loadArrayBuffer(
+        instance: Instance,
+        data: ArrayBuffer,
+        parameters: PLYParameters,
+    ): Promise<Entity3D> {
+        const position = parameters.at.as(instance.referenceCrs).toVector3();
+
         const loader = new PLYLoader();
-        const geometry = loader.parse(buffer);
+        const geometry = loader.parse(data);
 
         const material = new MeshLambertMaterial({
             side: DoubleSide,
@@ -76,9 +82,7 @@ export default {
         mesh.updateWorldMatrix(true, true);
 
         const entity = new Entity3D(mesh.uuid, mesh);
-        mesh.traverse(obj => {
-            entity.onObjectCreated(obj);
-        });
+        entity.onObjectCreated(mesh);
         return entity;
     },
 };

@@ -1,44 +1,23 @@
-import { GeoJSON } from 'ol/format';
-import { tile } from 'ol/loadingstrategy.js';
-import { createXYZ } from 'ol/tilegrid.js';
-import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import { Fill, Style } from 'ol/style';
 import Polygon from 'ol/geom/Polygon';
 
-import { Color, MeshLambertMaterial, Vector3 } from 'three';
+import { Color, Vector3 } from 'three';
 
 import Instance from '@giro3d/giro3d/core/Instance';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import MaskLayer, { MaskMode } from '@giro3d/giro3d/core/layer/MaskLayer';
 import AxisGrid from '@giro3d/giro3d/entities/AxisGrid';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import Giro3DMap from '@giro3d/giro3d/entities/Map';
-import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
-import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
-import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
+import loader from '@/loaders/loader';
 import CameraController from '@/services/CameraController';
-import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
-import loader, { FileType, ProcessOptions } from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset';
+import { Dataset } from '@/types/Dataset';
 import Notification from '@/types/Notification';
-
-/** Mapping between file types and the dataset types */
-const datasetTypePerFileType: Record<FileType, DatasetType> = {
-    gpkg: 'gpkg',
-    las: 'pointcloud',
-    csv: 'pointcloud',
-    cityjson: 'cityjson',
-    geojson: 'geojson',
-    ifc: 'ifc',
-    ply: 'ply',
-    shp: 'shp',
-} as const;
 
 export default class DatasetManager {
     private readonly instance: Instance;
@@ -90,11 +69,7 @@ export default class DatasetManager {
             if (grid) this.instance.remove(grid);
             this.axisGrids.delete(dataset.uuid);
         } else {
-            const entity = this.entities.get(dataset.uuid);
-            if (!entity) {
-                return;
-            }
-            const box = entity.getBoundingBox();
+            const box = this.store.getBoundingBox(dataset);
             if (!box || box.isEmpty()) {
                 return;
             }
@@ -122,15 +97,10 @@ export default class DatasetManager {
     }
 
     private createMask(dataset: Dataset) {
-        const entity = this.entities.get(dataset.uuid);
-        if (!entity) {
-            return;
-        }
-
         // TODO: this assumes the dataset covers the whole bounding box
         // (in particular, that it is oriented the same way)
         // which will most likely not be the case...
-        const box = entity.getBoundingBox();
+        const box = this.store.getBoundingBox(dataset);
         if (!box || box.isEmpty()) {
             return;
         }
@@ -201,22 +171,6 @@ export default class DatasetManager {
         }
     }
 
-    private loadPointCloud(dataset: Dataset): Tiles3D {
-        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-
-        const pointcloud = new Tiles3D(
-            `pointcloud-${dataset.name}`,
-            new Tiles3DSource(dataset.url),
-            {
-                material: new PointCloudMaterial({
-                    size: 2,
-                    mode: MODE.ELEVATION,
-                }),
-            },
-        );
-        return pointcloud;
-    }
-
     private zoom(dataset: Dataset) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
@@ -224,92 +178,12 @@ export default class DatasetManager {
         }
     }
 
-    private async loadDefault(dataset: Dataset, options: ProcessOptions): Promise<Entity3D> {
-        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-        const result = await loader.processFile(this.instance, dataset.url, options);
-        return result.obj;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private loadBDTopo(dataset: Dataset): Entity3D {
-        const crs = this.instance.referenceCrs;
-
-        const vectorSource = new VectorSource({
-            format: new GeoJSON(),
-            url: function url(e) {
-                return `${
-                    'https://wxs.ign.fr/topographie/geoportail/wfs' +
-                    // 'https://download.data.grandlyon.com/wfs/rdata'
-                    '?SERVICE=WFS' +
-                    '&VERSION=2.0.0' +
-                    '&request=GetFeature' +
-                    '&typename=BDTOPO_V3:batiment' +
-                    '&outputFormat=application/json' +
-                    `&SRSNAME=${crs}` +
-                    '&startIndex=0' +
-                    '&bbox='
-                }${e.join(',')},${crs}`;
-            },
-            strategy: tile(createXYZ({ tileSize: 512 })),
-        });
-
-        const entity = new FeatureCollection('BDTOPO_V3', {
-            source: vectorSource,
-            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
-            material: new MeshLambertMaterial(),
-            extrusionOffset: (feature: Feature) => {
-                const hauteur = -feature.getProperties().hauteur;
-                if (Number.isNaN(hauteur)) {
-                    return 0;
-                }
-                return hauteur;
-            },
-            style: (feature: Feature) => {
-                const properties = feature.getProperties();
-                const fid = feature.getId();
-                let color = '#FFFFFF';
-                let visible = true;
-                if (properties.usage_1 === 'Résidentiel') {
-                    color = '#9d9484';
-                } else if (properties.usage_1 === 'Commercial et services') {
-                    color = '#b0ffa7';
-                }
-
-                if (
-                    fid === 'batiment.BATIMENT0000000240851971' ||
-                    fid === 'batiment.BATIMENT0000000240851972'
-                ) {
-                    visible = false;
-                }
-
-                return { color: new Color(color), visible };
-            },
-            minLevel: 11,
-            maxLevel: 11,
-        });
-
-        return entity;
-    }
-
     private async importFromFile(file: File) {
         const notifications = useNotificationStore();
         try {
-            loader.checkCanProcessFile(file, true);
+            notifications.push(new Notification(file.name, 'Importing file...'));
+            const { dataset, entity } = await loader.importFile(this.instance, file);
 
-            const {
-                obj: entity,
-                filetype,
-                filename,
-            } = await loader.processFile(this.instance, file);
-            const type = datasetTypePerFileType[filetype];
-
-            if (!type) {
-                throw new Error(`File type ${filetype} not supported`);
-            }
-
-            const dataset = new DatasetObject(filename, type, null);
-
-            dataset.visible = true;
             this.entities.set(dataset.uuid, entity);
             this.instance.add(entity);
             this.instance.notifyChange(entity);
@@ -318,7 +192,7 @@ export default class DatasetManager {
 
             this.onDatasetLoaded(dataset, entity);
 
-            notifications.push(new Notification(filename, 'Import successful.', 'success'));
+            notifications.push(new Notification(dataset.name, 'Import successful.', 'success'));
         } catch (e) {
             console.error(e);
             const error = e as Error;
@@ -360,39 +234,7 @@ export default class DatasetManager {
     private async loadDataset(dataset: Dataset) {
         dataset.isLoading = true;
 
-        let entity: Entity3D | undefined;
-        switch (dataset.type) {
-            case 'cityjson':
-                entity = await this.loadDefault(dataset, {});
-                break;
-            case 'ifc':
-                entity = await this.loadDefault(dataset, {
-                    at: dataset.coordinates
-                        ? dataset.coordinates.as(this.instance.referenceCrs)
-                        : undefined,
-                });
-                break;
-            case 'ply':
-                if (!dataset.coordinates)
-                    throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
-                entity = await this.loadDefault(dataset, {
-                    at: dataset.coordinates.as(this.instance.referenceCrs),
-                });
-                break;
-            case 'pointcloud':
-                entity = this.loadPointCloud(dataset);
-                break;
-            case 'bdtopo':
-                entity = this.loadBDTopo(dataset);
-                break;
-            case 'shp':
-            case 'geojson':
-            case 'gpkg':
-                entity = await this.loadDefault(dataset, {
-                    elevation: dataset.elevation,
-                });
-                break;
-        }
+        const entity = await loader.loadDataset(this.instance, dataset);
 
         if (entity) {
             entity.visible = dataset.visible;
