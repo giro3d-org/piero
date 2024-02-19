@@ -5,7 +5,6 @@
     const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
     const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
     const BookmarkPanel = defineAsyncComponent(() => import('./panels/BookmarkPanel.vue'));
-    const LayerPanel = defineAsyncComponent(() => import('./panels/LayerPanel.vue'));
     const AnalysisPanel = defineAsyncComponent(() => import('./panels/AnalysisPanel.vue'));
     const AnnotationPanel = defineAsyncComponent(() => import('./panels/AnnotationPanel.vue'));
     const MeasurementPanel = defineAsyncComponent(() => import('./panels/MeasurementPanel.vue'));
@@ -30,7 +29,6 @@
             <DatasetPanel v-if="selected === 'datasets'" />
             <AboutPanel v-if="selected === 'about'" @restart-tour="$emit('restart-tour')" />
             <BookmarkPanel v-if="selected === 'bookmarks'" />
-            <LayerPanel v-if="selected === 'layers'" />
             <AnalysisPanel v-if="selected === 'analysis'" />
             <AnnotationPanel v-if="selected === 'annotations'" />
             <MeasurementPanel v-if="selected === 'measures'" />
@@ -46,8 +44,10 @@
     .content {
         flex-grow: 1;
         overflow: auto;
-        width: 100% auto;
-        margin: 1rem;
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
     }
 
     .panel {

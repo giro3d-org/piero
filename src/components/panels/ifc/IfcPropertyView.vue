@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { useDatasetStore } from '@/stores/datasets';
-    import { Dataset } from '@/types/Dataset';
-    import { ref } from 'vue';
-    import IfcSubtree from './IfcSubtree.vue';
+    import IfcSubtree from '@/components/panels/ifc/IfcSubtree.vue';
     import IfcEntity from '@/giro3d/IfcEntity';
+    import { Dataset } from '@/types/Dataset';
+    import { useDatasetStore } from '@/stores/datasets';
+    import { refAndWatch } from '@/utils/Components';
 
     const datasets = useDatasetStore();
 
@@ -11,54 +11,16 @@
         dataset: Dataset;
     }>();
 
-    const isLoaded = ref(props.dataset.isLoaded);
-
-    datasets.$onAction(({ after, name }) => {
-        after(() => {
-            switch (name) {
-                case 'add':
-                case 'remove':
-                case 'goTo':
-                case 'importFromFile':
-                case 'getDatasets':
-                case 'attachEntity':
-                case 'setVisible':
-                case 'getEntity':
-                    isLoaded.value = props.dataset.isLoaded;
-                    break;
-            }
-        });
-    });
-
-    function getIfcEntity() {
-        const entity = datasets.getEntity(props.dataset);
-
-        if (entity == null) {
-            return null;
-        }
-
-        return entity as IfcEntity;
-    }
-
-    function getClassificationRoot() {
-        const ifcEntity = getIfcEntity();
-
-        if (ifcEntity == null) {
-            return null;
-        }
-
-        return ifcEntity.getClassification();
-    }
+    const isLoaded = refAndWatch(props.dataset, 'isLoaded');
+    const ifcEntity = datasets.getEntity(props.dataset) as IfcEntity | undefined;
+    const classificationRoot = ifcEntity?.getClassification();
 </script>
 
 <template>
-    <div v-if="isLoaded">
+    <div v-if="isLoaded && ifcEntity != null">
         <ul>
-            <li v-for="(item, index) in getClassificationRoot()" :key="index">
-                <IfcSubtree
-                    :ifc-entity="getIfcEntity() as IfcEntity"
-                    :classification-element="item"
-                />
+            <li v-for="(item, index) in classificationRoot" :key="index">
+                <IfcSubtree :ifc-entity="ifcEntity" :classification-element="item" />
             </li>
         </ul>
     </div>
@@ -66,12 +28,6 @@
 
 <style scoped>
     ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    li {
-        margin-top: 0.2rem;
+        font-size: smaller;
     }
 </style>

@@ -1,13 +1,15 @@
 <script setup lang="ts">
-    defineProps({
-        opacity: Number,
-    });
+    defineProps<{
+        opacity: number;
+        size?: 'normal' | 'small';
+    }>();
     defineEmits(['update:opacity']);
 </script>
 
 <template>
-    <div class="slider">
-        <i title="Transparent" class="bi-x-diamond mx-2"></i>
+    <div class="slider d-flex">
+        <i v-if="size !== 'small'" title="Transparent" class="bi-x-diamond me-1"></i>
+        <i v-if="size === 'small'" title="Opacity" class="bi-x-diamond-fill opacity-75 me-1"></i>
         <input
             title="Opacity"
             type="range"
@@ -23,15 +25,11 @@
             "
             :value="opacity"
         />
-        <i title="Opaque" class="bi-x-diamond-fill mx-2"></i>
+        <i v-if="size !== 'small'" title="Opaque" class="bi-x-diamond-fill ms-1"></i>
     </div>
 </template>
 
 <style scoped>
-    .slider {
-        display: flex;
-    }
-
     input {
         display: flex;
         border-color: lightgray;

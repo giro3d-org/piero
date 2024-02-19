@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import { ref, watch } from 'vue';
     import DropdownView from '@/components/DropdownView.vue';
-    import IconButton from '@/components/IconButton.vue';
-    import AnnotationItem from './AnnotationItem.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
+    import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
+    import AnnotationItem from '@/components/panels/AnnotationItem.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import { useAnnotationStore } from '@/stores/annotations';
     import { useCameraStore } from '@/stores/camera';
     import Download from '@/utils/Download';
@@ -49,7 +49,7 @@
     <div class="d-flex flex-column h-100">
         <EmptyIndicator text="No annotations" v-if="annotations.count === 0" />
 
-        <ul class="layers-list-group flex-fill overflow-auto">
+        <ul class="list-group list-group-flush flex-fill overflow-auto">
             <AnnotationItem
                 v-for="item in annotations.getAnnotations()"
                 :key="item.title"
@@ -101,14 +101,14 @@
                 <i class="bi-heptagon" /> New polygon
             </button>
 
-            <IconButton
+            <ButtonWithIcon
                 title="Export annotations to GeoJSON"
                 class="btn-outline-secondary"
                 @click="exportAnnotations"
                 icon="bi-box-arrow-right"
                 text="Export annotations"
             />
-            <IconButton
+            <ButtonWithIcon
                 title="Import annotation from GeoJSON"
                 class="btn-outline-secondary"
                 @click="(hiddenInput as HTMLInputElement).click()"

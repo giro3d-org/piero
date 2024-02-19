@@ -26,7 +26,7 @@
     const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
     const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
 
-    const selectedTool = ref<PanelType | null>(null);
+    const selectedTool = ref<PanelType | null>('datasets');
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
     const mouse = ref({ x: 0, y: 0 });

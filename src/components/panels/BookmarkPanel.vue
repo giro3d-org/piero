@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import { ref } from 'vue';
-    import BookmarkItem from './BookmarkItem.vue';
-    import ShareBookmarkModal from './ShareBookmarkModal.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
-    import ModalOverlay from '../ModalOverlay.vue';
-    import IconButton from '../IconButton.vue';
+    import BookmarkItem from '@/components/panels/BookmarkItem.vue';
+    import ShareBookmarkModal from '@/components/panels/ShareBookmarkModal.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import ModalOverlay from '@/components/ModalOverlay.vue';
+    import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useBookmarkStore } from '@/stores/bookmarks';
     import { useNotificationStore } from '@/stores/notifications';
     import { useCameraStore } from '@/stores/camera';
@@ -99,7 +99,7 @@
     <div class="d-flex flex-column h-100">
         <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
 
-        <ul class="layers-list-group flex-fill overflow-auto">
+        <ul class="list-group list-group-flush flex-fill overflow-auto">
             <BookmarkItem
                 v-for="bookmark in bookmarkStore.getBookmarks()"
                 :key="bookmark.name"
@@ -112,7 +112,7 @@
 
         <div class="button-area">
             <hr />
-            <IconButton
+            <ButtonWithIcon
                 text="New bookmark"
                 icon="bi-plus-lg"
                 title="Create a new bookmark from the current view"
@@ -124,14 +124,14 @@
                     }
                 "
             />
-            <IconButton
+            <ButtonWithIcon
                 text="Share view"
                 icon="bi-share"
                 title="Share current view"
                 class="btn-outline-secondary"
                 @click="shareCurrentView"
             />
-            <IconButton
+            <ButtonWithIcon
                 title="Export bookmarks to GeoJSON"
                 class="btn-outline-secondary"
                 @click="exportBookmarks"
@@ -140,7 +140,7 @@
             />
 
             <!-- Import from GeoJSON -->
-            <IconButton
+            <ButtonWithIcon
                 title="Import bookmarks from GeoJSON"
                 class="btn-outline-secondary"
                 @click="(hiddenInput as HTMLInputElement).click()"

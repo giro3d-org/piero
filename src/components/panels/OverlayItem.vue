@@ -1,94 +1,54 @@
 <script setup lang="ts">
-    import OpacitySlider from '../OpacitySlider.vue';
-    import VisibilityControl from '../VisibilityControl.vue';
+    import OpacitySlider from '@/components/OpacitySlider.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
+    import ListLinkLabel from '@/components/atoms/ListLinkLabel.vue';
+    import IconList from '@/components/atoms/IconList.vue';
+    import IconListButton from '@/components/atoms/IconListButton.vue';
 
-    defineProps({
-        visible: Boolean,
-        name: String,
-        opacity: Number,
-    });
+    defineProps<{
+        visible: boolean;
+        name: string;
+        opacity: number;
+    }>();
     defineEmits(['update:visible', 'update:opacity', 'update:move-up', 'update:move-down', 'zoom']);
 </script>
 
 <template>
-    <li :class="['list-group-item', 'item', 'd-flex']">
-        <VisibilityControl
-            :visible="visible"
-            v-on:update:visible="v => $emit('update:visible', v)"
-        />
-        <a
-            class="dataset"
+    <li class="list-group-item d-flex">
+        <VisibilityControl :visible="visible" @update:visible="v => $emit('update:visible', v)" />
+        <ListLinkLabel
+            class="label"
             :class="!visible ? 'disabled' : null"
-            :title="name"
             href="#"
+            :title="`Zoom to ${name}`"
+            :text="name"
             @click="$emit('zoom')"
-            >{{ name }}</a
-        >
+        />
 
         <OpacitySlider
+            class="opacity-slider"
             :class="!visible ? 'disabled' : null"
             :opacity="opacity"
-            v-on:update:opacity="v => $emit('update:opacity', v)"
+            size="small"
+            @update:opacity="v => $emit('update:opacity', v)"
         />
-        <div class="icons">
-            <a href="#" class="icon" title="Move up" @click="$emit('update:move-up')">
-                <i class="bi bi-arrow-up"></i>
-            </a>
-            <a href="#" class="icon" title="Move down" @click="$emit('update:move-down')">
-                <i class="bi bi-arrow-down"></i>
-            </a>
-        </div>
+        <IconList class="ms-1">
+            <IconListButton title="Move up" icon="bi-arrow-up" @click="$emit('update:move-up')" />
+            <IconListButton
+                title="Move down"
+                icon="bi-arrow-down"
+                @click="$emit('update:move-down')"
+            />
+        </IconList>
     </li>
 </template>
 
 <style scoped>
-    .item {
-        padding: 0.1rem;
+    .label {
+        min-width: 50%;
     }
 
-    a {
-        text-decoration: none;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    .icons {
-        width: 3rem;
-    }
-
-    .dataset {
-        white-space: nowrap;
-        display: block;
-        width: 60% !important;
-        margin-left: 1rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .icon {
-        width: 1rem !important;
-        float: right;
-        color: rgb(180, 180, 180);
-    }
-
-    @media (hover: hover) {
-        .icon:hover {
-            color: rgb(75, 75, 75);
-        }
-    }
-
-    .spinner-container {
-        width: 1rem;
-    }
-
-    .layer-name {
-        width: 40%;
-        margin-left: 1rem;
-    }
-
-    .slider {
-        display: flex;
+    .opacity-slider {
+        min-width: 100px;
     }
 </style>

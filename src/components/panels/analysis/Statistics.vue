@@ -1,11 +1,11 @@
 <script setup lang="ts">
-    import DropdownView from '@/components/DropdownView.vue';
-    import IconButton from '@/components/IconButton.vue';
-    import BarChart from '@/components/charts/BarChart.vue';
-    import DoughnutChart from '@/components/charts/DoughnutChart.vue';
     import { ref } from 'vue';
     import { PromiseUtils } from '@giro3d/giro3d/utils';
-    import LoadingIndicator from '../LoadingIndicator.vue';
+    import DropdownView from '@/components/DropdownView.vue';
+    import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
+    import BarChart from '@/components/charts/BarChart.vue';
+    import DoughnutChart from '@/components/charts/DoughnutChart.vue';
+    import LoadingIndicator from '@/components/panels/LoadingIndicator.vue';
     import { useStatisticsStore } from '@/stores/statistics';
     import { Dataset } from '@/types/Dataset';
 
@@ -42,7 +42,7 @@
             @updated:current="src => setCurrentSource(src as Dataset)"
         />
     </div>
-    <IconButton
+    <ButtonWithIcon
         title="Generate stats..."
         class="btn-primary"
         @click="createStatistics"

@@ -8,7 +8,6 @@ type PanelDef = {
 };
 
 const panels: PanelDef[] = [
-    { key: 'layers', title: 'Layers', icon: 'bi-layers', enabled: true },
     { key: 'datasets', title: 'Datasets', icon: 'bi-database', enabled: true },
     { key: 'annotations', title: 'Annotations', icon: 'bi-vector-pen', enabled: true },
     {

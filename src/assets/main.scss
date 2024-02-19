@@ -39,3 +39,16 @@ body {
     @extend .text-center;
     border: var(--bs-border-width) dashed var(--bs-border-color) !important;
 }
+
+// For light collapsible sections, e.g. DatasetGroup component
+a.icon[aria-expanded] i::before,
+a[aria-expanded] .icon i::before,
+.btn[aria-expanded] > i::before {
+    transition: $accordion-icon-transition;
+}
+
+a.icon[aria-expanded='true'] i::before,
+a[aria-expanded='true'] .icon i::before,
+.btn[aria-expanded='true'] > i::before {
+    transform: $accordion-icon-transform;
+}

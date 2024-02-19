@@ -1,16 +1,19 @@
 <script setup lang="ts">
-    import { type Component, ref } from 'vue';
-    import { Dataset, DatasetType } from '@/types/Dataset';
-    import SpinnerControl from '../SpinnerControl.vue';
-    import VisibilityControl from '../VisibilityControl.vue';
+    import { type Component } from 'vue';
+    import SpinnerControl from '@/components/SpinnerControl.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
     import IfcPropertyView from '@/components/panels/ifc/IfcPropertyView.vue';
+    import ListLinkLabel from '@/components/atoms/ListLinkLabel.vue';
+    import IconList from '@/components/atoms/IconList.vue';
+    import IconListButton from '@/components/atoms/IconListButton.vue';
+    import { Dataset, DatasetType } from '@/types/Dataset';
+    import { refAndWatch } from '@/utils/Components';
 
     const props = defineProps<{
         dataset: Dataset;
     }>();
 
-    const isLoading = ref(props.dataset.isLoading);
-    props.dataset.addEventListener('isLoading', () => (isLoading.value = props.dataset.isLoading));
+    const isLoading = refAndWatch(props.dataset, 'isLoading');
 
     defineEmits([
         'delete',
@@ -26,68 +29,57 @@
 </script>
 
 <template>
-    <li class="list-group-item item">
+    <li class="list-group-item">
         <div class="d-flex">
             <VisibilityControl
-                class="float-start"
                 :visible="dataset.visible"
-                v-on:update:visible="v => $emit('update:visible', v)"
+                @update:visible="v => $emit('update:visible', v)"
             />
-            <a
-                class="flex-fill dataset"
+            <ListLinkLabel
+                class="label"
                 :class="!dataset.visible ? 'disabled' : null"
-                :title="dataset.name"
                 href="#"
+                :text="dataset.name"
+                :title="`Zoom to ${dataset.name}`"
                 @click="$emit('zoom')"
-                >{{ dataset.name }}</a
-            >
-            <div class="icons">
-                <a
-                    v-if="dataset.type === 'ifc' && dataset.isLoaded"
-                    href="#"
-                    class="icon"
-                    title="Show dataset properties"
-                    data-bs-toggle="collapse"
-                    :data-bs-target="`#collapse-${dataset.uuid}`"
-                    aria-expanded="false"
-                    aria-controls="`#collapse-${dataset.uuid}`"
-                >
-                    <i class="bi bi-card-list"></i>
-                </a>
-                <a
-                    v-if="dataset.isLoaded && (dataset.canMaskBasemap || dataset.isMaskingBasemap)"
-                    href="#"
-                    class="icon"
-                    title="Toggle basemap masking"
-                    @click="$emit('update:toggle-mask')"
-                >
-                    <i class="bi bi-mask"></i>
-                </a>
-                <a
-                    v-if="dataset.isLoaded"
-                    href="#"
-                    class="icon"
-                    title="Clip to"
-                    @click="$emit('clipTo')"
-                >
-                    <i class="bi bi-bounding-box"></i>
-                </a>
-                <a
-                    v-if="dataset.isLoaded"
-                    href="#"
-                    class="icon"
-                    title="Toggle 3D grid"
-                    @click="$emit('update:toggle-grid')"
-                >
-                    <i class="bi bi-box"></i>
-                </a>
+            />
+            <IconList class="ms-1">
                 <div class="icon spinner d-inline-block" v-if="isLoading">
                     <SpinnerControl title="Loading..." />
                 </div>
-                <a href="#" class="icon" title="Delete this dataset" @click="$emit('delete')">
-                    <i class="bi bi-trash"></i>
-                </a>
-            </div>
+                <IconListButton
+                    v-if="dataset.type === 'ifc' && dataset.isLoaded"
+                    title="Show dataset properties"
+                    icon="bi-card-list"
+                    data-bs-toggle="collapse"
+                    :data-bs-target="`#collapse-${dataset.uuid}`"
+                    :aria-controls="`collapse-${dataset.uuid}`"
+                    aria-expanded="false"
+                />
+                <IconListButton
+                    v-if="dataset.isLoaded && (dataset.canMaskBasemap || dataset.isMaskingBasemap)"
+                    title="Toggle basemap masking"
+                    icon="bi-mask"
+                    @click="$emit('update:toggle-mask')"
+                />
+                <IconListButton
+                    v-if="dataset.isLoaded"
+                    title="Clip to"
+                    icon="bi-bounding-box"
+                    @click="$emit('clipTo')"
+                />
+                <IconListButton
+                    v-if="dataset.isLoaded"
+                    title="Toggle 3D grid"
+                    icon="bi-box"
+                    @click="$emit('update:toggle-grid')"
+                />
+                <IconListButton
+                    title="Delete this dataset"
+                    icon="bi-trash"
+                    @click="$emit('delete')"
+                />
+            </IconList>
         </div>
         <!-- Property view -->
         <div
@@ -101,51 +93,7 @@
 </template>
 
 <style scoped>
-    .item {
-        padding: 0.1rem;
-    }
-
-    .spinner {
-        /* width: 0.8rem; */
-        opacity: 0.5;
-    }
-
-    a {
-        text-decoration: none;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    .dataset {
-        /* margin-left: 1rem; */
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .icon {
-        /* width: 1rem !important; */
-        margin-left: 0.3rem;
-        color: rgb(180, 180, 180);
-    }
-
-    @media (hover: hover) {
-        .icon:hover {
-            color: rgb(75, 75, 75);
-        }
-    }
-
-    .spinner-container {
-        width: 1rem;
-    }
-
-    .layer-name {
-        width: 40%;
-        margin-left: 1rem;
-    }
-
-    .slider {
-        display: flex;
+    .label {
+        min-width: 50%;
     }
 </style>

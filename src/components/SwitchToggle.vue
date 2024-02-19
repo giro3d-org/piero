@@ -9,7 +9,6 @@
             class="form-check-input"
             type="checkbox"
             role="switch"
-            id="flexSwitchCheckDefault"
             :checked="modelValue"
             @input="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
         />
