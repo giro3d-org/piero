@@ -1,5 +1,12 @@
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
 import { type VectorStyle } from './VectorStyle';
-import { type DatasetType, type DatasetTypeImportable, type DatasetTypeMultiple } from './Dataset';
+import {
+    type DatasetType,
+    type DatasetTypeImportable,
+    type DatasetTypeMultiple,
+    type DatasetOrGroup,
+} from './Dataset';
 import { type BaseLayerType } from './BaseLayer';
 import {
     type BasemapSourceLayerType,
@@ -44,36 +51,92 @@ export type LayerConfig = {
     source: BasemapSourceLayerConfig;
 };
 
-export type DatasetBaseConfig<TType extends DatasetType> = {
+export type OnObjectPreloaded = (dataset: DatasetOrGroup, entity: Entity3D) => void;
+
+/** Base configuration for datasets and groups */
+export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
+    /** Type of dataset */
     type: TType;
+    /** Name of dataset */
     name: string;
+    /**
+     * Default visibility of the dataset.
+     * When set on a group, will be inherited to all descendants.
+     *
+     * @default false
+     */
     visible?: boolean;
+    /**
+     * Default opacity of the dataset.
+     * When set on a group, will be inherited to all descendants.
+     *
+     * @default 1
+     */
     opacity?: number;
+
+    /**
+     * Position of the dataset.
+     * Required for PLY datasets. Optional for IFC datasets. Ignored for all other datasets.
+     * When set on a group, will be inherited to all descendants.
+     */
     position?: GeoVec3;
-    /** Whether this dataset can mask the basemap (enables the "mask" button for this dataset) */
-    canMaskBasemap?: boolean;
-    /** Whether this dataset masks the basemap by default (can still be disabled via the "mask" button) */
-    isMaskingBasemap?: boolean;
+    /**
+     * Elevation of the dataset.
+     * Optional for SHP, GeoJSON, Geopackage datasets. Ignored for all other datasets.
+     * When set on a group, will be inherited to all descendants.
+     */
     elevation?: number;
+    /**
+     * Whether this dataset can mask the basemap (enables the "mask" button for this dataset).
+     * When set on a group, will be inherited to all descendants.
+     *
+     * @default false
+     */
+    canMaskBasemap?: boolean;
+    /**
+     * Whether this dataset masks the basemap by default (can still be disabled via the "mask" button)
+     * When set on a group, will be inherited to all descendants.
+     *
+     * @default false
+     */
+    isMaskingBasemap?: boolean;
+    /**
+     * Callback when the dataset or group is preloaded into the app.
+     * Can be useful for transforming the preloaded 3D object.
+     */
+    onObjectPreloaded?: OnObjectPreloaded;
 };
 
+/** Configuration for imported datasets */
 export type DatasetImportedBaseConfig<TType extends DatasetType> = DatasetBaseConfig<TType> & {
     url: null;
 };
 
+/** Configuration for datasets that require a URL */
 export type DatasetRemoteBaseConfig<TType extends DatasetType> = DatasetBaseConfig<TType> & {
     url: string;
 };
 
+/** Configuration for datasets that support multiple URLs */
 export type DatasetMultipleRemoteBaseConfig<TType extends DatasetType> =
     DatasetBaseConfig<TType> & {
         url: string[];
     };
 
+/** Configuration for datasets */
 export type DatasetConfig =
     | DatasetRemoteBaseConfig<DatasetType>
     | DatasetMultipleRemoteBaseConfig<DatasetTypeMultiple>;
+/** Configuration for imported datasets */
 export type DatasetImportedConfig = DatasetImportedBaseConfig<DatasetTypeImportable>;
+
+/** Configuration for group */
+export type DatagroupConfig = DatasetBaseConfig<'group'> & {
+    children: DatasetOrGroupConfig[];
+};
+
+/** Configuration for dataset or group */
+export type DatasetOrGroupConfig = DatasetConfig | DatagroupConfig;
 
 export type OverlayBaseConfig = {
     type: OverlayType;
@@ -146,7 +209,7 @@ export type Configuration = {
             };
         };
     };
-    datasets: DatasetConfig[];
+    datasets: DatasetOrGroupConfig[];
     overlays: OverlayConfig[];
     bookmarks: BookmarkConfig[];
 };

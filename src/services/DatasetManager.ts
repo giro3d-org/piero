@@ -13,10 +13,9 @@ import Giro3DMap from '@giro3d/giro3d/entities/Map';
 import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 
 import loader from '@/loaders/loader';
-import CameraController from '@/services/CameraController';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Dataset } from '@/types/Dataset';
+import { Datagroup, DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
 
 export default class DatasetManager {
@@ -24,21 +23,16 @@ export default class DatasetManager {
     private readonly entities: Map<string, Entity3D> = new Map();
     private readonly axisGrids: Map<string, AxisGrid> = new Map();
     private readonly masks: Map<string, MaskLayer> = new Map();
-    private readonly camera: CameraController;
     private readonly store = useDatasetStore();
 
-    constructor(instance: Instance, camera: CameraController) {
+    constructor(instance: Instance) {
         this.instance = instance;
-        this.camera = camera;
 
         this.store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'remove':
                         this.deleteDataset(args[0]);
-                        break;
-                    case 'goTo':
-                        this.zoom(args[0]);
                         break;
                     case 'importFromFile':
                         this.importFromFile(args[0]);
@@ -63,7 +57,7 @@ export default class DatasetManager {
         }
     }
 
-    private onToggleGrid(dataset: Dataset) {
+    private onToggleGrid(dataset: DatasetOrGroup) {
         if (this.axisGrids.has(dataset.uuid)) {
             const grid = this.axisGrids.get(dataset.uuid);
             if (grid) this.instance.remove(grid);
@@ -96,7 +90,7 @@ export default class DatasetManager {
         }
     }
 
-    private createMask(dataset: Dataset) {
+    private createMask(dataset: DatasetOrGroup) {
         // TODO: this assumes the dataset covers the whole bounding box
         // (in particular, that it is oriented the same way)
         // which will most likely not be the case...
@@ -141,7 +135,7 @@ export default class DatasetManager {
         this.masks.set(dataset.uuid, mask);
     }
 
-    private deleteMask(dataset: Dataset) {
+    private deleteMask(dataset: DatasetOrGroup) {
         const mask = this.masks.get(dataset.uuid);
         if (mask) {
             const maps = this.instance.getObjects(
@@ -155,7 +149,7 @@ export default class DatasetManager {
         this.masks.delete(dataset.uuid);
     }
 
-    private onToggleMask(dataset: Dataset) {
+    private onToggleMask(dataset: DatasetOrGroup) {
         if (this.masks.has(dataset.uuid)) {
             this.deleteMask(dataset);
         } else {
@@ -163,18 +157,14 @@ export default class DatasetManager {
         }
     }
 
-    private onVisibilityChanged(dataset: Dataset, newVisibility: boolean) {
+    private async onVisibilityChanged(dataset: DatasetOrGroup, newVisibility: boolean) {
+        dataset.visible = newVisibility;
         if (!dataset.isPreloaded && newVisibility) {
-            this.loadDataset(dataset).then(() => this.updateDataset(dataset));
-        } else {
-            this.updateDataset(dataset);
+            await this.loadDataset(dataset);
         }
-    }
-
-    private zoom(dataset: Dataset) {
-        const entity = this.entities.get(dataset.uuid);
-        if (entity) {
-            this.camera.lookTopDownAt(entity);
+        this.updateDataset(dataset);
+        if (Datagroup.isGroup(dataset)) {
+            dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
         }
     }
 
@@ -200,7 +190,7 @@ export default class DatasetManager {
         }
     }
 
-    private updateDataset(dataset: Dataset) {
+    private updateDataset(dataset: DatasetOrGroup) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
@@ -213,7 +203,7 @@ export default class DatasetManager {
         }
     }
 
-    private deleteDataset(dataset: Dataset) {
+    private deleteDataset(dataset: DatasetOrGroup) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             this.instance.remove(entity);
@@ -221,17 +211,25 @@ export default class DatasetManager {
         this.instance.notifyChange();
     }
 
-    private onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
-        entity.object3d.userData.entity = entity;
-        entity.object3d.userData.dataset = dataset;
-
+    private onDatasetLoaded(dataset: DatasetOrGroup, entity: Entity3D) {
         dataset.isPreloaded = true;
         dataset.isPreloading = false;
+
+        if (dataset.onObjectPreloaded) {
+            dataset.onObjectPreloaded(dataset, entity);
+        }
 
         this.store.attachEntity(dataset, entity);
     }
 
-    private async loadDataset(dataset: Dataset) {
+    private async loadDataset(dataset: DatasetOrGroup) {
+        if (dataset.isPreloaded) return dataset;
+
+        if (Datagroup.isGroup(dataset)) {
+            dataset.isPreloaded = true;
+            return dataset;
+        }
+
         dataset.isPreloading = true;
 
         const entity = await loader.loadDataset(this.instance, dataset);

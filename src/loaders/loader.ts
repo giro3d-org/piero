@@ -114,7 +114,7 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            const at = dataset.coordinates;
+            const at = dataset.get('coordinates');
             entity = IFC.load(instance, dataset.url, {
                 name: dataset.name,
                 at: at?.as(instance.referenceCrs),
@@ -122,7 +122,7 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'ply': {
-            const at = dataset.coordinates;
+            const at = dataset.get('coordinates');
             if (!at) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
@@ -135,21 +135,21 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
         case 'shp': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = Shapefile.loadAll(instance, dataset.url, {
-                elevation: dataset.elevation,
+                elevation: dataset.get('elevation'),
             });
             break;
         }
         case 'geojson': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = GeoJSON.loadAll(instance, dataset.url, {
-                elevation: dataset.elevation,
+                elevation: dataset.get('elevation'),
             });
             break;
         }
         case 'gpkg': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = Geopackage.loadAll(instance, dataset.url, {
-                elevation: dataset.elevation,
+                elevation: dataset.get('elevation'),
             });
             break;
         }

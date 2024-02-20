@@ -1,42 +1,32 @@
 <script setup lang="ts">
-    import DatasetGroup from '@/components/panels/DatasetGroup.vue';
     import DropZone from '@/components/DropZone.vue';
+    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
     import BasemapItem from '@/components/panels/BasemapItem.vue';
     import OverlayItem from '@/components/panels/OverlayItem.vue';
     import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
-    import { Dataset, DatasetType } from '@/types/Dataset';
-    import { useAnalysisStore } from '@/stores/analysis';
     import { useDatasetStore } from '@/stores/datasets';
     import { useLayerStore } from '@/stores/layers';
+    import { DatasetOrGroup } from '@/types/Dataset';
+    import { useCameraStore } from '@/stores/camera';
+    import { useAnalysisStore } from '@/stores/analysis';
 
     const datasets = useDatasetStore();
+    const camera = useCameraStore();
     const analysis = useAnalysisStore();
     const layers = useLayerStore();
 
-    const groups: Record<DatasetType, string> = {
-        ifc: 'IFC',
-        pointcloud: 'Point clouds',
-        cityjson: 'CityJSON',
-        ply: 'PLY',
-        shp: 'Shapefiles',
-        geojson: 'GeoJSON',
-        gpkg: 'Geopackages',
-        bdtopo: '3D Buildings',
-    } as const;
-
-    function zoomOnDataset(dataset: Dataset) {
-        datasets.goTo(dataset);
+    function zoomOnDataset(dataset: DatasetOrGroup) {
+        const box = datasets.getBoundingBox(dataset);
+        if (!box?.isEmpty()) camera.lookTopDownAt(box);
     }
 
-    function clipToDataset(dataset: Dataset) {
-        const entity = datasets.getEntity(dataset);
-        if (!entity) return;
-        const bbox = entity.getBoundingBox();
-        if (!bbox || bbox.isEmpty()) return;
-
-        analysis.setClippingBox(bbox);
-        analysis.enableClippingBox(true);
+    function clipToDataset(dataset: DatasetOrGroup) {
+        const box = datasets.getBoundingBox(dataset);
+        if (!box?.isEmpty()) {
+            analysis.setClippingBox(box);
+            analysis.enableClippingBox(true);
+        }
     }
 
     async function importDatasetFromDrop(e: DragEvent) {
@@ -111,14 +101,16 @@
             class="flex-fill"
         >
             <CompactList>
-                <DatasetGroup
-                    v-for="(name, type) in groups"
-                    :key="type"
-                    :group="name"
-                    :datasets="datasets.getDatasets().filter(ds => ds.type === type)"
-                    @zoom="zoomOnDataset"
-                    @clipTo="clipToDataset"
+                <DatasetOrGroupItem
+                    v-for="dataset of datasets.getTree()"
+                    :key="dataset.name"
+                    :dataset="dataset"
                     @updated="$forceUpdate()"
+                    @zoom="ds => zoomOnDataset(ds)"
+                    @clip-to="ds => clipToDataset(ds)"
+                    @update:toggle-grid="ds => datasets.toggleGrid(ds)"
+                    @update:toggle-mask="ds => datasets.toggleMask(ds)"
+                    @update:visible="(ds, v) => datasets.setVisible(ds, v)"
                 />
             </CompactList>
         </SectionCollapsible>

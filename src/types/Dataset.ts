@@ -1,7 +1,14 @@
 import { EventDispatcher, MathUtils } from 'three';
 import { Coordinates } from '@giro3d/giro3d/core/geographic';
 
-import { DatasetConfig, DatasetImportedConfig } from '@/types/Configuration';
+import {
+    DatagroupConfig,
+    DatasetBaseConfig,
+    DatasetConfig,
+    DatasetImportedConfig,
+    DatasetOrGroupConfig,
+    OnObjectPreloaded,
+} from '@/types/Configuration';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 import config from '@/config';
 
@@ -28,28 +35,37 @@ export type DatasetEventMap = {
     isPreloaded: {};
 };
 
-export class Dataset extends EventDispatcher<DatasetEventMap> {
-    readonly type: DatasetType;
+export type DatasetGroupEventMap = DatasetEventMap & {};
+
+abstract class DatasetBase<
+    TType extends DatasetType | 'group',
+    TEventMap extends DatasetEventMap = DatasetEventMap,
+> extends EventDispatcher<TEventMap & DatasetEventMap> {
+    readonly type: TType;
     readonly uuid: string;
-    readonly url: string | string[] | null;
+    readonly name: string;
+
+    protected _parent: Datagroup | null;
     protected _visible: boolean;
     protected _opacity: number;
-    protected _name: string;
     protected _isPreloading: boolean;
     protected _isPreloaded: boolean;
 
+    /* Properties for initializing entity, not used/changed afterwards */
     readonly coordinates?: Coordinates;
     readonly elevation?: number;
     readonly canMaskBasemap?: boolean;
     readonly isMaskingBasemap?: boolean;
+    readonly onObjectPreloaded?: OnObjectPreloaded;
 
-    constructor(conf: DatasetConfig | DatasetImportedConfig) {
+    constructor(conf: DatasetBaseConfig<TType>) {
         super();
         this.type = conf.type;
         this.uuid = MathUtils.generateUUID();
+        this.name = conf.name;
+        this._parent = null;
         this._visible = conf.visible ?? false;
         this._opacity = conf.opacity ?? 1;
-        this._name = conf.name;
         this._isPreloading = false;
         this._isPreloaded = false;
 
@@ -66,20 +82,14 @@ export class Dataset extends EventDispatcher<DatasetEventMap> {
             );
         }
         this.elevation = conf.elevation;
-
-        if (conf.url) {
-            if (Array.isArray(conf.url)) {
-                this.url = conf.url.map(url => getPublicFolderUrl(url));
-            } else {
-                this.url = getPublicFolderUrl(conf.url);
-            }
-        } else {
-            this.url = null;
-        }
+        this.onObjectPreloaded = conf.onObjectPreloaded;
     }
 
-    get name() {
-        return this._name;
+    get parent() {
+        return this._parent;
+    }
+    set parent(v) {
+        this._parent = v;
     }
 
     get isPreloading() {
@@ -116,8 +126,109 @@ export class Dataset extends EventDispatcher<DatasetEventMap> {
     delete() {
         this.dispatchEvent({ type: 'delete' });
     }
+
+    /**
+     * Executes the callback on this object and all descendants.
+     * @param callback Callback to execute
+     */
+    abstract traverse(callback: (dataset: DatasetOrGroup) => void): void;
+    /** Gets the leafs Dataset from this object */
+    abstract leafs(): Dataset[];
+
+    /**
+     * Gets the value of a property from this object or its ancestors.
+     * @param propertyName Name of the property
+     * @returns Value
+     */
+    get<K extends keyof DatasetBase<any, any>>(
+        propertyName: K,
+    ): DatasetBase<any, any>[K] | undefined {
+        return this[propertyName] ?? this.parent?.get(propertyName);
+    }
 }
 
-export function parseDatasetConfig(datasets: DatasetConfig[]): Dataset[] {
-    return datasets.map(childconf => new Dataset(childconf));
+/** Dataset item */
+export class Dataset extends DatasetBase<DatasetType, DatasetEventMap> {
+    readonly url: string | string[] | null;
+
+    constructor(conf: DatasetConfig | DatasetImportedConfig) {
+        super(conf);
+        if (conf.url) {
+            if (Array.isArray(conf.url)) {
+                this.url = conf.url.map(url => getPublicFolderUrl(url));
+            } else {
+                this.url = getPublicFolderUrl(conf.url);
+            }
+        } else {
+            this.url = null;
+        }
+    }
+
+    traverse(callback: (dataset: DatasetOrGroup) => void) {
+        callback(this);
+    }
+
+    leafs(): Dataset[] {
+        return [this];
+    }
 }
+
+/** Datagroup item */
+export class Datagroup extends DatasetBase<'group', DatasetGroupEventMap> {
+    protected _children: DatasetOrGroup[];
+
+    constructor(conf: DatagroupConfig) {
+        super(conf);
+        this._children = parseDatasetConfig(conf.children, this);
+        this._isPreloaded = true;
+    }
+
+    get children() {
+        return this._children;
+    }
+    set children(items: DatasetOrGroup[]) {
+        this._children.forEach(c => (c.parent = null));
+        this._children = items;
+        this._children.forEach(c => {
+            c.parent = this;
+            c.visible = c.visible || this._visible;
+        });
+    }
+
+    traverse(callback: (dataset: DatasetOrGroup) => void) {
+        callback(this);
+        this._children?.forEach(c => c.traverse(callback));
+    }
+    leafs(): Dataset[] {
+        return this._children.map(c => c.leafs()).flat();
+    }
+    static isGroup = (obj: any): obj is Datagroup => obj?.type === 'group';
+}
+
+/**
+ * Creates a hierarchy of DatasetOrGroup from an array of configuration.
+ * @param datasets Datasets
+ * @param parent Parent datagroup, if any
+ * @returns Hierarchy of DatasetOrGroup
+ */
+export function parseDatasetConfig(
+    datasets: DatasetOrGroupConfig[],
+    parent?: Datagroup,
+): DatasetOrGroup[] {
+    return datasets.map(childconf => {
+        let child: DatasetOrGroup;
+        if (childconf.type === 'group') {
+            child = new Datagroup(childconf);
+        } else {
+            child = new Dataset(childconf);
+        }
+        if (parent) {
+            child.parent = parent;
+            child.visible = child.visible || parent.visible;
+        }
+        return child;
+    });
+}
+
+/** Dataset or group item */
+export type DatasetOrGroup = Dataset | Datagroup;
