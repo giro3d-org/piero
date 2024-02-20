@@ -7,13 +7,25 @@
 <template>
     <div>
         <p>
-            <a href="https://giro3D.org" target="_blank">Giro3D</a> is a versatile framework to
+            <a href="https://gitlab.com/giro3d/piero" target="_blank">Piero</a>
+            is a fully-configurable open-source web application for 3D visualization. It is powered
+            by
+            <a href="https://giro3d.org" target="_blank">Giro3D</a>, a versatile framework to
             visualize geospatial data in the browser.
         </p>
-        <h5 class="mt-3">Contributors</h5>
+        <h5 class="mt-3">Going further</h5>
+        <p>
+            If you wish to run your own instance of Piero, or if you wish to contribute to this
+            application, head up to
+            <a href="https://gitlab.com/giro3d/giro3d-sample-application" target="_blank"
+                >our GitLab project</a
+            >
+            for more info.
+        </p>
+        <h5>Contributors</h5>
         <p>
             <a target="_blank" href="https://gitlab.com/giro3d/giro3d/-/blob/main/CONTRIBUTORS.md"
-                >See Giro3D contributors</a
+                >Brought to you by the Giro3D contributors.</a
             >
         </p>
         <h5>License</h5>
