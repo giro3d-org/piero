@@ -71,7 +71,7 @@
             />
         </ul>
 
-        <fieldset class="button-area">
+        <fieldset class="button-area" id="measures-fieldset">
             <hr />
             <div class="mb-3">
                 <DropdownView

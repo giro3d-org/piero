@@ -45,9 +45,6 @@
 <template>
     <div>
         <div class="d-flex">
-            <!-- <a class="icon mx-1" href="#" @click="highlight">
-                <i class="bi bi-eye"></i>
-            </a> -->
             <span
                 class="border rounded px-1 py-0 fw-normal"
                 :class="

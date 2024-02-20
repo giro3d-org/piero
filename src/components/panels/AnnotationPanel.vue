@@ -68,7 +68,11 @@
             />
         </ul>
 
-        <fieldset class="button-area" :disabled="annotations.isUserDrawing()">
+        <fieldset
+            class="button-area"
+            :disabled="annotations.isUserDrawing()"
+            id="annotations-fieldset"
+        >
             <hr />
             <div class="mb-3">
                 <DropdownView
