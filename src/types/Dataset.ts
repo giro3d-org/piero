@@ -24,8 +24,8 @@ export type DatasetEventMap = {
     visible: {};
     opacity: {};
     delete: {};
-    isLoading: {};
-    isLoaded: {};
+    isPreloading: {};
+    isPreloaded: {};
 };
 
 export class Dataset extends EventDispatcher<DatasetEventMap> {
@@ -35,8 +35,8 @@ export class Dataset extends EventDispatcher<DatasetEventMap> {
     protected _visible: boolean;
     protected _opacity: number;
     protected _name: string;
-    protected _isLoading: boolean;
-    protected _isLoaded: boolean;
+    protected _isPreloading: boolean;
+    protected _isPreloaded: boolean;
 
     readonly coordinates?: Coordinates;
     readonly elevation?: number;
@@ -50,8 +50,8 @@ export class Dataset extends EventDispatcher<DatasetEventMap> {
         this._visible = conf.visible ?? false;
         this._opacity = conf.opacity ?? 1;
         this._name = conf.name;
-        this._isLoading = false;
-        this._isLoaded = false;
+        this._isPreloading = false;
+        this._isPreloaded = false;
 
         this.canMaskBasemap = conf.canMaskBasemap;
         this.isMaskingBasemap = conf.isMaskingBasemap;
@@ -82,19 +82,19 @@ export class Dataset extends EventDispatcher<DatasetEventMap> {
         return this._name;
     }
 
-    get isLoading() {
-        return this._isLoading;
+    get isPreloading() {
+        return this._isPreloading;
     }
-    set isLoading(v) {
-        this._isLoading = v;
-        this.dispatchEvent({ type: 'isLoading' });
+    set isPreloading(v) {
+        this._isPreloading = v;
+        this.dispatchEvent({ type: 'isPreloading' });
     }
-    get isLoaded() {
-        return this._isLoaded;
+    get isPreloaded() {
+        return this._isPreloaded;
     }
-    set isLoaded(v) {
-        this._isLoaded = v;
-        this.dispatchEvent({ type: 'isLoaded' });
+    set isPreloaded(v) {
+        this._isPreloaded = v;
+        this.dispatchEvent({ type: 'isPreloaded' });
     }
 
     get visible() {

@@ -16,7 +16,7 @@
     const showCharts = ref<boolean>(false);
 
     function setCurrentSource(src: Dataset) {
-        source.value = src as Dataset;
+        source.value = src;
         isLoading.value = false;
         showCharts.value = false;
     }

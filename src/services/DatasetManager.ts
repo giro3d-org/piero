@@ -164,7 +164,7 @@ export default class DatasetManager {
     }
 
     private onVisibilityChanged(dataset: Dataset, newVisibility: boolean) {
-        if (!dataset.isLoaded && newVisibility) {
+        if (!dataset.isPreloaded && newVisibility) {
             this.loadDataset(dataset).then(() => this.updateDataset(dataset));
         } else {
             this.updateDataset(dataset);
@@ -225,14 +225,14 @@ export default class DatasetManager {
         entity.object3d.userData.entity = entity;
         entity.object3d.userData.dataset = dataset;
 
-        dataset.isLoaded = true;
-        dataset.isLoading = false;
+        dataset.isPreloaded = true;
+        dataset.isPreloading = false;
 
         this.store.attachEntity(dataset, entity);
     }
 
     private async loadDataset(dataset: Dataset) {
-        dataset.isLoading = true;
+        dataset.isPreloading = true;
 
         const entity = await loader.loadDataset(this.instance, dataset);
 

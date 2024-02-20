@@ -13,7 +13,7 @@
         dataset: Dataset;
     }>();
 
-    const isLoading = refAndWatch(props.dataset, 'isLoading');
+    const isPreloading = refAndWatch(props.dataset, 'isPreloading');
 
     defineEmits([
         'delete',
@@ -44,11 +44,11 @@
                 @click="$emit('zoom')"
             />
             <IconList class="ms-1">
-                <div class="icon spinner d-inline-block" v-if="isLoading">
+                <div class="icon spinner d-inline-block" v-if="isPreloading">
                     <SpinnerControl title="Loading..." />
                 </div>
                 <IconListButton
-                    v-if="dataset.type === 'ifc' && dataset.isLoaded"
+                    v-if="dataset.type === 'ifc' && dataset.isPreloaded"
                     title="Show dataset properties"
                     icon="bi-card-list"
                     data-bs-toggle="collapse"
@@ -57,19 +57,21 @@
                     aria-expanded="false"
                 />
                 <IconListButton
-                    v-if="dataset.isLoaded && (dataset.canMaskBasemap || dataset.isMaskingBasemap)"
+                    v-if="
+                        dataset.isPreloaded && (dataset.canMaskBasemap || dataset.isMaskingBasemap)
+                    "
                     title="Toggle basemap masking"
                     icon="bi-mask"
                     @click="$emit('update:toggle-mask')"
                 />
                 <IconListButton
-                    v-if="dataset.isLoaded"
+                    v-if="dataset.isPreloaded"
                     title="Clip to"
                     icon="bi-bounding-box"
                     @click="$emit('clipTo')"
                 />
                 <IconListButton
-                    v-if="dataset.isLoaded"
+                    v-if="dataset.isPreloaded"
                     title="Toggle 3D grid"
                     icon="bi-box"
                     @click="$emit('update:toggle-grid')"

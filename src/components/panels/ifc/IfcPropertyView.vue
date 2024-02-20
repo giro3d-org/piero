@@ -11,16 +11,37 @@
         dataset: Dataset;
     }>();
 
-    const isLoaded = refAndWatch(props.dataset, 'isLoaded');
-    const ifcEntity = datasets.getEntity(props.dataset) as IfcEntity | undefined;
-    const classificationRoot = ifcEntity?.getClassification();
+    const isPreloaded = refAndWatch(props.dataset, 'isPreloaded');
+
+    function getIfcEntity() {
+        const entity = datasets.getEntity(props.dataset);
+
+        if (entity == null) {
+            return null;
+        }
+
+        return entity as IfcEntity;
+    }
+
+    function getClassificationRoot() {
+        const ifcEntity = getIfcEntity();
+
+        if (ifcEntity == null) {
+            return null;
+        }
+
+        return ifcEntity.getClassification();
+    }
 </script>
 
 <template>
-    <div v-if="isLoaded && ifcEntity != null">
+    <div v-if="isPreloaded">
         <ul>
-            <li v-for="(item, index) in classificationRoot" :key="index">
-                <IfcSubtree :ifc-entity="ifcEntity" :classification-element="item" />
+            <li v-for="(item, index) in getClassificationRoot()" :key="index">
+                <IfcSubtree
+                    :ifc-entity="getIfcEntity() as IfcEntity"
+                    :classification-element="item"
+                />
             </li>
         </ul>
     </div>
