@@ -1,0 +1,6 @@
+{
+    "extends": "markdownlint/style/prettier",
+    "MD033": {
+        "allowed_elements": ["br", "div", "a", "img"]
+    }
+}
