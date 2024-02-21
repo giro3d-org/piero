@@ -9,7 +9,7 @@ import {
 
 import Instance from '@giro3d/giro3d/core/Instance';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
-import { HttpConfiguration } from '@giro3d/giro3d/utils';
+import { Fetcher, HttpConfiguration } from '@giro3d/giro3d/utils';
 
 import LayerManager from '@/services/LayerManager';
 import BasemapManager from '@/services/BasemapManager';
@@ -130,6 +130,11 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         // Skybox.addSkybox(this.mainInstance);
 
         this.mainInstance.notifyChange();
+
+        // Preload web-ifc.wasm
+        Fetcher.fetch('web-ifc.wasm').catch(() => {
+            console.warn('Could not load web-ifc.wasm');
+        });
     }
 
     onFrameEnd() {
