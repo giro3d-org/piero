@@ -10,6 +10,9 @@ dist
 src/config.ts
 src/styles.ts
 
+# IFC
+public/web-ifc.wasm
+
 # We should stop putting data in there
 public/cityjson
 public/geojson

@@ -79,6 +79,7 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url)),
             // Use our dependencies for openbim-components & stuff
             three: path.resolve('./node_modules/three'),
+            'web-ifc': path.resolve('./node_modules/web-ifc'),
             'camera-controls': path.resolve('./node_modules/camera-controls'),
             // Use our dependencies for @math.gl
             proj4: path.resolve('./node_modules/proj4'),

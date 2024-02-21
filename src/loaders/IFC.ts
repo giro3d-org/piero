@@ -48,12 +48,6 @@ export default {
         const classifier = await components.tools.get(FragmentClassifier);
         const fragmentIfcLoader = new FragmentIfcLoader(components);
 
-        // TODO replace with own WASM ?
-        fragmentIfcLoader.settings.wasm = {
-            path: 'https://unpkg.com/web-ifc@0.0.44/',
-            absolute: true,
-        };
-
         fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
         fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
 
