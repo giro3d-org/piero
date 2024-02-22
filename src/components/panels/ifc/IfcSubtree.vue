@@ -6,7 +6,7 @@
     import { useAnalysisStore } from '@/stores/analysis';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
-    import ListLinkLabel from '@/components/atoms/ListLinkLabel.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
 
     const props = defineProps<{
         ifcEntity: IfcEntity;
@@ -63,10 +63,9 @@
                     aria-expanded="true"
                 />
             </IconList>
-            <ListLinkLabel
+            <ListLabelButton
                 class="label"
                 :class="highlighted ? 'text-danger-emphasis' : 'text-muted'"
-                href="#"
                 :text="classificationElement.name"
                 :title="`Zoom to ${classificationElement.name}`"
                 @click="zoomTo"

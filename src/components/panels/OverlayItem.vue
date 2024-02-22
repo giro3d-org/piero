@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import OpacitySlider from '@/components/OpacitySlider.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
-    import ListLinkLabel from '@/components/atoms/ListLinkLabel.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
 
@@ -16,10 +16,9 @@
 <template>
     <li class="list-group-item d-flex">
         <VisibilityControl :visible="visible" @update:visible="v => $emit('update:visible', v)" />
-        <ListLinkLabel
+        <ListLabelButton
             class="label"
-            :class="!visible ? 'disabled' : null"
-            href="#"
+            :disabled="!visible"
             :title="`Zoom to ${name}`"
             :text="name"
             @click="$emit('zoom')"

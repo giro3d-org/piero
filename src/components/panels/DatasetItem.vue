@@ -6,7 +6,7 @@
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import IfcPropertyView from '@/components/panels/ifc/IfcPropertyView.vue';
-    import ListLinkLabel from '@/components/atoms/ListLinkLabel.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
 
@@ -36,10 +36,9 @@
             :visible="isVisible"
             @update:visible="v => $emit('update:visible', dataset, v)"
         />
-        <ListLinkLabel
+        <ListLabelButton
             class="label"
-            :class="!isVisible ? 'disabled' : null"
-            href="#"
+            :disabled="!isVisible || !isPreloaded"
             :text="dataset.name"
             :title="`Zoom to ${dataset.name}`"
             @click="$emit('zoom', dataset)"

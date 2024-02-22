@@ -5,7 +5,7 @@
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import ListLinkLabel from '@/components/atoms/ListLinkLabel.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
@@ -46,10 +46,9 @@
                 aria-expanded="false"
             />
         </IconList>
-        <ListLinkLabel
+        <ListLabelButton
             class="label"
-            :class="!isVisible || !hasLeafPreloaded ? 'disabled' : null"
-            href="#"
+            :disabled="!isVisible || !hasLeafPreloaded"
             :text="group.name"
             :title="`Zoom to ${group.name}`"
             @click="$emit('zoom', group)"
