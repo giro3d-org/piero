@@ -30,7 +30,7 @@ pages:
     rules:
         - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
           variables:
-              DEPLOY_URL: $CI_PAGES_URL
+              DEPLOY_URL: https://app.giro3d.org
               OUTPUT: ./dist
     cache:
         key: gitlab-pages
