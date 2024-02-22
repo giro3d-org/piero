@@ -72,7 +72,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
         }
         const geojson: GeoJSON.Feature = {
             type: 'Feature',
-            id: `${Download.getBaseUrl()}/#${this.uuid}`,
+            id: `${Download.getBaseUrl()}#${this.uuid}`,
             geometry,
             properties: {
                 ...this.properties,
@@ -93,7 +93,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
             // GeoJSON spec does not allow properties on FeatureCollection
             // But OWC requires it Oo
             // @ts-ignore
-            id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
+            id: `${Download.getBaseUrl()}#${MathUtils.generateUUID()}`,
             properties: {
                 lang: 'en',
                 title: 'Giro3D annotations',

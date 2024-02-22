@@ -43,7 +43,7 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
     toGeoJSON() {
         const geojson = {
             type: 'Feature',
-            id: `${Download.getBaseUrl()}/#${this.uuid}`,
+            id: `${Download.getBaseUrl()}#${this.uuid}`,
             geometry: {
                 type: 'LineString',
                 coordinates: [this.object.from.toArray(), this.object.to.toArray()],
@@ -67,7 +67,7 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
             // GeoJSON spec does not allow properties on FeatureCollection
             // But OWC requires it Oo
             // @ts-ignore
-            id: `${Download.getBaseUrl()}/#${MathUtils.generateUUID()}`,
+            id: `${Download.getBaseUrl()}#${MathUtils.generateUUID()}`,
             properties: {
                 lang: 'en',
                 title: 'Giro3D measures',
