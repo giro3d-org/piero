@@ -32,7 +32,7 @@ export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
     }
 
     getUrl() {
-        const base = Download.getBaseUrl() + '/?';
+        const base = Download.getBaseUrl() + '?';
         const cam = this.camera;
         const json: BookmarkJson = {
             camera: [cam.camera.x, cam.camera.y, cam.camera.z],

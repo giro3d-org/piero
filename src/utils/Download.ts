@@ -16,11 +16,9 @@ function downloadAsJson(object: any, filename: string) {
     downloadBlob(blob, filename);
 }
 
-function getBaseUrl(fallback: string = 'http://localhost:8080') {
-    if (import.meta.env.PROD) {
-        return import.meta.env.BASE_URL;
-    }
-    return fallback;
+function getBaseUrl(fallback: string = 'http://localhost:8080/') {
+    const baseUrl = import.meta.env.PROD ? import.meta.env.BASE_URL : fallback;
+    return baseUrl.at(-1) === '/' ? baseUrl : baseUrl + '/';
 }
 
 export default { downloadBlob, downloadAsJson, getBaseUrl };
