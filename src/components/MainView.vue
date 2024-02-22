@@ -19,10 +19,12 @@
         });
         store.setMainView(instance.value);
 
-        Inspector.attach(inspectorView.value as HTMLDivElement, instance.value, {
-            title: 'Main view',
-            width: 300,
-        });
+        if (!import.meta.env.PROD) {
+            Inspector.attach(inspectorView.value as HTMLDivElement, instance.value, {
+                title: 'Main view',
+                width: 300,
+            });
+        }
     });
 
     onUnmounted(() => {
