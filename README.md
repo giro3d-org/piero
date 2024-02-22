@@ -1,6 +1,4 @@
-# giro3d-sample-application
-
-This template should help get you started developing with Vue 3 in Vite.
+# Piero
 
 ## Recommended IDE Setup
 
@@ -8,12 +6,18 @@ This template should help get you started developing with Vue 3 in Vite.
 
 ## Project Setup
 
+### With the `init.sh` script
+
+On compatible platforms, you can use the `init.sh` script to initialize the configuration.
+
+### Manually
+
 1. Install npm dependencies
 2. Copy the default App configuration
 
 ```sh
 npm install
-cp src/config.json.sample src/config.json
+cp src/config.ts.sample src/config.ts
 cp src/styles.ts.sample src/styles.ts
 ```
 
