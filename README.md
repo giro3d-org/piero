@@ -13,7 +13,7 @@
 <br>
 
 <div align="center">
-  <a href="https://gitlab.com/giro3d/giro3d-sample-application/badges/main/pipeline.svg"><img src="https://gitlab.com/giro3d/giro3d-sample-application/badges/main/pipeline.svg" alt="Piepline status"></a>
+  <a href="https://gitlab.com/giro3d/piero/badges/main/pipeline.svg"><img src="https://gitlab.com/giro3d/piero/badges/main/pipeline.svg" alt="Pipeline status"></a>
   <a href="https://matrix.to/#/#giro3d:matrix.org"><img src="https://img.shields.io/matrix/giro3d:matrix.org" alt="Matrix chat"></a>
 </div>
 

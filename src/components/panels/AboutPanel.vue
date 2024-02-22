@@ -17,9 +17,7 @@
         <p>
             If you wish to run your own instance of Piero, or if you wish to contribute to this
             application, head up to
-            <a href="https://gitlab.com/giro3d/giro3d-sample-application" target="_blank"
-                >our GitLab project</a
-            >
+            <a href="https://gitlab.com/giro3d/piero" target="_blank">our GitLab project</a>
             for more info.
         </p>
         <h5>Contributors</h5>
@@ -30,9 +28,7 @@
         </p>
         <h5>License</h5>
         <p>
-            <a
-                target="_blank"
-                href="https://gitlab.com/giro3d/giro3d-sample-application/-/blob/main/LICENSE"
+            <a target="_blank" href="https://gitlab.com/giro3d/piero/-/blob/main/LICENSE"
                 >MIT License</a
             >
         </p>
