@@ -13,7 +13,7 @@ This template should help get you started developing with Vue 3 in Vite.
 
 ```sh
 npm install
-cp src/config.json.sample src/config.json
+cp src/config.ts.sample src/config.ts
 cp src/styles.ts.sample src/styles.ts
 ```
 
