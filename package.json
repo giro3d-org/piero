@@ -32,6 +32,7 @@
         "chart.js": "^3.9.1",
         "chroma-js": "^2.4.2",
         "cityjson-threejs-loader": "^0.4.0",
+        "font-gis": "^1.0.5",
         "ol": "^8.2.0",
         "openbim-components": "^1.1.5",
         "pinia": "^2.1.6",

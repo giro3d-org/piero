@@ -28,10 +28,29 @@
 
     const propertyViews: Map<DatasetType, Component> = new Map();
     propertyViews.set('ifc', IfcPropertyView);
+
+    const icons: Map<DatasetType, string> = new Map();
+    icons.set('bdtopo', 'bi-buildings');
+    icons.set('cityjson', 'bi-buildings');
+    icons.set('geojson', 'fg-geojson-file');
+    icons.set('gpkg', 'polygon-pt');
+    icons.set('ifc', 'bi-building');
+    icons.set('ply', 'bi-file-earmark-binary');
+    icons.set('pointcloud', 'fg-multipoint');
+    icons.set('shp', 'fg-shape-file');
 </script>
 
 <template>
     <div class="d-flex">
+        <IconList class="me-1 text-body-tertiary">
+            <i
+                v-if="icons.get(dataset.type)?.startsWith('bi-')"
+                class="bi"
+                :class="icons.get(dataset.type)"
+            />
+            <i v-else-if="icons.get(dataset.type)" :class="icons.get(dataset.type)" />
+            <i v-else class="bi bi-file-earmark-x" />
+        </IconList>
         <VisibilityControl
             :visible="isVisible"
             @update:visible="v => $emit('update:visible', dataset, v)"
