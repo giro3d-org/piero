@@ -1,13 +1,20 @@
 <script setup lang="ts">
     import { ref } from 'vue';
+    import { MathUtils } from 'three';
     import IfcEntity, { ClassificationItem } from '@/giro3d/IfcEntity';
     import { useCameraStore } from '@/stores/camera';
     import { useAnalysisStore } from '@/stores/analysis';
+    import IconList from '@/components/atoms/IconList.vue';
+    import IconListButton from '@/components/atoms/IconListButton.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
 
     const props = defineProps<{
         ifcEntity: IfcEntity;
         classificationElement: ClassificationItem;
     }>();
+
+    const id = MathUtils.generateUUID();
+    const target = `#${id}`;
 
     const highlighted = ref(false);
     const cameraStore = useCameraStore();
@@ -38,35 +45,38 @@
 <template>
     <div>
         <div class="d-flex">
-            <!-- <a class="icon mx-1" href="#" @click="highlight">
-                <i class="bi bi-eye"></i>
-            </a> -->
             <span
-                class="badge class"
-                :class="highlighted ? 'text-bg-danger' : 'text-bg-secondary'"
+                class="border rounded px-1 py-0 fw-normal"
+                :class="
+                    highlighted ? 'text-danger border-danger' : 'text-secondary border-secondary'
+                "
                 :title="classificationElement.treeItemName"
                 >{{ classificationElement.treeItemName }}</span
             >
-            <span
-                class="flex-fill mx-2 text-truncate name"
+            <IconList v-if="classificationElement.children.length > 0">
+                <IconListButton
+                    title="Expand group"
+                    icon="bi-chevron-down"
+                    data-bs-toggle="collapse"
+                    :data-bs-target="target"
+                    :aria-controls="id"
+                    aria-expanded="true"
+                />
+            </IconList>
+            <ListLabelButton
+                class="label"
                 :class="highlighted ? 'text-danger-emphasis' : 'text-muted'"
-                :title="classificationElement.name"
-                >{{ classificationElement.name }}</span
-            >
-            <div class="icons">
-                <a href="#" class="icon" title="Highlight" @click="highlight">
-                    <i class="bi bi-highlighter"></i>
-                </a>
-                <a href="#" class="icon" title="Zoom to" @click="zoomTo">
-                    <i class="bi bi-zoom-in"></i>
-                </a>
-                <a href="#" class="icon" title="Clip to" @click="clipTo">
-                    <i class="bi bi-bounding-box"></i>
-                </a>
-            </div>
+                :text="classificationElement.name"
+                :title="`Zoom to ${classificationElement.name}`"
+                @click="zoomTo"
+            />
+            <IconList class="ms-1">
+                <IconListButton title="Highlight" icon="bi-highlighter" @click="highlight" />
+                <IconListButton title="Clip to" icon="bi-bounding-box" @click="clipTo" />
+            </IconList>
         </div>
-        <div v-if="classificationElement.children.length > 0">
-            <ul>
+        <div v-if="classificationElement.children.length > 0" :id="id" class="collapse show">
+            <ul class="list-unstyled border-start">
                 <li v-for="(item, index) in classificationElement.children" :key="index">
                     <IfcSubtree :ifc-entity="props.ifcEntity" :classification-element="item" />
                 </li>
@@ -77,29 +87,7 @@
 
 <style scoped>
     ul {
-        list-style-type: none;
-    }
-
-    li {
-        margin-top: 0.2rem;
-    }
-
-    .class {
-        font-weight: normal;
-    }
-
-    .name {
-        font-size: smaller;
-    }
-
-    .icon {
-        margin-left: 0.3rem;
-        color: rgb(180, 180, 180);
-    }
-
-    @media (hover: hover) {
-        .icon:hover {
-            color: rgb(75, 75, 75);
-        }
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
     }
 </style>

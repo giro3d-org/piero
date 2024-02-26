@@ -1,65 +1,38 @@
-import { GeoJSON } from 'ol/format';
-import { tile } from 'ol/loadingstrategy.js';
-import { createXYZ } from 'ol/tilegrid.js';
-import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import { Fill, Style } from 'ol/style';
 import Polygon from 'ol/geom/Polygon';
 
-import { Color, MeshLambertMaterial, Vector3 } from 'three';
+import { Color, Vector3 } from 'three';
 
 import Instance from '@giro3d/giro3d/core/Instance';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import MaskLayer, { MaskMode } from '@giro3d/giro3d/core/layer/MaskLayer';
 import AxisGrid from '@giro3d/giro3d/entities/AxisGrid';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import Giro3DMap from '@giro3d/giro3d/entities/Map';
-import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
-import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
-import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
 
-import CameraController from '@/services/CameraController';
-import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
-import loader, { FileType, ProcessOptions } from '@/loaders/loader';
+import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Dataset, DatasetObject, DatasetType } from '@/types/Dataset';
+import { Datagroup, DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
-
-/** Mapping between file types and the dataset types */
-const datasetTypePerFileType: Record<FileType, DatasetType> = {
-    gpkg: 'gpkg',
-    las: 'pointcloud',
-    csv: 'pointcloud',
-    cityjson: 'cityjson',
-    geojson: 'geojson',
-    ifc: 'ifc',
-    ply: 'ply',
-    shp: 'shp',
-} as const;
 
 export default class DatasetManager {
     private readonly instance: Instance;
     private readonly entities: Map<string, Entity3D> = new Map();
     private readonly axisGrids: Map<string, AxisGrid> = new Map();
     private readonly masks: Map<string, MaskLayer> = new Map();
-    private readonly camera: CameraController;
     private readonly store = useDatasetStore();
 
-    constructor(instance: Instance, camera: CameraController) {
+    constructor(instance: Instance) {
         this.instance = instance;
-        this.camera = camera;
 
         this.store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'remove':
                         this.deleteDataset(args[0]);
-                        break;
-                    case 'goTo':
-                        this.zoom(args[0]);
                         break;
                     case 'importFromFile':
                         this.importFromFile(args[0]);
@@ -84,17 +57,13 @@ export default class DatasetManager {
         }
     }
 
-    private onToggleGrid(dataset: Dataset) {
+    private onToggleGrid(dataset: DatasetOrGroup) {
         if (this.axisGrids.has(dataset.uuid)) {
             const grid = this.axisGrids.get(dataset.uuid);
             if (grid) this.instance.remove(grid);
             this.axisGrids.delete(dataset.uuid);
         } else {
-            const entity = this.entities.get(dataset.uuid);
-            if (!entity) {
-                return;
-            }
-            const box = entity.getBoundingBox();
+            const box = this.store.getBoundingBox(dataset);
             if (!box || box.isEmpty()) {
                 return;
             }
@@ -121,16 +90,11 @@ export default class DatasetManager {
         }
     }
 
-    private createMask(dataset: Dataset) {
-        const entity = this.entities.get(dataset.uuid);
-        if (!entity) {
-            return;
-        }
-
+    private createMask(dataset: DatasetOrGroup) {
         // TODO: this assumes the dataset covers the whole bounding box
         // (in particular, that it is oriented the same way)
         // which will most likely not be the case...
-        const box = entity.getBoundingBox();
+        const box = this.store.getBoundingBox(dataset);
         if (!box || box.isEmpty()) {
             return;
         }
@@ -171,7 +135,7 @@ export default class DatasetManager {
         this.masks.set(dataset.uuid, mask);
     }
 
-    private deleteMask(dataset: Dataset) {
+    private deleteMask(dataset: DatasetOrGroup) {
         const mask = this.masks.get(dataset.uuid);
         if (mask) {
             const maps = this.instance.getObjects(
@@ -185,7 +149,7 @@ export default class DatasetManager {
         this.masks.delete(dataset.uuid);
     }
 
-    private onToggleMask(dataset: Dataset) {
+    private onToggleMask(dataset: DatasetOrGroup) {
         if (this.masks.has(dataset.uuid)) {
             this.deleteMask(dataset);
         } else {
@@ -193,123 +157,23 @@ export default class DatasetManager {
         }
     }
 
-    private onVisibilityChanged(dataset: Dataset, newVisibility: boolean) {
-        if (!dataset.isLoaded && newVisibility) {
-            this.loadDataset(dataset).then(() => this.updateDataset(dataset));
-        } else {
-            this.updateDataset(dataset);
+    private async onVisibilityChanged(dataset: DatasetOrGroup, newVisibility: boolean) {
+        dataset.visible = newVisibility;
+        if (!dataset.isPreloaded && newVisibility) {
+            await this.loadDataset(dataset);
         }
-    }
-
-    private loadPointCloud(dataset: Dataset): Tiles3D {
-        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-
-        const pointcloud = new Tiles3D(
-            `pointcloud-${dataset.name}`,
-            new Tiles3DSource(dataset.url),
-            {
-                material: new PointCloudMaterial({
-                    size: 2,
-                    mode: MODE.ELEVATION,
-                }),
-            },
-        );
-        return pointcloud;
-    }
-
-    private zoom(dataset: Dataset) {
-        const entity = this.entities.get(dataset.uuid);
-        if (entity) {
-            this.camera.lookTopDownAt(entity);
+        this.updateDataset(dataset);
+        if (Datagroup.isGroup(dataset)) {
+            dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
         }
-    }
-
-    private async loadDefault(dataset: Dataset, options: ProcessOptions): Promise<Entity3D> {
-        if (dataset.url === null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-        const result = await loader.processFile(this.instance, dataset.url, options);
-        return result.obj;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private loadBDTopo(dataset: Dataset): Entity3D {
-        const crs = this.instance.referenceCrs;
-
-        const vectorSource = new VectorSource({
-            format: new GeoJSON(),
-            url: function url(e) {
-                return `${
-                    'https://wxs.ign.fr/topographie/geoportail/wfs' +
-                    // 'https://download.data.grandlyon.com/wfs/rdata'
-                    '?SERVICE=WFS' +
-                    '&VERSION=2.0.0' +
-                    '&request=GetFeature' +
-                    '&typename=BDTOPO_V3:batiment' +
-                    '&outputFormat=application/json' +
-                    `&SRSNAME=${crs}` +
-                    '&startIndex=0' +
-                    '&bbox='
-                }${e.join(',')},${crs}`;
-            },
-            strategy: tile(createXYZ({ tileSize: 512 })),
-        });
-
-        const entity = new FeatureCollection('BDTOPO_V3', {
-            source: vectorSource,
-            extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
-            material: new MeshLambertMaterial(),
-            extrusionOffset: (feature: Feature) => {
-                const hauteur = -feature.getProperties().hauteur;
-                if (Number.isNaN(hauteur)) {
-                    return 0;
-                }
-                return hauteur;
-            },
-            style: (feature: Feature) => {
-                const properties = feature.getProperties();
-                const fid = feature.getId();
-                let color = '#FFFFFF';
-                let visible = true;
-                if (properties.usage_1 === 'Résidentiel') {
-                    color = '#9d9484';
-                } else if (properties.usage_1 === 'Commercial et services') {
-                    color = '#b0ffa7';
-                }
-
-                if (
-                    fid === 'batiment.BATIMENT0000000240851971' ||
-                    fid === 'batiment.BATIMENT0000000240851972'
-                ) {
-                    visible = false;
-                }
-
-                return { color: new Color(color), visible };
-            },
-            minLevel: 11,
-            maxLevel: 11,
-        });
-
-        return entity;
     }
 
     private async importFromFile(file: File) {
         const notifications = useNotificationStore();
         try {
-            loader.checkCanProcessFile(file, true);
+            notifications.push(new Notification(file.name, 'Importing file...'));
+            const { dataset, entity } = await loader.importFile(this.instance, file);
 
-            const {
-                obj: entity,
-                filetype,
-                filename,
-            } = await loader.processFile(this.instance, file);
-            const type = datasetTypePerFileType[filetype];
-
-            if (!type) {
-                throw new Error(`File type ${filetype} not supported`);
-            }
-
-            const dataset = new DatasetObject(filename, type, null);
-
-            dataset.visible = true;
             this.entities.set(dataset.uuid, entity);
             this.instance.add(entity);
             this.instance.notifyChange(entity);
@@ -318,7 +182,7 @@ export default class DatasetManager {
 
             this.onDatasetLoaded(dataset, entity);
 
-            notifications.push(new Notification(filename, 'Import successful.', 'success'));
+            notifications.push(new Notification(dataset.name, 'Import successful.', 'success'));
         } catch (e) {
             console.error(e);
             const error = e as Error;
@@ -326,7 +190,7 @@ export default class DatasetManager {
         }
     }
 
-    private updateDataset(dataset: Dataset) {
+    private updateDataset(dataset: DatasetOrGroup) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
@@ -339,7 +203,7 @@ export default class DatasetManager {
         }
     }
 
-    private deleteDataset(dataset: Dataset) {
+    private deleteDataset(dataset: DatasetOrGroup) {
         const entity = this.entities.get(dataset.uuid);
         if (entity) {
             this.instance.remove(entity);
@@ -347,52 +211,28 @@ export default class DatasetManager {
         this.instance.notifyChange();
     }
 
-    private onDatasetLoaded(dataset: Dataset, entity: Entity3D) {
-        entity.object3d.userData.entity = entity;
-        entity.object3d.userData.dataset = dataset;
+    private onDatasetLoaded(dataset: DatasetOrGroup, entity: Entity3D) {
+        dataset.isPreloaded = true;
+        dataset.isPreloading = false;
 
-        dataset.isLoaded = true;
-        dataset.isLoading = false;
+        if (dataset.onObjectPreloaded) {
+            dataset.onObjectPreloaded(dataset, entity);
+        }
 
         this.store.attachEntity(dataset, entity);
     }
 
-    private async loadDataset(dataset: Dataset) {
-        dataset.isLoading = true;
+    private async loadDataset(dataset: DatasetOrGroup) {
+        if (dataset.isPreloaded) return dataset;
 
-        let entity: Entity3D | undefined;
-        switch (dataset.type) {
-            case 'cityjson':
-                entity = await this.loadDefault(dataset, {});
-                break;
-            case 'ifc':
-                entity = await this.loadDefault(dataset, {
-                    at: dataset.coordinates
-                        ? dataset.coordinates.as(this.instance.referenceCrs)
-                        : undefined,
-                });
-                break;
-            case 'ply':
-                if (!dataset.coordinates)
-                    throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
-                entity = await this.loadDefault(dataset, {
-                    at: dataset.coordinates.as(this.instance.referenceCrs),
-                });
-                break;
-            case 'pointcloud':
-                entity = this.loadPointCloud(dataset);
-                break;
-            case 'bdtopo':
-                entity = this.loadBDTopo(dataset);
-                break;
-            case 'shp':
-            case 'geojson':
-            case 'gpkg':
-                entity = await this.loadDefault(dataset, {
-                    elevation: dataset.elevation,
-                });
-                break;
+        if (Datagroup.isGroup(dataset)) {
+            dataset.isPreloaded = true;
+            return dataset;
         }
+
+        dataset.isPreloading = true;
+
+        const entity = await loader.loadDataset(this.instance, dataset);
 
         if (entity) {
             entity.visible = dataset.visible;

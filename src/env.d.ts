@@ -1,3 +1,9 @@
+interface DependencyInfo {
+    description?: string;
+    license?: string;
+    homepage?: string;
+}
+
 /**
  * Defines variables thay *may* be defined in the environment (e.g. .env or .env.local files) and
  * can be referenced as `import.meta.env.FOOBAR`.
@@ -16,6 +22,7 @@ interface ImportMetaEnv {
 
     readonly PROD: boolean;
     readonly BASE_URL: string;
+    readonly VITE_DEPENDENCIES: Record<string, DependencyInfo>;
 }
 
 interface ImportMeta {

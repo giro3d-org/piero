@@ -1,17 +1,61 @@
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
+import fs from 'fs';
 
 import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import vue from '@vitejs/plugin-vue';
+
+import pkgConfig from './package.json';
 
 const openbimComponentsChunks = {
     // Big libs, put them in their own chunks
     'web-ifc': 'web-ifc',
 };
 
+const homepages = {
+    'camera-controls': 'https://github.com/yomotsu/camera-controls',
+    'openbim-components': 'https://ifcjs.github.io/components/',
+    'web-ifc': 'https://ifcjs.github.io/web-ifc/docs/',
+};
+
+function getHomepage(packageJson: any): string | undefined {
+    if (homepages[packageJson.name]) return homepages[packageJson.name];
+    if (packageJson.homepage) return packageJson.homepage;
+    if (packageJson.repository) {
+        if (typeof packageJson.repository === 'string') {
+            if (packageJson.repository.startsWith('github')) {
+                return 'https://github.com/' + packageJson.repository.split(':')[1];
+            } else if (packageJson.repository.startsWith('gitlab')) {
+                return 'https://gitlab.com/' + packageJson.repository.split(':')[1];
+            } else if (packageJson.repository.startsWith('http')) {
+                return packageJson.repository;
+            } else {
+                return undefined;
+            }
+        } else {
+            return packageJson.repository.url.replace('.git', '');
+        }
+    }
+    return undefined;
+}
+
+const dependencies = {};
+for (const pkg of Object.keys(pkgConfig.dependencies)) {
+    const packageFilePath = path.join(__dirname, 'node_modules', pkg, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
+    dependencies[packageJson.name] = {
+        description: packageJson.description,
+        license: packageJson.license,
+        homepage: getHomepage(packageJson),
+    };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
+    define: {
+        'import.meta.env.VITE_DEPENDENCIES': JSON.stringify(dependencies),
+    },
     optimizeDeps: {
         // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it
         // however it depends on earcut which _has_ to be optimized (because giro3d also depends on it)

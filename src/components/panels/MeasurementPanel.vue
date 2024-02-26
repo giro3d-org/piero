@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import { ref, watch } from 'vue';
     import DropdownView from '@/components/DropdownView.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
-    import MeasurementItem from './MeasurementItem.vue';
-    import IconButton from '@/components/IconButton.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import MeasurementItem from '@/components/panels/MeasurementItem.vue';
+    import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useMeasurementStore } from '@/stores/measurement';
     import Download from '@/utils/Download';
@@ -53,7 +53,7 @@
 
         <EmptyIndicator text="No measurements" v-if="measures.count === 0" />
 
-        <ul class="layers-list-group flex-fill overflow-auto">
+        <ul class="list-group list-group-flush flex-fill overflow-auto">
             <MeasurementItem
                 v-for="item in measures.getMeasures()"
                 :key="item.title"
@@ -71,7 +71,7 @@
             />
         </ul>
 
-        <fieldset class="button-area">
+        <fieldset class="button-area" id="measures-fieldset">
             <hr />
             <div class="mb-3">
                 <DropdownView
@@ -98,14 +98,14 @@
             >
                 <i class="bi-rulers" /> Start measuring
             </button>
-            <IconButton
+            <ButtonWithIcon
                 title="Export measures to GeoJSON"
                 class="btn-outline-secondary"
                 @click="exportMeasures"
                 icon="bi-box-arrow-right"
                 text="Export measures"
             />
-            <IconButton
+            <ButtonWithIcon
                 title="Import measures from GeoJSON"
                 class="btn-outline-secondary"
                 @click="(hiddenInput as HTMLInputElement).click()"

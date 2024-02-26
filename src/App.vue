@@ -26,7 +26,7 @@
     const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
     const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
 
-    const selectedTool = ref<PanelType | null>(null);
+    const selectedTool = ref<PanelType | null>('datasets');
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
     const mouse = ref({ x: 0, y: 0 });
@@ -55,7 +55,7 @@
             minimap.setMainInstance(instance);
         }
 
-        Tour.start(giro3d.mainInstance, null, giro3d.camera, null);
+        Tour.start(giro3d.camera);
     }
 
     function initializeMinimap(instance: Instance) {
@@ -227,7 +227,7 @@
         v-if="selectedTool != null"
         class="component panel"
         :selected="selectedTool"
-        @restart-tour="Tour.start(giro3d.mainInstance, null, giro3d.camera, null)"
+        @restart-tour="Tour.restart()"
     />
     <ProgressBar :progress="progress" class="loading-indicator" />
     <SearchOverlay id="address-search" class="search" @update:poi="onPointOfInterestSelected" />

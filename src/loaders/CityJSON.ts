@@ -1,36 +1,36 @@
 import { CityJSONLoader, CityJSONWorkerParser } from 'cityjson-threejs-loader';
 import Instance from '@giro3d/giro3d/core/Instance.js';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
-import Projections from '../utils/Projections';
 import CityJSONEntity from '@/giro3d/CityJSONEntity';
 
-/**
- * CityJSON options
- */
-export type CityJSONOptions = {
+import Fetcher, { UrlOrBlob } from '@/utils/Fetcher';
+import Projections from '@/utils/Projections';
+import loader from './loader';
+
+/** Parameters for creating CityJSON object */
+export type CityJSONParameters = {
+    /** Projection to use (if not provided in the file) */
     projection?: string;
 };
 
 export default {
-    /**
-     * Loads a CityJSON file as a string.
-     *
-     * @param instance Giro3d instance
-     * @param id Layer id
-     * @param str CityJSON content
-     * @param options Options
-     * @returns Entity created
-     */
-    loadString(
+    async load(
         instance: Instance,
-        id: string,
-        str: string,
-        options: CityJSONOptions = {},
-    ): Promise<Entity3D> {
-        return new Promise(resolve => {
-            const json = JSON.parse(str);
-            // const alert = NotificationController.showNotification('CityJSON', `Loaded ${id}; processing ${Object.keys(json.CityObjects).length} buildings...`);
+        url: UrlOrBlob,
+        parameters: CityJSONParameters = {},
+    ): Promise<CityJSONEntity> {
+        const data = await Fetcher.json(url);
+        const entity = await this.loadJson(instance, data, parameters);
+        loader.fillOrigin(entity.object3d, url);
+        return entity;
+    },
+
+    async loadJson(
+        instance: Instance,
+        json: any,
+        parameters: CityJSONParameters = {},
+    ): Promise<CityJSONEntity> {
+        return new Promise<CityJSONEntity>(resolve => {
             const parser = new CityJSONWorkerParser();
             const loader = new CityJSONLoader(parser);
 
@@ -38,12 +38,12 @@ export default {
             parser.onComplete = () => {
                 loader.scene.updateMatrix();
                 loader.scene.updateMatrixWorld(true);
-                // alert.dismiss();
                 resolve(new CityJSONEntity(loader));
             };
 
             loader.load(json);
 
+            // FIXME: here's a code smell indicating we are not using CityJSON correctly
             let z: number;
             if (json.transform?.translate[2] !== undefined && json.transform?.translate[2] != 0) {
                 // Z already taken into account when creating mesh
@@ -62,11 +62,11 @@ export default {
 
             const m = loader.matrix.toArray();
             const projection =
-                json?.metadata?.referenceSystem ?? options?.projection ?? instance.referenceCrs;
+                json?.metadata?.referenceSystem ?? parameters.projection ?? instance.referenceCrs;
 
             Projections.loadProjCrsIfNeeded(projection).then(proj => {
                 if (proj) {
-                    const coords = new Coordinates(`EPSG:${proj}`, -m[12], -m[13], z);
+                    const coords = new Coordinates(proj, -m[12], -m[13], z);
                     const coordsReference = coords.as(instance.referenceCrs);
                     loader.scene.position.set(
                         coordsReference.values[0],

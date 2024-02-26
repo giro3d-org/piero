@@ -110,6 +110,7 @@ export default class Picker {
                 key === 'geometryProperty' ||
                 key === 'metadata' ||
                 key === 'entity' ||
+                key === 'dataset' ||
                 key === 'bbox'
             )
                 continue;
@@ -136,6 +137,18 @@ export default class Picker {
         const { object } = pickResult;
         if (object?.userData) {
             this.getAttributesFromUserData(object.userData, attributes);
+        }
+    }
+
+    getDatasetAttributes(object: Object3D, datasetAttributes: Attribute[]) {
+        if (object?.userData?.dataset?.name) {
+            datasetAttributes.push({ key: 'Dataset', value: object.userData.dataset.name });
+        }
+        if (object?.userData?.dataset?.filename) {
+            datasetAttributes.push({ key: 'File', value: object.userData.dataset.filename });
+        }
+        if (object.parent) {
+            this.getDatasetAttributes(object.parent, datasetAttributes);
         }
     }
 
@@ -391,6 +404,8 @@ export default class Picker {
                 this.getAttributesFromPointCloud(pickedObject, attributesGroups);
             } else if ((entity as any).isFeatureCollection) {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
+            } else if (PlyMesh.isPlyPickResult(pickedObject)) {
+                this.getAttributesFromPlyObject(pickedObject, attributesGroups);
             } else if (isDrawingPickResult(pickedObject)) {
                 const annotation = pickedObject.drawing.userData?.annotation as Annotation;
                 name = annotation?.title ?? name;
@@ -398,8 +413,6 @@ export default class Picker {
             } else if (object?.userData) {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
             }
-        } else if (PlyMesh.isPlyPickResult(pickedObject)) {
-            this.getAttributesFromPlyObject(pickedObject, attributesGroups);
         } else if (Measure3D.isMeasure3D(pickedObject.object.parent)) {
             const measure = pickedObject.object.parent.userData?.measure as Measure;
             name = measure?.title ?? name;
@@ -408,8 +421,8 @@ export default class Picker {
             this.getAttributesFromObject3D(pickedObject, attributesGroups);
         }
 
-        if ((entity as any)?.filename) {
-            datasetAttributes.push({ key: 'Dataset', value: (entity as any).filename });
+        if (object) {
+            this.getDatasetAttributes(object, datasetAttributes);
         }
 
         return new Feature(name, parent, attributesGroups, pickedObject.point);
