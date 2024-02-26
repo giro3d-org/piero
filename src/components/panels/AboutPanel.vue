@@ -1,5 +1,7 @@
 <script setup lang="ts">
     defineEmits(['restart-tour']);
+
+    const dependencies = import.meta.env.VITE_DEPENDENCIES;
 </script>
 
 <template>
@@ -24,7 +26,7 @@
         </p>
         <h5>Credits</h5>
         <p>Data and services used from:</p>
-        <ul class="flex-grow-1">
+        <ul>
             <li>
                 <a target="_blank" href="https://ign.fr/">IGN</a> (Imagery, Elevation model, LIDAR
                 data, Elevation API)
@@ -50,13 +52,14 @@
                 <a target="_blank" href="https://oslandia.com">Oslandia</a> (CityJSON
                 reconstructions, overlay layers)
             </li>
-            <li>
-                <a
-                    target="_blank"
-                    href="https://sketchfab.com/3d-models/stylized-tree-6d1aeea748f147789004bc03e1930d32"
-                    >yonimantz</a
-                >
-                (Stylized Tree)
+        </ul>
+        <p>Third-parties:</p>
+        <ul>
+            <li v-for="[name, info] of Object.entries(dependencies)" :key="name">
+                <a target="_blank" :href="info.homepage">{{ name }} ({{ info.license }})</a>
+                <blockquote v-if="info.description" class="blockquote fw-light">
+                    {{ info.description }}
+                </blockquote>
             </li>
         </ul>
         <hr />
@@ -70,3 +73,10 @@
         </button>
     </div>
 </template>
+
+<style scoped>
+    blockquote {
+        font-size: 0.7rem !important;
+        margin-bottom: 0;
+    }
+</style>
