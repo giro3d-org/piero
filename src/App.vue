@@ -2,7 +2,7 @@
     import { Vector2, Vector3 } from 'three';
     import { defineAsyncComponent, ref } from 'vue';
     import { Instance } from '@giro3d/giro3d/core';
-    import { Extent } from '@giro3d/giro3d/core/geographic';
+    import { Coordinates, Extent } from '@giro3d/giro3d/core/geographic';
 
     import AlertToast from './components/AlertToast.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
@@ -17,6 +17,7 @@
     import Giro3DManager from '@/services/Giro3DManager';
     import MinimapController from '@/services/MinimapController';
     import Tour from '@/services/Tour';
+    import { type GeocodingResult } from '@/providers/Geocoding';
     import { useGiro3dStore } from '@/stores/giro3d';
     import { useCameraStore } from '@/stores/camera';
     import { useAnnotationStore } from '@/stores/annotations';
@@ -177,27 +178,19 @@
         }
     }, 50);
 
-    function onPointOfInterestSelected(poi: Vector3) {
+    function onPointOfInterestSelected(poi: GeocodingResult) {
         if (!giro3d) {
             return;
         }
-        const layerManager = giro3d.layerManager;
         const instance = giro3d.mainInstance;
-        // The API is in this CRS
-        const sourceCrs = 'EPSG:2154';
-
-        const aoi = Extent.fromCenterAndSize(sourceCrs, { x: poi.x, y: poi.y }, 10000, 10000).as(
+        const poiCoordinates = new Coordinates(poi.crs, poi.x, poi.y, poi.z).as(
             instance.referenceCrs,
         );
-
-        if (!aoi.isInside(layerManager.extent)) {
-            const newExtent = layerManager.extent.clone();
-            newExtent.union(aoi);
-            layerManager.setExtent(newExtent);
-        }
-
-        const target = Extent.fromCenterAndSize(sourceCrs, { x: poi.x, y: poi.y }, 1000, 1000).as(
-            instance.referenceCrs,
+        const target = Extent.fromCenterAndSize(
+            poiCoordinates.crs,
+            poiCoordinates.toVector2(),
+            1000,
+            1000,
         );
         const bbox3 = target.toBox3(poi.z, poi.z + 200);
         giro3d.camera.lookTopDownAt(bbox3, false);
@@ -343,3 +336,4 @@
         right: 0;
     }
 </style>
+@/providers/GeoCoder

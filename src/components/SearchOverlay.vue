@@ -1,8 +1,9 @@
 <script setup lang="ts">
     // @ts-ignore autocomplete does not provide typing
     import autoComplete from '@tarekraafat/autocomplete.js';
-    import { Vector3 } from 'three';
     import { onMounted, ref } from 'vue';
+    import BanProvider from '@/providers/BanProvider';
+    import { type GeocodingResult } from '@/providers/Geocoding';
 
     const inputField = ref<HTMLInputElement | null>(null);
 
@@ -16,30 +17,7 @@
             debounce: 300, // 300ms debounce
             data: {
                 src: async (query: any) => {
-                    const source = await fetch(
-                        `https://api-adresse.data.gouv.fr/search/?q=${query}`,
-                    );
-                    const data = await source.json();
-
-                    const lng: number[] = [];
-                    const lat: number[] = [];
-
-                    data.features.forEach((feature: { geometry: { coordinates: any[] } }) => {
-                        lng.push(feature.geometry.coordinates[0]);
-                        lat.push(feature.geometry.coordinates[1]);
-                    });
-
-                    const requestAltitude = await fetch(
-                        `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lng.join(
-                            '|',
-                        )}&lat=${lat.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
-                    );
-                    const altitude = await requestAltitude.json();
-                    altitude.elevations.forEach((value: any, i: string | number) => {
-                        data.features[i].properties.z = value;
-                    });
-
-                    return data.features.map((f: { properties: any }) => f.properties);
+                    return await BanProvider.geocode(query);
                 },
                 keys: ['label'],
             },
@@ -56,7 +34,7 @@
         const inputElement = inputField.value as HTMLInputElement;
 
         inputElement.addEventListener('selection', (event: Event) => {
-            const poi = (event as any).detail.selection.value as Vector3;
+            const poi = (event as any).detail.selection.value as GeocodingResult;
 
             emits('update:poi', poi);
         });
