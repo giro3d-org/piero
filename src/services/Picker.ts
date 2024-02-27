@@ -1,4 +1,4 @@
-import { Box3, Object3D, Vector3 } from 'three';
+import { Box3, Object3D, Vector3, Vector2 } from 'three';
 import { Feature as OLFeature } from 'ol';
 import { IfcCategoryMap } from 'openbim-components';
 import Instance from '@giro3d/giro3d/core/Instance';
@@ -428,11 +428,11 @@ export default class Picker {
         return new Feature(name, parent, attributesGroups, pickedObject.point);
     }
 
-    getMouseCoordinate(instance: Instance, event: MouseEvent): Vector3 | null {
+    getMouseCoordinate(instance: Instance, mouse: Vector2): Vector3 | null {
         const where = instance.getObjects(o => (o as any).isMap);
 
         const picked = instance
-            .pickObjectsAt(event, {
+            .pickObjectsAt(mouse, {
                 radius: 0,
                 limit: 1,
                 where,
@@ -441,7 +441,7 @@ export default class Picker {
         return picked?.point ?? null;
     }
 
-    hasFeature(instance: Instance, event: MouseEvent): boolean {
+    hasFeature(instance: Instance, mouse: Vector2): boolean {
         const where = instance.getObjects(
             o =>
                 (o as any).isMap !== true &&
@@ -450,7 +450,7 @@ export default class Picker {
         );
 
         const picked = instance
-            .pickObjectsAt(event, {
+            .pickObjectsAt(mouse, {
                 radius: 0,
                 limit: 1,
                 where,
