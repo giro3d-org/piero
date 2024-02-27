@@ -30,9 +30,9 @@
                     });
 
                     const requestAltitude = await fetch(
-                        `https://wxs.ign.fr/calcul/alti/rest/elevation.json?lon=${lng.join(
+                        `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lng.join(
                             '|',
-                        )}&lat=${lat.join('|')}&zonly=true`,
+                        )}&lat=${lat.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
                     );
                     const altitude = await requestAltitude.json();
                     altitude.elevations.forEach((value: any, i: string | number) => {
