@@ -30,7 +30,7 @@ export default class LayerManager extends EventDispatcher {
 
         this.instance = instance;
 
-        const extent = this.giro3dStore.getDefaultBasemapExtent(instance.referenceCrs);
+        const extent = this.giro3dStore.getDefaultBasemapExtent();
 
         this.createMap(extent);
     }

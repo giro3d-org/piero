@@ -6,19 +6,26 @@ const config: Configuration = {
     enabled_features: ['measurements'],
     camera: {
         position: {
-            crs: 'EPSG:4326',
-            x: 4.84,
-            y: 45.76,
+            crs: 'EPSG:2154',
+            x: 842022,
+            y: 6516602,
+            z: 725,
         },
-        altitude: 4000,
+        lookAt: {
+            crs: 'EPSG:2154',
+            x: 841869,
+            y: 6518359,
+            z: 168,
+        },
     },
     basemap: {
-        center: {
-            crs: 'EPSG:4326',
-            x: 4.84,
-            y: 45.76,
+        extent: {
+            crs: 'EPSG:2154',
+            west: -111629.52,
+            east: 1275028.84,
+            south: 5976033.79,
+            north: 7230161.64,
         },
-        size: [10000, 10000],
         colormap: {
             min: 0,
             max: 100,

@@ -33,6 +33,8 @@ interface Vec3 {
 
 type GeoVec3 = Vec3 & { crs?: string };
 
+type GeoExtent = { crs?: string; west: number; east: number; south: number; north: number };
+
 export type ColorRamp = string;
 
 export type BasemapSourceLayerConfig = {
@@ -172,23 +174,38 @@ export type BookmarkConfig = {
     focalOffset: Vec3;
 };
 
+export type CameraConfigDeprecated = {
+    position: GeoVec2 | [number, number];
+    altitude: number;
+};
+export type CameraConfig = {
+    position: GeoVec3;
+    lookAt?: GeoVec3;
+};
+
+export type ExtentConfig =
+    | {
+          extent: GeoExtent;
+      }
+    | {
+          center: GeoVec2 | [number, number];
+          size: [number, number];
+      };
+
+export type BasemapConfig = ExtentConfig & {
+    colormap: {
+        min: number;
+        max: number;
+        ramp: ColorRamp;
+    };
+    layers: LayerConfig[];
+};
+
 export type Configuration = {
     default_crs: string;
     enabled_features?: ExperimentalFeatures[];
-    camera: {
-        position: GeoVec2 | [number, number];
-        altitude: number;
-    };
-    basemap: {
-        center: GeoVec2 | [number, number];
-        size: [number, number];
-        colormap: {
-            min: number;
-            max: number;
-            ramp: ColorRamp;
-        };
-        layers: LayerConfig[];
-    };
+    camera: CameraConfig | CameraConfigDeprecated;
+    basemap: BasemapConfig;
     pointcloud: {
         min: number;
         max: number;
