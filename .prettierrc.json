@@ -3,5 +3,13 @@
     "singleQuote": true,
     "printWidth": 100,
     "arrowParens": "avoid",
-    "vueIndentScriptAndStyle": true
+    "vueIndentScriptAndStyle": true,
+    "overrides": [
+        {
+            "files": ["*.json", "*.jsonc"],
+            "options": {
+                "trailingComma": "none"
+            }
+        }
+    ]
 }
