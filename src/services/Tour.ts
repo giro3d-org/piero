@@ -74,7 +74,7 @@ const loadPanel = async (panelId: string, waitSelector: string) => {
 mainTour.addStep({
     id: 'example-step',
     title: 'Welcome!',
-    text: 'Welcome to this Giro3D sample application.<br/>We can guide you through the different features.<br/>',
+    text: '<p>Welcome to <strong>Piero</strong>, the Giro3D application.<br/>We can guide you through the different features.</p>',
     cancelIcon: { enabled: true, label: 'Exit tutorial' },
     buttons: [
         {
