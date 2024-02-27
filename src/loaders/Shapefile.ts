@@ -1,11 +1,11 @@
 import { load } from '@loaders.gl/core';
 import { ShapefileLoader } from '@loaders.gl/shapefile';
 import { Group } from 'three';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import { UrlOrGlDataType } from '@/utils/Fetcher';
-import GeoJSON, { GeoJSONParameters } from './GeoJSON';
+import { type UrlOrGlDataType } from '@/utils/Fetcher';
+import GeoJSON, { type GeoJSONParameters } from './GeoJSON';
 import loader from './loader';
 
 export default {
@@ -15,6 +15,9 @@ export default {
         parameters: GeoJSONParameters = {},
     ): Promise<Group> {
         const raw = await load(url, ShapefileLoader, {
+            shapefile: {
+                shape: 'geojson-table',
+            },
             gis: {
                 format: 'geojson',
                 reproject: true,
@@ -22,9 +25,7 @@ export default {
             },
         });
 
-        const features: GeoJSON.Feature[] = raw.data;
-
-        const group = await GeoJSON.loadFeatures(instance, features, {
+        const group = await GeoJSON.loadFeatures(instance, raw.features, {
             ...parameters,
             projection: instance.referenceCrs,
         });

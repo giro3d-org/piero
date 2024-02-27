@@ -1,11 +1,12 @@
 import { load } from '@loaders.gl/core';
 import { GeoPackageLoader } from '@loaders.gl/geopackage';
+import { type GeoJSONTable, type Tables } from '@loaders.gl/schema';
 import { Group } from 'three';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import { UrlOrGlDataType } from '@/utils/Fetcher';
-import GeoJSON, { GeoJSONParameters } from './GeoJSON';
+import { type UrlOrGlDataType } from '@/utils/Fetcher';
+import GeoJSON, { type GeoJSONParameters } from './GeoJSON';
 import loader from './loader';
 
 export default {
@@ -14,19 +15,19 @@ export default {
         url: UrlOrGlDataType,
         parameters: GeoJSONParameters = {},
     ): Promise<Group> {
-        const raw = await load(url, GeoPackageLoader, {
+        const raw = (await load(url, GeoPackageLoader, {
             gis: {
                 format: 'geojson',
                 reproject: true,
                 _targetCrs: instance.referenceCrs,
             },
-        });
+        })) as Tables<GeoJSONTable>;
 
         const features: GeoJSON.Feature[] = [];
-        for (const [key, array] of Object.entries(raw)) {
-            for (const feature of array as GeoJSON.Feature[]) {
+        for (const [table, array] of Object.entries(raw.tables)) {
+            for (const feature of array.table.features) {
                 if (!feature.properties) feature.properties = {};
-                feature.properties['table'] = key;
+                feature.properties['table'] = table;
                 features.push(feature);
             }
         }
