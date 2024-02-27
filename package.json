@@ -1,6 +1,41 @@
 {
-    "name": "giro3d-sample-application",
+    "name": "@giro3d/piero",
     "version": "0.0.0",
+    "description": "A web application for 3D geospatial data visualization, powered by Giro3D",
+    "keywords": [
+        "front-end",
+        "web",
+        "framework",
+        "webgl",
+        "webgl2",
+        "geography",
+        "gis",
+        "geospatial",
+        "3d",
+        "3D",
+        "three",
+        "three.js",
+        "openlayers",
+        "map",
+        "layer",
+        "visualization",
+        "pointcloud",
+        "3dtiles",
+        "raster",
+        "vector",
+        "geojson",
+        "geometry",
+        "giro3d"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/giro3d/piero.git"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://gitlab.com/giro3d/piero/-/issues"
+    },
+    "homepage": "https://app.giro3d.org/",
     "private": true,
     "scripts": {
         "build": "vue-tsc && vite build",
@@ -75,7 +110,7 @@
             "eslint",
             "prettier"
         ],
-        "**/*.{json,jsonc}": [
+        "**/*.{json,jsonc,css,scss,html}": [
             "prettier"
         ],
         "**/*.md": [

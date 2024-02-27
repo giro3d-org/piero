@@ -18,7 +18,7 @@ const panels: PanelDef[] = [
     },
     { key: 'analysis', title: 'Analysis', icon: 'bi-graph-up', enabled: true },
     { key: 'bookmarks', title: 'Bookmarks', icon: 'bi-bookmarks', enabled: true },
-    { key: 'about', title: 'About', icon: 'bi-info-circle', enabled: true },
+    { key: 'about', title: 'About Piero', icon: 'bi-info-circle', enabled: true },
 ] as const;
 
 export type PanelType = (typeof panels)[number]['key'];

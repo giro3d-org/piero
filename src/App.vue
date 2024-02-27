@@ -55,7 +55,9 @@
             minimap.setMainInstance(instance);
         }
 
-        Tour.start(giro3d.camera);
+        if (import.meta.env.PROD) {
+            Tour.start(giro3d.camera);
+        }
     }
 
     function initializeMinimap(instance: Instance) {
@@ -191,6 +193,17 @@
         );
         const bbox3 = target.toBox3(poi.z, poi.z + 200);
         giro3d.camera.lookTopDownAt(bbox3, false);
+    }
+
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        if (import.meta.env.PROD) {
+            loadingScreen.style.transition = 'opacity 1s linear';
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => loadingScreen.remove(), 1000);
+        } else {
+            loadingScreen.remove();
+        }
     }
 </script>
 
