@@ -2,7 +2,7 @@
 
 <div align="center">
   <a href="https://app.giro3d.org">
-    <img src="https://app.giro3d.org/piero_logo.png" height="120" alt="Piero">
+    <img src="https://app.giro3d.org/piero_logo.svg" height="120" alt="Piero">
   </a>
 </div>
 
