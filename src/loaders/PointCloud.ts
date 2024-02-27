@@ -1,5 +1,5 @@
-import { BufferAttribute, BufferGeometry } from 'three';
-import Instance from '@giro3d/giro3d/core/Instance';
+import { BufferAttribute, BufferGeometry, type TypedArray } from 'three';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
@@ -15,7 +15,7 @@ export interface PointCloudParameters {
 export default {
     async loadArray(
         instance: Instance,
-        positions: Float32Array,
+        positions: TypedArray,
         parameters: PointCloudParameters = {},
     ): Promise<Entity3D> {
         if (parameters.projection && parameters.projection !== instance.referenceCrs) {

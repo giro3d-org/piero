@@ -25,6 +25,8 @@ const filetypesPerExtension: Record<string, FileType> = {
     laz: 'las',
     las: 'las',
     csv: 'csv',
+    tsv: 'csv',
+    dsv: 'csv',
     json: 'cityjson',
     geojson: 'geojson',
     ifc: 'ifc',
