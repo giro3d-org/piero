@@ -1,9 +1,9 @@
 import { Instance } from '@giro3d/giro3d/core';
 import { Coordinates, Extent } from '@giro3d/giro3d/core/geographic';
 import { defineStore } from 'pinia';
-import { Vector2 } from 'three';
 import { shallowRef } from 'vue';
 import config from '../config';
+import { CameraConfigDeprecated } from '@/types/Configuration';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
@@ -26,22 +26,56 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getDefaultCameraPosition(): Coordinates {
-        const conf = config.camera.position;
-        if (Array.isArray(conf)) {
+        const conf = config.camera;
+        if (Array.isArray(conf.position)) {
             console.warn(
                 'Configuration is using an array for camera.position, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information',
             );
-            return new Coordinates('EPSG:4326', conf[0], conf[1], 0);
+            return new Coordinates(
+                'EPSG:4326',
+                conf.position[0],
+                conf.position[1],
+                (conf as CameraConfigDeprecated).altitude,
+            ).as(config.default_crs);
         }
-        return new Coordinates(conf.crs ?? config.default_crs, conf.x, conf.y, 0);
+
+        if (!('z' in conf.position)) {
+            console.warn(
+                'Configuration is using a 2D object for camera.position, you should switch to a 3D object; see https://gitlab.com/giro3d/piero/-/issues/38 for more information',
+            );
+        }
+
+        return new Coordinates(
+            conf.position.crs ?? config.default_crs,
+            conf.position.x,
+            conf.position.y,
+            'z' in conf.position ? conf.position.z : (conf as CameraConfigDeprecated).altitude,
+        ).as(config.default_crs);
     }
 
-    function getDefaultBasemapSize() {
-        const conf = config.basemap.size;
-        return new Vector2(conf[0], conf[1]);
+    function getDefaultCameraLookAt(): Coordinates {
+        if ('lookAt' in config.camera && config.camera.lookAt) {
+            return new Coordinates(
+                config.camera.lookAt.crs ?? config.default_crs,
+                config.camera.lookAt.x,
+                config.camera.lookAt.y,
+                config.camera.lookAt.z,
+            ).as(config.default_crs);
+        }
+
+        const mapExtent = getDefaultBasemapExtent();
+        return mapExtent.center();
     }
 
-    function getDefaultBasemapExtent(crs: string) {
+    function getDefaultBasemapExtent() {
+        if ('extent' in config.basemap) {
+            const extent = new Extent(
+                config.basemap.extent.crs ?? config.default_crs,
+                config.basemap.extent,
+            );
+            return extent.as(config.default_crs);
+        }
+
         const size = config.basemap.size;
         const center = config.basemap.center;
         let centerLocal: Coordinates;
@@ -53,10 +87,10 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         } else {
             centerLocal = new Coordinates(center.crs ?? config.default_crs, center.x, center.y, 0);
         }
-        centerLocal = centerLocal.as(crs);
+        centerLocal = centerLocal.as(config.default_crs);
 
         return Extent.fromCenterAndSize(
-            crs,
+            config.default_crs,
             { x: centerLocal.x, y: centerLocal.y },
             size[0],
             size[1],
@@ -77,7 +111,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         getMinimapView,
         setMinimapView,
         getDefaultCameraPosition,
-        getDefaultBasemapSize,
+        getDefaultCameraLookAt,
         getDefaultBasemapExtent,
         getCRS,
         notifyChange,

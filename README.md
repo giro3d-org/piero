@@ -93,6 +93,8 @@ On compatible platforms, you can use the `init.sh` script to initialize the conf
      cp src/styles.ts.sample src/styles.ts
     ```
 
+If you want to learn more about the configuration, head up to [its documentation](./CONFIGURATION.md).
+
 ### Run
 
 Run the app with `npm run start`: it should be available at <http://localhost:8080/>.

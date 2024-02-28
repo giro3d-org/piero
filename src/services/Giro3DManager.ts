@@ -8,7 +8,6 @@ import {
 } from 'three';
 
 import Instance from '@giro3d/giro3d/core/Instance';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import { Fetcher, HttpConfiguration } from '@giro3d/giro3d/utils';
 
 import LayerManager from '@/services/LayerManager';
@@ -76,23 +75,14 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     constructor(instance: Instance) {
         super();
 
-        const crs = instance.referenceCrs;
-
         this.mainInstance = instance;
 
         this.picker = new Picker();
         this.camera = new CameraController(this.mainInstance, this.picker);
 
-        const center = this.store.getDefaultCameraPosition().as(crs);
-        const xyz = center.toVector3();
-        const basemapSize = this.store.getDefaultBasemapSize();
-        const extent = Extent.fromCenterAndSize(
-            crs,
-            { x: xyz.x, y: xyz.y },
-            basemapSize.width,
-            basemapSize.height,
-        );
-        this.camera.setInitialPosition(extent);
+        const position = this.store.getDefaultCameraPosition();
+        const lookAt = this.store.getDefaultCameraLookAt();
+        this.camera.lookAt(position.toVector3(), lookAt.toVector3());
 
         this.layerManager = new LayerManager(this.mainInstance);
         this.basemapManager = new BasemapManager(this.layerManager);
@@ -120,8 +110,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.scene.add(ambientLight);
 
         const dirLight = new DirectionalLight(lightColor, 2);
-        dirLight.position.set(center.x - 10000, center.y - 10000, 10000);
-        dirLight.target.position.set(center.x, center.y, 0);
+        dirLight.position.set(lookAt.x - 10000, lookAt.y - 10000, 10000);
+        dirLight.target.position.set(lookAt.x, lookAt.y, 0);
         this.mainInstance.scene.add(dirLight);
         this.mainInstance.scene.add(dirLight.target);
         dirLight.updateMatrixWorld();
