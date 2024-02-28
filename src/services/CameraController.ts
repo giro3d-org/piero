@@ -14,7 +14,6 @@ import {
     Object3D,
 } from 'three';
 import CameraControls from 'camera-controls';
-import FirstPersonControls from '@giro3d/giro3d/controls/FirstPersonControls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Drawing from '@giro3d/giro3d/interactions/Drawing';
@@ -56,8 +55,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly pickObjectsAt: (e: any) => any;
     private readonly clock: Clock;
     private readonly store = useCameraStore();
-    private readonly firstPersonControls: FirstPersonControls;
-    private readonly defaultSpeed: number;
     private readonly orbitHelper: CSS2DObject;
 
     /**
@@ -74,14 +71,11 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.instance.camera.camera3D,
             this.instance.domElement,
         );
-        this.firstPersonControls = new FirstPersonControls(this.instance);
         this.instance.controls = this.orbitControls;
-        this.defaultSpeed = this.orbitControls.maxSpeed;
         this.orbitHelper = new CSS2DObject(document.getElementById('orbit-helper') as HTMLElement);
         this.instance.add(this.orbitHelper);
 
         this.initializeOrbitControls();
-        this.initializeFirstPersonControls();
 
         this.pickObjectsAt = (event: MouseEvent) =>
             this.picker.getFirstFeatureAt(this.instance, event, 1);
@@ -113,22 +107,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         });
     }
 
-    private initializeFirstPersonControls() {
-        this.firstPersonControls.enabled = false;
-        // this.instance.scene.add(this.firstPersonControls.getObject());
-        // this.firstPersonControls.disconnect();
-    }
-
     private initializeOrbitControls() {
-        this.orbitControls.dollyToCursor = true;
-        this.orbitControls.verticalDragToForward = true;
+        this.orbitControls.infinityDolly = true; // Prevents being stuck when hitting the target
+        this.orbitControls.minDistance = 2; // 2 meters seems nice
 
-        this.orbitControls.mouseButtons.left = CameraControls.ACTION.TRUCK;
-        this.orbitControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
-        this.orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-        this.orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+        this.setNavigationMode(this.store.getNavigationMode());
 
-        // Make rotation around where the user clicked
+        // Make rotation around where the user clicked when Orbit
         this.instance.domElement.addEventListener('contextmenu', e => {
             if (this.store.getNavigationMode() !== 'orbit') return;
 
@@ -145,21 +130,21 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 this.orbitHelper.updateMatrixWorld();
             }
         });
-        this.instance.domElement.addEventListener('wheel', () => {
-            if (this.store.getNavigationMode() !== 'orbit') return;
-
-            // As camera-controls doesn't dispatch controlstart/controlend events, we need
-            // to take care of them for proper events
-            this.orbitControls.dispatchEvent({ type: 'controlstart' });
-            setTimeout(() => this.orbitControls.dispatchEvent({ type: 'controlend' }), 0);
-        });
-
         this.instance.domElement.addEventListener('mouseup', () => {
             if (this.store.getNavigationMode() !== 'orbit') return;
 
             this.orbitHelper.visible = false;
             this.instance.notifyChange();
         });
+
+        // "Patch" camera-controls for nicer event handlers
+        this.instance.domElement.addEventListener('wheel', () => {
+            // As camera-controls doesn't dispatch controlstart/controlend events, we need
+            // to take care of them for proper events
+            this.orbitControls.dispatchEvent({ type: 'controlstart' });
+            setTimeout(() => this.orbitControls.dispatchEvent({ type: 'controlend' }), 0);
+        });
+
         // As Giro3d runs the event loop only when needed, we need to notify Giro3d when
         // the controls update the view.
         // We need both events to make sure the view is updated from user interactions and from
@@ -171,6 +156,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.instance.notifyChange(this.instance.camera.camera3D),
         );
 
+        // Dispatch our our events
         this.orbitControls.addEventListener('control', () => {
             if (this.orbitControls.active || this.orbitControls.currentAction !== 0) {
                 this.dispatchEvent({ type: 'interaction-start' });
@@ -190,23 +176,41 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private setNavigationMode(mode: NavigationMode) {
         switch (mode) {
             case 'first-person':
-                // this.orbitControls.maxSpeed = 2; // m/s
-                this.orbitControls.enabled = false;
-                this.firstPersonControls.enabled = true;
-                this.firstPersonControls.reset();
-                this.orbitControls.disconnect();
+                this.orbitControls.dollyToCursor = false;
+                this.orbitControls.verticalDragToForward = false;
+
+                this.orbitControls.azimuthRotateSpeed = 0.3;
+                this.orbitControls.polarRotateSpeed = 0.3;
+
+                this.orbitControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+                this.orbitControls.mouseButtons.right = CameraControls.ACTION.TRUCK;
+                this.orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+                this.orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+
+                this.orbitControls.enabled = true;
                 break;
             case 'orbit':
-                // this.orbitControls.maxSpeed = this.defaultSpeed;
-                this.firstPersonControls.enabled = false;
-                this.orbitControls.connect(this.instance.domElement);
+                this.orbitControls.dollyToCursor = true;
+                this.orbitControls.verticalDragToForward = true;
+
+                this.orbitControls.azimuthRotateSpeed = 1.0;
+                this.orbitControls.polarRotateSpeed = 1.0;
+
+                this.orbitControls.mouseButtons.left = CameraControls.ACTION.TRUCK;
+                this.orbitControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
+                this.orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+                this.orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+
                 this.orbitControls.enabled = true;
                 break;
             case 'disabled':
                 this.orbitControls.enabled = false;
-                this.firstPersonControls.enabled = false;
-                this.orbitControls.disconnect();
                 break;
+            default: {
+                // Exhaustiveness checking
+                const _exhaustiveCheck: never = mode;
+                return _exhaustiveCheck;
+            }
         }
         this.instance.domElement.focus();
     }
@@ -214,16 +218,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     onBeforeCameraUpdate() {
         // Called from giro3d
         const delta = this.clock.getDelta();
-        let hasControlsUpdated = false;
-        switch (this.store.getNavigationMode()) {
-            case 'first-person':
-                // this.firstPersonControls.update(delta);
-                break;
-            case 'orbit':
-                hasControlsUpdated = this.orbitControls.update(delta);
-                break;
-        }
-
+        const hasControlsUpdated = this.orbitControls.update(delta);
         if (hasControlsUpdated) {
             this.instance.notifyChange(this.instance.camera.camera3D);
         }
@@ -245,18 +240,23 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             BOTTOM: 'ArrowDown',
         };
         this.instance.domElement.addEventListener('keydown', e => {
-            if (this.store.getNavigationMode() !== 'orbit') return;
-
             let forwardDirection = 0;
             let truckDirectionX = 0;
-            const factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
+            let truckDirectionY = 0;
+            let factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
+
+            // Reduce the factor in FPV as we should be close to our data
+            if (this.store.getNavigationMode() === 'first-person') factor /= 10;
+
             switch (e.code) {
                 case keys.UP:
-                    forwardDirection = 1;
+                    if (this.store.getNavigationMode() === 'orbit') forwardDirection = 1;
+                    else truckDirectionY = -1;
                     break;
 
                 case keys.BOTTOM:
-                    forwardDirection = -1;
+                    if (this.store.getNavigationMode() === 'orbit') forwardDirection = -1;
+                    else truckDirectionY = 1;
                     break;
 
                 case keys.LEFT:
@@ -283,6 +283,15 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                     this.orbitControls.truck(
                         truckDirectionX * this.orbitControls.truckSpeed * factor,
                         0,
+                        true,
+                    ),
+                );
+            }
+            if (truckDirectionY) {
+                this.executeInteraction(() =>
+                    this.orbitControls.truck(
+                        0,
+                        truckDirectionY * this.orbitControls.truckSpeed * factor,
                         true,
                     ),
                 );
