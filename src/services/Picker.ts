@@ -328,7 +328,7 @@ export default class Picker {
             }
             if (measurements.perimeter) {
                 attributes.push({
-                    key: 'Perimeter',
+                    key: pickResult.drawing.geometryType === 'Polygon' ? 'Perimeter' : 'Length',
                     value: `${measurements.perimeter.toFixed(2)}${unit}`,
                 });
             }
