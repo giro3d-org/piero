@@ -49,6 +49,9 @@ export default class BasemapManager {
                     source,
                     minmax: { min: 0, max: 5000 },
                     colorMap: this.store.getElevationColorMap(),
+                    noDataOptions: {
+                        replaceNoData: false,
+                    },
                 });
                 this.layerManager.addElevationLayer(layer as ElevationLayer);
                 break;

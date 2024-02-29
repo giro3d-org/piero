@@ -32,9 +32,6 @@ async function createWMTSSource(layer: string, url: string, format?: string, mat
     const result = parser.read(text);
     const options = optionsFromCapabilities(result, {
         layer,
-        //   matrixSet: matrixSet ?? 'EPSG:3857',
-        projection: 'EPSG:3857',
-        format,
     });
     if (options === null) throw new Error('Cannot resolve WMTS source from capabilities');
     return new WMTS(options);
