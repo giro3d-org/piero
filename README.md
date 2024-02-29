@@ -23,6 +23,8 @@
 
 Piero is powered by **[Giro3D](https://giro3d.org/)** and supports a variety of heterogeneous data sources, either 2D and 3D. The application comes with some sample data, you can add your own data via drag and drop from your computer to visualize it.
 
+![Display heterogeneous data](graphics/screenshots/3dview.png)
+
 ### 2D assets
 
 -   [GeoJSON](https://geojson.org/)
@@ -45,6 +47,12 @@ Piero can easily be extended to include any format supported by [Giro3D](https:/
 
 Besides displaying 2D and 3D data, Piero adds some more advanced tools to navigate and analyze your data.
 
+### Identification & Attribute table
+
+By clicking on your data, you can easily get all the metadata from your objects. Supports a wide variety of metadata, among IFC properties, GeoJSON properties, WFS fields, CityJSON attributes, etc.
+
+![Attribute table](graphics/screenshots/attributes.png)
+
 ### Geocoding
 
 Piero includes a geocoding widget from [the French BAN database](https://adresse.data.gouv.fr/) to easily set the view on an addresse or point of interest.
@@ -57,17 +65,25 @@ Piero includes a geocoding widget from [the French BAN database](https://adresse
 
 **3D annotations** let you place points, and draw lines and polygons on the map or on any 3D data. You can also import your own 3D GeoJSON files.
 
+![Annotation](graphics/screenshots/annotation.png)
+
 ### Measurements
 
 When dealing with buildings, it can be very useful to automagically determine the length between two objects. **Measurements** let you easily measure distances between walls and store the results.
+
+![Measurements](graphics/screenshots/measurements.png)
 
 ### Cross section
 
 The **cross section** tool let you define a cross-section plane to see through 3D objects.
 
+![Cross section](graphics/screenshots/crosssection.png)
+
 ### Clipping box
 
 The **clipping box** tool let you partially hide objects, so you can see through them. This can be useful to see inside a building, for instance displaying a single floor.
+
+![Clipping box](graphics/screenshots/clippingbox.png)
 
 ## Run your own Piero
 
