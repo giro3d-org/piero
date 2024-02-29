@@ -69,7 +69,7 @@
 </script>
 
 <template>
-    <div class="toast-container bottom-0 end-0 px-3 py-5">
+    <div class="toast-container">
         <div ref="alertToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div :class="['toast-header', getStyle()]">
                 <i :v-if="notification.level === 'info'" :class="['bi', getIcon()]"></i>
@@ -82,9 +82,14 @@
                     aria-label="Close"
                 ></button>
             </div>
-            <div class="toast-body">
-                {{ notification.text }}
-            </div>
+            <div class="toast-body" v-html="notification.text"></div>
         </div>
     </div>
 </template>
+
+<style scoped>
+    .toast-container {
+        bottom: 5rem;
+        right: 1rem;
+    }
+</style>

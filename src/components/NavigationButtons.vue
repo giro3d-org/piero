@@ -1,13 +1,31 @@
 <script setup lang="ts">
     import { ref, watch } from 'vue';
     import NavigationMode from '@/types/NavigationMode';
+    import Notification from '@/types/Notification';
     import SwitchToggle from './SwitchToggle.vue';
     import { useCameraStore } from '@/stores/camera';
+    import { useNotificationStore } from '@/stores/notifications';
+
     const camera = useCameraStore();
+    const notificationStore = useNotificationStore();
 
     const navigationMode = ref<NavigationMode>(camera.getNavigationMode());
     watch(navigationMode, newMode => {
         camera.setNavigationMode(newMode);
+
+        const name = newMode === 'first-person' ? 'First person' : 'Free navigation';
+        const description =
+            newMode === 'first-person'
+                ? 'Left-click to pan; Right-click to orbit; Scroll to zoom to cursor; Up/Down/Left/Right: pan'
+                : 'Left-click to rotate; Right-click to pan; Scroll to zoom; Up/Down/Left/Right: move';
+
+        notificationStore.push(
+            new Notification(
+                'Navigation',
+                `Navigation mode set to <strong>${name}</strong>.<br>${description}`,
+                'success',
+            ),
+        );
     });
 </script>
 
