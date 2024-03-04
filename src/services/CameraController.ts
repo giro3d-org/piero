@@ -13,16 +13,19 @@ import {
     EventDispatcher,
     Object3D,
 } from 'three';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import CameraControls from 'camera-controls';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates.js';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D.js';
 import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
-import CameraPosition from '@/types/CameraPosition';
+import Inspector from '@giro3d/giro3d/gui/Inspector';
 import { useCameraStore } from '@/stores/camera';
-import { Extent } from '@giro3d/giro3d/core/geographic';
+import { useGiro3dStore } from '@/stores/giro3d';
+import CameraControlsInspector from '@/giro3d/CameraControlsInspector';
+import CameraPosition from '@/types/CameraPosition';
 import NavigationMode from '@/types/NavigationMode';
-import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import Picker from './Picker';
 
 CameraControls.install({
@@ -55,6 +58,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly pickObjectsAt: (e: any) => any;
     private readonly clock: Clock;
     private readonly store = useCameraStore();
+    private readonly giro3dStore = useGiro3dStore();
     private readonly orbitHelper: CSS2DObject;
 
     /**
@@ -105,6 +109,27 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                     break;
             }
         });
+
+        this.giro3dStore.$onAction(({ name, after, args }) => {
+            after(() => {
+                switch (name) {
+                    case 'setInspector':
+                        this.initializeInspector(args[0]);
+                        break;
+                }
+            });
+        });
+    }
+
+    private initializeInspector(inspector: Inspector) {
+        if (inspector) {
+            const cameraControlsPanel = new CameraControlsInspector(
+                inspector.gui,
+                this,
+                this.instance,
+            );
+            inspector.addPanel(cameraControlsPanel);
+        }
     }
 
     private initializeOrbitControls() {
@@ -225,7 +250,11 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     }
 
     onAfterCameraUpdate() {
-        this.store.setCurrentPosition(this.getCameraPosition());
+        // this.instance.camera.camera3D.position is *not always* the same as orbitControls.getPosition()
+        this.store.setCurrentPosition(
+            this.getCameraPosition(),
+            this.instance.camera.camera3D.position,
+        );
     }
 
     /**
@@ -359,9 +388,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         );
     }
 
-    getCameraPosition(): CameraPosition {
+    getCameraPosition(target?: CameraPosition): CameraPosition {
         const controls = this.orbitControls;
-        const cameraPosition = new CameraPosition(new Vector3(), new Vector3(), new Vector3());
+        const cameraPosition =
+            target ?? new CameraPosition(new Vector3(), new Vector3(), new Vector3());
 
         controls.getPosition(cameraPosition.camera);
         controls.getTarget(cameraPosition.target);
