@@ -18,6 +18,8 @@ import { useGiro3dStore } from '@/stores/giro3d';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;
+export const GRID_NAME = 'grid';
+export const PLANE_NAME = 'plane';
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
@@ -69,7 +71,7 @@ export default class LayerManager extends EventDispatcher {
         const dims = extent.dimensions();
 
         this.grid = new GridHelper(1, 100);
-        this.grid.name = 'grid';
+        this.grid.name = GRID_NAME;
         this.grid.scale.set(dims.x, 1, dims.y);
         this.grid.visible = true;
         const center = extent.center();
@@ -83,7 +85,7 @@ export default class LayerManager extends EventDispatcher {
             new PlaneGeometry(dims.x, dims.y, 1, 1),
             new MeshBasicMaterial({ color: 'black' }),
         );
-        this.plane.name = 'plane';
+        this.plane.name = PLANE_NAME;
         this.plane.position.set(center.x, center.y, -101);
 
         this.instance.add(this.basemap);
