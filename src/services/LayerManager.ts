@@ -13,11 +13,16 @@ import {
     PlaneGeometry,
     Vector3,
 } from 'three';
+import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
+
+// Hide the grid when above this altitude threshold
+const GRID_ALTITUDE_THRESHOLD = 3000;
 
 export default class LayerManager extends EventDispatcher {
     private readonly instance: Instance;
     private basemap!: Map;
+    private readonly cameraStore = useCameraStore();
     private readonly giro3dStore = useGiro3dStore();
     private grid!: GridHelper;
     private plane!: Mesh;
@@ -33,6 +38,10 @@ export default class LayerManager extends EventDispatcher {
         const extent = this.giro3dStore.getDefaultBasemapExtent();
 
         this.createMap(extent);
+
+        this.instance.addEventListener('after-camera-update', () => {
+            this.onAfterCameraUpdate();
+        });
     }
 
     setExtent(extent: Extent) {
@@ -88,6 +97,19 @@ export default class LayerManager extends EventDispatcher {
             for (const layer of layers) {
                 this.basemap.addLayer(layer);
             }
+        }
+    }
+
+    private onAfterCameraUpdate() {
+        const pos = this.cameraStore.getCamera3dPosition();
+        const oldVisible = this.grid.visible;
+        const newVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
+
+        if (oldVisible !== newVisible) {
+            this.grid.visible = newVisible;
+            this.plane.visible = newVisible;
+            this.instance.notifyChange(this.grid);
+            this.instance.notifyChange(this.plane);
         }
     }
 
