@@ -57,9 +57,7 @@
             minimap.setMainInstance(instance);
         }
 
-        if (import.meta.env.PROD) {
-            Tour.start(giro3d.camera);
-        }
+        Tour.start(giro3d.camera);
     }
 
     function initializeMinimap(instance: Instance) {
