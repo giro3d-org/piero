@@ -17,6 +17,8 @@
   <a href="https://matrix.to/#/#giro3d:matrix.org"><img src="https://img.shields.io/matrix/giro3d:matrix.org" alt="Matrix chat"></a>
 </div>
 
+![Piero application](graphics/screenshots/piero-app.webp)
+
 ---
 
 ## Bring Your Own Data
