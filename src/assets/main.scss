@@ -2,7 +2,6 @@ $green: #377c5f;
 $primary: $green;
 
 @import 'font-gis/css/font-gis.css';
-@import 'shepherd.js/dist/css/shepherd.css';
 @import '@tarekraafat/autocomplete.js/dist/css/autoComplete.02.css';
 @import 'bootstrap/scss/bootstrap';
 $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
@@ -12,7 +11,7 @@ $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
 @import 'bootstrap/scss/utilities';
 @import 'bootstrap/scss/utilities/api';
 
-@import './sheperd.scss';
+@import './shepherd.scss';
 
 #app {
     width: 100vw;

@@ -4,6 +4,26 @@ The rest was left untouched.
 Maybe there was an easier way, but I did that quicly...
 */
 
+/** Add border on the arrow */
+.shepherd-element[data-popper-placement^='top'] > .shepherd-arrow::before {
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+.shepherd-element[data-popper-placement^='bottom'] > .shepherd-arrow::before {
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+.shepherd-element[data-popper-placement^='left'] > .shepherd-arrow::before {
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+.shepherd-element[data-popper-placement^='right'] > .shepherd-arrow::before {
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/** Now go on with the shepherd-patched theme */
+
 .shepherd-button {
     @extend .btn;
     @extend .btn-primary;
