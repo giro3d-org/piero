@@ -338,16 +338,18 @@ export default {
     start(_camera: CameraController) {
         camera = _camera;
 
-        const url = new URL(document.URL);
-        const tour = url.searchParams.get('tour') ?? 'main';
-        if (tour !== 'none') {
-            const tourStep = url.searchParams.get('tourStep') ?? 0;
-            if (tour === 'navigating') {
-                navigatingTour.show(tourStep);
-            } else if (tour === 'analyzing') {
-                analyzingTour.show(tourStep);
-            } else {
-                mainTour.show(tourStep);
+        if (import.meta.env.PROD) {
+            const url = new URL(document.URL);
+            const tour = url.searchParams.get('tour') ?? 'main';
+            if (tour !== 'none') {
+                const tourStep = url.searchParams.get('tourStep') ?? 0;
+                if (tour === 'navigating') {
+                    navigatingTour.show(tourStep);
+                } else if (tour === 'analyzing') {
+                    analyzingTour.show(tourStep);
+                } else {
+                    mainTour.show(tourStep);
+                }
             }
         }
     },
