@@ -19,6 +19,7 @@ import Feature, { Attribute, AttributesGroups } from '@/types/Feature';
 import Measure from '@/types/Measure';
 import { PlyMesh } from '@/loaders/PLY';
 import { useAnalysisStore } from '@/stores/analysis';
+import { GRID_NAME, PLANE_NAME } from './LayerManager';
 
 export default class Picker {
     private readonly analysisStore = useAnalysisStore();
@@ -210,8 +211,8 @@ export default class Picker {
         let where = instance.getObjects(
             o =>
                 (o as any).isMap !== true &&
-                (o as any).name !== 'plane' &&
-                (o as any).name !== 'grid',
+                (o as any).name !== PLANE_NAME &&
+                (o as any).name !== GRID_NAME,
         );
         if (filterOnObjects) where = where.filter(filterOnObjects);
 
@@ -445,8 +446,8 @@ export default class Picker {
         const where = instance.getObjects(
             o =>
                 (o as any).isMap !== true &&
-                (o as any).name !== 'plane' &&
-                (o as any).name !== 'grid',
+                (o as any).name !== PLANE_NAME &&
+                (o as any).name !== GRID_NAME,
         );
 
         const picked = instance

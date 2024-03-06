@@ -1,5 +1,6 @@
 import { Instance } from '@giro3d/giro3d/core';
 import { Coordinates, Extent } from '@giro3d/giro3d/core/geographic';
+import Inspector from '@giro3d/giro3d/gui/Inspector';
 import { defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 import config from '../config';
@@ -8,6 +9,7 @@ import { CameraConfigDeprecated } from '@/types/Configuration';
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
     const minimapView = shallowRef<Instance | null>(null);
+    const inspector = shallowRef<Inspector | null>(null);
 
     function getMainView(): Instance | null {
         return mainView.value;
@@ -23,6 +25,14 @@ export const useGiro3dStore = defineStore('giro3d', () => {
 
     function setMinimapView(instance: Instance) {
         minimapView.value = instance;
+    }
+
+    function getInspector(): Inspector | null {
+        return inspector.value;
+    }
+
+    function setInspector(i: Inspector) {
+        inspector.value = i;
     }
 
     function getDefaultCameraPosition(): Coordinates {
@@ -110,6 +120,8 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         setMainView,
         getMinimapView,
         setMinimapView,
+        getInspector,
+        setInspector,
         getDefaultCameraPosition,
         getDefaultCameraLookAt,
         getDefaultBasemapExtent,

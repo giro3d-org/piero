@@ -20,10 +20,15 @@
         store.setMainView(instance.value);
 
         if (!import.meta.env.PROD) {
-            Inspector.attach(inspectorView.value as HTMLDivElement, instance.value, {
-                title: 'Main view',
-                width: 300,
-            });
+            const inspector = Inspector.attach(
+                inspectorView.value as HTMLDivElement,
+                instance.value,
+                {
+                    title: 'Main view',
+                    width: 300,
+                },
+            );
+            store.setInspector(inspector);
         }
     });
 
