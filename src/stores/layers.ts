@@ -5,47 +5,16 @@ import chroma from 'chroma-js';
 import { ColorMap } from '@giro3d/giro3d/core/layer';
 
 import config from '../config.ts';
-import { getPublicFolderUrl } from '@/utils/Configuration';
 import { BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
-import { LayerSource, WMSSource, WMTSSource, VectorSource, MVTSource } from '@/types/LayerSource';
 import { Overlay, OverlayObject } from '@/types/Overlay';
-import { BasemapSourceLayerConfig } from '@/types/Configuration';
-
-function getSource(conf: BasemapSourceLayerConfig): LayerSource {
-    switch (conf.type) {
-        case 'wms':
-            return {
-                type: 'wms',
-                format: conf.format,
-                layer: conf.layer,
-                nodata: conf.nodata,
-                url: conf.url,
-                projection: conf.projection,
-            } as WMSSource;
-        case 'wmts':
-            return {
-                type: 'wmts',
-                format: conf.format,
-                layer: conf.layer,
-                nodata: conf.nodata,
-                url: conf.url,
-                projection: conf.projection,
-            } as WMTSSource;
-    }
-
-    throw new Error(`Unsupported source type ${conf.type}`);
-}
+import { OverlayConfig } from '@/types/configuration/layerSource.ts';
 
 function getBaseLayers() {
     const result: BaseLayerObject[] = [];
 
     const conf = config.basemap.layers;
     for (const item of conf) {
-        const layer = new BaseLayerObject({
-            name: item.name,
-            type: item.type as 'elevation' | 'color',
-            source: getSource(item.source),
-        });
+        const layer = new BaseLayerObject(item);
         layer.visible = item.visible;
         result.push(layer);
     }
@@ -56,30 +25,23 @@ function getBaseLayers() {
 function getInitialOverlays() {
     const result: Overlay[] = [];
     for (const item of config.overlays) {
-        let source: LayerSource = { type: item.type };
-        switch (item.type) {
-            case 'geojson':
-            case 'kml':
-            case 'gpx': {
-                const vectorSource = source as VectorSource;
-                vectorSource.url = getPublicFolderUrl(item.url);
-                vectorSource.projection = item.projection;
-                vectorSource.style = item.style;
-                break;
-            }
-            case 'mvt': {
-                const mvtSource = source as MVTSource;
-                mvtSource.url = getPublicFolderUrl(item.url);
-                mvtSource.style = item.style;
-                mvtSource.backgroundColor = item.backgroundColor;
-                break;
-            }
-            case 'wms': {
-                source = getSource(item.source);
-                break;
-            }
+        let overlayConfig: OverlayConfig;
+
+        if (!('source' in item)) {
+            console.warn(
+                `Configuration is not using the "source" field for overlay ${item.name}, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/49 for more information`,
+            );
+            overlayConfig = {
+                name: item.name,
+                visible: item.visible,
+                source: {
+                    ...item,
+                },
+            };
+        } else {
+            overlayConfig = item;
         }
-        const overlay = new OverlayObject(item.name, source);
+        const overlay = new OverlayObject(overlayConfig);
         overlay.visible = item.visible;
         result.push(overlay);
     }

@@ -8,7 +8,7 @@ import {
     DatasetImportedConfig,
     DatasetOrGroupConfig,
     OnObjectPreloaded,
-} from '@/types/Configuration';
+} from '@/types/configuration/dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 import config from '@/config';
 

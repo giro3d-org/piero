@@ -1,6 +1,6 @@
 import LayerObject from './LayerObject';
 import { EventDispatcher } from 'three';
-import { LayerSource } from './LayerSource';
+import { OverlayConfig } from './configuration/layerSource';
 
 export interface Overlay extends EventDispatcher {
     uuid: string;
@@ -12,20 +12,18 @@ export interface Overlay extends EventDispatcher {
     get opacity(): number;
     set opacity(v: number);
 
-    source: LayerSource;
+    config: OverlayConfig;
 }
 
 export class OverlayObject extends LayerObject implements Overlay {
-    readonly name: string;
     private _loading: boolean;
-    readonly source: any;
+    readonly config: OverlayConfig;
 
-    constructor(name: string, source: LayerSource) {
-        super(name);
+    constructor(config: OverlayConfig) {
+        super(config.name);
 
-        this.name = name;
         this._loading = false;
-        this.source = source;
+        this.config = config;
     }
 
     get isLoading() {

@@ -2,7 +2,7 @@ import { Object3D } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Instance from '@giro3d/giro3d/core/Instance';
 
-import { DatasetImportedConfig } from '@/types/Configuration';
+import { DatasetImportedConfig } from '@/types/configuration/dataset';
 import { Dataset, DatasetTypeImportable } from '@/types/Dataset';
 import { UrlOrGlDataType } from '@/utils/Fetcher';
 import CityJSON from './CityJSON';
