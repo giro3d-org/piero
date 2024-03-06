@@ -3,7 +3,7 @@ import { VectorStyle } from '../VectorStyle';
 import { CRS } from './geographic';
 
 /** Supported layer source types */
-export type LayerSourceType = 'wms' | 'wmts' | 'geojson' | 'kml' | 'gpx' | 'mvt';
+export type LayerSourceType = 'wms' | 'wmts' | 'cog' | 'geojson' | 'kml' | 'gpx' | 'mvt';
 
 /** Base configuration for layers and overlays sources */
 export type LayerSourceBaseConfig<TType extends LayerSourceType> = {
@@ -53,6 +53,16 @@ export type WMTSSourceConfig = LayerSourceBaseConfig<'wmts'> & {
     nodata?: number;
 };
 
+/** COG source configuration */
+export type COGSourceConfig = LayerSourceBaseConfig<'cog'> & {
+    /** CRS of the source - must be registered first */
+    projection: CRS;
+    /** URL of the source. */
+    url: string;
+    /** No data value, if any */
+    nodata?: number;
+};
+
 /** GeoJSON, KML and GPX source configuration */
 export type VectorSourceConfig = LayerSourceBaseConfig<'geojson' | 'kml' | 'gpx'> & {
     /** CRS of the source - must be registered first */
@@ -77,7 +87,7 @@ export type MVTSourceConfig = LayerSourceBaseConfig<'mvt'> & {
 };
 
 /** Available configuration for layer sources */
-export type BasemapLayerSourceConfig = WMSSourceConfig | WMTSSourceConfig;
+export type BasemapLayerSourceConfig = WMSSourceConfig | WMTSSourceConfig | COGSourceConfig;
 
 /** Basemap layer configuration */
 export type LayerConfig = {
@@ -95,6 +105,7 @@ export type LayerConfig = {
 export type OverlaySourceConfig =
     | WMSSourceConfig
     | WMTSSourceConfig
+    | COGSourceConfig
     | VectorSourceConfig
     | MVTSourceConfig;
 

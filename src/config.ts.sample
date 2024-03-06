@@ -279,6 +279,15 @@ const config: Configuration = {
                 style: 'canopee',
             },
         },
+        {
+            name: 'Surface temperature (COG)',
+            visible: false,
+            source: {
+                type: 'cog',
+                url: 'https://3d.oslandia.com/lyon/TS2015.tif',
+                projection: 'EPSG:3946',
+            },
+        },
     ],
     bookmarks: [
         {

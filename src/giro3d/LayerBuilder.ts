@@ -6,7 +6,7 @@ import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { GPX, KML, MVT, WMTSCapabilities } from 'ol/format';
 import { WMTS } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
-import { ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources';
+import { CogSource, ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources';
 import { ImageFormat } from '@giro3d/giro3d/formats';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
@@ -81,6 +81,12 @@ async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
                 source,
                 noDataValue: input.nodata,
                 format: getFormat(input.format),
+            });
+        }
+        case 'cog': {
+            return new CogSource({
+                url: getPublicFolderUrl(input.url),
+                crs: input.projection,
             });
         }
         case 'geojson': {
