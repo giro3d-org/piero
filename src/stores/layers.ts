@@ -109,7 +109,7 @@ export const useLayerStore = defineStore('layers', () => {
         const colors = [];
         for (let i = 0; i < 256; i++) {
             const rgb = scale(i / 255).gl();
-            const c = new Color(rgb[0], rgb[1], rgb[2]);
+            const c = new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
             colors.push(c);
         }
         return new ColorMap(colors, conf.min, conf.max);

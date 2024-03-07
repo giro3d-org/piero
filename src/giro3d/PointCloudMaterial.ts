@@ -27,7 +27,7 @@ class PointCloudMaterial extends PointsMaterial {
                 .colors(256)
                 .map(c => {
                     const rgb = chroma(c).gl();
-                    return new Color(rgb[0], rgb[1], rgb[2]);
+                    return new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
                 });
 
             this.uniforms.vLut = new Uniform(lut);
