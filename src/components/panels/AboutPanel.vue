@@ -60,6 +60,7 @@
                 <a target="_blank" href="https://oslandia.com">Oslandia</a> (CityJSON
                 reconstructions, overlay layers)
             </li>
+            <li><a target="_blank" href="https://bimdata.io/">BIMData</a> (IFC model)</li>
         </ul>
         <p>Third-parties:</p>
         <ul>
