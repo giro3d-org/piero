@@ -27,14 +27,24 @@ Piero is powered by **[Giro3D](https://giro3d.org/)** and supports a variety of 
 
 ![Display heterogeneous data](graphics/screenshots/3dview.png)
 
+### Imagery
+
+-   [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/)
+-   [MVT](https://docs.mapbox.com/data/tilesets/guides/vector-tiles-standards/)
+-   [WMS](https://www.ogc.org/standard/wms/)
+-   [WMTS](https://www.ogc.org/standard/wmts/)
+
 ### 2D assets
 
 -   [GeoJSON](https://geojson.org/)
 -   [GeoPackage](https://www.geopackage.org/)
+-   [GPX](https://www.topografix.com/gpx.asp) - not yet supported via drag and drop
+-   [KML](https://www.ogc.org/standard/kml/) - not yet supported via drag and drop
 -   [Shapefile](https://doc.arcgis.com/en/arcgis-online/reference/shapefiles.htm) - not supported via drag and drop
 
 ### 3D assets
 
+-   [3D Tiles](https://www.ogc.org/standard/3DTiles/) - not supported via drag and drop
 -   [CityJSON](https://www.cityjson.org/)
 -   [CSV pointcloud](https://github.com/ASPRSorg/LAS)
 -   [IFC](https://www.buildingsmart.org/standards/bsi-standards/industry-foundation-classes/)
