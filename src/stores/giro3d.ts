@@ -4,7 +4,7 @@ import Inspector from '@giro3d/giro3d/gui/Inspector';
 import { defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 import config from '../config';
-import { CameraConfigDeprecated } from '@/types/Configuration';
+import { CameraConfigDeprecated } from '@/types/configuration/camera';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);

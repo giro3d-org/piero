@@ -176,15 +176,16 @@ const config: Configuration = {
     overlays: [
         {
             name: "Cours d'eau",
-            url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
             visible: false,
-            type: 'mvt',
-            backgroundColor: '',
-            style: 'river',
+            source: {
+                type: 'mvt',
+                url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
+                backgroundColor: '',
+                style: 'river',
+            },
         },
         {
             name: 'Réseau fibre',
-            type: 'wms',
             visible: false,
             source: {
                 type: 'wms',
@@ -196,7 +197,6 @@ const config: Configuration = {
         },
         {
             name: 'Végétation stratifiée 2018',
-            type: 'wms',
             visible: false,
             source: {
                 type: 'wms',
@@ -208,7 +208,6 @@ const config: Configuration = {
         },
         {
             name: "Zones d'activités économiques (ZAE)",
-            type: 'wms',
             visible: false,
             source: {
                 type: 'wms',
@@ -220,7 +219,6 @@ const config: Configuration = {
         },
         {
             name: 'Prévision de travaux de la Métropole de Lyon',
-            type: 'wms',
             visible: false,
             source: {
                 type: 'wms',
@@ -232,7 +230,6 @@ const config: Configuration = {
         },
         {
             name: "Alignement d'arbres",
-            type: 'wms',
             visible: false,
             source: {
                 type: 'wms',
@@ -244,37 +241,52 @@ const config: Configuration = {
         },
         {
             name: 'Sytral lines (KML)',
-            projection: 'EPSG:4326',
-            url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
             visible: false,
-            type: 'kml',
-            style: {
-                stroke: {
-                    color: '#FA8C22',
-                    width: 2,
+            source: {
+                type: 'kml',
+                projection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
+                style: {
+                    stroke: {
+                        color: '#FA8C22',
+                        width: 2,
+                    },
                 },
             },
         },
         {
             name: 'Footpath (GPX)',
-            projection: 'EPSG:4326',
-            url: 'https://3d.oslandia.com/lyon/track.gpx',
             visible: false,
-            type: 'gpx',
-            style: {
-                stroke: {
-                    color: '#FA8C22',
-                    width: 2,
+            source: {
+                projection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/track.gpx',
+                type: 'gpx',
+                style: {
+                    stroke: {
+                        color: '#FA8C22',
+                        width: 2,
+                    },
                 },
             },
         },
         {
             name: 'Canopée (GeoJSON)',
-            projection: 'EPSG:4171',
-            url: 'https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson',
             visible: false,
-            type: 'geojson',
-            style: 'canopee',
+            source: {
+                projection: 'EPSG:4171',
+                url: 'https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson',
+                type: 'geojson',
+                style: 'canopee',
+            },
+        },
+        {
+            name: 'Surface temperature (COG)',
+            visible: false,
+            source: {
+                type: 'cog',
+                url: 'https://3d.oslandia.com/lyon/TS2015.tif',
+                projection: 'EPSG:3946',
+            },
         },
     ],
     bookmarks: [

@@ -6,13 +6,12 @@ import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { GPX, KML, MVT, WMTSCapabilities } from 'ol/format';
 import { WMTS } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
-import { ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources';
+import { CogSource, ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources';
 import { ImageFormat } from '@giro3d/giro3d/formats';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
 import CircleStyle from 'ol/style/Circle';
 import { StyleFunction } from 'ol/style/Style';
-import { LayerSource, WMSSource, WMTSSource } from '@/types/LayerSource';
 import {
     FillStyle,
     PointStyle,
@@ -21,9 +20,17 @@ import {
     VectorStyle,
 } from '@/types/VectorStyle';
 import dynamicStyles from '@/styles';
+import { getPublicFolderUrl } from '@/utils/Configuration';
+import { LayerSourceConfig } from '@/types/configuration/layerSource';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function createWMTSSource(layer: string, url: string, format?: string, matrixSet?: string) {
+async function createWMTSSource(
+    layer: string | string[],
+    url: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    format?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    matrixSet?: string,
+) {
     const parser = new WMTSCapabilities();
 
     const res = await fetch(url);
@@ -37,7 +44,7 @@ async function createWMTSSource(layer: string, url: string, format?: string, mat
     return new WMTS(options);
 }
 
-function getFormat(mimeType: string): ImageFormat | undefined {
+function getFormat(mimeType?: string): ImageFormat | undefined {
     switch (mimeType) {
         case 'image/x-bil;bits=32':
             return new BilFormat();
@@ -46,46 +53,80 @@ function getFormat(mimeType: string): ImageFormat | undefined {
     }
 }
 
-async function getSource(input: LayerSource) {
-    let result: ImageSource;
+async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
     switch (input.type) {
         case 'wms': {
-            const wmsParams = input as WMSSource;
-            result = new TiledImageSource({
+            return new TiledImageSource({
                 source: new TileWMS({
-                    url: wmsParams.url,
-                    projection: wmsParams.projection,
+                    url: input.url,
+                    projection: input.projection,
                     crossOrigin: 'anonymous',
                     params: {
-                        LAYERS: [wmsParams.layer],
-                        FORMAT: wmsParams.format,
+                        LAYERS: Array.isArray(input.layer) ? input.layer : [input.layer],
+                        FORMAT: input.format,
                     },
                 }),
-                noDataValue: wmsParams.nodata,
-                format: getFormat(wmsParams.format),
+                noDataValue: input.nodata,
+                format: getFormat(input.format),
             });
-            break;
         }
         case 'wmts': {
-            const wmtsParams = input as WMTSSource;
             const source = await createWMTSSource(
-                wmtsParams.layer,
-                wmtsParams.url,
-                wmtsParams.format,
-                wmtsParams.projection,
+                input.layer,
+                input.url,
+                input.format,
+                input.projection,
             );
-            result = new TiledImageSource({
+            return new TiledImageSource({
                 source,
-                noDataValue: wmtsParams.nodata,
-                format: getFormat(wmtsParams.format),
+                noDataValue: input.nodata,
+                format: getFormat(input.format),
             });
-            break;
         }
-        default:
-            throw new Error(`Type ${input.type} not supported`);
+        case 'cog': {
+            return new CogSource({
+                url: getPublicFolderUrl(input.url),
+                crs: input.projection,
+            });
+        }
+        case 'geojson': {
+            return new VectorSource({
+                data: getPublicFolderUrl(input.url),
+                format: new GeoJSON(),
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
+        case 'gpx': {
+            return new VectorSource({
+                data: getPublicFolderUrl(input.url),
+                format: new GPX(),
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
+        case 'kml': {
+            return new VectorSource({
+                data: getPublicFolderUrl(input.url),
+                format: new KML(),
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
+        case 'mvt': {
+            return new VectorTileSource({
+                url: getPublicFolderUrl(input.url),
+                format: new MVT(),
+                style: getStyle(input.style),
+                backgroundColor: input.backgroundColor,
+            });
+        }
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = input;
+            return _exhaustiveCheck;
+        }
     }
-
-    return result;
 }
 
 function parseStaticStyle(style: StaticVectorStyle): Style {
@@ -167,50 +208,6 @@ function getDefaultStyle(geometry: string) {
     }
 }
 
-function createGeoJsonSource(url: string, projection: string, style: VectorStyle): VectorSource {
-    return new VectorSource({
-        data: url,
-        format: new GeoJSON(),
-        dataProjection: projection,
-        style: getStyle(style),
-    });
-}
-
-function createKMLSource(url: string, projection: string, style: VectorStyle) {
-    return new VectorSource({
-        data: url,
-        format: new KML(),
-        dataProjection: projection,
-        style: getStyle(style),
-    });
-}
-
-function createGPXSource(url: string, projection: string, style: VectorStyle) {
-    return new VectorSource({
-        data: url,
-        format: new GPX(),
-        dataProjection: projection,
-        style: getStyle(style),
-    });
-}
-
-function createMVTSource(
-    url: string,
-    backgroundColor: string,
-    style: VectorStyle,
-): VectorTileSource {
-    return new VectorTileSource({
-        url,
-        format: new MVT(),
-        style: getStyle(style),
-        backgroundColor,
-    });
-}
-
 export default {
     getSource,
-    createKMLSource,
-    createGPXSource,
-    createGeoJsonSource,
-    createMVTSource,
 };

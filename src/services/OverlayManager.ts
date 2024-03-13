@@ -5,7 +5,6 @@ import { useLayerStore } from '@/stores/layers';
 import LayerManager from '@/services/LayerManager.js';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import { ImageSource } from '@giro3d/giro3d/sources';
-import { MVTSource, VectorSource } from '@/types/LayerSource';
 import { Overlay } from '@/types/Overlay';
 
 export default class OverlayManager {
@@ -21,7 +20,7 @@ export default class OverlayManager {
         const overlayList = [...this.store.getOverlays()].reverse();
 
         for (const overlay of overlayList) {
-            if (overlay.source && overlay.visible) {
+            if (overlay.visible) {
                 this.loadOverlay(overlay);
             }
         }
@@ -68,7 +67,7 @@ export default class OverlayManager {
         const id = overlay.uuid;
         let layer = this.layers.get(id);
 
-        if (!layer && overlay.source) {
+        if (!layer) {
             layer = await this.loadOverlay(overlay);
         }
 
@@ -79,31 +78,7 @@ export default class OverlayManager {
     }
 
     private async getSource(overlay: Overlay): Promise<ImageSource> {
-        switch (overlay.source.type) {
-            case 'geojson': {
-                const geojson = overlay.source as VectorSource;
-                return LayerBuilder.createGeoJsonSource(
-                    geojson.url,
-                    geojson.projection,
-                    geojson.style,
-                );
-            }
-            case 'kml': {
-                const kml = overlay.source as VectorSource;
-                return LayerBuilder.createKMLSource(kml.url, kml.projection, kml.style);
-            }
-            case 'gpx': {
-                const gpx = overlay.source as VectorSource;
-                return LayerBuilder.createGPXSource(gpx.url, gpx.projection, gpx.style);
-            }
-            case 'mvt': {
-                const mvt = overlay.source as MVTSource;
-                return LayerBuilder.createMVTSource(mvt.url, mvt.backgroundColor, mvt.style);
-            }
-            case 'wms':
-                return (await LayerBuilder.getSource(overlay.source)) as ImageSource;
-        }
-        throw new Error(`Unsupported source type ${overlay.source.type}`);
+        return LayerBuilder.getSource(overlay.config.source);
     }
 
     private async loadOverlay(overlay: Overlay) {
@@ -124,7 +99,7 @@ export default class OverlayManager {
         const id = overlay.uuid;
         let layer = this.layers.get(id);
 
-        if (newVisibility && !layer && overlay.source) {
+        if (newVisibility && !layer) {
             layer = await this.loadOverlay(overlay);
         }
 
