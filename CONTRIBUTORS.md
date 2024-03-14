@@ -11,4 +11,11 @@ The following people have contributed to Piero.
 
 The following organizations supported Piero:
 
--   Oslandia ( <http://www.oslandia.com> )
+-   BPI France (<https://www.bpifrance.com/>)
+-   Oslandia (<http://www.oslandia.com>)
+
+---
+
+Funded by the French government as part of France 2030.
+
+Funded by the European Union - Next Generation EU as part of the France Relance plan.

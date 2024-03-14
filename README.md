@@ -133,9 +133,10 @@ To deploy the app, simply build it; the static web application will be available
 npm run build -- --base https://mydomain.com/piero
 ```
 
-## Contributing
+## Contributors and sponsors
 
-Contributions are welcomed. We follow the same guidelines as [Giro3D](https://gitlab.com/giro3d/giro3d/-/blob/main/CONTRIBUTING.md).
+Piero has received contributions and sponsoring from people and organizations listed in [CONTRIBUTORS.md](CONTRIBUTORS.md).
+If you are interested in contributing to Piero, please read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Governance
 
