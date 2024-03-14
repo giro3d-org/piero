@@ -32,15 +32,15 @@
 
 <template>
     <div class="card">
-        <div class="card-header d-float">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <i class="bi bi-card-checklist"></i>
+            <span class="text-truncate mx-2">{{ name ?? parent }}</span>
             <button
                 @click="$emit('close')"
                 type="button"
-                class="btn-close float-end"
+                class="btn-close"
                 aria-label="Close"
             ></button>
-            <span class="mx-2">{{ name ?? parent }}</span>
         </div>
         <div class="card-body content py-2 px-1">
             <AttributeGroup
