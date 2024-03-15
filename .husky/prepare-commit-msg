@@ -1,1 +1,11 @@
-exec < /dev/tty && npx cz --hook || true
+# https://git-scm.com/docs/githooks#_prepare_commit_msg
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# Only run commitizen if no commit message has already been provided.
+if [ -z "${COMMIT_SOURCE-}" ]; then
+    echo "No commit source has been provided. Commitizen will help you to write your commit message:"
+    # By default git hooks are not interactive. exec < /dev/tty allows a users terminal to interact with commitizen.
+    exec < /dev/tty && npx cz --hook || true
+fi
