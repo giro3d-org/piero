@@ -28,7 +28,7 @@ If a related issue does not exist, submit a new one. Please include as much of t
 -   Sample data to reproduce the issue
 -   Screenshot, video or animated .gif if appropriate. Screenshots are particularly useful for exceptions and rendering artifacts. If it is a rendering artifact, also include the output of [webglreport.com](http://webglreport.com/) for the computer you have the problem on
 -   Your operating system and version, browser and version, and video card. Are they all up-to-date? Is the issue specific to one of them?
--   The exact version of Giro3D and Piero. Did this work in a previous version?
+-   The exact version of Piero. Did this work in a previous version?
 -   Ideas for how to fix or workaround the issue. Also mention if you are willing to help fix it. If so, the Giro3D team can often provide guidance and the issue may get fixed more quickly with your help
 
 You don't need to bother with the metadata of the issue (assignees, labels, etc) if you are unsure about them, they will be added later on by other contributors.
@@ -70,7 +70,7 @@ We welcome merge requests (MRs) with great interest. We try to promptly review t
 
 ### Triaging issues
 
-Any contributor is welcomed to help triaging existing issues, but requires a bit of understanding of Giro3D internals.
+Any contributor is welcomed to help triaging existing issues, but requires a bit of understanding of Piero internals.
 
 Triaging consists mainly in settings labels. Labels provide a clear view on what an issue is about. There are multiple categories of labels:
 
@@ -87,13 +87,8 @@ Triaging consists mainly in settings labels. Labels provide a clear view on what
     | Label | Description |
     |-------|-------------|
     | ~"build" | About the build/packaging system, not the code itself - _may_ impact the API |
-    | ~"documentation" | Documentation of Giro3D, including the website |
+    | ~"documentation" | Documentation of Piero |
     | ~"example" | Examples provided on the website |
-
-    TODO:
-
-    -   add "API" to easily know what impacts the public API
-    -   add relevant areas/modules: "Map", "Controls", "Sources", "Core", etc.
 
 -   Other metadata:
     | Label | Description |
