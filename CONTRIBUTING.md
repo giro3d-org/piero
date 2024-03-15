@@ -50,7 +50,7 @@ By contributing to the code, you will need to undestand what are existing NPM ta
 -   `npm run lint`: run the lints (`eslint`, `prettier`, `markdownlint`),
 -   `npm run format`: format the code (`eslint`, `prettier`, `markdownlint`),
 
-Some git-hooks are installed with `husky`. It allows to run lints on staged files before commiting them and use `commitizen` to help you write good commit messages.
+Some git-hooks are installed with `husky`. It allows to run lints on staged files before commiting them and use `commitizen` to help you write good commit messages. If you want to disable these checks, commit with the `--no-verify` option.
 
 ### 🚀 Opening a Merge Request (MR)
 
