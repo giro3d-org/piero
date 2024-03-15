@@ -48,7 +48,7 @@ const config: Configuration = {
             {
                 type: 'color',
                 name: 'Plan IGN',
-                visible: true,
+                visible: false,
                 source: {
                     type: 'wmts',
                     layer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
