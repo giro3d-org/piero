@@ -38,6 +38,7 @@ const config: Configuration = {
                 visible: true,
                 source: {
                     type: 'wmts',
+                    resolution: 0.5,
                     layer: 'ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES',
                     format: 'image/x-bil;bits=32',
                     url: 'https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities',

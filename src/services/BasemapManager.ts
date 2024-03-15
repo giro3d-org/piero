@@ -47,6 +47,7 @@ export default class BasemapManager {
                 layer = new ElevationLayer({
                     name: basemap.uuid,
                     source,
+                    resolutionFactor: basemap.source.resolution,
                     minmax: { min: 0, max: 5000 },
                     colorMap: this.store.getElevationColorMap(),
                     noDataOptions: {
@@ -59,6 +60,7 @@ export default class BasemapManager {
                 layer = new ColorLayer({
                     name: basemap.uuid,
                     source,
+                    resolutionFactor: basemap.source.resolution,
                 });
                 this.layerManager.addBaseLayer(layer as ColorLayer);
                 break;
