@@ -9,6 +9,12 @@ export type LayerSourceType = 'wms' | 'wmts' | 'cog' | 'geojson' | 'kml' | 'gpx'
 export type LayerSourceBaseConfig<TType extends LayerSourceType> = {
     /** Type of dataset */
     type: TType;
+    /**
+     * The relative resolution of the layer.
+     * If greater than 1, the resolution will be greater, at the cost of performance and memory usage.
+     * @default 1
+     */
+    resolution?: number;
 };
 
 /** WMS source configuration */
