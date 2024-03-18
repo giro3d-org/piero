@@ -20,5 +20,6 @@ fi
 if [ -z "${COMMIT_SOURCE-}" ]; then
     echo "No commit source has been provided. Commitizen will help you to write your commit message:"
     # By default git hooks are not interactive. exec < /dev/tty allows a users terminal to interact with commitizen.
-    exec < /dev/tty && npx cz --hook || true
+    # Use 'GIT_EDITOR=:' to let the hook know that no editor will be launched.
+    exec < /dev/tty && GIT_EDITOR=: npx cz --hook || true
 fi
