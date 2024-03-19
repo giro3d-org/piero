@@ -62,7 +62,7 @@ We welcome merge requests (MRs) with great interest. We try to promptly review t
 -   If your merge request needs additional work, include a task list, or better, split it in several MRs
 -   Ping `@giro3d` in the comments to get your code reviewed, and also when you are done making new commits to address feedback
 -   Verify your code passes the linter.
--   Write commit message that follow the [Angular convention](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#-commit-message-format). To help you doing so, a git-hook using `commitizen` is installed with `husky`. Just run `git commit` and fill the fields in the prompt to format your commit message.
+-   Write commit message that follow the [Angular convention](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#-commit-message-format). To help you doing so, you can commit your staged files using `commitizen` with `npx cz` or `cz commit` if you have installed it globally. Or just run `git commit -m ""` and fill your commit message respecting this convention.
 -   Keep the git history clean, rebase your work when necessary
 -   Delete unused and obsolete branches
 
