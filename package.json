@@ -82,6 +82,9 @@
         "web-ifc": "^0.0.44"
     },
     "devDependencies": {
+        "@commitlint/cli": "^19.1.0",
+        "@commitlint/config-conventional": "^19.1.0",
+        "@commitlint/cz-commitlint": "^19.1.0",
         "@rushstack/eslint-patch": "^1.7.2",
         "@types/bootstrap": "^5.2.10",
         "@types/chroma-js": "^2.4.4",
@@ -119,5 +122,12 @@
             "markdownlint",
             "prettier"
         ]
+    },
+    "config": {
+        "commitizen": {
+            "path": "@commitlint/cz-commitlint",
+            "name": "cz_conventional_commits",
+            "tag_format": "v$version"
+        }
     }
 }
