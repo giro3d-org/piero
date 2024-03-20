@@ -22,9 +22,50 @@
         </p>
         <h5>Contributors</h5>
         <p>
-            <a target="_blank" href="https://gitlab.com/giro3d/giro3d/-/blob/main/CONTRIBUTORS.md"
+            <a target="_blank" href="https://gitlab.com/giro3d/piero/-/blob/main/CONTRIBUTORS.md"
                 >Brought to you by the Giro3D contributors.</a
             >
+        </p>
+        <h5>Sponsors</h5>
+        <div class="list-group my-3">
+            <a href="https://oslandia.com" target="_blank" class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <span>Oslandia</span>
+                    <img src="/sponsors/oslandia.png" class="logo" alt="Oslandia" />
+                </div>
+            </a>
+            <a href="https://www.bpifrance.com/" target="_blank" class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <span>BPI France</span>
+                    <img src="/sponsors/bpi_france.png" class="logo" alt="BPI France" />
+                </div>
+            </a>
+            <span class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <span>Funded by the French government as part of France 2030</span>
+                    <img src="/sponsors/france_2030.png" class="logo" alt="France 2030" />
+                </div>
+            </span>
+            <span class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <span
+                        >Funded by the European Union - Next Generation EU as part of the France
+                        Relance plan</span
+                    >
+                    <div class="text-end">
+                        <img src="/sponsors/france_relance.png" class="logo" alt="France Relance" />
+                        <img
+                            src="/sponsors/ue_next_generation.png"
+                            class="logo"
+                            alt="European Union - Next Generation EU"
+                        />
+                    </div>
+                </div>
+            </span>
+        </div>
+        <p>
+            If you wish to sponsor Giro3D and Piero, you can contact us at
+            <a href="mailto:infos+3d@oslandia.com">infos+3d@oslandia.com</a>.
         </p>
         <h5>License</h5>
         <p>
@@ -87,5 +128,10 @@
     blockquote {
         font-size: 0.7rem !important;
         margin-bottom: 0;
+    }
+    .logo {
+        max-width: 200px;
+        height: auto;
+        max-height: 80px;
     }
 </style>
