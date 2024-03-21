@@ -31,6 +31,7 @@ export default class LayerManager extends EventDispatcher {
 
     private readonly baseLayerOrdering: Set<string> = new Set();
     private readonly overlayOrdering: Set<string> = new Set();
+    private readonly _boundOnAfterCameraUpdate: () => void;
 
     constructor(instance: Instance) {
         super();
@@ -41,9 +42,25 @@ export default class LayerManager extends EventDispatcher {
 
         this.createMap(extent);
 
-        this.instance.addEventListener('after-camera-update', () => {
-            this.onAfterCameraUpdate();
-        });
+        this._boundOnAfterCameraUpdate = this.onAfterCameraUpdate.bind(this);
+        this.instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
+    }
+
+    dispose() {
+        if (this.instance) {
+            this.instance.remove(this.plane);
+            this.instance.remove(this.grid);
+            this.instance.remove(this.basemap);
+            this.instance.removeEventListener(
+                'after-camera-update',
+                this._boundOnAfterCameraUpdate,
+            );
+        }
+        this.plane.geometry.dispose();
+        (this.plane.material as MeshBasicMaterial).dispose();
+        this.grid.geometry.dispose();
+        (this.grid.material as Material).dispose();
+        this.basemap.dispose();
     }
 
     setExtent(extent: Extent) {

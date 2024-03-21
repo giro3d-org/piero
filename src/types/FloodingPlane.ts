@@ -7,6 +7,7 @@ export default class FloodingPlane {
     material: MeshBasicMaterial;
     object3D: Mesh<any, any>;
     private _height: number;
+
     constructor() {
         this.geometry = new PlaneGeometry(1, 1, 1, 1);
         this.material = new MeshBasicMaterial({ color: 0x00aaaa, transparent: true, opacity: 0.5 });
@@ -14,6 +15,12 @@ export default class FloodingPlane {
         this.object3D.renderOrder = 2;
         this.visible = false;
         this._height = DEFAULT_HEIGHT;
+    }
+
+    dispose() {
+        this.object3D.removeFromParent();
+        this.geometry.dispose();
+        this.material.dispose();
     }
 
     set height(z) {

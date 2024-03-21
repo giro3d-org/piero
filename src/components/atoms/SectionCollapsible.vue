@@ -13,6 +13,7 @@
     const target = `#${id}`;
 
     const collapsible = ref<HTMLDivElement | null>(null);
+
     onMounted(() => {
         if (props.expanded) {
             collapsible.value?.classList.add('show');

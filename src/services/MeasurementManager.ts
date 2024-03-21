@@ -21,20 +21,24 @@ export default class MeasurementManager {
     private readonly store = useMeasurementStore();
     private readonly notificationStore = useNotificationStore();
     private _paused = false;
+    private readonly _boundOnEscape: (e: KeyboardEvent) => void;
+    private readonly _boundPause: () => void;
+    private readonly _boundRestart: () => void;
+    private readonly _boundMeasure: (e: MouseEvent) => void;
+    private readonly _boundSaveMeasure: (e: MouseEvent) => void;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this.instance = instance;
         this.measureTool = new MeasureTool(picker);
         this.camera = camera;
 
-        this.camera.addEventListener('interaction-start', () => (this._paused = true));
-        this.camera.addEventListener('interaction-end', () => (this._paused = false));
+        this._boundPause = () => (this._paused = true);
+        this._boundRestart = () => (this._paused = true);
+        this.camera.addEventListener('interaction-start', this._boundPause);
+        this.camera.addEventListener('interaction-end', this._boundRestart);
 
-        document.addEventListener('keydown', e => {
-            if (e.code === 'Escape' && this.store.isUserMeasuring()) {
-                this.stopMeasuring();
-            }
-        });
+        this._boundOnEscape = this.onEscape.bind(this);
+        document.addEventListener('keydown', this._boundOnEscape);
 
         this.store.$onAction(({ name, args, after }) => {
             after(() => {
@@ -58,8 +62,28 @@ export default class MeasurementManager {
             });
         });
 
-        this.instance.domElement.addEventListener('mousemove', this.measure.bind(this));
-        this.instance.domElement.addEventListener('click', this.saveMeasure.bind(this));
+        this._boundMeasure = this.measure.bind(this);
+        this._boundSaveMeasure = this.saveMeasure.bind(this);
+        this.instance.domElement.addEventListener('mousemove', this._boundMeasure);
+        this.instance.domElement.addEventListener('click', this._boundSaveMeasure);
+    }
+
+    dispose() {
+        this.instance.domElement.removeEventListener('mousemove', this._boundMeasure);
+        this.instance.domElement.removeEventListener('click', this._boundSaveMeasure);
+
+        this.camera.removeEventListener('interaction-start', this._boundPause);
+        this.camera.removeEventListener('interaction-end', this._boundRestart);
+
+        document.removeEventListener('keydown', this._boundOnEscape);
+
+        this.measureTool.dispose();
+    }
+
+    private onEscape(e: KeyboardEvent) {
+        if (e.code === 'Escape' && this.store.isUserMeasuring()) {
+            this.stopMeasuring();
+        }
     }
 
     startMeasuring() {

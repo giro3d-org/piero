@@ -81,6 +81,7 @@ export default class AnnotationManager {
     private previousFeature: Object3D | null;
     private previousHoveredFeature: Object3D | null;
     private drawToolOptions: DrawToolOptions;
+    private readonly _boundOnEscape: (e: KeyboardEvent) => void;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this.instance = instance;
@@ -106,48 +107,63 @@ export default class AnnotationManager {
 
         this.camera = camera;
 
-        this.camera.addEventListener('interaction-start', () => this.drawTool.pause());
-        this.camera.addEventListener('interaction-end', () => this.drawTool.continue());
+        this.camera.addEventListener('interaction-start', this.drawTool.pause);
+        this.camera.addEventListener('interaction-end', this.drawTool.continue);
 
-        document.addEventListener('keydown', e => {
-            if (e.code === 'Escape' && this.drawTool.state !== DrawToolState.READY) {
-                this.drawTool.reset();
-            }
-        });
+        this._boundOnEscape = this.onEscape.bind(this);
+        document.addEventListener('keydown', this._boundOnEscape);
 
         this.drawTool.addEventListener('add', () => {
             this.previousFeature = this.previousHoveredFeature;
-        }),
-            this.store.$onAction(({ name, args, after }) => {
-                after(() => {
-                    switch (name) {
-                        case 'edit':
-                            this.editAnnotation(args[0]);
-                            break;
-                        case 'remove':
-                            this.deleteAnnotation(args[0]);
-                            break;
-                        case 'createPoint':
-                            this.drawPoint();
-                            break;
-                        case 'createLine':
-                            this.drawLine();
-                            break;
-                        case 'createPolygon':
-                            this.drawPolygon();
-                            break;
-                        case 'setAnnotationMode':
-                            this.onUpdateAnnotationMode(args[0]);
-                            break;
-                        case 'importAnnotationFile':
-                            this.importAnnotationFile(args[0]);
-                            break;
-                        case 'importAnnotationsFiles':
-                            this.importAnnotationFiles(args[0]);
-                            break;
-                    }
-                });
+        });
+
+        this.store.$onAction(({ name, args, after }) => {
+            after(() => {
+                switch (name) {
+                    case 'edit':
+                        this.editAnnotation(args[0]);
+                        break;
+                    case 'remove':
+                        this.deleteAnnotation(args[0]);
+                        break;
+                    case 'createPoint':
+                        this.drawPoint();
+                        break;
+                    case 'createLine':
+                        this.drawLine();
+                        break;
+                    case 'createPolygon':
+                        this.drawPolygon();
+                        break;
+                    case 'setAnnotationMode':
+                        this.onUpdateAnnotationMode(args[0]);
+                        break;
+                    case 'importAnnotationFile':
+                        this.importAnnotationFile(args[0]);
+                        break;
+                    case 'importAnnotationsFiles':
+                        this.importAnnotationFiles(args[0]);
+                        break;
+                }
             });
+        });
+    }
+
+    dispose() {
+        document.removeEventListener('keydown', this._boundOnEscape);
+
+        this.camera.removeEventListener('interaction-start', this.drawTool.pause);
+        this.camera.removeEventListener('interaction-end', this.drawTool.continue);
+
+        this.instance.remove(this.drawEntity);
+        this.drawEntity.dispose();
+        this.drawTool.dispose();
+    }
+
+    private onEscape(e: KeyboardEvent) {
+        if (e.code === 'Escape' && this.drawTool.state !== DrawToolState.READY) {
+            this.drawTool.reset();
+        }
     }
 
     getPointAt(event: MouseEvent) {

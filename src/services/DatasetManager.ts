@@ -57,6 +57,10 @@ export default class DatasetManager {
         }
     }
 
+    dispose() {
+        // Nothing to do (?)
+    }
+
     private onToggleGrid(dataset: DatasetOrGroup) {
         if (this.axisGrids.has(dataset.uuid)) {
             const grid = this.axisGrids.get(dataset.uuid);

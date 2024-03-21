@@ -74,6 +74,11 @@ export default class ClippingBoxManager {
         });
     }
 
+    dispose() {
+        this.instance.scene.remove(this.volumeHelpers);
+        this.disposeClippingBox();
+    }
+
     /**
      * Creates the whole clipping box and helpers if displayed
      * @param center Center of the clipping box

@@ -15,6 +15,10 @@ export default class MeasureTool {
         this._hoverMeasurement = null;
     }
 
+    dispose() {
+        this.clean();
+    }
+
     measure(instance: Instance, event: MouseEvent) {
         const picked = this._picker.getFirstFeatureAt(instance, event);
         if (picked && picked.normal) {

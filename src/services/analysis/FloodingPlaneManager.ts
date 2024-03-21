@@ -28,6 +28,13 @@ export default class FloodingPlaneManager {
         });
     }
 
+    dispose() {
+        if (this.plane) {
+            this.instance.remove(this.plane.object3D);
+            this.plane.dispose();
+        }
+    }
+
     private updatePlane() {
         if (!this.plane) {
             this.plane = new FloodingPlane();

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { Vector2, Vector3 } from 'three';
-    import { defineAsyncComponent, ref } from 'vue';
+    import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue';
     import { Instance } from '@giro3d/giro3d/core';
     import { Coordinates, Extent } from '@giro3d/giro3d/core/geographic';
 
@@ -41,54 +41,97 @@
     const annotationStore = useAnnotationStore();
     const measurementStore = useMeasurementStore();
 
-    let giro3d: Giro3DManager;
-    let minimap: MinimapController;
+    const giro3d = shallowRef<Giro3DManager | null>(null);
+    const minimap = shallowRef<MinimapController | null>(null);
+    const debounce = ref<any>();
+
+    onMounted(() => {
+        const mainview = giro3dStore.getMainView();
+        const minimapView = giro3dStore.getMinimapView();
+        if (mainview) initializeGiro3DManager(mainview);
+        if (minimapView) initializeMinimap(minimapView);
+
+        giro3dStore.$onAction(({ name, after, args }) => {
+            after(() => {
+                switch (name) {
+                    case 'setMainView':
+                        if (args[0] === null) disposeGiro3DManager();
+                        else initializeGiro3DManager(args[0]);
+                        break;
+                    case 'setMinimapView':
+                        if (args[0] === null) disposeMinimap();
+                        else initializeMinimap(args[0]);
+                        break;
+                }
+            });
+        });
+
+        // debouncing costly functions
+        debounce.value = setInterval(() => {
+            if (hasMovedDuringFrame) {
+                updateCoordinates(mouse);
+                updateCursor(mouse);
+                hasMovedDuringFrame = false;
+            }
+        }, 50);
+
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            if (import.meta.env.PROD) {
+                loadingScreen.style.transition = 'opacity 1s linear';
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.remove(), 1000);
+            } else {
+                loadingScreen.remove();
+            }
+        }
+    });
+
+    onUnmounted(() => {
+        if (debounce.value) {
+            clearInterval(debounce.value);
+            debounce.value = null;
+        }
+        disposeMinimap();
+        disposeGiro3DManager();
+    });
 
     function initializeGiro3DManager(instance: Instance) {
         const mainview = giro3dStore.getMainView();
         if (mainview === null) throw new Error('mainview is null');
-        giro3d = new Giro3DManager(mainview);
-        giro3d.addEventListener('update', () => {
-            progress.value = giro3d.mainInstance.progress;
-            isLoading.value = giro3d.mainInstance.loading;
+        giro3d.value = new Giro3DManager(mainview);
+        giro3d.value.addEventListener('update', () => {
+            if (giro3d.value) {
+                progress.value = giro3d.value.mainInstance.progress;
+                isLoading.value = giro3d.value.mainInstance.loading;
+            }
         });
 
-        if (minimap) {
-            minimap.setMainInstance(instance);
+        if (minimap.value) {
+            minimap.value.setMainInstance(instance);
         }
 
-        Tour.start(giro3d.camera);
+        Tour.start(giro3d.value.camera);
+    }
+
+    function disposeGiro3DManager() {
+        if (minimap.value) {
+            minimap.value.setMainInstance(null);
+        }
+        giro3d.value?.dispose();
+        giro3d.value = null;
     }
 
     function initializeMinimap(instance: Instance) {
-        minimap = new MinimapController(instance);
-        if (giro3d) {
-            minimap.setMainInstance(giro3d.mainInstance);
+        minimap.value = new MinimapController(instance);
+        if (giro3d.value) {
+            minimap.value.setMainInstance(giro3d.value.mainInstance);
         }
     }
 
-    const mainview = giro3dStore.getMainView();
-
-    if (mainview) {
-        initializeGiro3DManager(mainview);
+    function disposeMinimap() {
+        minimap.value?.dispose();
     }
-
-    if (giro3dStore.getMinimapView() && mainview) {
-        initializeGiro3DManager(mainview);
-    }
-
-    giro3dStore.$onAction(({ name, after, args }) => {
-        after(() => {
-            switch (name) {
-                case 'setMainView':
-                    initializeGiro3DManager(args[0]);
-                    break;
-                case 'setMinimapView':
-                    initializeMinimap(args[0]);
-                    break;
-            }
-        });
-    });
 
     function selectPanel(key: PanelType) {
         if (key === selectedTool.value) {
@@ -99,7 +142,7 @@
     }
 
     function pick(event: MouseEvent, clicked?: boolean) {
-        if (!giro3d || !giro3d.mainInstance) {
+        if (!giro3d.value || !giro3d.value.mainInstance) {
             return;
         }
 
@@ -112,7 +155,7 @@
             return;
         }
 
-        const picked = giro3d.picker.pick(giro3d.mainInstance, event);
+        const picked = giro3d.value.picker.pick(giro3d.value.mainInstance, event);
 
         if (picked?.point) {
             const point = picked.point;
@@ -134,15 +177,15 @@
         }
 
         if (picked?.pickResult) {
-            giro3d.highlighter.highlightFromPick(picked.pickResult);
+            giro3d.value.highlighter.highlightFromPick(picked.pickResult);
         } else {
-            giro3d.highlighter.clear();
+            giro3d.value.highlighter.clear();
         }
     }
 
     function updateCoordinates(mouse: Vector2) {
-        if (giro3d) {
-            const point = giro3d.picker.getMouseCoordinate(giro3d.mainInstance, mouse);
+        if (giro3d.value) {
+            const point = giro3d.value.picker.getMouseCoordinate(giro3d.value.mainInstance, mouse);
 
             if (point) {
                 coordinates.value.x = point.x;
@@ -153,34 +196,27 @@
     }
 
     function updateCursor(mouse: Vector2) {
-        if (giro3d) {
+        if (giro3d.value) {
             if (annotationStore.isUserDrawing() || measurementStore.isUserMeasuring()) {
                 return;
             }
-            const picked = giro3d.picker.hasFeature(giro3d.mainInstance, mouse);
-            giro3d.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
+            const picked = giro3d.value.picker.hasFeature(giro3d.value.mainInstance, mouse);
+            giro3d.value.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
         }
     }
 
     function onMouseMove(event: MouseEvent) {
-        giro3d.mainInstance.eventToCanvasCoords(event, mouse);
-        hasMovedDuringFrame = true;
+        if (giro3d.value) {
+            giro3d.value.mainInstance.eventToCanvasCoords(event, mouse);
+            hasMovedDuringFrame = true;
+        }
     }
 
-    // debouncing costly functions
-    setInterval(() => {
-        if (hasMovedDuringFrame) {
-            updateCoordinates(mouse);
-            updateCursor(mouse);
-            hasMovedDuringFrame = false;
-        }
-    }, 50);
-
     function onPointOfInterestSelected(poi: GeocodingResult) {
-        if (!giro3d) {
+        if (!giro3d.value) {
             return;
         }
-        const instance = giro3d.mainInstance;
+        const instance = giro3d.value.mainInstance;
         const poiCoordinates = new Coordinates(poi.crs, poi.x, poi.y, poi.z).as(
             instance.referenceCrs,
         );
@@ -191,18 +227,7 @@
             1000,
         );
         const bbox3 = target.toBox3(poi.z, poi.z + 200);
-        giro3d.camera.lookTopDownAt(bbox3, false);
-    }
-
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-        if (import.meta.env.PROD) {
-            loadingScreen.style.transition = 'opacity 1s linear';
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => loadingScreen.remove(), 1000);
-        } else {
-            loadingScreen.remove();
-        }
+        giro3d.value.camera.lookTopDownAt(bbox3, false);
     }
 </script>
 

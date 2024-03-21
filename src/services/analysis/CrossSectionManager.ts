@@ -19,6 +19,12 @@ export default class CrossSectionManager {
                 }
             });
         });
+
+        this.updateCrossSection();
+    }
+
+    dispose() {
+        // Nothing to do
     }
 
     private updateCrossSection() {

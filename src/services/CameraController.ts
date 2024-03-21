@@ -60,6 +60,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly store = useCameraStore();
     private readonly giro3dStore = useGiro3dStore();
     private readonly orbitHelper: CSS2DObject;
+    private readonly _boundOnBeforeCameraUpdate: () => void;
+    private readonly _boundOnAfterCameraUpdate: () => void;
+    private _boundOrbitControlsOnContextMenu!: (e: MouseEvent) => void;
+    private _boundOrbitControlsOnMouseUp!: (e: MouseEvent) => void;
+    private _boundOrbitControlsOnWheel!: (e: MouseEvent) => void;
+    private _boundOrbitControlsOnKey!: (e: KeyboardEvent) => void;
 
     /**
      * Creates new Camera-controls and bind them to Giro3D.
@@ -76,7 +82,15 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.instance.domElement,
         );
         this.instance.controls = this.orbitControls;
-        this.orbitHelper = new CSS2DObject(document.getElementById('orbit-helper') as HTMLElement);
+
+        const orbitHelperElement = document.createElement('div');
+        orbitHelperElement.className = 'helper';
+        orbitHelperElement.id = 'orbit-helper';
+        const orbitHelperElementIcon = document.createElement('i');
+        orbitHelperElementIcon.className = 'bi bi-mouse2-fill text-dark shadow';
+        orbitHelperElement.append(orbitHelperElementIcon);
+
+        this.orbitHelper = new CSS2DObject(orbitHelperElement);
         this.instance.add(this.orbitHelper);
 
         this.initializeOrbitControls();
@@ -88,13 +102,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         // Update controls from event loop - this replaces the requestAnimationFrame logic from
         // camera-controls sample code
-        this.instance.addEventListener('before-camera-update', () => {
-            this.onBeforeCameraUpdate();
-        });
-
-        this.instance.addEventListener('after-camera-update', () => {
-            this.onAfterCameraUpdate();
-        });
+        this._boundOnBeforeCameraUpdate = this.onBeforeCameraUpdate.bind(this);
+        this._boundOnAfterCameraUpdate = this.onAfterCameraUpdate.bind(this);
+        this.instance.addEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
+        this.instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
         this.store.$onAction(({ name, args }) => {
             switch (name) {
@@ -114,11 +125,23 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             after(() => {
                 switch (name) {
                     case 'setInspector':
-                        this.initializeInspector(args[0]);
+                        if (args[0] === null) this.disposeInspector();
+                        else this.initializeInspector(args[0]);
                         break;
                 }
             });
         });
+    }
+
+    dispose() {
+        this.instance.removeEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
+        this.instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
+
+        this.disposeOrbitControls();
+
+        // @ts-expect-error
+        this.instance.controls = undefined;
+        this.instance.remove(this.orbitHelper);
     }
 
     private initializeInspector(inspector: Inspector) {
@@ -132,6 +155,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
     }
 
+    private disposeInspector() {
+        // TODO
+    }
+
     private initializeOrbitControls() {
         this.orbitControls.infinityDolly = true; // Prevents being stuck when hitting the target
         this.orbitControls.minDistance = 2; // 2 meters seems nice
@@ -139,36 +166,17 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this.setNavigationMode(this.store.getNavigationMode());
 
         // Make rotation around where the user clicked when Orbit
-        this.instance.domElement.addEventListener('contextmenu', e => {
-            if (this.store.getNavigationMode() !== 'orbit') return;
-
-            const picked = this.pickObjectsAt(e);
-            if (picked) {
-                this.orbitHelper.visible = true;
-                this.orbitHelper.position.copy(picked.point);
-                this.orbitHelper.updateMatrixWorld();
-                this.orbitControls.setOrbitPoint(picked.point.x, picked.point.y, picked.point.z);
-            } else {
-                // We didn't pick anything, we'll orbit around the target
-                this.orbitHelper.visible = true;
-                this.orbitControls.getTarget(this.orbitHelper.position);
-                this.orbitHelper.updateMatrixWorld();
-            }
-        });
-        this.instance.domElement.addEventListener('mouseup', () => {
-            if (this.store.getNavigationMode() !== 'orbit') return;
-
-            this.orbitHelper.visible = false;
-            this.instance.notifyChange();
-        });
+        this._boundOrbitControlsOnContextMenu = this.orbitControlsOnContextMenu.bind(this);
+        this._boundOrbitControlsOnMouseUp = this.orbitControlsOnMouseUp.bind(this);
+        this.instance.domElement.addEventListener(
+            'contextmenu',
+            this._boundOrbitControlsOnContextMenu,
+        );
+        this.instance.domElement.addEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
 
         // "Patch" camera-controls for nicer event handlers
-        this.instance.domElement.addEventListener('wheel', () => {
-            // As camera-controls doesn't dispatch controlstart/controlend events, we need
-            // to take care of them for proper events
-            this.orbitControls.dispatchEvent({ type: 'controlstart' });
-            setTimeout(() => this.orbitControls.dispatchEvent({ type: 'controlend' }), 0);
-        });
+        this._boundOrbitControlsOnWheel = this.orbitControlsOnWheel.bind(this);
+        this.instance.domElement.addEventListener('wheel', this._boundOrbitControlsOnWheel);
 
         // As Giro3d runs the event loop only when needed, we need to notify Giro3d when
         // the controls update the view.
@@ -195,7 +203,116 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             }),
         );
 
-        this.bindKeys();
+        this._boundOrbitControlsOnKey = this.orbitControlsOnKey.bind(this);
+        this.instance.domElement.addEventListener('keydown', this._boundOrbitControlsOnKey);
+    }
+
+    private disposeOrbitControls() {
+        this.instance.domElement.removeEventListener('keydown', this._boundOrbitControlsOnKey);
+
+        this.instance.domElement.removeEventListener('wheel', this._boundOrbitControlsOnWheel);
+
+        this.instance.domElement.removeEventListener(
+            'contextmenu',
+            this._boundOrbitControlsOnContextMenu,
+        );
+        this.instance.domElement.removeEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
+
+        this.orbitControls.disconnect();
+    }
+
+    private orbitControlsOnContextMenu(e: MouseEvent) {
+        if (this.store.getNavigationMode() !== 'orbit') return;
+
+        const picked = this.pickObjectsAt(e);
+        if (picked) {
+            this.orbitHelper.visible = true;
+            this.orbitHelper.position.copy(picked.point);
+            this.orbitHelper.updateMatrixWorld();
+            this.orbitControls.setOrbitPoint(picked.point.x, picked.point.y, picked.point.z);
+        } else {
+            // We didn't pick anything, we'll orbit around the target
+            this.orbitHelper.visible = true;
+            this.orbitControls.getTarget(this.orbitHelper.position);
+            this.orbitHelper.updateMatrixWorld();
+        }
+    }
+    private orbitControlsOnMouseUp() {
+        if (this.store.getNavigationMode() !== 'orbit') return;
+
+        this.orbitHelper.visible = false;
+        this.instance.notifyChange();
+    }
+    private orbitControlsOnWheel() {
+        // As camera-controls doesn't dispatch controlstart/controlend events, we need
+        // to take care of them for proper events
+        this.orbitControls.dispatchEvent({ type: 'controlstart' });
+        setTimeout(() => this.orbitControls.dispatchEvent({ type: 'controlend' }), 0);
+    }
+    private orbitControlsOnKey(e: KeyboardEvent) {
+        const keys = {
+            LEFT: 'ArrowLeft',
+            UP: 'ArrowUp',
+            RIGHT: 'ArrowRight',
+            BOTTOM: 'ArrowDown',
+        };
+
+        let forwardDirection = 0;
+        let truckDirectionX = 0;
+        let truckDirectionY = 0;
+        let factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
+
+        // Reduce the factor in FPV as we should be close to our data
+        if (this.store.getNavigationMode() === 'first-person') factor /= 10;
+
+        switch (e.code) {
+            case keys.UP:
+                if (this.store.getNavigationMode() === 'orbit') forwardDirection = 1;
+                else truckDirectionY = -1;
+                break;
+
+            case keys.BOTTOM:
+                if (this.store.getNavigationMode() === 'orbit') forwardDirection = -1;
+                else truckDirectionY = 1;
+                break;
+
+            case keys.LEFT:
+                truckDirectionX = -1;
+                break;
+
+            case keys.RIGHT:
+                truckDirectionX = 1;
+                break;
+
+            default:
+            // do nothing
+        }
+        if (forwardDirection) {
+            this.executeInteraction(() =>
+                this.orbitControls.forward(
+                    forwardDirection * this.orbitControls.truckSpeed * factor,
+                    true,
+                ),
+            );
+        }
+        if (truckDirectionX) {
+            this.executeInteraction(() =>
+                this.orbitControls.truck(
+                    truckDirectionX * this.orbitControls.truckSpeed * factor,
+                    0,
+                    true,
+                ),
+            );
+        }
+        if (truckDirectionY) {
+            this.executeInteraction(() =>
+                this.orbitControls.truck(
+                    0,
+                    truckDirectionY * this.orbitControls.truckSpeed * factor,
+                    true,
+                ),
+            );
+        }
     }
 
     private setNavigationMode(mode: NavigationMode) {
@@ -255,77 +372,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.getCameraPosition(),
             this.instance.camera.camera3D.position,
         );
-    }
-
-    /**
-     * Binds keyboard keys to camera-controls
-     */
-    private bindKeys() {
-        // Add some controls on keyboard
-        const keys = {
-            LEFT: 'ArrowLeft',
-            UP: 'ArrowUp',
-            RIGHT: 'ArrowRight',
-            BOTTOM: 'ArrowDown',
-        };
-        this.instance.domElement.addEventListener('keydown', e => {
-            let forwardDirection = 0;
-            let truckDirectionX = 0;
-            let truckDirectionY = 0;
-            let factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
-
-            // Reduce the factor in FPV as we should be close to our data
-            if (this.store.getNavigationMode() === 'first-person') factor /= 10;
-
-            switch (e.code) {
-                case keys.UP:
-                    if (this.store.getNavigationMode() === 'orbit') forwardDirection = 1;
-                    else truckDirectionY = -1;
-                    break;
-
-                case keys.BOTTOM:
-                    if (this.store.getNavigationMode() === 'orbit') forwardDirection = -1;
-                    else truckDirectionY = 1;
-                    break;
-
-                case keys.LEFT:
-                    truckDirectionX = -1;
-                    break;
-
-                case keys.RIGHT:
-                    truckDirectionX = 1;
-                    break;
-
-                default:
-                // do nothing
-            }
-            if (forwardDirection) {
-                this.executeInteraction(() =>
-                    this.orbitControls.forward(
-                        forwardDirection * this.orbitControls.truckSpeed * factor,
-                        true,
-                    ),
-                );
-            }
-            if (truckDirectionX) {
-                this.executeInteraction(() =>
-                    this.orbitControls.truck(
-                        truckDirectionX * this.orbitControls.truckSpeed * factor,
-                        0,
-                        true,
-                    ),
-                );
-            }
-            if (truckDirectionY) {
-                this.executeInteraction(() =>
-                    this.orbitControls.truck(
-                        0,
-                        truckDirectionY * this.orbitControls.truckSpeed * factor,
-                        true,
-                    ),
-                );
-            }
-        });
     }
 
     /**

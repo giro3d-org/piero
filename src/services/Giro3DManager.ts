@@ -71,6 +71,10 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     readonly highlighter: Highlighter;
     readonly picker: Picker;
     readonly measurementManager: MeasurementManager;
+    readonly ambientLight: AmbientLight;
+    readonly dirLight: DirectionalLight;
+
+    private readonly _boundOnFrameEnd: () => void;
 
     constructor(instance: Instance) {
         super();
@@ -98,7 +102,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
             this.picker,
         );
 
-        this.mainInstance.addEventListener('update-end', () => this.onFrameEnd());
+        this._boundOnFrameEnd = this.onFrameEnd.bind(this);
+        this.mainInstance.addEventListener('update-end', this._boundOnFrameEnd);
 
         this.mainInstance.renderingOptions.enableEDL = true;
         this.mainInstance.renderingOptions.enableInpainting = true;
@@ -106,15 +111,15 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
 
         const lightColor = 0xffffff;
 
-        const ambientLight = new AmbientLight(lightColor, 0.6);
-        this.mainInstance.scene.add(ambientLight);
+        this.ambientLight = new AmbientLight(lightColor, 0.6);
+        this.mainInstance.scene.add(this.ambientLight);
 
-        const dirLight = new DirectionalLight(lightColor, 2);
-        dirLight.position.set(lookAt.x - 10000, lookAt.y - 10000, 10000);
-        dirLight.target.position.set(lookAt.x, lookAt.y, 0);
-        this.mainInstance.scene.add(dirLight);
-        this.mainInstance.scene.add(dirLight.target);
-        dirLight.updateMatrixWorld();
+        this.dirLight = new DirectionalLight(lightColor, 2);
+        this.dirLight.position.set(lookAt.x - 10000, lookAt.y - 10000, 10000);
+        this.dirLight.target.position.set(lookAt.x, lookAt.y, 0);
+        this.mainInstance.scene.add(this.dirLight);
+        this.mainInstance.scene.add(this.dirLight.target);
+        this.dirLight.updateMatrixWorld();
         this.mainInstance.scene.updateMatrixWorld();
 
         // We disable the skybox for now as it breaks the rendering of point cloud  with effects.
@@ -126,6 +131,19 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         Fetcher.fetch(getPublicFolderUrl('web-ifc.wasm')).catch(e => {
             console.warn('Could not load web-ifc.wasm', e);
         });
+    }
+
+    dispose() {
+        this.mainInstance.removeEventListener('update-end', this._boundOnFrameEnd);
+        this.mainInstance.scene.remove(this.dirLight.target);
+        this.mainInstance.scene.remove(this.dirLight);
+        this.mainInstance.scene.remove(this.ambientLight);
+        this.measurementManager.dispose();
+        this.highlighter.dispose();
+        this.analysisManager.dispose();
+        this.annotationManager.dispose();
+        this.layerManager.dispose();
+        this.camera.dispose();
     }
 
     onFrameEnd() {
@@ -161,9 +179,5 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
             bbox.union(bbox2);
         });
         return bbox;
-    }
-
-    dispose() {
-        this.mainInstance.dispose();
     }
 }
