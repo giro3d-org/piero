@@ -1,12 +1,22 @@
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
 import fs from 'fs';
+import child_process from 'child_process';
 
 import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import vue from '@vitejs/plugin-vue';
 
 import pkgConfig from './package.json';
+
+let commitHash = 'unknown';
+try {
+    commitHash = child_process.execSync('git describe --tags --always').toString();
+} catch {
+    // Ignore
+}
+
+console.log(`📦️ Building Piero at ${commitHash}`);
 
 const openbimComponentsChunks = {
     // Big libs, put them in their own chunks
@@ -55,6 +65,7 @@ for (const pkg of Object.keys(pkgConfig.dependencies)) {
 export default defineConfig({
     define: {
         'import.meta.env.VITE_DEPENDENCIES': JSON.stringify(dependencies),
+        'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(commitHash),
     },
     optimizeDeps: {
         // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it

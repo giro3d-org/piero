@@ -23,6 +23,7 @@ interface ImportMetaEnv {
     readonly PROD: boolean;
     readonly BASE_URL: string;
     readonly VITE_DEPENDENCIES: Record<string, DependencyInfo>;
+    readonly VITE_GIT_COMMIT: string;
 }
 
 interface ImportMeta {
