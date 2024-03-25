@@ -39,6 +39,10 @@ export default class BasemapManager {
         }
     }
 
+    dispose() {
+        // Nothing to do
+    }
+
     private async loadBasemap(basemap: BaseLayer) {
         let layer: Layer;
         const source = await LayerBuilder.getSource(basemap.source);

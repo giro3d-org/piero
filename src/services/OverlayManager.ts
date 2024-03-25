@@ -45,6 +45,10 @@ export default class OverlayManager {
         });
     }
 
+    dispose() {
+        // Nothing to do
+    }
+
     onMoveUp(overlay: Overlay) {
         const index = this.store.getOverlays().indexOf(overlay);
 

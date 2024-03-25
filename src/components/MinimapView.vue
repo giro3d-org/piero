@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { useGiro3dStore } from '@/stores/giro3d';
     import Instance from '@giro3d/giro3d/core/Instance';
-    import { onMounted, ref, shallowRef } from 'vue';
+    import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
     const target = ref<HTMLDivElement | null>(null);
     const instance = shallowRef();
@@ -15,6 +15,11 @@
             },
         });
         store.setMinimapView(instance.value);
+    });
+
+    onUnmounted(() => {
+        store.setMinimapView(null);
+        instance.value?.dispose();
     });
 </script>
 

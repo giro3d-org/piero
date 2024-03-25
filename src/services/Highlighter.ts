@@ -12,6 +12,10 @@ export default class Highlighter {
         this.highlighted = null;
     }
 
+    dispose() {
+        this.clear();
+    }
+
     clear() {
         if (this.highlighted) this.highlighted.clearHighlight();
     }

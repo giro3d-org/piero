@@ -8,6 +8,7 @@ import CameraPosition from '@/types/CameraPosition';
 class CameraControlsInspector extends Panel {
     camera: CameraController;
     private cameraPosition: CameraPosition;
+    private _boundOnAfterCameraUpdate: () => void;
 
     /**
      * @param gui The GUI.
@@ -19,9 +20,8 @@ class CameraControlsInspector extends Panel {
         this.camera = cameraController;
         this.cameraPosition = new CameraPosition(new Vector3(), new Vector3(), new Vector3());
 
-        this.instance.addEventListener('after-camera-update', () => {
-            this.onAfterCameraUpdate();
-        });
+        this._boundOnAfterCameraUpdate = this.onAfterCameraUpdate.bind(this);
+        this.instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
         const position = this.gui.addFolder('Position');
         position.close();
@@ -40,6 +40,11 @@ class CameraControlsInspector extends Panel {
         this._controllers.push(focalOffset.add(this.cameraPosition.focalOffset, 'x'));
         this._controllers.push(focalOffset.add(this.cameraPosition.focalOffset, 'y'));
         this._controllers.push(focalOffset.add(this.cameraPosition.focalOffset, 'z'));
+    }
+
+    dispose(): void {
+        this.instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
+        super.dispose();
     }
 
     private onAfterCameraUpdate() {

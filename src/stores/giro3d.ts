@@ -15,7 +15,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return mainView.value;
     }
 
-    function setMainView(instance: Instance) {
+    function setMainView(instance: Instance | null) {
         mainView.value = instance;
     }
 
@@ -23,7 +23,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return minimapView.value;
     }
 
-    function setMinimapView(instance: Instance) {
+    function setMinimapView(instance: Instance | null) {
         minimapView.value = instance;
     }
 
@@ -31,7 +31,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return inspector.value;
     }
 
-    function setInspector(i: Inspector) {
+    function setInspector(i: Inspector | null) {
         inspector.value = i;
     }
 

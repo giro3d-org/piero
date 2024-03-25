@@ -33,6 +33,7 @@ export default class MinimapController {
     private readonly minimapInstance: Instance;
     private readonly viewbox: Viewbox;
     private readonly basemap: Map;
+    private _boundUpdateViewbox: () => void;
 
     constructor(instance: Instance) {
         this.mainInstance = null;
@@ -64,13 +65,31 @@ export default class MinimapController {
         camera.lookAt(xyz.x, xyz.y + 1, 0);
 
         this.minimapInstance.notifyChange();
+        this._boundUpdateViewbox = this.updateViewbox.bind(this);
     }
 
-    setMainInstance(instance: Instance) {
+    dispose() {
+        if (this.mainInstance) {
+            this.mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
+        }
+
+        this.minimapInstance.remove(this.basemap);
+        this.minimapInstance.scene.remove(this.viewbox.object3D);
+
+        this.basemap.dispose();
+        this.viewbox.geometry.dispose();
+        this.viewbox.object3D.geometry.dispose();
+        this.viewbox.object3D.material.dispose();
+    }
+
+    setMainInstance(instance: Instance | null) {
+        if (this.mainInstance) {
+            this.mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
+        }
         this.mainInstance = instance;
-        instance.addEventListener('after-camera-update', () => {
-            this.updateViewbox();
-        });
+        if (instance) {
+            instance.addEventListener('after-camera-update', this._boundUpdateViewbox);
+        }
     }
 
     getCorners() {

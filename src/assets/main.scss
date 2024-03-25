@@ -56,3 +56,16 @@ a[aria-expanded='true'] .icon i::before,
 .btn[aria-expanded='true'] > i::before {
     transform: $accordion-icon-transform;
 }
+
+#orbit-helper {
+    border-radius: 50%;
+    border-width: 2px;
+    border-style: solid;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: orange;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
+    opacity: 70%;
+}

@@ -16,4 +16,10 @@ export default class AnalysisManager {
         this.crossSectionManager = new CrossSectionManager(instance);
         this.clippingBoxManager = new ClippingBoxManager(instance);
     }
+
+    dispose() {
+        this.clippingBoxManager.dispose();
+        this.crossSectionManager.dispose();
+        this.floodingPlaneManager.dispose();
+    }
 }

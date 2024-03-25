@@ -33,15 +33,21 @@
     });
 
     onUnmounted(() => {
-        instance.value?.dispose();
+        if (!import.meta.env.PROD) {
+            store.getInspector()?.detach();
+            store.setInspector(null);
+        }
+        store.setMainView(null);
+        if (instance.value) {
+            // @ts-expect-error
+            instance.value.controls = null;
+            instance.value.dispose();
+        }
     });
 </script>
 
 <template>
     <div class="main">
-        <div id="orbit-helper" class="helper">
-            <i class="bi bi-mouse2-fill text-dark shadow"></i>
-        </div>
         <div ref="mainView" class="main" id="main-view"></div>
         <div
             ref="inspectorView"
@@ -55,18 +61,5 @@
     .main {
         width: 100%;
         height: 100%;
-    }
-
-    .helper {
-        border-radius: 50%;
-        border-width: 2px;
-        border-style: solid;
-        width: 28px;
-        height: 28px;
-        text-align: center;
-        vertical-align: middle;
-        background-color: orange;
-        box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
-        opacity: 70%;
     }
 </style>
