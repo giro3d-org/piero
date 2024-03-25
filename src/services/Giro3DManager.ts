@@ -11,8 +11,6 @@ import Instance from '@giro3d/giro3d/core/Instance';
 import { Fetcher, HttpConfiguration } from '@giro3d/giro3d/utils';
 
 import LayerManager from '@/services/LayerManager';
-import BasemapManager from '@/services/BasemapManager';
-import OverlayManager from '@/services/OverlayManager';
 import CameraController from '@/services/CameraController';
 import DatasetManager from '@/services/DatasetManager';
 import AnnotationManager from '@/services/AnnotationManager';
@@ -63,8 +61,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     readonly mainInstance: Instance;
     readonly camera: CameraController;
     readonly layerManager: LayerManager;
-    readonly basemapManager: BasemapManager;
-    readonly overlayManager: OverlayManager;
     readonly datasetManager: DatasetManager;
     readonly annotationManager: AnnotationManager;
     readonly analysisManager: AnalysisManager;
@@ -89,8 +85,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.camera.lookAt(position.toVector3(), lookAt.toVector3());
 
         this.layerManager = new LayerManager(this.mainInstance);
-        this.basemapManager = new BasemapManager(this.layerManager);
-        this.overlayManager = new OverlayManager(this.layerManager, this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance);
         this.annotationManager = new AnnotationManager(this.mainInstance, this.camera, this.picker);
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
