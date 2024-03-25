@@ -136,7 +136,7 @@ npm run build -- --base https://mydomain.com/piero
 ## Contributors and sponsors
 
 Piero has received contributions and sponsoring from people and organizations listed in [CONTRIBUTORS.md](CONTRIBUTORS.md).
-If you are interested in contributing to Piero, please read [CONTRIBUTING.md](CONTRIBUTING.md).
+If you are interested in contributing to Piero, please read [CONTRIBUTING.md](CONTRIBUTING.md). Please also read our [Code of Conduct](https://gitlab.com/giro3d/giro3d/-/blob/main/CODE_OF_CONDUCT.md).
 
 ## Governance
 
