@@ -20,11 +20,20 @@
     defineEmits(['restart-tour']);
 
     const panels = Configuration.panels;
+    const gitCommit = import.meta.env.VITE_GIT_COMMIT;
 </script>
 
 <template>
     <div class="panel" id="panel-container">
-        <h5 class="title">{{ panels.find(p => p.key === selected)?.title }}</h5>
+        <h5 class="title">
+            {{ panels.find(p => p.key === selected)?.title }}
+            <span
+                v-if="selected === 'about'"
+                class="badge text-bg-primary rounded-pill float-end"
+                title="Version"
+                >Version: {{ gitCommit }}</span
+            >
+        </h5>
         <div class="content">
             <DatasetPanel v-if="selected === 'datasets'" />
             <AboutPanel v-if="selected === 'about'" @restart-tour="$emit('restart-tour')" />

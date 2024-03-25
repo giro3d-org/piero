@@ -2,6 +2,8 @@ image: node:lts-alpine
 before_script:
     - cp src/config.ts.sample src/config.ts
     - cp src/styles.ts.sample src/styles.ts
+    - apk update
+    - apk add git
     - npm i
 
 stages:
