@@ -15,27 +15,6 @@ export const useCameraStore = defineStore('camera', () => {
     /** Gets the current camera position and parameters */
     function getCameraPosition(): CameraPosition {
         if (cameraPosition.value === undefined) throw new Error('Cannot get cameraPosition');
-
-        const json: Record<string, any> = {};
-        json.title = 'foo';
-        const pos = cameraPosition.value.camera;
-        const target = cameraPosition.value.target;
-        const fo = cameraPosition.value.focalOffset;
-        json.position = {
-            x: pos.x,
-            y: pos.y,
-            z: pos.z,
-        };
-        json.target = {
-            x: target.x,
-            y: target.y,
-            z: target.z,
-        };
-        json.focalOffset = {
-            x: fo.x,
-            y: fo.y,
-            z: fo.z,
-        };
         return cameraPosition.value;
     }
 

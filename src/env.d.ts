@@ -8,7 +8,7 @@ interface DependencyInfo {
  * Defines variables thay *may* be defined in the environment (e.g. .env or .env.local files) and
  * can be referenced as `import.meta.env.FOOBAR`.
  * Note that only variables prefixed by `VITE_` are exposed in the app.
- * See <https://vitejs.dev/guide/env-and-mode.html> for more info.
+ * See https://vitejs.dev/guide/env-and-mode.html for more info.
  */
 interface ImportMetaEnv {
     /**

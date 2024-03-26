@@ -3,7 +3,9 @@ import Measure3D from '@/giro3d/Measure3D';
 import Download from '@/utils/Download';
 
 type MeasureEventMap = {
-    visible: {};
+    visible: {
+        /** empty */
+    };
 };
 
 export default class Measure extends EventDispatcher<MeasureEventMap> {
@@ -11,9 +13,9 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
     readonly title: string;
     private _visible: boolean;
     private _object: Measure3D;
-    properties: any;
+    properties: object;
 
-    constructor(title: string, object: Measure3D, properties: any = {}) {
+    constructor(title: string, object: Measure3D, properties: object = {}) {
         super();
 
         this.title = title;
@@ -64,9 +66,8 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
         return {
             type: 'FeatureCollection',
             features,
-            // GeoJSON spec does not allow properties on FeatureCollection
+            // @ts-expect-error GeoJSON spec does not allow properties on FeatureCollection
             // But OWC requires it Oo
-            // @ts-ignore
             id: `${Download.getBaseUrl()}#${MathUtils.generateUUID()}`,
             properties: {
                 lang: 'en',

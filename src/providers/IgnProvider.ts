@@ -7,7 +7,7 @@ export default {
      * Fetches altitudes from IGN Alti service.
      * Will fill the `altitude` component of each coordinates.
      *
-     * @param coordinates Coordinates to fetch altitudes for
+     * @param coordinates - Coordinates to fetch altitudes for
      */
     async alticode(coordinates: Coordinates[]): Promise<void> {
         const lng: number[] = [];
@@ -25,7 +25,7 @@ export default {
             )}&lat=${lat.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
         );
         const altitude = await requestAltitude.json();
-        altitude.elevations.forEach((value: any, i: number) => {
+        altitude.elevations.forEach((value: number, i: number) => {
             coordinates[i].setAltitude(value);
         });
     },

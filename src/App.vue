@@ -43,7 +43,7 @@
 
     const giro3d = shallowRef<Giro3DManager | null>(null);
     const minimap = shallowRef<MinimapController | null>(null);
-    const debounce = ref<any>();
+    const debounce = ref<NodeJS.Timeout | string | number | undefined>();
 
     onMounted(() => {
         const mainview = giro3dStore.getMainView();
@@ -90,7 +90,7 @@
     onUnmounted(() => {
         if (debounce.value) {
             clearInterval(debounce.value);
-            debounce.value = null;
+            debounce.value = undefined;
         }
         disposeMinimap();
         disposeGiro3DManager();

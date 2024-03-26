@@ -10,7 +10,7 @@
     import { useCameraStore } from '@/stores/camera';
     import Download from '@/utils/Download';
     import Notification from '@/types/Notification';
-    import Bookmark from '@/types/Bookmark';
+    import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
 
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);
@@ -55,14 +55,14 @@
 
     async function importBookmarks(file: Blob) {
         const str = await file.text();
-        const serializedBookmarks = JSON.parse(str);
+        const serializedBookmarks: SerializedBookmark[] = JSON.parse(str);
 
         const existingBookmarks = new Set(bookmarkStore.getBookmarks().map(b => b.name));
 
         let nbImported = 0;
         let nbSkipped = 0;
 
-        serializedBookmarks.forEach((bookmark: any) => {
+        serializedBookmarks.forEach((bookmark: SerializedBookmark) => {
             if (!existingBookmarks.has(bookmark.title)) {
                 bookmarkStore.add(Bookmark.new(bookmark.title, bookmark.url));
                 nbImported++;

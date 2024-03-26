@@ -3,6 +3,7 @@ import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
 import { Line2 } from 'three/examples/jsm/lines/Line2';
+import { isObject } from '@/utils/Types';
 
 const _axe = new Vector3();
 const _negatedAxe = new Vector3();
@@ -141,7 +142,8 @@ class Measure3D extends Group {
         return super.removeFromParent();
     }
 
-    static isMeasure3D = (obj: any): obj is Measure3D => obj?.isMeasure3D;
+    static isMeasure3D = (obj: unknown): obj is Measure3D =>
+        isObject(obj) && (obj as Measure3D).isMeasure3D;
 }
 
 export default Measure3D;

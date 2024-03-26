@@ -308,6 +308,7 @@ const markSkiptour = () => {
     window.history.replaceState({}, '', url.toString());
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const markTour = (current: any) => {
     const url = new URL(document.URL);
     console.log(current);

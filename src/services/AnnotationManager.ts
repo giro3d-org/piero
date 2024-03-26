@@ -50,7 +50,7 @@ function promptTitle(defaultValue: string) {
 /**
  * Creates a point to be added via CSS2DRenderer.
  *
- * @param text Label of the point
+ * @param text - Label of the point
  * @returns The created HTML element
  */
 function point2DFactory(text: string) {
@@ -71,23 +71,23 @@ function point2DFactory(text: string) {
 }
 
 export default class AnnotationManager {
-    private readonly drawTool: DrawTool;
-    private readonly drawEntity: DrawingCollection;
-    private readonly camera: CameraController;
-    private readonly picker: Picker;
-    private readonly instance: Instance;
-    private readonly store = useAnnotationStore();
-    private readonly notificationStore = useNotificationStore();
-    private previousFeature: Object3D | null;
-    private previousHoveredFeature: Object3D | null;
-    private drawToolOptions: DrawToolOptions;
+    private readonly _drawTool: DrawTool;
+    private readonly _drawEntity: DrawingCollection;
+    private readonly _camera: CameraController;
+    private readonly _picker: Picker;
+    private readonly _instance: Instance;
+    private readonly _store = useAnnotationStore();
+    private readonly _notificationStore = useNotificationStore();
+    private _previousFeature: Object3D | null;
+    private _previousHoveredFeature: Object3D | null;
+    private _drawToolOptions: DrawToolOptions;
     private readonly _boundOnEscape: (e: KeyboardEvent) => void;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
-        this.instance = instance;
-        this.picker = picker;
+        this._instance = instance;
+        this._picker = picker;
 
-        this.drawToolOptions = {
+        this._drawToolOptions = {
             drawObjectOptions: {
                 minExtrudeDepth: 1,
                 maxExtrudeDepth: 5,
@@ -99,25 +99,25 @@ export default class AnnotationManager {
             getPointAt: this.getPointAt.bind(this),
         };
 
-        this.drawTool = new DrawTool(instance, this.drawToolOptions);
-        this.drawEntity = new DrawingCollection();
-        this.instance.add(this.drawEntity);
-        this.previousFeature = null;
-        this.previousHoveredFeature = null;
+        this._drawTool = new DrawTool(instance, this._drawToolOptions);
+        this._drawEntity = new DrawingCollection();
+        this._instance.add(this._drawEntity);
+        this._previousFeature = null;
+        this._previousHoveredFeature = null;
 
-        this.camera = camera;
+        this._camera = camera;
 
-        this.camera.addEventListener('interaction-start', this.drawTool.pause);
-        this.camera.addEventListener('interaction-end', this.drawTool.continue);
+        this._camera.addEventListener('interaction-start', this._drawTool.pause);
+        this._camera.addEventListener('interaction-end', this._drawTool.continue);
 
         this._boundOnEscape = this.onEscape.bind(this);
         document.addEventListener('keydown', this._boundOnEscape);
 
-        this.drawTool.addEventListener('add', () => {
-            this.previousFeature = this.previousHoveredFeature;
+        this._drawTool.addEventListener('add', () => {
+            this._previousFeature = this._previousHoveredFeature;
         });
 
-        this.store.$onAction(({ name, args, after }) => {
+        this._store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'edit':
@@ -152,50 +152,54 @@ export default class AnnotationManager {
     dispose() {
         document.removeEventListener('keydown', this._boundOnEscape);
 
-        this.camera.removeEventListener('interaction-start', this.drawTool.pause);
-        this.camera.removeEventListener('interaction-end', this.drawTool.continue);
+        this._camera.removeEventListener('interaction-start', this._drawTool.pause);
+        this._camera.removeEventListener('interaction-end', this._drawTool.continue);
 
-        this.instance.remove(this.drawEntity);
-        this.drawEntity.dispose();
-        this.drawTool.dispose();
+        this._instance.remove(this._drawEntity);
+        this._drawEntity.dispose();
+        this._drawTool.dispose();
     }
 
     private onEscape(e: KeyboardEvent) {
-        if (e.code === 'Escape' && this.drawTool.state !== DrawToolState.READY) {
-            this.drawTool.reset();
+        if (e.code === 'Escape' && this._drawTool.state !== DrawToolState.READY) {
+            this._drawTool.reset();
         }
     }
 
     getPointAt(event: MouseEvent) {
         const radius = 10;
         let pickedObject: PickResult | null;
-        switch (this.store.getAnnotationMode()) {
+        switch (this._store.getAnnotationMode()) {
             case 'normal':
-                pickedObject = this.picker.getFirstFeatureAt(
-                    this.instance,
+                pickedObject = this._picker.getFirstFeatureAt(
+                    this._instance,
                     event,
                     radius,
-                    o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true,
+                    o =>
+                        (o as DrawingCollection).isDrawingCollection !== true &&
+                        (o as Drawing).isDrawing !== true,
                 );
                 break;
             case 'snapToMap':
-                pickedObject = this.picker.getMapAt(this.instance, event, radius);
+                pickedObject = this._picker.getMapAt(this._instance, event, radius);
                 break;
             case 'snapToFeatures':
-                pickedObject = this.picker.getObjectAt(
-                    this.instance,
+                pickedObject = this._picker.getObjectAt(
+                    this._instance,
                     event,
                     radius,
-                    o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true,
+                    o =>
+                        (o as DrawingCollection).isDrawingCollection !== true &&
+                        (o as Drawing).isDrawing !== true,
                 );
                 break;
             case 'snapToSameFeature':
-                if (this.previousFeature) {
+                if (this._previousFeature) {
                     pickedObject =
-                        this.instance
+                        this._instance
                             .pickObjectsAt(event, {
                                 radius,
-                                where: [this.previousFeature],
+                                where: [this._previousFeature],
                                 sortByDistance: true,
                                 limit: 1,
                                 pickFeatures: true,
@@ -203,11 +207,13 @@ export default class AnnotationManager {
                             .at(0) ?? null;
                     break;
                 } else {
-                    pickedObject = this.picker.getObjectAt(
-                        this.instance,
+                    pickedObject = this._picker.getObjectAt(
+                        this._instance,
                         event,
                         radius,
-                        o => (o as any).isDrawingEntity !== true && (o as any).isDrawing !== true,
+                        o =>
+                            (o as DrawingCollection).isDrawingCollection !== true &&
+                            (o as Drawing).isDrawing !== true,
                     );
                     break;
                 }
@@ -215,7 +221,7 @@ export default class AnnotationManager {
         }
 
         if (pickedObject && pickedObject.point) {
-            this.previousHoveredFeature = pickedObject.object;
+            this._previousHoveredFeature = pickedObject.object;
             return {
                 ...pickedObject,
                 picked: true,
@@ -226,17 +232,17 @@ export default class AnnotationManager {
     }
 
     private beforeDraw() {
-        if (this.drawTool.state !== DrawToolState.READY) {
+        if (this._drawTool.state !== DrawToolState.READY) {
             // We're already drawing, do something with the current drawing
-            if (this.drawTool.mode === DrawToolMode.EDIT) this.drawTool.end();
-            else this.drawTool.reset();
+            if (this._drawTool.mode === DrawToolMode.EDIT) this._drawTool.end();
+            else this._drawTool.reset();
         }
     }
 
     updateDrawing(annotation: Annotation) {
         annotation.object.visible = annotation.visible;
         annotation.object.traverse(o => (o.visible = annotation.visible));
-        this.instance.notifyChange();
+        this._instance.notifyChange();
     }
 
     private _draw(type: DrawingGeometryType, defaultName: string) {
@@ -245,12 +251,12 @@ export default class AnnotationManager {
         this.drawObject(type)
             .then(geometry => {
                 let title = defaultName;
-                if (this.store.hasAnnotation(title)) {
+                if (this._store.hasAnnotation(title)) {
                     for (let i = 1; i < 1000; i += 1) {
                         title = `${defaultName} (${i})`;
-                        if (!this.store.hasAnnotation(title)) break;
+                        if (!this._store.hasAnnotation(title)) break;
                     }
-                    if (this.store.hasAnnotation(title))
+                    if (this._store.hasAnnotation(title))
                         title = 'Achieved unlocked: 1000 annotations with default name';
                 }
                 const name = promptTitle(title);
@@ -276,16 +282,16 @@ export default class AnnotationManager {
         this._draw('LineString', 'New line annotation');
     }
 
-    pushNewAnnotation(title: string, drawing: Drawing, properties: any = {}) {
+    pushNewAnnotation(title: string, drawing: Drawing, properties: object = {}) {
         const annotation = new Annotation(title, drawing, properties);
         drawing.userData.annotation = annotation;
         annotation.addEventListener('visible', () => this.updateDrawing(annotation));
-        this.store.add(annotation);
+        this._store.add(annotation);
     }
 
     private addAnnotation(geojson: GeoJSON.Geometry) {
         const { minExtrudeDepth, maxExtrudeDepth } = this.getExtrudeDepth(
-            this.store.getAnnotationMode(),
+            this._store.getAnnotationMode(),
         );
         const o = new Drawing(
             {
@@ -304,8 +310,8 @@ export default class AnnotationManager {
         this.computeMeasurements(o);
         o.traverse(child => (child.renderOrder = 2));
 
-        this.drawEntity.add(o);
-        this.instance.notifyChange(this.drawEntity);
+        this._drawEntity.add(o);
+        this._instance.notifyChange(this._drawEntity);
 
         return o;
     }
@@ -338,10 +344,10 @@ export default class AnnotationManager {
     }
 
     private async importAnnotationFile(file: Blob) {
-        const existingAnnotations = new Set(this.store.getAnnotations().map(m => m.title));
+        const existingAnnotations = new Set(this._store.getAnnotations().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingAnnotations);
-            this.notificationStore.push(
+            this._notificationStore.push(
                 new Notification(
                     'Annotations',
                     `${nbImported} annotations imported (${nbSkipped} skipped)`,
@@ -359,7 +365,7 @@ export default class AnnotationManager {
         let nbTotalSkipped = 0;
         const errors: string[] = [];
 
-        const existingAnnotations = new Set(this.store.getAnnotations().map(m => m.title));
+        const existingAnnotations = new Set(this._store.getAnnotations().map(m => m.title));
 
         for (const file of files) {
             promises.push(
@@ -376,7 +382,7 @@ export default class AnnotationManager {
         await Promise.allSettled(promises);
 
         if (errors.length > 0) {
-            this.notificationStore.push(
+            this._notificationStore.push(
                 new Notification(
                     'Annotations',
                     `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
@@ -384,7 +390,7 @@ export default class AnnotationManager {
                 ),
             );
         } else {
-            this.notificationStore.push(
+            this._notificationStore.push(
                 new Notification(
                     'Annotations',
                     `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped)`,
@@ -395,19 +401,19 @@ export default class AnnotationManager {
     }
 
     private async editAnnotation(annotation: Annotation) {
-        const obj = this.drawEntity.children.find(d => d.uuid === annotation.object.uuid);
+        const obj = this._drawEntity.children.find(d => d.uuid === annotation.object.uuid);
         if (obj) {
             const originalShape = obj.toGeoJSON();
             obj.setMaterials({});
-            this.drawEntity.remove(obj);
-            this.store.setIsUserDrawing(true);
-            this.drawTool.setOptions({
-                ...this.drawToolOptions,
+            this._drawEntity.remove(obj);
+            this._store.setIsUserDrawing(true);
+            this._drawTool.setOptions({
+                ...this._drawToolOptions,
                 enableSplicing: true,
                 splicingHitTolerance: 10,
             });
             try {
-                const geojson = await this.drawTool.editAsAPromise(obj);
+                const geojson = await this._drawTool.editAsAPromise(obj);
                 const o = this.addAnnotation(geojson);
                 annotation.object = o;
                 o.userData.annotation = annotation;
@@ -416,35 +422,35 @@ export default class AnnotationManager {
                 const o = this.addAnnotation(originalShape);
                 annotation.object = o;
                 o.userData.annotation = annotation;
-                this.instance.notifyChange(this.drawEntity);
+                this._instance.notifyChange(this._drawEntity);
             } finally {
-                this.store.setIsUserDrawing(false);
-                this.previousFeature = null;
-                this.previousHoveredFeature = null;
+                this._store.setIsUserDrawing(false);
+                this._previousFeature = null;
+                this._previousHoveredFeature = null;
             }
         }
     }
 
     private deleteAnnotation(annotation: Annotation) {
-        const obj = this.drawEntity.children.find(d => d.uuid === annotation.object.uuid);
+        const obj = this._drawEntity.children.find(d => d.uuid === annotation.object.uuid);
         if (obj) {
-            this.drawEntity.add(obj);
+            this._drawEntity.add(obj);
             obj.dispose();
-            this.instance.notifyChange(this.drawEntity);
+            this._instance.notifyChange(this._drawEntity);
         }
     }
 
     private async drawObject(type: DrawingGeometryType): Promise<GeoJSON.Geometry> {
         // Start drawing!
-        this.store.setIsUserDrawing(true);
-        this.drawTool.setOptions(this.drawToolOptions);
+        this._store.setIsUserDrawing(true);
+        this._drawTool.setOptions(this._drawToolOptions);
         try {
-            const geojson = await this.drawTool.startAsAPromise(type);
+            const geojson = await this._drawTool.startAsAPromise(type);
             return geojson;
         } finally {
-            this.store.setIsUserDrawing(false);
-            this.previousFeature = null;
-            this.previousHoveredFeature = null;
+            this._store.setIsUserDrawing(false);
+            this._previousFeature = null;
+            this._previousHoveredFeature = null;
         }
     }
 
@@ -457,10 +463,10 @@ export default class AnnotationManager {
 
     onUpdateAnnotationMode(mode: AnnotationMode) {
         const { minExtrudeDepth, maxExtrudeDepth } = this.getExtrudeDepth(mode);
-        this.drawTool.setOptions({
-            ...this.drawToolOptions,
+        this._drawTool.setOptions({
+            ...this._drawToolOptions,
             drawObjectOptions: {
-                ...this.drawToolOptions.drawObjectOptions,
+                ...this._drawToolOptions.drawObjectOptions,
                 minExtrudeDepth,
                 maxExtrudeDepth,
             },

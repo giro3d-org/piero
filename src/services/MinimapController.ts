@@ -29,72 +29,72 @@ function loadOSMLayer(map: Map) {
 }
 
 export default class MinimapController {
-    private mainInstance: Instance | null;
-    private readonly minimapInstance: Instance;
-    private readonly viewbox: Viewbox;
-    private readonly basemap: Map;
+    private _mainInstance: Instance | null;
+    private readonly _minimapInstance: Instance;
+    private readonly _viewbox: Viewbox;
+    private readonly _basemap: Map;
     private _boundUpdateViewbox: () => void;
 
     constructor(instance: Instance) {
-        this.mainInstance = null;
-        this.minimapInstance = instance;
+        this._mainInstance = null;
+        this._minimapInstance = instance;
 
-        this.viewbox = new Viewbox();
+        this._viewbox = new Viewbox();
 
-        this.minimapInstance.scene.add(this.viewbox.object3D);
+        this._minimapInstance.scene.add(this._viewbox.object3D);
 
-        this.viewbox.object3D.updateMatrixWorld();
+        this._viewbox.object3D.updateMatrixWorld();
 
-        this.minimapInstance.notifyChange();
+        this._minimapInstance.notifyChange();
 
-        this.basemap = new GiroMap('minimap', {
+        this._basemap = new GiroMap('minimap', {
             extent: DEFAULT_EXTENT,
         });
 
-        this.minimapInstance.add(this.basemap);
+        this._minimapInstance.add(this._basemap);
 
-        loadOSMLayer(this.basemap);
+        loadOSMLayer(this._basemap);
 
         const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(
-            this.minimapInstance.referenceCrs,
+            this._minimapInstance.referenceCrs,
         );
 
         const xyz = new Vector3(center.x, center.y, 0);
-        const camera = this.minimapInstance.camera.camera3D;
+        const camera = this._minimapInstance.camera.camera3D;
         camera.position.set(xyz.x, xyz.y, 20000);
         camera.lookAt(xyz.x, xyz.y + 1, 0);
 
-        this.minimapInstance.notifyChange();
+        this._minimapInstance.notifyChange();
         this._boundUpdateViewbox = this.updateViewbox.bind(this);
     }
 
     dispose() {
-        if (this.mainInstance) {
-            this.mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
+        if (this._mainInstance) {
+            this._mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
         }
 
-        this.minimapInstance.remove(this.basemap);
-        this.minimapInstance.scene.remove(this.viewbox.object3D);
+        this._minimapInstance.remove(this._basemap);
+        this._minimapInstance.scene.remove(this._viewbox.object3D);
 
-        this.basemap.dispose();
-        this.viewbox.geometry.dispose();
-        this.viewbox.object3D.geometry.dispose();
-        this.viewbox.object3D.material.dispose();
+        this._basemap.dispose();
+        this._viewbox.geometry.dispose();
+        this._viewbox.object3D.geometry.dispose();
+        this._viewbox.object3D.material.dispose();
     }
 
     setMainInstance(instance: Instance | null) {
-        if (this.mainInstance) {
-            this.mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
+        if (this._mainInstance) {
+            this._mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
         }
-        this.mainInstance = instance;
+        this._mainInstance = instance;
         if (instance) {
             instance.addEventListener('after-camera-update', this._boundUpdateViewbox);
         }
     }
 
     getCorners() {
-        const instance = this.mainInstance;
-        const minimapInstance = this.minimapInstance;
+        const instance = this._mainInstance;
+        const minimapInstance = this._minimapInstance;
 
         if (instance === null) throw new Error('Must call setMainInstance before getCorners');
 
@@ -130,17 +130,17 @@ export default class MinimapController {
     updateViewbox() {
         // Disabled as it consumes too much CPU
         // let corners = this.getCorners();
-        if (this.mainInstance === null)
+        if (this._mainInstance === null)
             throw new Error('Must call setMainInstance before updateViewbox');
 
         const corners = null;
-        const mainCamera = this.mainInstance.camera.camera3D;
-        const minimapCamera = this.minimapInstance.camera.camera3D;
+        const mainCamera = this._mainInstance.camera.camera3D;
+        const minimapCamera = this._minimapInstance.camera.camera3D;
 
         if (corners) {
-            this.viewbox.object3D.visible = true;
+            this._viewbox.object3D.visible = true;
             const { ul, ur, ll, lr } = corners;
-            this.viewbox.setCorners(ul, ur, lr, ll);
+            this._viewbox.setCorners(ul, ur, lr, ll);
             const box = new Box3();
             box.setFromPoints([ul, ur, ll, lr]);
             const xyz = box.getCenter(new Vector3());
@@ -148,11 +148,11 @@ export default class MinimapController {
             minimapCamera.position.set(xyz.x, xyz.y, MathUtils.clamp(altitude, 1000, 50000));
             minimapCamera.lookAt(xyz.x, xyz.y + 1, 0);
         } else {
-            this.viewbox.object3D.visible = false;
+            this._viewbox.object3D.visible = false;
 
             const xyz = mainCamera.position;
-            const coordinate = new Coordinates(this.mainInstance.referenceCrs, xyz.x, xyz.y, 0).as(
-                this.minimapInstance.referenceCrs,
+            const coordinate = new Coordinates(this._mainInstance.referenceCrs, xyz.x, xyz.y, 0).as(
+                this._minimapInstance.referenceCrs,
             );
 
             const { x, y } = coordinate;
@@ -160,6 +160,6 @@ export default class MinimapController {
             minimapCamera.lookAt(x, y + 1, 0);
         }
 
-        this.minimapInstance.notifyChange(this.basemap);
+        this._minimapInstance.notifyChange(this._basemap);
     }
 }

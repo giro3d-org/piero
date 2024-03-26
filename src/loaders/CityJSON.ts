@@ -27,6 +27,7 @@ export default {
 
     async loadJson(
         instance: Instance,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         json: any,
         parameters: CityJSONParameters = {},
     ): Promise<CityJSONEntity> {
@@ -45,10 +46,10 @@ export default {
 
             // FIXME: here's a code smell indicating we are not using CityJSON correctly
             let z: number;
-            if (json.transform?.translate[2] !== undefined && json.transform?.translate[2] != 0) {
+            if (json.transform?.translate[2] != null && json.transform?.translate[2] !== 0) {
                 // Z already taken into account when creating mesh
                 z = 0;
-            } else if (json.vertices[0][2] != 0) {
+            } else if (json.vertices[0][2] !== 0) {
                 // Z already taken into account in the vertices
                 z = 0;
             } else {

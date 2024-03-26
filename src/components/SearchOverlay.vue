@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    // @ts-ignore autocomplete does not provide typing
+    // @ts-expect-error autocomplete does not provide typing
     import autoComplete from '@tarekraafat/autocomplete.js';
     import { onMounted, ref } from 'vue';
     import BanProvider from '@/providers/BanProvider';
@@ -16,7 +16,7 @@
             threshold: 3,
             debounce: 300, // 300ms debounce
             data: {
-                src: async (query: any) => {
+                src: async (query: string) => {
                     return await BanProvider.geocode(query);
                 },
                 keys: ['label'],
@@ -28,12 +28,13 @@
                 highlight: true,
             },
             // Trust what we get from the query
-            searchEngine: (query: any, record: any) => record,
+            searchEngine: (query: string, record: unknown) => record,
         });
 
         const inputElement = inputField.value as HTMLInputElement;
 
         inputElement.addEventListener('selection', (event: Event) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const poi = (event as any).detail.selection.value as GeocodingResult;
 
             emits('update:poi', poi);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     defineProps<{
-        visible: Boolean;
+        visible: boolean;
     }>();
     defineEmits(['update:visible']);
 </script>

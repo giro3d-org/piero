@@ -2,9 +2,9 @@ import { Vector3 } from 'three';
 
 export interface Attribute {
     key: string;
-    value: any;
+    value: unknown;
 }
-export type AttributesGroups = Map<string, Array<Attribute>>;
+export type AttributesGroups = Map<string, Attribute[]>;
 
 export default class Feature {
     readonly name: string;

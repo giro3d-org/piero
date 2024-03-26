@@ -68,7 +68,7 @@ export type ImportFileResult = {
 /**
  * Gets the filename and extension from a File or URL
  *
- * @param fileOrUrl File or URL
+ * @param fileOrUrl - File or URL
  * @returns File name and extension
  */
 function getFilename(fileOrUrl: UrlOrGlDataType): FileInfo {
@@ -92,8 +92,8 @@ function getFilename(fileOrUrl: UrlOrGlDataType): FileInfo {
 /**
  * Loads a dataset and creates its Entity3D.
  *
- * @param instance Giro3D instance
- * @param dataset Dataset to load
+ * @param instance - Giro3D instance
+ * @param dataset - Dataset to load
  * @returns Entity3D
  * @throws `Error` if bad dataset parameters
  */
@@ -178,9 +178,9 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
 /**
  * Loads a supported file and creates its Entity3D
  *
- * @param instance Giro3D instance
- * @param file File to load
- * @param fileinfo File info
+ * @param instance - Giro3D instance
+ * @param file - File to load
+ * @param fileinfo - File info
  * @returns Entity3D
  */
 async function loadFile(
@@ -212,8 +212,8 @@ async function loadFile(
 /**
  * Loads a file and creates its Entity3D and Dataset.
  *
- * @param instance Giro3D instance
- * @param file File to load
+ * @param instance - Giro3D instance
+ * @param file - File to load
  * @returns Created objects
  * @throws `Error` if file cannot be imported (unsupported, etc.)
  */

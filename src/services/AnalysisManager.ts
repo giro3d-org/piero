@@ -5,21 +5,21 @@ import CrossSectionManager from './analysis/CrossSectionManager';
 import ClippingBoxManager from './analysis/ClippingBoxManager';
 
 export default class AnalysisManager {
-    private readonly instance: Instance;
-    private readonly floodingPlaneManager: FloodingPlaneManager;
-    private readonly crossSectionManager: CrossSectionManager;
-    private readonly clippingBoxManager: ClippingBoxManager;
+    private readonly _instance: Instance;
+    private readonly _floodingPlaneManager: FloodingPlaneManager;
+    private readonly _crossSectionManager: CrossSectionManager;
+    private readonly _clippingBoxManager: ClippingBoxManager;
 
     constructor(instance: Instance, layerManager: LayerManager) {
-        this.instance = instance;
-        this.floodingPlaneManager = new FloodingPlaneManager(instance, layerManager);
-        this.crossSectionManager = new CrossSectionManager(instance);
-        this.clippingBoxManager = new ClippingBoxManager(instance);
+        this._instance = instance;
+        this._floodingPlaneManager = new FloodingPlaneManager(instance, layerManager);
+        this._crossSectionManager = new CrossSectionManager(instance);
+        this._clippingBoxManager = new ClippingBoxManager(instance);
     }
 
     dispose() {
-        this.clippingBoxManager.dispose();
-        this.crossSectionManager.dispose();
-        this.floodingPlaneManager.dispose();
+        this._clippingBoxManager.dispose();
+        this._crossSectionManager.dispose();
+        this._floodingPlaneManager.dispose();
     }
 }

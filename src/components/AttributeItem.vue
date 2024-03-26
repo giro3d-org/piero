@@ -1,11 +1,12 @@
 <script setup lang="ts">
+    import { isLink, isColor, isVector3 } from '@/utils/Types';
     import ColorFragment from './ColorFragment.vue';
     import CoordinateFragment from './CoordinateFragment.vue';
     import LinkFragment from './LinkFragment.vue';
 
     const props = defineProps<{
         attrName: string;
-        attrValue: any;
+        attrValue: unknown;
     }>();
 
     let styles: string[];
@@ -40,17 +41,17 @@
                         />
                     </table>
                 </template>
-                <template v-else-if="'href' in props.attrValue">
+                <template v-else-if="isLink(props.attrValue)">
                     <LinkFragment
                         :href="props.attrValue.href"
                         :title="props.attrValue.title"
                         :type="props.attrValue.type"
                     />
                 </template>
-                <template v-else-if="'isColor' in props.attrValue">
+                <template v-else-if="isColor(props.attrValue)">
                     <ColorFragment :key="props.attrValue.getHexString()" :color="props.attrValue" />
                 </template>
-                <template v-else-if="'isVector3' in props.attrValue">
+                <template v-else-if="isVector3(props.attrValue)">
                     <div class="d-flex align-items-center justify-content-between">
                         <CoordinateFragment :value="props.attrValue.x.toFixed(0)" prefix="X:" />
                         <CoordinateFragment :value="props.attrValue.y.toFixed(0)" prefix="Y:" />
@@ -64,7 +65,7 @@
                 <template v-else><span class="text-secondary">Object</span></template>
             </template>
             <template v-else
-                ><span :title="props.attrValue">{{ props.attrValue }}</span></template
+                ><span :title="props.attrValue as string">{{ props.attrValue }}</span></template
             >
         </td>
     </tr>

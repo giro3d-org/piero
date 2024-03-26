@@ -6,6 +6,7 @@ import { PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 import Fetcher, { UrlOrBlob } from '@/utils/Fetcher';
+import { isObject } from '@/utils/Types';
 import loader from './loader';
 
 /** Parameters for creating PLY object */
@@ -39,9 +40,10 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
         return [];
     }
 
-    static isPlyMesh = (obj: any): obj is PlyMesh => obj?.isPlyMesh;
-    static isPlyPickResult = (obj: PickResult<any>): obj is PickResult<PlyFeature> =>
-        PlyMesh.isPlyMesh(obj?.object);
+    static isPlyMesh = (obj: unknown): obj is PlyMesh =>
+        isObject(obj) && (obj as PlyMesh).isPlyMesh;
+    static isPlyPickResult = (obj: unknown): obj is PickResult<PlyFeature> =>
+        isObject(obj) && PlyMesh.isPlyMesh((obj as PickResult<unknown>)?.object);
 }
 
 export default {

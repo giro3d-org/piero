@@ -19,29 +19,29 @@ export const GRID_NAME = 'grid';
 export const PLANE_NAME = 'plane';
 
 export default class LayerManager extends EventDispatcher {
-    private readonly instance: Instance;
-    private readonly cameraStore = useCameraStore();
-    private readonly giro3dStore = useGiro3dStore();
-    private readonly layerStore = useLayerStore();
-    private readonly basemap: Giro3dMap;
-    private readonly grid: Grid;
-    private readonly plane: Plane;
+    private readonly _instance: Instance;
+    private readonly _cameraStore = useCameraStore();
+    private readonly _giro3dStore = useGiro3dStore();
+    private readonly _layerStore = useLayerStore();
+    private readonly _basemap: Giro3dMap;
+    private readonly _grid: Grid;
+    private readonly _plane: Plane;
 
-    private readonly baseLayers: Map<string, Layer>;
-    private readonly overlays: Map<string, ColorLayer>;
+    private readonly _baseLayers: Map<string, Layer>;
+    private readonly _overlays: Map<string, ColorLayer>;
 
     private readonly _boundOnAfterCameraUpdate: () => void;
 
     constructor(instance: Instance) {
         super();
 
-        this.instance = instance;
-        this.baseLayers = new Map();
-        this.overlays = new Map();
+        this._instance = instance;
+        this._baseLayers = new Map();
+        this._overlays = new Map();
 
-        const extent = this.giro3dStore.getDefaultBasemapExtent();
+        const extent = this._giro3dStore.getDefaultBasemapExtent();
 
-        this.basemap = new Giro3dMap('basemaps', {
+        this._basemap = new Giro3dMap('basemaps', {
             extent,
             hillshading: {
                 enabled: true,
@@ -51,27 +51,27 @@ export default class LayerManager extends EventDispatcher {
             segments: 128,
             backgroundColor: 'white',
         });
-        this.instance.add(this.basemap);
+        this._instance.add(this._basemap);
 
-        this.grid = new Grid(this.instance, extent, GRID_NAME);
-        this.plane = new Plane(this.instance, extent, PLANE_NAME);
+        this._grid = new Grid(this._instance, extent, GRID_NAME);
+        this._plane = new Plane(this._instance, extent, PLANE_NAME);
 
         this._boundOnAfterCameraUpdate = this.onAfterCameraUpdate.bind(this);
-        this.instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
+        this._instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
-        for (const overlay of this.layerStore.getOverlays()) {
+        for (const overlay of this._layerStore.getOverlays()) {
             if (overlay.visible) {
                 this.loadOverlay(overlay);
             }
         }
 
-        for (const basemap of this.layerStore.getBasemaps()) {
+        for (const basemap of this._layerStore.getBasemaps()) {
             if (basemap.visible) {
                 this.loadBasemap(basemap);
             }
         }
 
-        this.layerStore.$onAction(({ name, args, after }) => {
+        this._layerStore.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'setBasemapVisibility':
@@ -96,36 +96,36 @@ export default class LayerManager extends EventDispatcher {
     }
 
     dispose() {
-        this.instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
+        this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
-        this.instance.remove(this.basemap);
-        this.plane.dispose();
-        this.grid.dispose();
-        this.basemap.dispose({ disposeLayers: true });
+        this._instance.remove(this._basemap);
+        this._plane.dispose();
+        this._grid.dispose();
+        this._basemap.dispose({ disposeLayers: true });
     }
 
     private onAfterCameraUpdate() {
-        const pos = this.cameraStore.getCamera3dPosition();
-        const oldVisible = this.grid.visible;
+        const pos = this._cameraStore.getCamera3dPosition();
+        const oldVisible = this._grid.visible;
         const newVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
 
         if (oldVisible !== newVisible) {
-            this.grid.visible = newVisible;
-            this.plane.visible = newVisible;
+            this._grid.visible = newVisible;
+            this._plane.visible = newVisible;
         }
     }
 
     notify(layer: Layer) {
-        this.instance.notifyChange(layer);
+        this._instance.notifyChange(layer);
     }
 
     get extent() {
-        return this.basemap.extent;
+        return this._basemap.extent;
     }
 
     setMapOpacity(opacity: number) {
-        this.basemap.opacity = opacity;
-        this.instance.notifyChange(this.basemap);
+        this._basemap.opacity = opacity;
+        this._instance.notifyChange(this._basemap);
     }
 
     private async loadBasemap(basemap: BaseLayer) {
@@ -138,14 +138,14 @@ export default class LayerManager extends EventDispatcher {
                     source,
                     resolutionFactor: basemap.source.resolution,
                     minmax: { min: 0, max: 5000 },
-                    colorMap: this.layerStore.getElevationColorMap(),
+                    colorMap: this._layerStore.getElevationColorMap(),
                     noDataOptions: {
                         replaceNoData: false,
                     },
                 });
                 layer.addEventListener('visible-property-changed', () => {
-                    this.basemap.visible = layer.visible;
-                    this.instance.notifyChange(this.basemap);
+                    this._basemap.visible = layer.visible;
+                    this._instance.notifyChange(this._basemap);
                 });
                 break;
             case 'color':
@@ -162,8 +162,8 @@ export default class LayerManager extends EventDispatcher {
             }
         }
 
-        this.baseLayers.set(basemap.uuid, layer);
-        this.basemap.addLayer(layer);
+        this._baseLayers.set(basemap.uuid, layer);
+        this._basemap.addLayer(layer);
         this.updateLayerOrdering();
 
         layer.visible = basemap.visible;
@@ -182,8 +182,8 @@ export default class LayerManager extends EventDispatcher {
             extent: this.extent,
         });
 
-        this.overlays.set(overlay.uuid, layer);
-        this.basemap.addLayer(layer);
+        this._overlays.set(overlay.uuid, layer);
+        this._basemap.addLayer(layer);
         this.updateLayerOrdering();
 
         layer.visible = overlay.visible;
@@ -193,7 +193,7 @@ export default class LayerManager extends EventDispatcher {
     }
 
     private async getLayer(basemap: BaseLayer, load: boolean = true): Promise<Layer | undefined> {
-        const layer = this.baseLayers.get(basemap.uuid);
+        const layer = this._baseLayers.get(basemap.uuid);
         if (!layer && load) {
             return this.loadBasemap(basemap);
         }
@@ -204,7 +204,7 @@ export default class LayerManager extends EventDispatcher {
         overlay: Overlay,
         load: boolean = true,
     ): Promise<ColorLayer | undefined> {
-        const layer = this.overlays.get(overlay.uuid);
+        const layer = this._overlays.get(overlay.uuid);
         if (!layer && load) {
             return this.loadOverlay(overlay);
         }
@@ -260,19 +260,19 @@ export default class LayerManager extends EventDispatcher {
         const order = [
             // Put basemap layers first, in the reverse order of the config
             // So that the last basemap layer in the config is the first one in the list
-            ...this.layerStore
+            ...this._layerStore
                 .getBasemaps()
-                .map(layer => this.baseLayers.get(layer.uuid)?.id)
+                .map(layer => this._baseLayers.get(layer.uuid)?.id)
                 .reverse(),
             // And then overlays, still in the reverse order,
             // So that the first overlay in the config is the last one in the list
-            ...this.layerStore
+            ...this._layerStore
                 .getOverlays()
-                .map(layer => this.overlays.get(layer.uuid)?.id)
+                .map(layer => this._overlays.get(layer.uuid)?.id)
                 .reverse(),
         ];
 
-        this.basemap.sortColorLayers((a: Layer, b: Layer) => {
+        this._basemap.sortColorLayers((a: Layer, b: Layer) => {
             const orderA = order.indexOf(a.id);
             const orderB = order.indexOf(b.id);
             if (orderA >= 0 && orderB >= 0) return orderA - orderB;

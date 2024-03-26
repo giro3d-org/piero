@@ -2,7 +2,7 @@
     import SwitchToggle from './SwitchToggle.vue';
 
     defineProps<{
-        visible: Boolean;
+        visible: boolean;
     }>();
     defineEmits(['update:visible']);
 </script>

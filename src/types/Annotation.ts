@@ -3,7 +3,9 @@ import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import { EventDispatcher, MathUtils } from 'three';
 
 type AnnotationEventMap = {
-    visible: {};
+    visible: {
+        /** empty */
+    };
 };
 
 export default class Annotation extends EventDispatcher<AnnotationEventMap> {
@@ -11,9 +13,9 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     readonly title: string;
     private _visible: boolean;
     private _object: Drawing;
-    properties: any;
+    properties: object;
 
-    constructor(title: string, object: Drawing, properties: any = {}) {
+    constructor(title: string, object: Drawing, properties: object = {}) {
         super();
 
         this.title = title;
@@ -90,9 +92,8 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
         return {
             type: 'FeatureCollection',
             features,
-            // GeoJSON spec does not allow properties on FeatureCollection
+            // @ts-expect-error GeoJSON spec does not allow properties on FeatureCollection
             // But OWC requires it Oo
-            // @ts-ignore
             id: `${Download.getBaseUrl()}#${MathUtils.generateUUID()}`,
             properties: {
                 lang: 'en',

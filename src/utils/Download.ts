@@ -10,7 +10,7 @@ function downloadBlob(object: Blob | MediaSource, filename: string) {
     URL.revokeObjectURL(blobUrl);
 }
 
-function downloadAsJson(object: any, filename: string) {
+function downloadAsJson(object: object, filename: string) {
     const text = JSON.stringify(object, null, 2);
     const blob = new Blob([text], { type: 'application/json' });
     downloadBlob(blob, filename);

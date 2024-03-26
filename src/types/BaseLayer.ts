@@ -2,13 +2,14 @@ import { EventDispatcher } from 'three';
 import LayerObject from './LayerObject';
 import { LayerConfig, BasemapLayerSourceConfig } from './configuration/layerSource';
 import { ColorLayer, ElevationLayer } from '@giro3d/giro3d/core/layer';
+import { isObject } from '@/utils/Types';
 
 export type BaseLayerType = 'elevation' | 'color';
 
-export const isColorLayer = (obj: any): obj is ColorLayer =>
-    obj && (obj as ColorLayer).isColorLayer;
-export const isElevationLayer = (obj: any): obj is ElevationLayer =>
-    obj && (obj as ElevationLayer).isElevationLayer;
+export const isColorLayer = (obj: unknown): obj is ColorLayer =>
+    isObject(obj) && (obj as ColorLayer).isColorLayer;
+export const isElevationLayer = (obj: unknown): obj is ElevationLayer =>
+    isObject(obj) && (obj as ElevationLayer).isElevationLayer;
 
 export interface BaseLayer extends EventDispatcher {
     name: string;

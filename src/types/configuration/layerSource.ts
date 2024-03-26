@@ -12,7 +12,7 @@ export type LayerSourceBaseConfig<TType extends LayerSourceType> = {
     /**
      * The relative resolution of the layer.
      * If greater than 1, the resolution will be greater, at the cost of performance and memory usage.
-     * @default 1
+     * @defaultValue 1
      */
     resolution?: number;
 };

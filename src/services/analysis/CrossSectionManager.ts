@@ -3,12 +3,12 @@ import { useAnalysisStore } from '@/stores/analysis';
 import { MathUtils, Plane, Vector3 } from 'three';
 
 export default class CrossSectionManager {
-    private readonly instance: Instance;
-    private readonly store = useAnalysisStore();
+    private readonly _instance: Instance;
+    private readonly _store = useAnalysisStore();
 
     constructor(instance: Instance) {
-        this.instance = instance;
-        this.store.$onAction(({ name, after }) => {
+        this._instance = instance;
+        this._store.$onAction(({ name, after }) => {
             after(() => {
                 switch (name) {
                     case 'enableCrossSection':
@@ -28,19 +28,19 @@ export default class CrossSectionManager {
     }
 
     private updateCrossSection() {
-        if (this.store.isCrossSectionEnabled()) {
-            const radians = MathUtils.DEG2RAD * this.store.crossSectionOrientation;
+        if (this._store.isCrossSectionEnabled()) {
+            const radians = MathUtils.DEG2RAD * this._store.crossSectionOrientation;
             const cos = Math.cos(radians);
             const sin = Math.sin(radians);
 
             const normal = new Vector3(cos, sin, 0);
 
-            const distance = new Plane(normal, 0).distanceToPoint(this.store.crossSectionCenter);
+            const distance = new Plane(normal, 0).distanceToPoint(this._store.crossSectionCenter);
             const plane = new Plane(normal, -distance);
-            this.instance.renderer.clippingPlanes = [plane];
+            this._instance.renderer.clippingPlanes = [plane];
         } else {
-            this.instance.renderer.clippingPlanes = [];
+            this._instance.renderer.clippingPlanes = [];
         }
-        this.instance.notifyChange();
+        this._instance.notifyChange();
     }
 }
