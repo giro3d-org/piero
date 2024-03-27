@@ -13,6 +13,7 @@ import {
 } from 'openbim-components';
 import { Entity3D } from '@giro3d/giro3d/entities';
 import { PickOptions, PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
+import { isObject } from '@/utils/Types';
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting
@@ -93,21 +94,26 @@ export type ClassificationItem = {
 export interface IFCProperty {
     parentName: string;
     name: string;
-    value: any;
+    value: number | null;
 }
 
 export interface IFCFeature {
-    itemProperties: any;
+    itemProperties: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [attribute: string]: any;
+    };
     ifcProperties: IFCProperty[];
 }
 
 export interface IFCPickResult extends PickResult<IFCFeature> {
+    isIFCPickResult: true;
     entity: IfcEntity;
     object: FragmentMesh;
     features?: IFCFeature[];
 }
 
-export const isIFCPickResult = (obj: any): obj is IFCPickResult => obj?.isIFCPickResult;
+export const isIFCPickResult = (obj: unknown): obj is IFCPickResult =>
+    isObject(obj) && (obj as IFCPickResult).isIFCPickResult;
 
 export default class IfcEntity
     extends Entity3D
@@ -118,10 +124,10 @@ export default class IfcEntity
     readonly components: Components;
     readonly fragmentManager: FragmentManager;
     readonly fragmentClassifier: FragmentClassifier;
-    private ifcSelection: SelectionMap; // Currently selected fragments
-    private indexMap: IndexMap; // Properties relationships
-    private classificationCache: ClassificationItem[] | null;
-    private fragmentBoundingBox: FragmentBoundingBox | null;
+    private _ifcSelection: SelectionMap; // Currently selected fragments
+    private _indexMap: IndexMap; // Properties relationships
+    private _classificationCache: ClassificationItem[] | null;
+    private _fragmentBoundingBox: FragmentBoundingBox | null;
 
     override get object3d(): FragmentsGroup {
         return super.object3d as FragmentsGroup;
@@ -139,10 +145,10 @@ export default class IfcEntity
         this.fragmentManager = fragmentManager;
         this.fragmentClassifier = fragmentClassifier;
         this.type = 'IfcEntity';
-        this.ifcSelection = { selection: {}, bbox: {} };
-        this.indexMap = {};
-        this.classificationCache = null;
-        this.fragmentBoundingBox = null;
+        this._ifcSelection = { selection: {}, bbox: {} };
+        this._indexMap = {};
+        this._classificationCache = null;
+        this._fragmentBoundingBox = null;
         this.initializeEntityIndexes();
 
         this.fragmentClassifier.byStorey(root);
@@ -154,7 +160,7 @@ export default class IfcEntity
     }
 
     private initializeEntityIndexes() {
-        this.indexMap = {};
+        this._indexMap = {};
         const properties = this.object3d.properties;
         if (properties === undefined) return;
 
@@ -170,11 +176,11 @@ export default class IfcEntity
     }
 
     private setEntityIndex(expressID: number) {
-        if (!this.indexMap[expressID]) this.indexMap[expressID] = new Set();
-        return this.indexMap[expressID];
+        if (!this._indexMap[expressID]) this._indexMap[expressID] = new Set();
+        return this._indexMap[expressID];
     }
 
-    getProperty(expressID: number): { name: string; value: any } | null {
+    getProperty(expressID: number): { name: string; value: number | null } | null {
         const properties = this.object3d.properties;
         if (properties === undefined) return null;
 
@@ -190,7 +196,7 @@ export default class IfcEntity
         const objectRawProperties = this.object3d.properties;
         if (!objectRawProperties) return [];
 
-        for (const id of this.indexMap[expressID]) {
+        for (const id of this._indexMap[expressID]) {
             const entity = objectRawProperties[id];
             if (!entity) continue;
             const { name } = IfcPropertiesUtils.getEntityName(objectRawProperties, id);
@@ -248,7 +254,7 @@ export default class IfcEntity
         if (!currentSystemName || !systemGroups) {
             return groups;
         }
-        for (const name in systemGroups) {
+        for (const name of Object.keys(systemGroups)) {
             // name is N00, N01, N02...
             // { storeys: "N00" }, { storeys: "N01" }...
             const filter = { ...result, [currentSystemName]: [name] };
@@ -270,23 +276,23 @@ export default class IfcEntity
     }
 
     async initClassification(): Promise<void> {
-        this.classificationCache = await this.regenerateClassification([
+        this._classificationCache = await this.regenerateClassification([
             ClassificationSystem.STOREY,
             ClassificationSystem.ENTITY,
         ]);
-        if (this.classificationCache.length === 0) {
+        if (this._classificationCache.length === 0) {
             // Maybe we don't have storeys, try to classify by entity
-            this.classificationCache = await this.regenerateClassification([
+            this._classificationCache = await this.regenerateClassification([
                 ClassificationSystem.ENTITY,
             ]);
         }
-        this.fragmentBoundingBox = await this.components.tools.get(FragmentBoundingBox);
+        this._fragmentBoundingBox = await this.components.tools.get(FragmentBoundingBox);
     }
 
     getClassification(): ClassificationItem[] {
-        if (this.classificationCache === null)
+        if (this._classificationCache === null)
             throw new Error('Must call initClassification before getClassification');
-        return this.classificationCache;
+        return this._classificationCache;
     }
 
     private addHighlightToFragment(name: FragmentTypeName, fragment: Fragment) {
@@ -310,7 +316,7 @@ export default class IfcEntity
     }
 
     clearHighlight(name: FragmentTypeName = 'selection') {
-        for (const fragID in this.ifcSelection[name]) {
+        for (const fragID of Object.keys(this._ifcSelection[name])) {
             const fragment = this.fragmentManager.list[fragID];
             if (!fragment) continue;
             const selection = fragment.fragments[name];
@@ -320,7 +326,7 @@ export default class IfcEntity
         }
         this._instance.notifyChange(this);
 
-        this.ifcSelection[name] = {};
+        this._ifcSelection[name] = {};
     }
 
     private regenerate(name: FragmentTypeName, fragID: string) {
@@ -333,13 +339,13 @@ export default class IfcEntity
         if (composites) {
             for (let i = 1; i < composites; i++) {
                 const compositeID = toCompositeID(itemID, i);
-                this.ifcSelection[name][mesh.uuid].add(compositeID);
+                this._ifcSelection[name][mesh.uuid].add(compositeID);
             }
         }
     }
 
     private updateFragmentFill(name: FragmentTypeName, fragmentID: string) {
-        const ids = this.ifcSelection[name][fragmentID];
+        const ids = this._ifcSelection[name][fragmentID];
         const fragment = this.fragmentManager.list[fragmentID];
         if (!fragment) return;
         const selection = fragment.fragments[name];
@@ -371,10 +377,10 @@ export default class IfcEntity
     }
 
     highlight(name: FragmentTypeName, mesh: FragmentMesh, itemId: string) {
-        this.ifcSelection[name][mesh.uuid] = new Set<string>();
+        this._ifcSelection[name][mesh.uuid] = new Set<string>();
 
         const idNum = parseInt(itemId, 10);
-        this.ifcSelection[name][mesh.uuid].add(itemId);
+        this._ifcSelection[name][mesh.uuid].add(itemId);
         this.addComposites(name, mesh, idNum);
         this.regenerate(name, mesh.uuid);
 
@@ -386,10 +392,10 @@ export default class IfcEntity
                 const fragID = group.keyFragments[fragKey];
                 const fragment = this.fragmentManager.list[fragID];
 
-                if (!this.ifcSelection[name][fragID]) {
-                    this.ifcSelection[name][fragID] = new Set<string>();
+                if (!this._ifcSelection[name][fragID]) {
+                    this._ifcSelection[name][fragID] = new Set<string>();
                 }
-                this.ifcSelection[name][fragID].add(itemId);
+                this._ifcSelection[name][fragID].add(itemId);
                 this.addComposites(name, fragment.mesh, idNum);
                 this.regenerate(name, fragID);
             }
@@ -398,16 +404,16 @@ export default class IfcEntity
     }
 
     highlightById(ids: FragmentIdMap, name: FragmentTypeName = 'selection') {
-        for (const fragID in ids) {
-            if (!this.ifcSelection[name][fragID]) {
-                this.ifcSelection[name][fragID] = new Set<string>();
+        for (const fragID of Object.keys(ids)) {
+            if (!this._ifcSelection[name][fragID]) {
+                this._ifcSelection[name][fragID] = new Set<string>();
             }
 
             const fragment = this.fragmentManager.list[fragID];
 
             const idsNum = new Set<number>();
             for (const id of ids[fragID]) {
-                this.ifcSelection[name][fragID].add(id);
+                this._ifcSelection[name][fragID].add(id);
                 idsNum.add(parseInt(id, 10));
             }
             for (const id of idsNum) {
@@ -423,18 +429,18 @@ export default class IfcEntity
         this.clearHighlight('bbox');
         this.highlightById(ids, 'bbox');
 
-        const bbox = this.fragmentBoundingBox;
+        const bbox = this._fragmentBoundingBox;
         if (bbox === null)
             throw new Error('Must call initClassification before getBoundingBoxById');
 
         const fragments = this.fragmentManager;
         bbox.reset();
 
-        const selected = this.ifcSelection.bbox;
+        const selected = this._ifcSelection.bbox;
         if (!Object.keys(selected).length) {
             return;
         }
-        for (const fragID in selected) {
+        for (const fragID of Object.keys(selected)) {
             const fragment = fragments.list[fragID];
             const highlight = fragment.fragments['bbox'];
             bbox.addMesh(highlight.mesh);
@@ -469,17 +475,17 @@ export default class IfcEntity
 
     pickFeaturesFrom(pickedResult: IFCPickResult) {
         const mesh = pickedResult.object;
-        if (mesh.fragment && pickedResult.instanceId != undefined && pickedResult.face) {
+        if (mesh.fragment && pickedResult.instanceId != null && pickedResult.face) {
             const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pickedResult.face.a);
 
             const itemId = mesh.fragment
                 .getItemID(pickedResult.instanceId, blockId)
                 ?.replace(/\..*/, '');
 
-            // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
+            // @ts-expect-error IfcProperties defines indexes as numbers, but actually are strings
             if (itemId && mesh.fragment.group?.properties?.[itemId]) {
                 const properties = mesh.fragment.group.properties;
-                // @ts-ignore IfcProperties defines indexes as numbers, but actually are strings
+                // @ts-expect-error IfcProperties defines indexes as numbers, but actually are strings
                 const itemProperties = properties[itemId];
                 const ifcProperties = this.getProperties(itemId);
 
@@ -491,5 +497,8 @@ export default class IfcEntity
         return [];
     }
 
-    static isIFCEntity = (obj: any): obj is IfcEntity => obj?.isIfcEntity;
+    static isIFCEntity = (obj: unknown): obj is IfcEntity =>
+        isObject(obj) && (obj as IfcEntity).isIfcEntity;
+    static isIFCPickResult = (obj: unknown): obj is IFCPickResult =>
+        isObject(obj) && IfcEntity.isIFCEntity((obj as PickResult<unknown>).entity);
 }

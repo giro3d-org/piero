@@ -4,17 +4,17 @@ import LayerManager from '@/services/LayerManager';
 import { useAnalysisStore } from '@/stores/analysis';
 
 export default class FloodingPlaneManager {
-    private readonly instance: Instance;
-    private readonly layerManager: LayerManager;
-    private readonly store = useAnalysisStore();
-    private plane: FloodingPlane | null;
+    private readonly _instance: Instance;
+    private readonly _layerManager: LayerManager;
+    private readonly _store = useAnalysisStore();
+    private _plane: FloodingPlane | null;
 
     constructor(instance: Instance, layerManager: LayerManager) {
-        this.instance = instance;
-        this.layerManager = layerManager;
-        this.plane = null;
+        this._instance = instance;
+        this._layerManager = layerManager;
+        this._plane = null;
 
-        this.store.$onAction(({ name, after }) => {
+        this._store.$onAction(({ name, after }) => {
             after(() => {
                 switch (name) {
                     case 'enableFloodingPlane':
@@ -29,23 +29,29 @@ export default class FloodingPlaneManager {
     }
 
     dispose() {
-        if (this.plane) {
-            this.instance.remove(this.plane.object3D);
-            this.plane.dispose();
+        if (this._plane) {
+            this._instance.remove(this._plane.object3D);
+            this._plane.dispose();
         }
     }
 
     private updatePlane() {
-        if (!this.plane) {
-            this.plane = new FloodingPlane();
-            this.instance.add(this.plane.object3D);
+        if (!this._plane) {
+            this._plane = new FloodingPlane();
+            this._instance.add(this._plane.object3D);
         }
-        const extent = this.layerManager.extent;
+        const extent = this._layerManager.extent;
         const center = extent.centerAsVector2();
         const dims = extent.dimensions();
 
-        this.plane.visible = this.store.isFloodingPlaneEnabled();
-        this.plane.setPosition(center.x, center.y, this.store.floodingPlaneHeight, dims.x, dims.y);
-        this.instance.notifyChange();
+        this._plane.visible = this._store.isFloodingPlaneEnabled();
+        this._plane.setPosition(
+            center.x,
+            center.y,
+            this._store.floodingPlaneHeight,
+            dims.x,
+            dims.y,
+        );
+        this._instance.notifyChange();
     }
 }

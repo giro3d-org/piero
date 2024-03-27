@@ -48,7 +48,10 @@
         </div>
 
         <div class="collapse m-2" :id="`collapse-${annotation.uuid}`">
-            <EmptyIndicator text="No properties" v-if="annotation.properties.length === 0" />
+            <EmptyIndicator
+                text="No properties"
+                v-if="Object.entries(annotation.properties).length === 0"
+            />
             <table class="table table-striped table-sm table-responsive-sm" v-else>
                 <thead>
                     <tr>

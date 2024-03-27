@@ -12,8 +12,8 @@ import { GeoVec3 } from './geographic';
  *
  * This can be useful for post-processing your data (transformation, rotation, etc.).
  *
- * @param dataset Dataset created
- * @param entity Giro3D entity created
+ * @param dataset - Dataset created
+ * @param entity - Giro3D entity created
  */
 export type OnObjectPreloaded = (dataset: DatasetOrGroup, entity: Entity3D) => void;
 
@@ -27,14 +27,14 @@ export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
      * Default visibility of the dataset.
      * When set on a group, will be inherited to all descendants.
      *
-     * @default false
+     * @defaultValue false
      */
     visible?: boolean;
     /**
      * Default opacity of the dataset.
      * When set on a group, will be inherited to all descendants.
      *
-     * @default 1
+     * @defaultValue 1
      */
     opacity?: number;
 
@@ -55,14 +55,14 @@ export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
      * This can help against Z-fighting when your dataset is on the ground and the map's elevation layer is not precise-enough.
      * When set on a group, will be inherited to all descendants.
      *
-     * @default false
+     * @defaultValue false
      */
     canMaskBasemap?: boolean;
     /**
      * Whether this dataset masks the basemap by default (can still be disabled via the "mask" button)
      * When set on a group, will be inherited to all descendants.
      *
-     * @default false
+     * @defaultValue false
      */
     isMaskingBasemap?: boolean;
     /** Callback when the dataset or group is preloaded into the app. */

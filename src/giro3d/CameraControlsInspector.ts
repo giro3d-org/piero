@@ -7,39 +7,39 @@ import CameraPosition from '@/types/CameraPosition';
 
 class CameraControlsInspector extends Panel {
     camera: CameraController;
-    private cameraPosition: CameraPosition;
+    private _cameraPosition: CameraPosition;
     private _boundOnAfterCameraUpdate: () => void;
 
     /**
-     * @param gui The GUI.
-     * @param instance The Giro3D instance.
+     * @param gui - The GUI.
+     * @param instance - The Giro3D instance.
      */
     constructor(gui: GUI, cameraController: CameraController, instance: Instance) {
         super(gui, instance, 'Camera Controls');
 
         this.camera = cameraController;
-        this.cameraPosition = new CameraPosition(new Vector3(), new Vector3(), new Vector3());
+        this._cameraPosition = new CameraPosition(new Vector3(), new Vector3(), new Vector3());
 
         this._boundOnAfterCameraUpdate = this.onAfterCameraUpdate.bind(this);
         this.instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
         const position = this.gui.addFolder('Position');
         position.close();
-        this._controllers.push(position.add(this.cameraPosition.camera, 'x'));
-        this._controllers.push(position.add(this.cameraPosition.camera, 'y'));
-        this._controllers.push(position.add(this.cameraPosition.camera, 'z'));
+        this._controllers.push(position.add(this._cameraPosition.camera, 'x'));
+        this._controllers.push(position.add(this._cameraPosition.camera, 'y'));
+        this._controllers.push(position.add(this._cameraPosition.camera, 'z'));
 
         const target = this.gui.addFolder('Target');
         target.close();
-        this._controllers.push(target.add(this.cameraPosition.target, 'x'));
-        this._controllers.push(target.add(this.cameraPosition.target, 'y'));
-        this._controllers.push(target.add(this.cameraPosition.target, 'z'));
+        this._controllers.push(target.add(this._cameraPosition.target, 'x'));
+        this._controllers.push(target.add(this._cameraPosition.target, 'y'));
+        this._controllers.push(target.add(this._cameraPosition.target, 'z'));
 
         const focalOffset = this.gui.addFolder('Focal offset');
         focalOffset.close();
-        this._controllers.push(focalOffset.add(this.cameraPosition.focalOffset, 'x'));
-        this._controllers.push(focalOffset.add(this.cameraPosition.focalOffset, 'y'));
-        this._controllers.push(focalOffset.add(this.cameraPosition.focalOffset, 'z'));
+        this._controllers.push(focalOffset.add(this._cameraPosition.focalOffset, 'x'));
+        this._controllers.push(focalOffset.add(this._cameraPosition.focalOffset, 'y'));
+        this._controllers.push(focalOffset.add(this._cameraPosition.focalOffset, 'z'));
     }
 
     dispose(): void {
@@ -48,7 +48,7 @@ class CameraControlsInspector extends Panel {
     }
 
     private onAfterCameraUpdate() {
-        this.camera.getCameraPosition(this.cameraPosition);
+        this.camera.getCameraPosition(this._cameraPosition);
     }
 }
 

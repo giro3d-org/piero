@@ -1,33 +1,38 @@
-import { Box3, Object3D, Vector3, Vector2 } from 'three';
-import { Feature as OLFeature } from 'ol';
+import { Box3, type Object3D, Vector3, Vector2 } from 'three';
+import { type Feature as OLFeature } from 'ol';
 import { IfcCategoryMap } from 'openbim-components';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import {
-    PickResult,
-    PointsPickResult,
+    type PickResult,
+    type PointsPickResult,
     isMapPickResult,
     isPointsPickResult,
 } from '@giro3d/giro3d/core/picking';
-import Entity from '@giro3d/giro3d/entities/Entity';
-import { DrawingPickResult, isDrawingPickResult } from '@giro3d/giro3d/entities/DrawingCollection';
+import type Entity from '@giro3d/giro3d/entities/Entity';
+import type Giro3DMap from '@giro3d/giro3d/entities/Map';
+import type FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
+import {
+    type DrawingPickResult,
+    isDrawingPickResult,
+} from '@giro3d/giro3d/entities/DrawingCollection';
 
-import { CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/CityJSONEntity';
-import { IFCPickResult, isIFCPickResult } from '@/giro3d/IfcEntity';
+import { type CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/CityJSONEntity';
+import { type IFCPickResult, isIFCPickResult } from '@/giro3d/IfcEntity';
 import Measure3D from '@/giro3d/Measure3D';
-import Annotation from '@/types/Annotation';
+import type Annotation from '@/types/Annotation';
 import Feature, { Attribute, AttributesGroups } from '@/types/Feature';
-import Measure from '@/types/Measure';
+import type Measure from '@/types/Measure';
 import { PlyMesh } from '@/loaders/PLY';
 import { useAnalysisStore } from '@/stores/analysis';
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
 
 export default class Picker {
-    private readonly analysisStore = useAnalysisStore();
+    private readonly _analysisStore = useAnalysisStore();
 
     filterPick(instance: Instance, result: PickResult): boolean {
-        if (this.analysisStore.isClippingBoxEnabled()) {
-            const containsPoint = this.analysisStore.getClippingBox().containsPoint(result.point);
-            if (this.analysisStore.isClippingBoxInverted()) {
+        if (this._analysisStore.isClippingBoxEnabled()) {
+            const containsPoint = this._analysisStore.getClippingBox().containsPoint(result.point);
+            if (this._analysisStore.isClippingBoxInverted()) {
                 if (containsPoint) return false;
             } else {
                 if (!containsPoint) return false;
@@ -104,7 +109,7 @@ export default class Picker {
         plyAttributes.push({ key: 'Color', value: feature.color });
     }
 
-    getAttributesFromUserData(userData: any, attributes: Attribute[]) {
+    getAttributesFromUserData(userData: object, attributes: Attribute[]) {
         for (const [key, value] of Object.entries(userData)) {
             if (
                 key === 'geometry' ||
@@ -197,8 +202,8 @@ export default class Picker {
      * Gets the closest dataset object from where the user clicked.
      * Does **NOT** pick on the base map!
      *
-     * @param e Mouse event
-     * @param radius Radius - the smaller, the faster and more precise (but
+     * @param e - Mouse event
+     * @param radius - Radius - the smaller, the faster and more precise (but
      * may return nothing)
      * @returns Result or null if notthing found
      */
@@ -210,9 +215,9 @@ export default class Picker {
     ): PickResult | null {
         let where = instance.getObjects(
             o =>
-                (o as any).isMap !== true &&
-                (o as any).name !== PLANE_NAME &&
-                (o as any).name !== GRID_NAME,
+                (o as Giro3DMap).isMap !== true &&
+                (o as Object3D).name !== PLANE_NAME &&
+                (o as Object3D).name !== GRID_NAME,
         );
         if (filterOnObjects) where = where.filter(filterOnObjects);
 
@@ -232,13 +237,13 @@ export default class Picker {
     /**
      * Gets the point on map or grid where the user clicked.
      *
-     * @param e Mouse event
-     * @param radius Radius - the smaller, the faster and more precise (but
+     * @param e - Mouse event
+     * @param radius - Radius - the smaller, the faster and more precise (but
      * may return nothing)
      * @returns Result or null if nothing found
      */
     getMapAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
-        const where = instance.getObjects(o => (o as any).isMap);
+        const where = instance.getObjects(o => (o as Giro3DMap).isMap);
         const picked = instance
             .pickObjectsAt(e, {
                 radius,
@@ -403,7 +408,7 @@ export default class Picker {
                 this.getAttributesFromCityObject(pickedObject, attributesGroups);
             } else if (isPointsPickResult(pickedObject)) {
                 this.getAttributesFromPointCloud(pickedObject, attributesGroups);
-            } else if ((entity as any).isFeatureCollection) {
+            } else if ((entity as FeatureCollection).isFeatureCollection) {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
             } else if (PlyMesh.isPlyPickResult(pickedObject)) {
                 this.getAttributesFromPlyObject(pickedObject, attributesGroups);
@@ -430,7 +435,7 @@ export default class Picker {
     }
 
     getMouseCoordinate(instance: Instance, mouse: Vector2): Vector3 | null {
-        const where = instance.getObjects(o => (o as any).isMap);
+        const where = instance.getObjects(o => (o as Giro3DMap).isMap);
 
         const picked = instance
             .pickObjectsAt(mouse, {
@@ -445,9 +450,9 @@ export default class Picker {
     hasFeature(instance: Instance, mouse: Vector2): boolean {
         const where = instance.getObjects(
             o =>
-                (o as any).isMap !== true &&
-                (o as any).name !== PLANE_NAME &&
-                (o as any).name !== GRID_NAME,
+                (o as Giro3DMap).isMap !== true &&
+                (o as Object3D).name !== PLANE_NAME &&
+                (o as Object3D).name !== GRID_NAME,
         );
 
         const picked = instance

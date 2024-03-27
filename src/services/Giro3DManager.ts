@@ -52,11 +52,13 @@ if (import.meta.env.VITE_AUTHORIZATION_DOMAIN && import.meta.env.VITE_AUTHORIZAT
 }
 
 type Giro3DManagerEventMap = {
-    update: {};
+    update: {
+        /** empty */
+    };
 };
 
 export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
-    private readonly store = useGiro3dStore();
+    private readonly _store = useGiro3dStore();
 
     readonly mainInstance: Instance;
     readonly camera: CameraController;
@@ -80,15 +82,15 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.picker = new Picker();
         this.camera = new CameraController(this.mainInstance, this.picker);
 
-        const position = this.store.getDefaultCameraPosition();
-        const lookAt = this.store.getDefaultCameraLookAt();
+        const position = this._store.getDefaultCameraPosition();
+        const lookAt = this._store.getDefaultCameraLookAt();
         this.camera.lookAt(position.toVector3(), lookAt.toVector3());
 
         this.layerManager = new LayerManager(this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance);
         this.annotationManager = new AnnotationManager(this.mainInstance, this.camera, this.picker);
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
-        this.highlighter = new Highlighter(this.mainInstance);
+        this.highlighter = new Highlighter();
         this.picker = new Picker();
         this.measurementManager = new MeasurementManager(
             this.mainInstance,

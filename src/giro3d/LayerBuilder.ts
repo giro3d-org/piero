@@ -167,7 +167,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
 
 function getStyle(style: VectorStyle): Style | StyleFunction {
     if (typeof style === 'string') {
-        if (dynamicStyles[style] == undefined) {
+        if (dynamicStyles[style] == null) {
             // As config is not checked against TS, we can't know if during build :(
             console.warn(`Could not find style ${style} in configuration`);
             return new Style({});

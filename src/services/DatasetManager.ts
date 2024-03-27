@@ -19,16 +19,16 @@ import { Datagroup, DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
 
 export default class DatasetManager {
-    private readonly instance: Instance;
-    private readonly entities: Map<string, Entity3D> = new Map();
-    private readonly axisGrids: Map<string, AxisGrid> = new Map();
-    private readonly masks: Map<string, MaskLayer> = new Map();
-    private readonly store = useDatasetStore();
+    private readonly _instance: Instance;
+    private readonly _entities: Map<string, Entity3D> = new Map();
+    private readonly _axisGrids: Map<string, AxisGrid> = new Map();
+    private readonly _masks: Map<string, MaskLayer> = new Map();
+    private readonly _store = useDatasetStore();
 
     constructor(instance: Instance) {
-        this.instance = instance;
+        this._instance = instance;
 
-        this.store.$onAction(({ name, args, after }) => {
+        this._store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'remove':
@@ -50,7 +50,7 @@ export default class DatasetManager {
             });
         });
 
-        for (const dataset of this.store.getDatasets()) {
+        for (const dataset of this._store.getDatasets()) {
             if (dataset.visible) {
                 this.loadDataset(dataset);
             }
@@ -62,12 +62,12 @@ export default class DatasetManager {
     }
 
     private onToggleGrid(dataset: DatasetOrGroup) {
-        if (this.axisGrids.has(dataset.uuid)) {
-            const grid = this.axisGrids.get(dataset.uuid);
-            if (grid) this.instance.remove(grid);
-            this.axisGrids.delete(dataset.uuid);
+        if (this._axisGrids.has(dataset.uuid)) {
+            const grid = this._axisGrids.get(dataset.uuid);
+            if (grid) this._instance.remove(grid);
+            this._axisGrids.delete(dataset.uuid);
         } else {
-            const box = this.store.getBoundingBox(dataset);
+            const box = this._store.getBoundingBox(dataset);
             if (!box || box.isEmpty()) {
                 return;
             }
@@ -86,11 +86,11 @@ export default class DatasetManager {
                 volume: {
                     floor: box.min.z - 10,
                     ceiling: box.max.z + 10,
-                    extent: Extent.fromBox3(this.instance.referenceCrs, box).withMargin(20, 20),
+                    extent: Extent.fromBox3(this._instance.referenceCrs, box).withMargin(20, 20),
                 },
             });
-            this.instance.add(grid);
-            this.axisGrids.set(dataset.uuid, grid);
+            this._instance.add(grid);
+            this._axisGrids.set(dataset.uuid, grid);
         }
     }
 
@@ -98,7 +98,7 @@ export default class DatasetManager {
         // TODO: this assumes the dataset covers the whole bounding box
         // (in particular, that it is oriented the same way)
         // which will most likely not be the case...
-        const box = this.store.getBoundingBox(dataset);
+        const box = this._store.getBoundingBox(dataset);
         if (!box || box.isEmpty()) {
             return;
         }
@@ -131,30 +131,30 @@ export default class DatasetManager {
         mask.maskMode = MaskMode.Inverted;
 
         // Apply the mask to the map
-        const maps = this.instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+        const maps = this._instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
         maps.forEach(map => {
             map.addLayer(mask);
-            this.instance.notifyChange(map);
+            this._instance.notifyChange(map);
         });
-        this.masks.set(dataset.uuid, mask);
+        this._masks.set(dataset.uuid, mask);
     }
 
     private deleteMask(dataset: DatasetOrGroup) {
-        const mask = this.masks.get(dataset.uuid);
+        const mask = this._masks.get(dataset.uuid);
         if (mask) {
-            const maps = this.instance.getObjects(
+            const maps = this._instance.getObjects(
                 obj => 'isMap' in obj && !!obj.isMap,
             ) as Giro3DMap[];
             maps.forEach(map => {
                 map.removeLayer(mask);
-                this.instance.notifyChange(map);
+                this._instance.notifyChange(map);
             });
         }
-        this.masks.delete(dataset.uuid);
+        this._masks.delete(dataset.uuid);
     }
 
     private onToggleMask(dataset: DatasetOrGroup) {
-        if (this.masks.has(dataset.uuid)) {
+        if (this._masks.has(dataset.uuid)) {
             this.deleteMask(dataset);
         } else {
             this.createMask(dataset);
@@ -176,13 +176,13 @@ export default class DatasetManager {
         const notifications = useNotificationStore();
         try {
             notifications.push(new Notification(file.name, 'Importing file...'));
-            const { dataset, entity } = await loader.importFile(this.instance, file);
+            const { dataset, entity } = await loader.importFile(this._instance, file);
 
-            this.entities.set(dataset.uuid, entity);
-            this.instance.add(entity);
-            this.instance.notifyChange(entity);
+            this._entities.set(dataset.uuid, entity);
+            this._instance.add(entity);
+            this._instance.notifyChange(entity);
 
-            this.store.add(dataset);
+            this._store.add(dataset);
 
             this.onDatasetLoaded(dataset, entity);
 
@@ -195,24 +195,24 @@ export default class DatasetManager {
     }
 
     private updateDataset(dataset: DatasetOrGroup) {
-        const entity = this.entities.get(dataset.uuid);
+        const entity = this._entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
             if (dataset.visible && dataset.isMaskingBasemap) {
                 this.createMask(dataset);
-            } else if (!dataset.visible && this.masks.has(dataset.uuid)) {
+            } else if (!dataset.visible && this._masks.has(dataset.uuid)) {
                 this.deleteMask(dataset);
             }
-            this.instance.notifyChange(entity);
+            this._instance.notifyChange(entity);
         }
     }
 
     private deleteDataset(dataset: DatasetOrGroup) {
-        const entity = this.entities.get(dataset.uuid);
+        const entity = this._entities.get(dataset.uuid);
         if (entity) {
-            this.instance.remove(entity);
+            this._instance.remove(entity);
         }
-        this.instance.notifyChange();
+        this._instance.notifyChange();
     }
 
     private onDatasetLoaded(dataset: DatasetOrGroup, entity: Entity3D) {
@@ -223,7 +223,7 @@ export default class DatasetManager {
             dataset.onObjectPreloaded(dataset, entity);
         }
 
-        this.store.attachEntity(dataset, entity);
+        this._store.attachEntity(dataset, entity);
     }
 
     private async loadDataset(dataset: DatasetOrGroup) {
@@ -236,12 +236,12 @@ export default class DatasetManager {
 
         dataset.isPreloading = true;
 
-        const entity = await loader.loadDataset(this.instance, dataset);
+        const entity = await loader.loadDataset(this._instance, dataset);
 
         if (entity) {
             entity.visible = dataset.visible;
-            this.entities.set(dataset.uuid, entity);
-            this.instance.add(entity);
+            this._entities.set(dataset.uuid, entity);
+            this._instance.add(entity);
 
             this.onDatasetLoaded(dataset, entity);
         }

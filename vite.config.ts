@@ -9,6 +9,16 @@ import vue from '@vitejs/plugin-vue';
 
 import pkgConfig from './package.json';
 
+type PackageJson = {
+    name: string;
+    homepage?: string;
+    repository?:
+        | string
+        | {
+              url: string;
+          };
+};
+
 let commitHash = 'unknown';
 try {
     commitHash = child_process.execSync('git describe --tags --always').toString();
@@ -29,7 +39,7 @@ const homepages = {
     'web-ifc': 'https://ifcjs.github.io/web-ifc/docs/',
 };
 
-function getHomepage(packageJson: any): string | undefined {
+function getHomepage(packageJson: PackageJson): string | undefined {
     if (homepages[packageJson.name]) return homepages[packageJson.name];
     if (packageJson.homepage) return packageJson.homepage;
     if (packageJson.repository) {

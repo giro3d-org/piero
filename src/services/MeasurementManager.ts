@@ -15,11 +15,11 @@ function promptTitle(defaultValue: string) {
 }
 
 export default class MeasurementManager {
-    private readonly measureTool: MeasureTool;
-    private readonly instance: Instance;
-    private readonly camera: CameraController;
-    private readonly store = useMeasurementStore();
-    private readonly notificationStore = useNotificationStore();
+    private readonly _instance: Instance;
+    private readonly _measureTool: MeasureTool;
+    private readonly _camera: CameraController;
+    private readonly _store = useMeasurementStore();
+    private readonly _notificationStore = useNotificationStore();
     private _paused = false;
     private readonly _boundOnEscape: (e: KeyboardEvent) => void;
     private readonly _boundPause: () => void;
@@ -28,19 +28,19 @@ export default class MeasurementManager {
     private readonly _boundSaveMeasure: (e: MouseEvent) => void;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
-        this.instance = instance;
-        this.measureTool = new MeasureTool(picker);
-        this.camera = camera;
+        this._instance = instance;
+        this._measureTool = new MeasureTool(picker);
+        this._camera = camera;
 
         this._boundPause = () => (this._paused = true);
         this._boundRestart = () => (this._paused = true);
-        this.camera.addEventListener('interaction-start', this._boundPause);
-        this.camera.addEventListener('interaction-end', this._boundRestart);
+        this._camera.addEventListener('interaction-start', this._boundPause);
+        this._camera.addEventListener('interaction-end', this._boundRestart);
 
         this._boundOnEscape = this.onEscape.bind(this);
         document.addEventListener('keydown', this._boundOnEscape);
 
-        this.store.$onAction(({ name, args, after }) => {
+        this._store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
                     case 'start':
@@ -64,55 +64,55 @@ export default class MeasurementManager {
 
         this._boundMeasure = this.measure.bind(this);
         this._boundSaveMeasure = this.saveMeasure.bind(this);
-        this.instance.domElement.addEventListener('mousemove', this._boundMeasure);
-        this.instance.domElement.addEventListener('click', this._boundSaveMeasure);
+        this._instance.domElement.addEventListener('mousemove', this._boundMeasure);
+        this._instance.domElement.addEventListener('click', this._boundSaveMeasure);
     }
 
     dispose() {
-        this.instance.domElement.removeEventListener('mousemove', this._boundMeasure);
-        this.instance.domElement.removeEventListener('click', this._boundSaveMeasure);
+        this._instance.domElement.removeEventListener('mousemove', this._boundMeasure);
+        this._instance.domElement.removeEventListener('click', this._boundSaveMeasure);
 
-        this.camera.removeEventListener('interaction-start', this._boundPause);
-        this.camera.removeEventListener('interaction-end', this._boundRestart);
+        this._camera.removeEventListener('interaction-start', this._boundPause);
+        this._camera.removeEventListener('interaction-end', this._boundRestart);
 
         document.removeEventListener('keydown', this._boundOnEscape);
 
-        this.measureTool.dispose();
+        this._measureTool.dispose();
     }
 
     private onEscape(e: KeyboardEvent) {
-        if (e.code === 'Escape' && this.store.isUserMeasuring()) {
+        if (e.code === 'Escape' && this._store.isUserMeasuring()) {
             this.stopMeasuring();
         }
     }
 
     startMeasuring() {
-        this.store.setIsUserMeasuring(true);
+        this._store.setIsUserMeasuring(true);
     }
 
     stopMeasuring() {
-        this.store.setIsUserMeasuring(false);
-        this.measureTool.clean();
-        this.instance.notifyChange();
+        this._store.setIsUserMeasuring(false);
+        this._measureTool.clean();
+        this._instance.notifyChange();
     }
 
     private measure(event: MouseEvent) {
-        if (!this._paused && this.store.isUserMeasuring()) {
-            this.measureTool.measure(this.instance, event);
+        if (!this._paused && this._store.isUserMeasuring()) {
+            this._measureTool.measure(this._instance, event);
         }
     }
 
     private saveMeasure() {
-        if (!this._paused && this.store.isUserMeasuring()) {
-            const measurement = this.measureTool.getLastMeasurement();
+        if (!this._paused && this._store.isUserMeasuring()) {
+            const measurement = this._measureTool.getLastMeasurement();
             if (measurement && !Number.isNaN(measurement.length)) {
                 let title = 'New measurement';
-                if (this.store.hasMeasure(title)) {
+                if (this._store.hasMeasure(title)) {
                     for (let i = 1; i < 1000; i += 1) {
                         title = `New measurement (${i})`;
-                        if (!this.store.hasMeasure(title)) break;
+                        if (!this._store.hasMeasure(title)) break;
                     }
-                    if (this.store.hasMeasure(title))
+                    if (this._store.hasMeasure(title))
                         title = 'Achieved unlocked: 1000 measurements with default name';
                 }
                 const name = promptTitle(title);
@@ -121,25 +121,25 @@ export default class MeasurementManager {
         }
     }
 
-    private pushNewMeasure(title: string, measurement: Measure3D, properties: any = {}) {
-        this.instance.add(measurement);
+    private pushNewMeasure(title: string, measurement: Measure3D, properties: object = {}) {
+        this._instance.add(measurement);
         const measure = new Measure(title, measurement, properties);
         measurement.userData.measure = measure;
         measure.addEventListener('visible', () => this.updateMeasure(measure));
-        this.store.add(measure);
-        this.instance.notifyChange(measurement);
+        this._store.add(measure);
+        this._instance.notifyChange(measurement);
     }
 
     updateMeasure(measure: Measure) {
         measure.object.visible = measure.visible;
         measure.object.traverse(o => (o.visible = measure.visible));
-        this.instance.notifyChange();
+        this._instance.notifyChange();
     }
 
     private deleteMeasure(measure: Measure) {
         measure.object.removeFromParent();
         measure.object.dispose();
-        this.instance.notifyChange();
+        this._instance.notifyChange();
     }
 
     private importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
@@ -155,9 +155,9 @@ export default class MeasurementManager {
         const to = new Vector3(...feature.geometry.coordinates[1]);
 
         const o = new Measure3D();
-        this.instance.threeObjects.add(o);
+        this._instance.threeObjects.add(o);
         o.update(from, to);
-        this.instance.notifyChange(this.instance.threeObjects);
+        this._instance.notifyChange(this._instance.threeObjects);
 
         this.pushNewMeasure(feature.properties?.title, o, feature.properties);
 
@@ -181,10 +181,10 @@ export default class MeasurementManager {
     }
 
     private async importMeasureFile(file: Blob) {
-        const existingMeasures = new Set(this.store.getMeasures().map(m => m.title));
+        const existingMeasures = new Set(this._store.getMeasures().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingMeasures);
-            this.notificationStore.push(
+            this._notificationStore.push(
                 new Notification(
                     'Measures',
                     `${nbImported} measures imported (${nbSkipped} skipped)`,
@@ -202,7 +202,7 @@ export default class MeasurementManager {
         let nbTotalSkipped = 0;
         const errors: string[] = [];
 
-        const existingMeasures = new Set(this.store.getMeasures().map(m => m.title));
+        const existingMeasures = new Set(this._store.getMeasures().map(m => m.title));
 
         for (const file of files) {
             promises.push(
@@ -219,7 +219,7 @@ export default class MeasurementManager {
         await Promise.allSettled(promises);
 
         if (errors.length > 0) {
-            this.notificationStore.push(
+            this._notificationStore.push(
                 new Notification(
                     'Measures',
                     `${nbTotalImported} measures imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
@@ -227,7 +227,7 @@ export default class MeasurementManager {
                 ),
             );
         } else {
-            this.notificationStore.push(
+            this._notificationStore.push(
                 new Notification(
                     'Measures',
                     `${nbTotalImported} measures imported (${nbTotalSkipped} skipped)`,

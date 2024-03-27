@@ -8,9 +8,18 @@ type BookmarkJson = {
     focalOffset: [number, number, number];
 };
 
+export type SerializedBookmark = {
+    title: string;
+    url: string;
+};
+
 type BookmarkEventMap = {
-    delete: {};
-    goto: {};
+    delete: {
+        /** empty */
+    };
+    goto: {
+        /** empty */
+    };
 };
 
 export default class Bookmark extends EventDispatcher<BookmarkEventMap> {

@@ -6,7 +6,7 @@ export type UrlOrGlDataType = string | DataType;
 
 /**
  * Fetches a url and returns a Blob-like object
- * @param url URL or Blob-like object
+ * @param url - URL or Blob-like object
  * @returns Blob-like object
  */
 async function blob(url: UrlOrBlob): Promise<Blob | Response> {
@@ -16,7 +16,7 @@ async function blob(url: UrlOrBlob): Promise<Blob | Response> {
 
 /**
  * Fetches a url, Blob-like object or ArrayBuffer and returns an ArrayBuffer object
- * @param url URL or Blob-like object or ArrayBuffer
+ * @param url - URL or Blob-like object or ArrayBuffer
  * @returns ArrayBuffer
  */
 async function arrayBuffer(url: UrlOrBlob | ArrayBuffer): Promise<ArrayBuffer> {
@@ -27,7 +27,7 @@ async function arrayBuffer(url: UrlOrBlob | ArrayBuffer): Promise<ArrayBuffer> {
 
 /**
  * Fetches a url or Blob-like object and returns the content as a string
- * @param url URL or Blob-like object
+ * @param url - URL or Blob-like object
  * @returns Content as string
  */
 async function text(url: UrlOrBlob): Promise<string> {
@@ -37,10 +37,10 @@ async function text(url: UrlOrBlob): Promise<string> {
 
 /**
  * Fetches a url or Blob-like object and returns the content as a JSON object
- * @param url URL or Blob-like object
+ * @param url - URL or Blob-like object
  * @returns Content as JSON object
  */
-async function json(url: UrlOrBlob): Promise<any> {
+async function json<T extends object = object>(url: UrlOrBlob): Promise<T> {
     const content = await text(url);
     return JSON.parse(content);
 }

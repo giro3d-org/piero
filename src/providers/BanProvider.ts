@@ -6,7 +6,7 @@ export default {
     /**
      * Searches for an address in the French BAN
      *
-     * @param query Search query
+     * @param query - Search query
      * @returns Results
      */
     async geocode(query: string): Promise<GeocodingResult[]> {
@@ -14,7 +14,7 @@ export default {
         const data = await source.json();
 
         const coordinates: Coordinates[] = data.features.map(
-            (feature: { geometry: { coordinates: any[] } }) =>
+            (feature: { geometry: { coordinates: [number, number] } }) =>
                 new Coordinates(
                     'EPSG:4326',
                     feature.geometry.coordinates[0],
@@ -29,6 +29,6 @@ export default {
             data.features[i].properties.crs = 'EPSG:2154';
             data.features[i].properties.z = c.altitude();
         });
-        return data.features.map((f: { properties: any }) => f.properties);
+        return data.features.map((f: { properties: object }) => f.properties);
     },
 };

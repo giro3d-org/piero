@@ -5,7 +5,7 @@ const DEFAULT_HEIGHT = 170;
 export default class FloodingPlane {
     geometry: PlaneGeometry;
     material: MeshBasicMaterial;
-    object3D: Mesh<any, any>;
+    object3D: Mesh<PlaneGeometry, MeshBasicMaterial>;
     private _height: number;
 
     constructor() {

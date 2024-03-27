@@ -1,15 +1,11 @@
-import { FragmentMesh } from 'bim-fragment/fragment-mesh';
-import { Instance } from '@giro3d/giro3d/core';
 import IfcEntity from '@/giro3d/IfcEntity';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 
 export default class Highlighter {
-    private readonly instance_: Instance;
-    private highlighted: IfcEntity | null;
+    private _highlighted: IfcEntity | null;
 
-    constructor(instance: Instance) {
-        this.instance_ = instance;
-        this.highlighted = null;
+    constructor() {
+        this._highlighted = null;
     }
 
     dispose() {
@@ -17,7 +13,7 @@ export default class Highlighter {
     }
 
     clear() {
-        if (this.highlighted) this.highlighted.clearHighlight();
+        if (this._highlighted) this._highlighted.clearHighlight();
     }
 
     highlightFromPick(pick: PickResult) {
@@ -27,18 +23,15 @@ export default class Highlighter {
             return;
         }
 
-        if (IfcEntity.isIFCEntity(pick.entity)) {
-            const mesh = pick.object as FragmentMesh;
-            if (mesh.fragment) {
-                const blockId = mesh.fragment.getVertexBlockID(
-                    mesh.geometry,
-                    (pick as any).face?.a,
-                );
+        if (IfcEntity.isIFCPickResult(pick)) {
+            const mesh = pick.object;
+            if (mesh.fragment && pick.face && pick.instanceId !== undefined) {
+                const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pick.face.a);
 
                 const itemId = mesh.fragment
-                    .getItemID((pick as any).instanceId, blockId)
+                    .getItemID(pick.instanceId, blockId)
                     .replace(/\..*/, '');
-                this.highlighted = pick.entity;
+                this._highlighted = pick.entity;
                 pick.entity.highlight('selection', mesh, itemId);
             }
         }

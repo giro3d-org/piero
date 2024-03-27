@@ -2,7 +2,7 @@ import { BufferGeometry, LineBasicMaterial, LineSegments, Vector3 } from 'three'
 
 export default class Viewbox {
     geometry: BufferGeometry;
-    object3D: LineSegments<any, LineBasicMaterial>;
+    object3D: LineSegments<BufferGeometry, LineBasicMaterial>;
     constructor() {
         this.geometry = new BufferGeometry();
         this.object3D = new LineSegments(this.geometry, new LineBasicMaterial({ color: 0xff0000 }));

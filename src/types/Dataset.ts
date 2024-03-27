@@ -11,6 +11,7 @@ import {
 } from '@/types/configuration/dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 import config from '@/config';
+import { isObject } from '@/utils/Types';
 
 /** All types of datasets supported in this app */
 export type DatasetType =
@@ -26,19 +27,32 @@ export type DatasetType =
 export type DatasetTypeImportable = Exclude<DatasetType, 'bdtopo' | 'ply' | 'shp'>;
 /** List of dataset types that support multiple URL sources in their configuration */
 export type DatasetTypeMultiple = Extract<DatasetType, 'geojson' | 'gpkg' | 'shp'>;
+export type DatasetOrGroupType = DatasetType | 'group';
 
 export type DatasetEventMap = {
-    visible: {};
-    opacity: {};
-    delete: {};
-    isPreloading: {};
-    isPreloaded: {};
+    visible: {
+        /** empty */
+    };
+    opacity: {
+        /** empty */
+    };
+    delete: {
+        /** empty */
+    };
+    isPreloading: {
+        /** empty */
+    };
+    isPreloaded: {
+        /** empty */
+    };
 };
 
-export type DatasetGroupEventMap = DatasetEventMap & {};
+export type DatasetGroupEventMap = DatasetEventMap & {
+    /** empty */
+};
 
 abstract class DatasetBase<
-    TType extends DatasetType | 'group',
+    TType extends DatasetOrGroupType,
     TEventMap extends DatasetEventMap = DatasetEventMap,
 > extends EventDispatcher<TEventMap & DatasetEventMap> {
     readonly type: TType;
@@ -129,7 +143,7 @@ abstract class DatasetBase<
 
     /**
      * Executes the callback on this object and all descendants.
-     * @param callback Callback to execute
+     * @param callback - Callback to execute
      */
     abstract traverse(callback: (dataset: DatasetOrGroup) => void): void;
     /** Gets the leafs Dataset from this object */
@@ -137,12 +151,12 @@ abstract class DatasetBase<
 
     /**
      * Gets the value of a property from this object or its ancestors.
-     * @param propertyName Name of the property
+     * @param propertyName - Name of the property
      * @returns Value
      */
-    get<K extends keyof DatasetBase<any, any>>(
+    get<K extends keyof DatasetBase<DatasetOrGroupType, DatasetEventMap>>(
         propertyName: K,
-    ): DatasetBase<any, any>[K] | undefined {
+    ): DatasetBase<DatasetOrGroupType, DatasetEventMap>[K] | undefined {
         return this[propertyName] ?? this.parent?.get(propertyName);
     }
 }
@@ -202,13 +216,14 @@ export class Datagroup extends DatasetBase<'group', DatasetGroupEventMap> {
     leafs(): Dataset[] {
         return this._children.map(c => c.leafs()).flat();
     }
-    static isGroup = (obj: any): obj is Datagroup => obj?.type === 'group';
+    static isGroup = (obj: unknown): obj is Datagroup =>
+        isObject(obj) && (obj as Datagroup).type === 'group';
 }
 
 /**
  * Creates a hierarchy of DatasetOrGroup from an array of configuration.
- * @param datasets Datasets
- * @param parent Parent datagroup, if any
+ * @param datasets - Datasets
+ * @param parent - Parent datagroup, if any
  * @returns Hierarchy of DatasetOrGroup
  */
 export function parseDatasetConfig(

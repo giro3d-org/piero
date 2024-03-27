@@ -16,7 +16,7 @@ export interface GeoJSONParameters {
     /**
      * Elevation of data
      *
-     * @default 0
+     * @defaultValue 0
      */
     elevation?: number;
 }
@@ -29,7 +29,7 @@ export default {
         url: UrlOrBlob,
         parameters: GeoJSONParameters = {},
     ): Promise<Group> {
-        const data = await Fetcher.json(url);
+        const data = await Fetcher.json<GeoJSON.GeoJSON>(url);
         const root = await this.loadJson(instance, data, parameters);
         loader.fillOrigin(root, url);
         return root;
