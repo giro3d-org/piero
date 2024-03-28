@@ -1,3 +1,3 @@
-type NavigationMode = 'first-person' | 'orbit' | 'disabled';
+type NavigationMode = 'first-person' | 'orbit' | 'position-on-map' | 'disabled';
 
 export default NavigationMode;

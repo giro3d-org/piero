@@ -72,6 +72,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private _boundOrbitControlsOnMouseUp!: (e: MouseEvent) => void;
     private _boundOrbitControlsOnWheel!: (e: MouseEvent) => void;
     private _boundOrbitControlsOnKey!: (e: KeyboardEvent) => void;
+    private _boundPositionOnMapOnMouseMove: ((e: MouseEvent) => void) | null;
+    private _boundPositionOnMapOnClick: ((e: MouseEvent) => void) | null;
 
     /**
      * Creates new Camera-controls and bind them to Giro3D.
@@ -115,6 +117,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._instance.addEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
+        this._boundPositionOnMapOnClick = null;
+        this._boundPositionOnMapOnMouseMove = null;
+
         this._store.$onAction(({ name, args }) => {
             switch (name) {
                 case 'setCameraPosition':
@@ -143,6 +148,18 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     }
 
     dispose() {
+        if (this._boundPositionOnMapOnClick) {
+            this._instance.domElement.removeEventListener('click', this._boundPositionOnMapOnClick);
+            this._boundPositionOnMapOnClick = null;
+        }
+        if (this._boundPositionOnMapOnMouseMove) {
+            this._instance.domElement.removeEventListener(
+                'mousemove',
+                this._boundPositionOnMapOnMouseMove,
+            );
+            this._boundPositionOnMapOnMouseMove = null;
+        }
+
         this._instance.removeEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
@@ -257,6 +274,21 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         setTimeout(() => this._orbitControls.dispatchEvent({ type: 'controlend' }), 0);
     }
     private orbitControlsOnKey(e: KeyboardEvent) {
+        const navigationMode = this._store.getNavigationMode();
+
+        if (navigationMode === 'position-on-map') {
+            if (e.code === 'Escape') {
+                this._store.setNavigationMode('orbit');
+            }
+            return;
+        }
+
+        if (
+            this._store.getNavigationMode() !== 'orbit' &&
+            this._store.getNavigationMode() !== 'first-person'
+        )
+            return;
+
         const keys = {
             LEFT: 'ArrowLeft',
             UP: 'ArrowUp',
@@ -322,7 +354,43 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
     }
 
+    private onPositionOnMapMouseMove(e: MouseEvent) {
+        const picked = this._picker.getMapAt(this._instance, e);
+        this._instance.domElement.style.cursor = picked ? 'pointer' : 'auto';
+    }
+
+    private async onPositionOnMapClick(e: MouseEvent) {
+        const picked = this._picker.getMapAt(this._instance, e);
+        if (picked) {
+            const direction = new Vector3();
+            this._instance.camera.camera3D.getWorldDirection(direction);
+            direction.normalize().setLength(3);
+
+            const newPosition = picked.point.clone();
+            newPosition.z += 1.7;
+
+            const newTarget = newPosition.clone();
+            newTarget.add(direction);
+            newTarget.z = newPosition.z;
+
+            await this.lookAt(newPosition, newTarget, true);
+            this._store.setNavigationMode('first-person');
+        }
+    }
+
     private setNavigationMode(mode: NavigationMode) {
+        if (this._boundPositionOnMapOnClick) {
+            this._instance.domElement.removeEventListener('click', this._boundPositionOnMapOnClick);
+            this._boundPositionOnMapOnClick = null;
+        }
+        if (this._boundPositionOnMapOnMouseMove) {
+            this._instance.domElement.removeEventListener(
+                'mousemove',
+                this._boundPositionOnMapOnMouseMove,
+            );
+            this._boundPositionOnMapOnMouseMove = null;
+        }
+
         switch (mode) {
             case 'first-person':
                 this._orbitControls.dollyToCursor = false;
@@ -351,6 +419,19 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
 
                 this._orbitControls.enabled = true;
+                break;
+            case 'position-on-map':
+                this._orbitControls.enabled = false;
+                this._boundPositionOnMapOnClick = this.onPositionOnMapClick.bind(this);
+                this._boundPositionOnMapOnMouseMove = this.onPositionOnMapMouseMove.bind(this);
+                this._instance.domElement.addEventListener(
+                    'mousemove',
+                    this._boundPositionOnMapOnMouseMove,
+                );
+                this._instance.domElement.addEventListener(
+                    'click',
+                    this._boundPositionOnMapOnClick,
+                );
                 break;
             case 'disabled':
                 this._orbitControls.enabled = false;

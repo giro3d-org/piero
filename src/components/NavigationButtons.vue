@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref, watch } from 'vue';
+    import { Ref, ref, watch } from 'vue';
     import NavigationMode from '@/types/NavigationMode';
     import Notification from '@/types/Notification';
     import SwitchToggle from './SwitchToggle.vue';
@@ -9,15 +9,42 @@
     const camera = useCameraStore();
     const notificationStore = useNotificationStore();
 
-    const navigationMode = ref<NavigationMode>(camera.getNavigationMode());
+    const navigationMode = ref<Ref<NavigationMode>>(camera.getNavigationModeRef());
     watch(navigationMode, newMode => {
         camera.setNavigationMode(newMode);
 
-        const name = newMode === 'first-person' ? 'First person' : 'Free navigation';
-        const description =
-            newMode === 'first-person'
-                ? 'Left-click to rotate; Right-click to pan; Scroll to zoom; Up/Down/Left/Right: move'
-                : 'Left-click to pan; Right-click to orbit; Scroll to zoom to cursor; Up/Down/Left/Right: pan';
+        let name: string;
+        let description: string;
+
+        switch (newMode) {
+            case 'first-person': {
+                name = 'First person';
+                description =
+                    'Left-click to rotate; Right-click to pan; Scroll to zoom; Up/Down/Left/Right: move';
+                break;
+            }
+            case 'orbit': {
+                name = 'Free navigation';
+                description =
+                    'Left-click to pan; Right-click to orbit; Scroll to zoom to cursor; Up/Down/Left/Right: pan';
+                break;
+            }
+            case 'position-on-map': {
+                name = 'Position on map';
+                description = 'Left-click on the map to move to First Person view on the ground';
+                break;
+            }
+            case 'disabled': {
+                name = 'Disabled';
+                description = 'Camera is disabled';
+                break;
+            }
+            default: {
+                // Exhaustiveness checking
+                const _exhaustiveCheck: never = newMode;
+                return _exhaustiveCheck;
+            }
+        }
 
         notificationStore.push(
             new Notification(
@@ -27,17 +54,33 @@
             ),
         );
     });
+
+    function onPositionOnMapToggle() {
+        if (navigationMode.value !== 'position-on-map') navigationMode.value = 'position-on-map';
+        else navigationMode.value = 'orbit';
+    }
 </script>
 
 <template>
     <div class="card root">
-        <div class="d-flex">
+        <div class="d-flex align-items-center">
             <i title="Free navigation" class="mx-2 bi bi-camera-reels-fill"></i>
             <SwitchToggle
                 :model-value="navigationMode === 'first-person'"
                 @update:model-value="v => (navigationMode = v ? 'first-person' : 'orbit')"
             />
             <i title="First person view" class="bi bi-universal-access"></i>
+            <div class="vr mx-2"></div>
+            <button
+                class="btn btn-sm btn-outline-secondary"
+                :class="navigationMode === 'position-on-map' ? 'active' : null"
+                :aria-pressed="navigationMode === 'position-on-map'"
+                data-bs-toggle="button"
+                title="Position on map"
+                @click="onPositionOnMapToggle"
+            >
+                <i class="fg-position-man"></i>
+            </button>
         </div>
     </div>
 </template>
