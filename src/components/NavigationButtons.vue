@@ -16,8 +16,8 @@
         const name = newMode === 'first-person' ? 'First person' : 'Free navigation';
         const description =
             newMode === 'first-person'
-                ? 'Left-click to pan; Right-click to orbit; Scroll to zoom to cursor; Up/Down/Left/Right: pan'
-                : 'Left-click to rotate; Right-click to pan; Scroll to zoom; Up/Down/Left/Right: move';
+                ? 'Left-click to rotate; Right-click to pan; Scroll to zoom; Up/Down/Left/Right: move'
+                : 'Left-click to pan; Right-click to orbit; Scroll to zoom to cursor; Up/Down/Left/Right: pan';
 
         notificationStore.push(
             new Notification(
