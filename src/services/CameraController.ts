@@ -65,6 +65,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly _store = useCameraStore();
     private readonly _giro3dStore = useGiro3dStore();
     private readonly _orbitHelper: CSS2DObject;
+    private _cameraControlsInspector: CameraControlsInspector | null;
     private readonly _boundOnBeforeCameraUpdate: () => void;
     private readonly _boundOnAfterCameraUpdate: () => void;
     private _boundOrbitControlsOnContextMenu!: (e: MouseEvent) => void;
@@ -98,6 +99,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._orbitHelper = new CSS2DObject(orbitHelperElement);
         this._instance.add(this._orbitHelper);
 
+        this._cameraControlsInspector = null;
+
         this.initializeOrbitControls();
 
         this._pickObjectsAt = (event: MouseEvent) =>
@@ -126,12 +129,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             }
         });
 
+        const inspector = this._giro3dStore.getInspector();
+        if (inspector != null) this.initializeInspector(inspector);
         this._giro3dStore.$onAction(({ name, after, args }) => {
             after(() => {
                 switch (name) {
                     case 'setInspector':
-                        if (args[0] === null) this.disposeInspector();
-                        else this.initializeInspector(args[0]);
+                        this.initializeInspector(args[0]);
                         break;
                 }
             });
@@ -149,19 +153,17 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._instance.remove(this._orbitHelper);
     }
 
-    private initializeInspector(inspector: Inspector) {
+    private initializeInspector(inspector: Inspector | null) {
+        if (this._cameraControlsInspector) this._cameraControlsInspector.dispose();
+
         if (inspector) {
-            const cameraControlsPanel = new CameraControlsInspector(
+            this._cameraControlsInspector = new CameraControlsInspector(
                 inspector.gui,
                 this,
                 this._instance,
             );
-            inspector.addPanel(cameraControlsPanel);
+            inspector.addPanel(this._cameraControlsInspector);
         }
-    }
-
-    private disposeInspector() {
-        // TODO
     }
 
     private initializeOrbitControls() {
