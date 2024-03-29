@@ -387,7 +387,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * Required to call this instead of calling directly camera-controls because
      * of how Giro3D mainloop works.
      *
-     * @param callback - Interacition to execute
+     * @param callback - Interaction to execute
      * @returns Resolves when interaction is done
      */
     executeInteraction<T = void>(callback: () => Promise<T>): Promise<T> {
@@ -396,7 +396,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         // As mainloop can pause, before_camera_update can be triggered irregularly
         // Make sure to "reset" the clock to enable smooth transitions with camera-controls
-        this._clock.getDelta();
+        const delta = this._clock.getDelta();
+        this._orbitControls.update(delta);
         // Dispatch events so giro3d and giro3dservice gets notified
         this._orbitControls.dispatchEvent({ type: 'update' });
         return res;
@@ -427,9 +428,16 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * @param enableTransition - Enables transition
      * @returns Resolves when interaction is done
      */
-    lookAt(position: Vector3, lookAt: Vector3, enableTransition: boolean = false): Promise<void> {
-        return this.executeInteraction(() =>
-            this._orbitControls.setLookAt(
+    async lookAt(
+        position: Vector3,
+        lookAt: Vector3,
+        enableTransition: boolean = false,
+    ): Promise<void> {
+        await this.executeInteraction(async () => {
+            // Need to reset focal offset because of orbit point
+            // https://github.com/yomotsu/camera-controls/issues/303
+            this._orbitControls.setFocalOffset(0, 0, 0, false);
+            return this._orbitControls.setLookAt(
                 position.x,
                 position.y,
                 position.z,
@@ -437,8 +445,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 lookAt.y,
                 lookAt.z,
                 enableTransition,
-            ),
-        );
+            );
+        });
+        this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
     }
 
     getCameraPosition(target?: CameraPosition): CameraPosition {
@@ -493,6 +502,34 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             paddingRight: 10,
         },
     ): Promise<void[]> {
+        const bbox = this.getBox(obj);
+        return this.executeInteraction(() => {
+            this._orbitControls.setFocalOffset(0, 0, 0);
+            return this._orbitControls.fitToBox(bbox, enableTransition, options);
+        });
+    }
+
+    lookTopDownAt(obj: Box3 | Object3D | Entity3D, enableTransition = true) {
+        const center = new Vector3();
+        const size = new Vector3();
+        const newCameraPosition = new Vector3(0, 0, 1);
+
+        const bbox = this.getBox(obj);
+        bbox.min.z = bbox.max.z;
+        bbox.getCenter(center);
+        bbox.getSize(size);
+
+        const distance = this._orbitControls.getDistanceToFitBox(size.x, size.y, 0);
+        const cameraPosition = newCameraPosition.multiplyScalar(distance).add(center);
+
+        // Slightly offset camera to avoid gimbal lock
+        cameraPosition.x += size.x / 10;
+        cameraPosition.y -= size.y / 10;
+
+        return this.lookAt(cameraPosition, center, enableTransition);
+    }
+
+    protected getBox(obj: Box3 | Object3D | Entity3D): Box3 {
         // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
         let bbox = new Box3();
         if ((obj as Box3).isBox3) {
@@ -543,16 +580,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         bbox.min.z = Math.max(bbox.min.z, 0);
         bbox.max.z = Math.min(bbox.max.z, 2000);
 
-        return this.executeInteraction(() =>
-            this._orbitControls.fitToBox(bbox, enableTransition, options),
-        );
-    }
-
-    lookTopDownAt(obj: Box3 | Object3D | Entity3D, enableTransition = true) {
-        return this.executeInteraction(async () => {
-            await this._orbitControls.rotateTo(0, 0, enableTransition);
-            this.goToBox(obj, enableTransition);
-        });
+        return bbox;
     }
 }
 
