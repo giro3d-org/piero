@@ -282,43 +282,54 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             return;
         }
 
-        if (
-            this._store.getNavigationMode() !== 'orbit' &&
-            this._store.getNavigationMode() !== 'first-person'
-        )
-            return;
+        if (navigationMode !== 'orbit' && navigationMode !== 'first-person') return;
 
         const keys = {
-            LEFT: 'ArrowLeft',
-            UP: 'ArrowUp',
-            RIGHT: 'ArrowRight',
-            BOTTOM: 'ArrowDown',
+            ARROW_LEFT: 'ArrowLeft',
+            ARROW_UP: 'ArrowUp',
+            ARROW_RIGHT: 'ArrowRight',
+            ARROW_BOTTOM: 'ArrowDown',
+            KEY_UP: 'KeyW',
+            KEY_LEFT: 'KeyA',
+            KEY_RIGHT: 'KeyD',
+            KEY_DOWN: 'KeyS',
         };
 
         let forwardDirection = 0;
+        let dollyDirection = 0;
         let truckDirectionX = 0;
         let truckDirectionY = 0;
         let factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
 
         // Reduce the factor in FPV as we should be close to our data
-        if (this._store.getNavigationMode() === 'first-person') factor /= 10;
+        if (navigationMode === 'first-person') factor /= 10;
 
         switch (e.code) {
-            case keys.UP:
-                if (this._store.getNavigationMode() === 'orbit') forwardDirection = 1;
-                else truckDirectionY = -1;
+            case keys.KEY_UP:
+                truckDirectionY = -1;
                 break;
 
-            case keys.BOTTOM:
-                if (this._store.getNavigationMode() === 'orbit') forwardDirection = -1;
-                else truckDirectionY = 1;
+            case keys.KEY_DOWN:
+                truckDirectionY = 1;
                 break;
 
-            case keys.LEFT:
+            case keys.ARROW_UP:
+                if (navigationMode === 'first-person') dollyDirection = 1;
+                else forwardDirection = 1;
+                break;
+
+            case keys.ARROW_BOTTOM:
+                if (navigationMode === 'first-person') dollyDirection = -1;
+                else forwardDirection = -1;
+                break;
+
+            case keys.ARROW_LEFT:
+            case keys.KEY_LEFT:
                 truckDirectionX = -1;
                 break;
 
-            case keys.RIGHT:
+            case keys.ARROW_RIGHT:
+            case keys.KEY_RIGHT:
                 truckDirectionX = 1;
                 break;
 
@@ -329,6 +340,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.executeInteraction(() =>
                 this._orbitControls.forward(
                     forwardDirection * this._orbitControls.truckSpeed * factor,
+                    true,
+                ),
+            );
+        }
+        if (dollyDirection) {
+            this.executeInteraction(() =>
+                this._orbitControls.dollyInFixed(
+                    dollyDirection * this._orbitControls.truckSpeed * factor,
                     true,
                 ),
             );

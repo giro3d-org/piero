@@ -19,19 +19,23 @@
         switch (newMode) {
             case 'first-person': {
                 name = 'First person';
-                description =
-                    'Left-click to rotate; Right-click to pan; Scroll to zoom; Up/Down/Left/Right: move';
+                description = `<i class="bi bi-hand-index-thumb"></i> Left-click to rotate; Right-click to pan<br>
+                    <i class="bi bi-mouse2"></i> Scroll to zoom<br>
+                    <i class="bi bi-keyboard"></i> Up/Down/Left/Right: move forward/backward/left/right<br>
+                    <i class="bi bi-keyboard"></i> W/D/A/S: move up/down/left/right`;
                 break;
             }
             case 'orbit': {
                 name = 'Free navigation';
-                description =
-                    'Left-click to pan; Right-click to orbit; Scroll to zoom to cursor; Up/Down/Left/Right: pan';
+                description = `<i class="bi bi-hand-index-thumb"></i> Left-click to pan; Right-click to orbit<br>
+                    <i class="bi bi-mouse2"></i>  Scroll to zoom to cursor<br>
+                    <i class="bi bi-keyboard"></i> Up/Down/Left/Right: move forward/backward/left/right`;
                 break;
             }
             case 'position-on-map': {
                 name = 'Position on map';
-                description = 'Left-click on the map to move to First Person view on the ground';
+                description =
+                    '<i class="bi bi-hand-index-thumb"></i> Left-click on the map to move to First Person view on the ground';
                 break;
             }
             case 'disabled': {
