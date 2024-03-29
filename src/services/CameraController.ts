@@ -185,7 +185,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
     private initializeOrbitControls() {
         this._orbitControls.infinityDolly = true; // Prevents being stuck when hitting the target
-        this._orbitControls.minDistance = 2; // 2 meters seems nice
 
         this.setNavigationMode(this._store.getNavigationMode());
 
@@ -393,32 +392,68 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         switch (mode) {
             case 'first-person':
-                this._orbitControls.dollyToCursor = false;
-                this._orbitControls.verticalDragToForward = false;
+                {
+                    this._orbitControls.dollyToCursor = false;
+                    this._orbitControls.verticalDragToForward = false;
+                    // Set small min/max distance so rotating is always close to the camera position
+                    this._orbitControls.minDistance = 2;
+                    this._orbitControls.maxDistance = 2;
+                    // That requires a large dolly speed for scrolling not to be "stuck"
+                    this._orbitControls.dollySpeed = 20;
 
-                this._orbitControls.azimuthRotateSpeed = 0.3;
-                this._orbitControls.polarRotateSpeed = 0.3;
+                    this._orbitControls.azimuthRotateSpeed = 0.3;
+                    this._orbitControls.polarRotateSpeed = 0.3;
 
-                this._orbitControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
-                this._orbitControls.mouseButtons.right = CameraControls.ACTION.TRUCK;
-                this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-                this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+                    this._orbitControls.mouseButtons.right = CameraControls.ACTION.TRUCK;
+                    this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
 
-                this._orbitControls.enabled = true;
+                    this._orbitControls.enabled = true;
+
+                    // Set new target close to the camera position so it feels like we're rotating around the camera position
+                    const direction = new Vector3();
+                    const position = this._instance.camera.camera3D.position.clone();
+                    const newTarget = new Vector3();
+                    this._instance.camera.camera3D.getWorldDirection(direction);
+
+                    direction.normalize().setLength(3);
+                    newTarget.copy(position).add(direction);
+                    this.lookAt(position, newTarget, false);
+                }
                 break;
             case 'orbit':
-                this._orbitControls.dollyToCursor = true;
-                this._orbitControls.verticalDragToForward = true;
+                {
+                    this._orbitControls.dollyToCursor = true;
+                    this._orbitControls.verticalDragToForward = true;
+                    this._orbitControls.minDistance = 2;
+                    this._orbitControls.maxDistance = Infinity;
+                    this._orbitControls.dollySpeed = 1;
 
-                this._orbitControls.azimuthRotateSpeed = 1.0;
-                this._orbitControls.polarRotateSpeed = 1.0;
+                    this._orbitControls.azimuthRotateSpeed = 1.0;
+                    this._orbitControls.polarRotateSpeed = 1.0;
 
-                this._orbitControls.mouseButtons.left = CameraControls.ACTION.TRUCK;
-                this._orbitControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
-                this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-                this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.left = CameraControls.ACTION.TRUCK;
+                    this._orbitControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
+                    this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
 
-                this._orbitControls.enabled = true;
+                    this._orbitControls.enabled = true;
+
+                    // Try to restore a proper target so it doesn't require a right-click to properly truck/dolly
+                    const direction = new Vector3();
+                    const position = this._instance.camera.camera3D.position.clone();
+                    this._instance.camera.camera3D.getWorldDirection(direction);
+
+                    const raycaster = new Raycaster();
+                    raycaster.camera = this._instance.camera.camera3D;
+                    raycaster.set(position, direction);
+                    const intersects = raycaster.intersectObject(this._instance.scene).at(0);
+
+                    if (intersects) {
+                        this.lookAt(position, intersects.point, false);
+                    }
+                }
                 break;
             case 'position-on-map':
                 this._orbitControls.enabled = false;
@@ -472,13 +507,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * @returns Resolves when interaction is done
      */
     executeInteraction<T = void>(callback: () => Promise<T>): Promise<T> {
+        this._orbitControls.update(this._clock.getDelta());
+
         // Execute the interaction
         const res = callback();
 
         // As mainloop can pause, before_camera_update can be triggered irregularly
         // Make sure to "reset" the clock to enable smooth transitions with camera-controls
-        const delta = this._clock.getDelta();
-        this._orbitControls.update(delta);
+        this._orbitControls.update(this._clock.getDelta());
         // Dispatch events so giro3d and giro3dservice gets notified
         this._orbitControls.dispatchEvent({ type: 'update' });
         return res;
