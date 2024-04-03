@@ -34,8 +34,8 @@
             }
             case 'position-on-map': {
                 name = 'Position on map';
-                description =
-                    '<i class="bi bi-hand-index-thumb"></i> Left-click on the map to move to First Person view on the ground';
+                description = `<i class="bi bi-hand-index-thumb"></i> Left-click on the map to move to First Person view on the ground.<br>
+                    Cancel with right-click or Escape`;
                 break;
             }
             case 'disabled': {

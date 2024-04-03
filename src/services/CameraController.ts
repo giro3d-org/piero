@@ -75,6 +75,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private _boundOrbitControlsOnKey!: (e: KeyboardEvent) => void;
     private _boundPositionOnMapOnMouseMove: ((e: MouseEvent) => void) | null;
     private _boundPositionOnMapOnClick: ((e: MouseEvent) => void) | null;
+    private _boundPositionOnMapOnContextMenu: ((e: MouseEvent) => void) | null;
 
     /**
      * Creates new Camera-controls and bind them to Giro3D.
@@ -130,6 +131,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         this._boundPositionOnMapOnClick = null;
         this._boundPositionOnMapOnMouseMove = null;
+        this._boundPositionOnMapOnContextMenu = null;
 
         this._store.$onAction(({ name, args }) => {
             switch (name) {
@@ -159,21 +161,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     }
 
     dispose() {
-        if (this._boundPositionOnMapOnClick) {
-            this._instance.domElement.removeEventListener('click', this._boundPositionOnMapOnClick);
-            this._boundPositionOnMapOnClick = null;
-        }
-        if (this._boundPositionOnMapOnMouseMove) {
-            this._instance.domElement.removeEventListener(
-                'mousemove',
-                this._boundPositionOnMapOnMouseMove,
-            );
-            this._boundPositionOnMapOnMouseMove = null;
-        }
-
         this._instance.removeEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
+        this._disablePositionOnMap();
         this.disposeOrbitControls();
 
         // @ts-expect-error Giro3D Instance API doesn't support setting it to undefined, but it works and is necessary before disposing
@@ -387,15 +378,25 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private _enablePositionOnMap() {
         this._boundPositionOnMapOnClick = this.onPositionOnMapClick.bind(this);
         this._boundPositionOnMapOnMouseMove = this.onPositionOnMapMouseMove.bind(this);
+        this._boundPositionOnMapOnContextMenu = this.onPositionOnMapContextMenu.bind(this);
+
         this._instance.domElement.addEventListener(
             'mousemove',
             this._boundPositionOnMapOnMouseMove,
         );
         this._instance.domElement.addEventListener('click', this._boundPositionOnMapOnClick);
+        this._instance.domElement.addEventListener(
+            'contextmenu',
+            this._boundPositionOnMapOnContextMenu,
+        );
     }
 
     private _disablePositionOnMap() {
-        if (this._boundPositionOnMapOnClick || this._boundPositionOnMapOnMouseMove) {
+        if (
+            this._boundPositionOnMapOnClick ||
+            this._boundPositionOnMapOnMouseMove ||
+            this._boundPositionOnMapOnContextMenu
+        ) {
             if (this._boundPositionOnMapOnClick)
                 this._instance.domElement.removeEventListener(
                     'click',
@@ -409,6 +410,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                     this._boundPositionOnMapOnMouseMove,
                 );
             this._boundPositionOnMapOnMouseMove = null;
+
+            if (this._boundPositionOnMapOnContextMenu)
+                this._instance.domElement.removeEventListener(
+                    'contextmenu',
+                    this._boundPositionOnMapOnContextMenu,
+                );
+            this._boundPositionOnMapOnContextMenu = null;
 
             this._positionOnMapHelper.visible = false;
             this._instance.domElement.style.cursor = 'auto';
@@ -425,6 +433,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this._positionOnMapHelper.updateMatrixWorld();
         }
         this._instance.notifyChange();
+    }
+
+    private async onPositionOnMapContextMenu(e: MouseEvent) {
+        this._disablePositionOnMap();
+        this._store.setNavigationMode('orbit');
+        e.preventDefault();
     }
 
     private async onPositionOnMapClick(e: MouseEvent) {
