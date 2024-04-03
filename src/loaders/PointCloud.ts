@@ -3,7 +3,7 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
+import { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
 
 import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
 import Projections from '@/utils/Projections';
