@@ -147,7 +147,7 @@
         }
 
         if (
-            cameraStore.getNavigationMode() !== 'orbit' ||
+            cameraStore.getNavigationMode() === 'position-on-map' ||
             cameraStore.isUserInteracting() ||
             annotationStore.isUserDrawing() ||
             measurementStore.isUserMeasuring()
