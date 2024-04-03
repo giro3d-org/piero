@@ -469,6 +469,7 @@ export default class IfcEntity
             ...p,
             entity: this,
             object: p.object as FragmentMesh,
+            features: p.features as IFCFeature[] | undefined,
             isIFCPickResult: true,
         }));
     }

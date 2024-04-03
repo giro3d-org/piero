@@ -1,13 +1,13 @@
 import { Color, Uniform } from 'three';
 import chroma from 'chroma-js';
-import PointsMaterial from '@giro3d/giro3d/renderer/PointsMaterial.js';
+import Giro3DPointCloudMaterial from '@giro3d/giro3d/renderer/PointCloudMaterial';
 
 import config from '../config';
 
 import PointsVS from './PointsVS.glsl';
 import PointsFS from './PointsFS.glsl';
 
-class PointCloudMaterial extends PointsMaterial {
+class PointCloudMaterial extends Giro3DPointCloudMaterial {
     colorMapChanged: boolean;
 
     constructor(options = {}) {

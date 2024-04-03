@@ -50,6 +50,7 @@ export default class CityJSONEntity
             ...p,
             entity: this,
             object: p.object as CityObjectsMesh,
+            features: p.features as CityJSONFeature[] | undefined,
             isCityJSONPickResult: true,
         }));
     }

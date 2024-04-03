@@ -7,6 +7,7 @@ import {
     type PointsPickResult,
     isMapPickResult,
     isPointsPickResult,
+    VectorPickFeature,
 } from '@giro3d/giro3d/core/picking';
 import type Entity from '@giro3d/giro3d/entities/Entity';
 import type Giro3DMap from '@giro3d/giro3d/entities/Map';
@@ -22,7 +23,7 @@ import Measure3D from '@/giro3d/Measure3D';
 import type Annotation from '@/types/Annotation';
 import Feature, { Attribute, AttributesGroups } from '@/types/Feature';
 import type Measure from '@/types/Measure';
-import { PlyMesh } from '@/loaders/PLY';
+import { PlyFeature, PlyMesh } from '@/loaders/PLY';
 import { useAnalysisStore } from '@/stores/analysis';
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
 
@@ -98,7 +99,7 @@ export default class Picker {
     }
 
     getAttributesFromPlyObject(pickResult: PickResult, attributesGroups: AttributesGroups) {
-        const feature = pickResult.features?.at(0);
+        const feature = pickResult.features?.at(0) as PlyFeature | undefined;
         if (!feature) return;
 
         if (!attributesGroups.has('PLY')) {
@@ -397,7 +398,7 @@ export default class Picker {
                     return null;
                 }
 
-                const feature = features.at(0);
+                const feature = features.at(0) as VectorPickFeature;
                 const featureName = this.getNameFromOLFeature(feature.feature);
                 name = featureName ?? name;
                 this.getAttributesFromOLFeature(feature.feature, attributesGroups);

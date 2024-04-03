@@ -1,11 +1,4 @@
-import {
-    EventDispatcher,
-    Box3,
-    AmbientLight,
-    DirectionalLight,
-    PerspectiveCamera,
-    Object3D,
-} from 'three';
+import { EventDispatcher, Box3, AmbientLight, DirectionalLight, Object3D } from 'three';
 
 import Instance from '@giro3d/giro3d/core/Instance';
 import { Fetcher, HttpConfiguration } from '@giro3d/giro3d/utils';
@@ -145,7 +138,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     onFrameEnd() {
         // Temporary solution to avoid annoying horizontal line artifacts
         // on point cloud due to constantly shifting near clipping plane.
-        const camera: PerspectiveCamera = this.mainInstance.camera.camera3D;
+        const camera = this.mainInstance.camera.camera3D;
         camera.near = 2;
 
         this.dispatchEvent({ type: 'update' });
