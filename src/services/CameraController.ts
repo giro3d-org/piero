@@ -65,12 +65,17 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly _store = useCameraStore();
     private readonly _giro3dStore = useGiro3dStore();
     private readonly _orbitHelper: CSS2DObject;
+    private readonly _positionOnMapHelper: CSS2DObject;
+    private _cameraControlsInspector: CameraControlsInspector | null;
     private readonly _boundOnBeforeCameraUpdate: () => void;
     private readonly _boundOnAfterCameraUpdate: () => void;
     private _boundOrbitControlsOnContextMenu!: (e: MouseEvent) => void;
     private _boundOrbitControlsOnMouseUp!: (e: MouseEvent) => void;
     private _boundOrbitControlsOnWheel!: (e: MouseEvent) => void;
     private _boundOrbitControlsOnKey!: (e: KeyboardEvent) => void;
+    private _boundPositionOnMapOnMouseMove: ((e: MouseEvent) => void) | null;
+    private _boundPositionOnMapOnClick: ((e: MouseEvent) => void) | null;
+    private _boundPositionOnMapOnContextMenu: ((e: MouseEvent) => void) | null;
 
     /**
      * Creates new Camera-controls and bind them to Giro3D.
@@ -98,6 +103,18 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._orbitHelper = new CSS2DObject(orbitHelperElement);
         this._instance.add(this._orbitHelper);
 
+        const positionOnMapElement = document.createElement('div');
+        positionOnMapElement.className = 'helper';
+        positionOnMapElement.id = 'position-on-map-helper';
+        const positionOnMapElementIcon = document.createElement('i');
+        positionOnMapElementIcon.className = 'fg-position-man text-dark shadow';
+        positionOnMapElement.append(positionOnMapElementIcon);
+
+        this._positionOnMapHelper = new CSS2DObject(positionOnMapElement);
+        this._instance.add(this._positionOnMapHelper);
+
+        this._cameraControlsInspector = null;
+
         this.initializeOrbitControls();
 
         this._pickObjectsAt = (event: MouseEvent) =>
@@ -111,6 +128,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._boundOnAfterCameraUpdate = this.onAfterCameraUpdate.bind(this);
         this._instance.addEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.addEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
+
+        this._boundPositionOnMapOnClick = null;
+        this._boundPositionOnMapOnMouseMove = null;
+        this._boundPositionOnMapOnContextMenu = null;
 
         this._store.$onAction(({ name, args }) => {
             switch (name) {
@@ -126,12 +147,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             }
         });
 
+        const inspector = this._giro3dStore.getInspector();
+        if (inspector != null) this.initializeInspector(inspector);
         this._giro3dStore.$onAction(({ name, after, args }) => {
             after(() => {
                 switch (name) {
                     case 'setInspector':
-                        if (args[0] === null) this.disposeInspector();
-                        else this.initializeInspector(args[0]);
+                        this.initializeInspector(args[0]);
                         break;
                 }
             });
@@ -142,31 +164,30 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._instance.removeEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
+        this._disablePositionOnMap();
         this.disposeOrbitControls();
 
         // @ts-expect-error Giro3D Instance API doesn't support setting it to undefined, but it works and is necessary before disposing
         this._instance.controls = undefined;
+        this._instance.remove(this._positionOnMapHelper);
         this._instance.remove(this._orbitHelper);
     }
 
-    private initializeInspector(inspector: Inspector) {
+    private initializeInspector(inspector: Inspector | null) {
+        if (this._cameraControlsInspector) this._cameraControlsInspector.dispose();
+
         if (inspector) {
-            const cameraControlsPanel = new CameraControlsInspector(
+            this._cameraControlsInspector = new CameraControlsInspector(
                 inspector.gui,
                 this,
                 this._instance,
             );
-            inspector.addPanel(cameraControlsPanel);
+            inspector.addPanel(this._cameraControlsInspector);
         }
-    }
-
-    private disposeInspector() {
-        // TODO
     }
 
     private initializeOrbitControls() {
         this._orbitControls.infinityDolly = true; // Prevents being stuck when hitting the target
-        this._orbitControls.minDistance = 2; // 2 meters seems nice
 
         this.setNavigationMode(this._store.getNavigationMode());
 
@@ -255,37 +276,63 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         setTimeout(() => this._orbitControls.dispatchEvent({ type: 'controlend' }), 0);
     }
     private orbitControlsOnKey(e: KeyboardEvent) {
+        const navigationMode = this._store.getNavigationMode();
+
+        if (navigationMode === 'position-on-map') {
+            if (e.code === 'Escape') {
+                this._store.setNavigationMode('orbit');
+            }
+            return;
+        }
+
+        if (navigationMode !== 'orbit' && navigationMode !== 'first-person') return;
+
         const keys = {
-            LEFT: 'ArrowLeft',
-            UP: 'ArrowUp',
-            RIGHT: 'ArrowRight',
-            BOTTOM: 'ArrowDown',
+            ARROW_LEFT: 'ArrowLeft',
+            ARROW_UP: 'ArrowUp',
+            ARROW_RIGHT: 'ArrowRight',
+            ARROW_BOTTOM: 'ArrowDown',
+            KEY_UP: 'KeyW',
+            KEY_LEFT: 'KeyA',
+            KEY_RIGHT: 'KeyD',
+            KEY_DOWN: 'KeyS',
         };
 
         let forwardDirection = 0;
+        let dollyDirection = 0;
         let truckDirectionX = 0;
         let truckDirectionY = 0;
         let factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
 
         // Reduce the factor in FPV as we should be close to our data
-        if (this._store.getNavigationMode() === 'first-person') factor /= 10;
+        if (navigationMode === 'first-person') factor /= 10;
 
         switch (e.code) {
-            case keys.UP:
-                if (this._store.getNavigationMode() === 'orbit') forwardDirection = 1;
-                else truckDirectionY = -1;
+            case keys.KEY_UP:
+                truckDirectionY = -1;
                 break;
 
-            case keys.BOTTOM:
-                if (this._store.getNavigationMode() === 'orbit') forwardDirection = -1;
-                else truckDirectionY = 1;
+            case keys.KEY_DOWN:
+                truckDirectionY = 1;
                 break;
 
-            case keys.LEFT:
+            case keys.ARROW_UP:
+                if (navigationMode === 'first-person') dollyDirection = 1;
+                else forwardDirection = 1;
+                break;
+
+            case keys.ARROW_BOTTOM:
+                if (navigationMode === 'first-person') dollyDirection = -1;
+                else forwardDirection = -1;
+                break;
+
+            case keys.ARROW_LEFT:
+            case keys.KEY_LEFT:
                 truckDirectionX = -1;
                 break;
 
-            case keys.RIGHT:
+            case keys.ARROW_RIGHT:
+            case keys.KEY_RIGHT:
                 truckDirectionX = 1;
                 break;
 
@@ -296,6 +343,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this.executeInteraction(() =>
                 this._orbitControls.forward(
                     forwardDirection * this._orbitControls.truckSpeed * factor,
+                    true,
+                ),
+            );
+        }
+        if (dollyDirection) {
+            this.executeInteraction(() =>
+                this._orbitControls.dollyInFixed(
+                    dollyDirection * this._orbitControls.truckSpeed * factor,
                     true,
                 ),
             );
@@ -320,35 +375,164 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
     }
 
+    private _enablePositionOnMap() {
+        this._boundPositionOnMapOnClick = this.onPositionOnMapClick.bind(this);
+        this._boundPositionOnMapOnMouseMove = this.onPositionOnMapMouseMove.bind(this);
+        this._boundPositionOnMapOnContextMenu = this.onPositionOnMapContextMenu.bind(this);
+
+        this._instance.domElement.addEventListener(
+            'mousemove',
+            this._boundPositionOnMapOnMouseMove,
+        );
+        this._instance.domElement.addEventListener('click', this._boundPositionOnMapOnClick);
+        this._instance.domElement.addEventListener(
+            'contextmenu',
+            this._boundPositionOnMapOnContextMenu,
+        );
+    }
+
+    private _disablePositionOnMap() {
+        if (
+            this._boundPositionOnMapOnClick ||
+            this._boundPositionOnMapOnMouseMove ||
+            this._boundPositionOnMapOnContextMenu
+        ) {
+            if (this._boundPositionOnMapOnClick)
+                this._instance.domElement.removeEventListener(
+                    'click',
+                    this._boundPositionOnMapOnClick,
+                );
+            this._boundPositionOnMapOnClick = null;
+
+            if (this._boundPositionOnMapOnMouseMove)
+                this._instance.domElement.removeEventListener(
+                    'mousemove',
+                    this._boundPositionOnMapOnMouseMove,
+                );
+            this._boundPositionOnMapOnMouseMove = null;
+
+            if (this._boundPositionOnMapOnContextMenu)
+                this._instance.domElement.removeEventListener(
+                    'contextmenu',
+                    this._boundPositionOnMapOnContextMenu,
+                );
+            this._boundPositionOnMapOnContextMenu = null;
+
+            this._positionOnMapHelper.visible = false;
+            this._instance.domElement.style.cursor = 'auto';
+            this._instance.notifyChange();
+        }
+    }
+
+    private onPositionOnMapMouseMove(e: MouseEvent) {
+        const picked = this._picker.getMapAt(this._instance, e);
+        this._instance.domElement.style.cursor = picked ? 'none' : 'auto';
+        this._positionOnMapHelper.visible = picked != null;
+        if (picked) {
+            this._positionOnMapHelper.position.copy(picked.point);
+            this._positionOnMapHelper.updateMatrixWorld();
+        }
+        this._instance.notifyChange();
+    }
+
+    private async onPositionOnMapContextMenu(e: MouseEvent) {
+        this._disablePositionOnMap();
+        this._store.setNavigationMode('orbit');
+        e.preventDefault();
+    }
+
+    private async onPositionOnMapClick(e: MouseEvent) {
+        const picked = this._picker.getMapAt(this._instance, e);
+        if (picked) {
+            this._disablePositionOnMap();
+
+            const direction = new Vector3();
+            this._instance.camera.camera3D.getWorldDirection(direction);
+            direction.normalize().setLength(3);
+
+            const newPosition = picked.point.clone();
+            newPosition.z += 1.7;
+
+            const newTarget = newPosition.clone();
+            newTarget.add(direction);
+            newTarget.z = newPosition.z;
+
+            await this.lookAt(newPosition, newTarget, true);
+            this._store.setNavigationMode('first-person');
+        }
+    }
+
     private setNavigationMode(mode: NavigationMode) {
+        this._disablePositionOnMap();
+
         switch (mode) {
             case 'first-person':
-                this._orbitControls.dollyToCursor = false;
-                this._orbitControls.verticalDragToForward = false;
+                {
+                    this._orbitControls.dollyToCursor = false;
+                    this._orbitControls.verticalDragToForward = false;
+                    // Set small min/max distance so rotating is always close to the camera position
+                    this._orbitControls.minDistance = 2;
+                    this._orbitControls.maxDistance = 2;
+                    // That requires a large dolly speed for scrolling not to be "stuck"
+                    this._orbitControls.dollySpeed = 20;
 
-                this._orbitControls.azimuthRotateSpeed = 0.3;
-                this._orbitControls.polarRotateSpeed = 0.3;
+                    this._orbitControls.azimuthRotateSpeed = 0.3;
+                    this._orbitControls.polarRotateSpeed = 0.3;
 
-                this._orbitControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
-                this._orbitControls.mouseButtons.right = CameraControls.ACTION.TRUCK;
-                this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-                this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+                    this._orbitControls.mouseButtons.right = CameraControls.ACTION.TRUCK;
+                    this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
 
-                this._orbitControls.enabled = true;
+                    this._orbitControls.enabled = true;
+
+                    // Set new target close to the camera position so it feels like we're rotating around the camera position
+                    const direction = new Vector3();
+                    const position = this._instance.camera.camera3D.position.clone();
+                    const newTarget = new Vector3();
+                    this._instance.camera.camera3D.getWorldDirection(direction);
+
+                    direction.normalize().setLength(3);
+                    newTarget.copy(position).add(direction);
+                    this.lookAt(position, newTarget, false);
+                }
                 break;
             case 'orbit':
-                this._orbitControls.dollyToCursor = true;
-                this._orbitControls.verticalDragToForward = true;
+                {
+                    this._orbitControls.dollyToCursor = true;
+                    this._orbitControls.verticalDragToForward = true;
+                    this._orbitControls.minDistance = 2;
+                    this._orbitControls.maxDistance = Infinity;
+                    this._orbitControls.dollySpeed = 1;
 
-                this._orbitControls.azimuthRotateSpeed = 1.0;
-                this._orbitControls.polarRotateSpeed = 1.0;
+                    this._orbitControls.azimuthRotateSpeed = 1.0;
+                    this._orbitControls.polarRotateSpeed = 1.0;
 
-                this._orbitControls.mouseButtons.left = CameraControls.ACTION.TRUCK;
-                this._orbitControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
-                this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-                this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.left = CameraControls.ACTION.TRUCK;
+                    this._orbitControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
+                    this._orbitControls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+                    this._orbitControls.mouseButtons.middle = CameraControls.ACTION.DOLLY;
 
-                this._orbitControls.enabled = true;
+                    this._orbitControls.enabled = true;
+
+                    // Try to restore a proper target so it doesn't require a right-click to properly truck/dolly
+                    const direction = new Vector3();
+                    const position = this._instance.camera.camera3D.position.clone();
+                    this._instance.camera.camera3D.getWorldDirection(direction);
+
+                    const raycaster = new Raycaster();
+                    raycaster.camera = this._instance.camera.camera3D;
+                    raycaster.set(position, direction);
+                    const intersects = raycaster.intersectObject(this._instance.scene).at(0);
+
+                    if (intersects) {
+                        this.lookAt(position, intersects.point, false);
+                    }
+                }
+                break;
+            case 'position-on-map':
+                this._orbitControls.enabled = false;
+                this._enablePositionOnMap();
                 break;
             case 'disabled':
                 this._orbitControls.enabled = false;
@@ -385,16 +569,18 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * Required to call this instead of calling directly camera-controls because
      * of how Giro3D mainloop works.
      *
-     * @param callback - Interacition to execute
+     * @param callback - Interaction to execute
      * @returns Resolves when interaction is done
      */
     executeInteraction<T = void>(callback: () => Promise<T>): Promise<T> {
+        this._orbitControls.update(this._clock.getDelta());
+
         // Execute the interaction
         const res = callback();
 
         // As mainloop can pause, before_camera_update can be triggered irregularly
         // Make sure to "reset" the clock to enable smooth transitions with camera-controls
-        this._clock.getDelta();
+        this._orbitControls.update(this._clock.getDelta());
         // Dispatch events so giro3d and giro3dservice gets notified
         this._orbitControls.dispatchEvent({ type: 'update' });
         return res;
@@ -425,9 +611,16 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * @param enableTransition - Enables transition
      * @returns Resolves when interaction is done
      */
-    lookAt(position: Vector3, lookAt: Vector3, enableTransition: boolean = false): Promise<void> {
-        return this.executeInteraction(() =>
-            this._orbitControls.setLookAt(
+    async lookAt(
+        position: Vector3,
+        lookAt: Vector3,
+        enableTransition: boolean = false,
+    ): Promise<void> {
+        await this.executeInteraction(async () => {
+            // Need to reset focal offset because of orbit point
+            // https://github.com/yomotsu/camera-controls/issues/303
+            this._orbitControls.setFocalOffset(0, 0, 0, false);
+            return this._orbitControls.setLookAt(
                 position.x,
                 position.y,
                 position.z,
@@ -435,8 +628,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 lookAt.y,
                 lookAt.z,
                 enableTransition,
-            ),
-        );
+            );
+        });
+        this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
     }
 
     getCameraPosition(target?: CameraPosition): CameraPosition {
@@ -491,6 +685,34 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             paddingRight: 10,
         },
     ): Promise<void[]> {
+        const bbox = this.getBox(obj);
+        return this.executeInteraction(() => {
+            this._orbitControls.setFocalOffset(0, 0, 0);
+            return this._orbitControls.fitToBox(bbox, enableTransition, options);
+        });
+    }
+
+    lookTopDownAt(obj: Box3 | Object3D | Entity3D, enableTransition = true) {
+        const center = new Vector3();
+        const size = new Vector3();
+        const newCameraPosition = new Vector3(0, 0, 1);
+
+        const bbox = this.getBox(obj);
+        bbox.min.z = bbox.max.z;
+        bbox.getCenter(center);
+        bbox.getSize(size);
+
+        const distance = this._orbitControls.getDistanceToFitBox(size.x, size.y, 0);
+        const cameraPosition = newCameraPosition.multiplyScalar(distance).add(center);
+
+        // Slightly offset camera to avoid gimbal lock
+        cameraPosition.x += size.x / 10;
+        cameraPosition.y -= size.y / 10;
+
+        return this.lookAt(cameraPosition, center, enableTransition);
+    }
+
+    protected getBox(obj: Box3 | Object3D | Entity3D): Box3 {
         // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
         let bbox = new Box3();
         if ((obj as Box3).isBox3) {
@@ -541,16 +763,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         bbox.min.z = Math.max(bbox.min.z, 0);
         bbox.max.z = Math.min(bbox.max.z, 2000);
 
-        return this.executeInteraction(() =>
-            this._orbitControls.fitToBox(bbox, enableTransition, options),
-        );
-    }
-
-    lookTopDownAt(obj: Box3 | Object3D | Entity3D, enableTransition = true) {
-        return this.executeInteraction(async () => {
-            await this._orbitControls.rotateTo(0, 0, enableTransition);
-            this.goToBox(obj, enableTransition);
-        });
+        return bbox;
     }
 }
 

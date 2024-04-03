@@ -197,7 +197,11 @@
 
     function updateCursor(mouse: Vector2) {
         if (giro3d.value) {
-            if (annotationStore.isUserDrawing() || measurementStore.isUserMeasuring()) {
+            if (
+                cameraStore.getNavigationMode() === 'position-on-map' ||
+                annotationStore.isUserDrawing() ||
+                measurementStore.isUserMeasuring()
+            ) {
                 return;
             }
             const picked = giro3d.value.picker.hasFeature(giro3d.value.mainInstance, mouse);

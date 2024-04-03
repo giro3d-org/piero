@@ -39,6 +39,10 @@ export const useCameraStore = defineStore('camera', () => {
         return navigationMode.value;
     }
 
+    function getNavigationModeRef() {
+        return navigationMode;
+    }
+
     /** Updates the navigation mode */
     function setNavigationMode(mode: NavigationMode) {
         navigationMode.value = mode;
@@ -66,6 +70,7 @@ export const useCameraStore = defineStore('camera', () => {
         setCameraPosition,
         setCurrentPosition,
         getNavigationMode,
+        getNavigationModeRef,
         setNavigationMode,
         isUserInteracting,
         setIsUserInteracting,
