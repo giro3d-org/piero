@@ -160,6 +160,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         });
     }
 
+    get controls() {
+        return this._orbitControls;
+    }
+
     dispose() {
         this._instance.removeEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
