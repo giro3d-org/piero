@@ -133,6 +133,14 @@ To deploy the app, simply build it; the static web application will be available
 npm run build -- --base https://mydomain.com/piero
 ```
 
+### Tagged version vs. main
+
+The `main` branch of Piero features the latest version of the application, while tagged versions are published [every quarter](https://gitlab.com/giro3d/piero/-/milestones). The [changelog](./CHANGELOG.md) of tagged versions is available once versions are published. For upcoming releases, head up to the corresponding [GitLab milestone](https://gitlab.com/giro3d/piero/-/milestones).
+
+Breaking changes may be introduced between versions, as well as changes in the user experience. If such updates are unwanted on your side, you should use tagged versions.
+
+Some breaking changes consist in changes in the [configuration file](./CONFIGURATION.md); such changes will generate deprecating warnings at runtime for 1 release and will be removed in the next release. For instance, the `camera` configuration was changed in release `v24.4`; using the old configuration generates a warning when using `v24.4` and will not work anymore with `v24.7`.
+
 ## Contributors and sponsors
 
 Piero has received contributions and sponsoring from people and organizations listed in [CONTRIBUTORS.md](CONTRIBUTORS.md).
