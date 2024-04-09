@@ -2,7 +2,7 @@ import { Material } from 'three';
 import Instance from '@giro3d/giro3d/core/Instance';
 import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
 import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
-import { MODE } from '@giro3d/giro3d/renderer/PointsMaterial';
+import { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
 
 import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
 

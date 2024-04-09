@@ -54,7 +54,7 @@
         "prepare": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && husky"
     },
     "dependencies": {
-        "@giro3d/giro3d": "^0.34.2",
+        "@giro3d/giro3d": "^0.35.0",
         "@loaders.gl/core": "^4.1.1",
         "@loaders.gl/csv": "^4.1.1",
         "@loaders.gl/geopackage": "^4.1.1",
