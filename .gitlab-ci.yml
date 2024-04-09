@@ -31,7 +31,11 @@ pages:
     stage: publish
     rules:
         - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_TAG
+          variables:
+              ENVIRONMENT_NAME: $CI_COMMIT_TAG
         - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+          variables:
+              ENVIRONMENT_NAME: $CI_COMMIT_BRANCH
     variables:
         DEPLOY_URL: https://app.giro3d.org
         OUTPUT: ./dist
@@ -40,13 +44,13 @@ pages:
         paths:
             - node_modules
     environment:
-        name: pages/$CI_COMMIT_BRANCH
+        name: pages/$ENVIRONMENT_NAME
         action: start
         url: $DEPLOY_URL
     artifacts:
         paths:
             - dist
-        name: $CI_COMMIT_BRANCH
+        name: $ENVIRONMENT_NAME
     publish: dist
     script:
         - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
