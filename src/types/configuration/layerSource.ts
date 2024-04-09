@@ -128,19 +128,19 @@ export type OverlayConfig = {
 /**
  * Vector overlay configuration
  *
- * @deprecated Use 'source' field instead
+ * @deprecated Use 'source' field instead. Will be removed in release v24.7.
  */
 export type OverlayVectorConfigDeprecated = Omit<OverlayConfig, 'source'> & VectorSourceConfig;
 /**
  * Vector tile overlay configuration
  *
- * @deprecated Use 'source' field instead
+ * @deprecated Use 'source' field instead. Will be removed in release v24.7.
  */
 export type OverlayVectorTileConfigDeprecated = Omit<OverlayConfig, 'source'> & MVTSourceConfig;
 /**
  * Raster overlay configuration
  *
- * @deprecated Use 'source' field instead
+ * @deprecated Use 'source' field instead. Will be removed in release v24.7.
  */
 export type OverlayRasterConfigDeprecated = OverlayConfig & LayerSourceBaseConfig<'wms' | 'wmts'>;
 

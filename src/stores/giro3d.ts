@@ -39,7 +39,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         const conf = config.camera;
         if (Array.isArray(conf.position)) {
             console.warn(
-                'Configuration is using an array for camera.position, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information',
+                'Configuration is using an array for camera.position, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information. This will be removed in release v24.7.',
             );
             return new Coordinates(
                 'EPSG:4326',
@@ -51,7 +51,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
 
         if (!('z' in conf.position)) {
             console.warn(
-                'Configuration is using a 2D object for camera.position, you should switch to a 3D object; see https://gitlab.com/giro3d/piero/-/issues/38 for more information',
+                'Configuration is using a 2D object for camera.position, you should switch to a 3D object; see https://gitlab.com/giro3d/piero/-/issues/38 for more information. This will be removed in release v24.7.',
             );
         }
 
@@ -91,7 +91,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         let centerLocal: Coordinates;
         if (Array.isArray(center)) {
             console.warn(
-                'Configuration is using an array for basemap.center, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information',
+                'Configuration is using an array for basemap.center, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information. This will be removed in release v24.7.',
             );
             centerLocal = new Coordinates('EPSG:4326', center[0], center[1], 0);
         } else {

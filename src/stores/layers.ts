@@ -29,7 +29,7 @@ function getInitialOverlays() {
 
         if (!('source' in item)) {
             console.warn(
-                `Configuration is not using the "source" field for overlay ${item.name}, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/49 for more information`,
+                `Configuration is not using the "source" field for overlay ${item.name}, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/49 for more information. This will be removed in release v24.7.`,
             );
             overlayConfig = {
                 name: item.name,

@@ -3,7 +3,7 @@ import { GeoVec2, GeoVec3 } from './geographic';
 /**
  * Deprecated camera configuration
  *
- * @deprecated - Use CameraConfig instead
+ * @deprecated - Use CameraConfig instead. Will be removed in release v24.7.
  */
 export type CameraConfigDeprecated = {
     /** Initial camera position */
