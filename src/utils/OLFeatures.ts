@@ -1,6 +1,7 @@
 import type Feature from 'ol/Feature';
 import { type FeatureLike } from 'ol/Feature';
 import type FeatureFormat from 'ol/format/Feature';
+import { getCenter } from 'ol/extent';
 import {
     type LineString,
     type MultiLineString,
@@ -10,9 +11,11 @@ import {
     type Polygon,
 } from 'ol/geom';
 import { Box3, Group, Vector3 } from 'three';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import OlFeature2Mesh, { type OlFeature2MeshOptions } from '@giro3d/giro3d/utils/OlFeature2Mesh';
 
 import Projections from './Projections';
+import IgnProvider from '@/providers/IgnProvider';
 
 export type SimpleFeature = Feature<
     Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon
@@ -96,6 +99,119 @@ async function readSimpleFeatures(
     );
 }
 
+async function fillZCoordinates(
+    features: SimpleFeature[],
+    featureProjection: string,
+    offset = 0.0,
+    noDataValue = 0,
+    fast = true,
+): Promise<void> {
+    const promises = [];
+    const altitudes = new Map<number, Coordinates[]>();
+    for (const feature of features) {
+        const geom = feature.getGeometry();
+        const geomType = geom?.getType();
+        if (geom == null || geomType == null) {
+            continue;
+        }
+
+        const coordinates = geom.getFlatCoordinates();
+        const giroCoordinates = [];
+        const stride = geom.getStride();
+        if (stride >= 3 && coordinates[2] != null && coordinates[2] !== noDataValue) {
+            // Feature already has altitude, skip
+            continue;
+        }
+
+        if (fast) {
+            const extent = geom.getExtent();
+            const center = getCenter(extent);
+            giroCoordinates.push(new Coordinates(featureProjection, center[0], center[1], 0));
+        } else {
+            for (let i = 0; i < coordinates.length; i += stride) {
+                giroCoordinates.push(
+                    new Coordinates(
+                        featureProjection,
+                        coordinates[i + 0],
+                        coordinates[i + 1],
+                        stride >= 3 ? coordinates[i + 2] : 0,
+                    ),
+                );
+            }
+        }
+        promises.push(IgnProvider.alticode(giroCoordinates));
+        // @ts-expect-error ol_uid is hidden
+        altitudes.set(feature.ol_uid, giroCoordinates);
+    }
+
+    await Promise.allSettled(promises);
+
+    for (const feature of features) {
+        // @ts-expect-error ol_uid is hidden
+        const giroCoordinates = altitudes.get(feature.ol_uid);
+        const geom = feature.getGeometry();
+        if (geom == null || giroCoordinates == null) continue;
+
+        switch (geom.getType()) {
+            case 'Point': {
+                const g = geom as Point;
+                const c = g.getCoordinates();
+                c[2] = giroCoordinates[0].values[2] + offset;
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiPoint':
+            case 'LineString': {
+                const g = geom as MultiPoint | LineString;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    c[i][2] =
+                        (fast ? giroCoordinates[0].values[2] : giroCoordinates[i].values[2]) +
+                        offset;
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiLineString':
+            case 'Polygon': {
+                const g = geom as MultiLineString | Polygon;
+                const c = g.getCoordinates();
+                let k = 0;
+                for (let i = 0; i < c.length; i += 1) {
+                    for (let j = 0; j < c[i].length; j += 1) {
+                        c[i][j][2] =
+                            (fast ? giroCoordinates[0].values[2] : giroCoordinates[k].values[2]) +
+                            offset;
+                        k += 1;
+                    }
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiPolygon': {
+                const g = geom as MultiPolygon;
+                const c = g.getCoordinates();
+                let k = 0;
+                for (let i = 0; i < c.length; i += 1) {
+                    for (let j = 0; j < c[i].length; j += 1) {
+                        for (let m = 0; m < c[i][j].length; m += 1) {
+                            c[i][j][m][2] =
+                                (fast
+                                    ? giroCoordinates[0].values[2]
+                                    : giroCoordinates[k].values[2]) + offset;
+                            k += 1;
+                        }
+                    }
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            default:
+            // do nothing
+        }
+    }
+}
+
 /**
  * Converts a list of features into Threejs meshes.
  * Meshes are automatically translated around their center to avoid weird side-effects.
@@ -124,4 +240,4 @@ function toMeshes(olFeatures: SimpleFeature[], options?: OlFeature2MeshOptions):
     return root;
 }
 
-export default { readFeatures, readSimpleFeatures, toSimpleFeatures, toMeshes };
+export default { readFeatures, readSimpleFeatures, toSimpleFeatures, fillZCoordinates, toMeshes };

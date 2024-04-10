@@ -18,6 +18,18 @@ export interface GeoJSONParameters {
      * @defaultValue 0
      */
     elevation?: number;
+    /**
+     * Fetch elevation from provider
+     *
+     * @defaultValue false
+     */
+    fetchElevation?: boolean;
+    /**
+     * Fetch elevation only for centroïds of features
+     *
+     * @defaultValue true
+     */
+    fetchElevationFast?: boolean;
 }
 
 export default {
@@ -80,6 +92,17 @@ export default {
             }),
         );
         const simpleFeatures = OLFeatures.toSimpleFeatures(olFeatures);
+
+        if (parameters.fetchElevation ?? false) {
+            await OLFeatures.fillZCoordinates(
+                simpleFeatures,
+                instance.referenceCrs,
+                0.1,
+                0,
+                parameters.fetchElevationFast ?? true,
+            );
+        }
+
         return OLFeatures.toMeshes(simpleFeatures, {
             elevation: dataElevation,
         });

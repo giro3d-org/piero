@@ -17,6 +17,18 @@ export type OLLoaderParameters = {
      * @defaultValue 0
      */
     elevation?: number;
+    /**
+     * Fetch elevation from provider
+     *
+     * @defaultValue false
+     */
+    fetchElevation?: boolean;
+    /**
+     * Fetch elevation only for centroïds of features
+     *
+     * @defaultValue true
+     */
+    fetchElevationFast?: boolean;
 };
 
 export default {
@@ -34,6 +46,16 @@ export default {
             parameters?.projection ?? 'EPSG:4326',
             instance.referenceCrs,
         );
+
+        if (parameters?.fetchElevation ?? false) {
+            await OLFeatures.fillZCoordinates(
+                olFeatures,
+                instance.referenceCrs,
+                0.1,
+                0,
+                parameters?.fetchElevationFast ?? true,
+            );
+        }
 
         const group = OLFeatures.toMeshes(olFeatures);
 

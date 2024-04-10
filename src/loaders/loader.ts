@@ -122,6 +122,11 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = GeoJSON.loadAll(instance, dataset.url, {
                 elevation: dataset.get('elevation'),
+                fetchElevation:
+                    dataset.get('fetchElevation') == null
+                        ? dataset.get('elevation') == null
+                        : dataset.get('fetchElevation'),
+                fetchElevationFast: dataset.get('fetchElevationFast'),
             });
             break;
         }
@@ -129,6 +134,11 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = Geopackage.loadAll(instance, dataset.url, {
                 elevation: dataset.get('elevation'),
+                fetchElevation:
+                    dataset.get('fetchElevation') == null
+                        ? dataset.get('elevation') == null
+                        : dataset.get('fetchElevation'),
+                fetchElevationFast: dataset.get('fetchElevationFast'),
             });
             break;
         }
@@ -138,6 +148,11 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
             entity = GPX.load(instance, dataset.url, {
                 elevation: dataset.get('elevation'),
+                fetchElevation:
+                    dataset.get('fetchElevation') == null
+                        ? dataset.get('elevation') == null
+                        : dataset.get('fetchElevation'),
+                fetchElevationFast: dataset.get('fetchElevationFast'),
             });
             break;
         }
@@ -158,6 +173,11 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
             entity = KML.load(instance, dataset.url, {
                 elevation: dataset.get('elevation'),
+                fetchElevation:
+                    dataset.get('fetchElevation') == null
+                        ? dataset.get('elevation') == null
+                        : dataset.get('fetchElevation'),
+                fetchElevationFast: dataset.get('fetchElevationFast'),
             });
             break;
         }
@@ -183,6 +203,11 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = Shapefile.loadAll(instance, dataset.url, {
                 elevation: dataset.get('elevation'),
+                fetchElevation:
+                    dataset.get('fetchElevation') == null
+                        ? dataset.get('elevation') == null
+                        : dataset.get('fetchElevation'),
+                fetchElevationFast: dataset.get('fetchElevationFast'),
             });
             break;
         }
@@ -218,15 +243,15 @@ async function loadFile(
         case 'csv':
             return CSVPointCloud.load(instance, file);
         case 'geojson':
-            return GeoJSON.load(instance, file);
+            return GeoJSON.load(instance, file, { fetchElevation: true });
         case 'gpkg':
-            return Geopackage.load(instance, file);
+            return Geopackage.load(instance, file, { fetchElevation: true });
         case 'gpx':
-            return GPX.load(instance, file);
+            return GPX.load(instance, file, { fetchElevation: true });
         case 'ifc':
             return IFC.load(instance, file, { name: fileinfo.name });
         case 'kml':
-            return KML.load(instance, file);
+            return KML.load(instance, file, { fetchElevation: true });
         case 'las':
             return LAS.load(instance, file);
         default: {

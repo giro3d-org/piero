@@ -70,6 +70,8 @@ abstract class DatasetBase<
     /* Properties for initializing entity, not used/changed afterwards */
     readonly coordinates?: Coordinates;
     readonly elevation?: number;
+    readonly fetchElevation?: boolean;
+    readonly fetchElevationFast?: boolean;
     readonly canMaskBasemap?: boolean;
     readonly isMaskingBasemap?: boolean;
     readonly onObjectPreloaded?: OnObjectPreloaded;
@@ -98,6 +100,8 @@ abstract class DatasetBase<
             );
         }
         this.elevation = conf.elevation;
+        this.fetchElevation = conf.fetchElevation;
+        this.fetchElevationFast = conf.fetchElevationFast;
         this.onObjectPreloaded = conf.onObjectPreloaded;
     }
 
