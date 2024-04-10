@@ -1,7 +1,7 @@
 import { EventDispatcher, Box3, AmbientLight, DirectionalLight, Object3D } from 'three';
 
 import Instance from '@giro3d/giro3d/core/Instance';
-import { Fetcher, HttpConfiguration } from '@giro3d/giro3d/utils';
+import { HttpConfiguration } from '@giro3d/giro3d/utils';
 
 import LayerManager from '@/services/LayerManager';
 import CameraController from '@/services/CameraController';
@@ -13,6 +13,7 @@ import Picker from '@/services/Picker';
 import MeasurementManager from '@/services/MeasurementManager';
 import { useGiro3dStore } from '@/stores/giro3d';
 import { getPublicFolderUrl } from '@/utils/Configuration';
+import Fetcher from '@/utils/Fetcher';
 
 Instance.registerCRS(
     'EPSG:2154',
@@ -37,11 +38,40 @@ Instance.registerCRS(
     'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]',
 );
 
+if (import.meta.env.VITE_HEADERS) {
+    for (const [host, header] of Object.entries(import.meta.env.VITE_HEADERS)) {
+        if (!Fetcher.checkAbsoluteHost(host)) {
+            console.warn(`Invalid host in VITE_HEADERS: ${host}`);
+            continue;
+        }
+
+        for (const [name, value] of Object.entries(header)) {
+            HttpConfiguration.setHeader(host, name, value);
+        }
+    }
+}
+
 if (import.meta.env.VITE_AUTHORIZATION_DOMAIN && import.meta.env.VITE_AUTHORIZATION_VALUE) {
-    HttpConfiguration.setAuth(
-        import.meta.env.VITE_AUTHORIZATION_DOMAIN,
-        import.meta.env.VITE_AUTHORIZATION_VALUE,
-    );
+    if (!Fetcher.checkAbsoluteHost(import.meta.env.VITE_AUTHORIZATION_DOMAIN)) {
+        console.warn(
+            `Invalid host in VITE_AUTHORIZATION_DOMAIN: ${import.meta.env.VITE_AUTHORIZATION_DOMAIN}`,
+        );
+    } else {
+        HttpConfiguration.setAuth(
+            import.meta.env.VITE_AUTHORIZATION_DOMAIN,
+            import.meta.env.VITE_AUTHORIZATION_VALUE,
+        );
+    }
+}
+
+if (import.meta.env.VITE_AUTHORIZATIONS) {
+    for (const [host, value] of Object.entries(import.meta.env.VITE_AUTHORIZATIONS)) {
+        if (!Fetcher.checkAbsoluteHost(host)) {
+            console.warn(`Invalid host in VITE_AUTHORIZATIONS: ${host}`);
+            continue;
+        }
+        HttpConfiguration.setAuth(host, value);
+    }
 }
 
 type Giro3DManagerEventMap = {
@@ -117,7 +147,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.notifyChange();
 
         // Preload web-ifc.wasm
-        Fetcher.fetch(getPublicFolderUrl('web-ifc.wasm')).catch(e => {
+        Fetcher.blob(getPublicFolderUrl('web-ifc.wasm')).catch(e => {
             console.warn('Could not load web-ifc.wasm', e);
         });
     }
