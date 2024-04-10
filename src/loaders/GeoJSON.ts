@@ -1,11 +1,10 @@
-import Feature from 'ol/Feature';
 import GeoJSONFormat from 'ol/format/GeoJSON';
-import { Box3, Group, Vector3 } from 'three';
+import { Group } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import Instance from '@giro3d/giro3d/core/Instance';
-import OlFeature2Mesh from '@giro3d/giro3d/utils/OlFeature2Mesh';
+import type Instance from '@giro3d/giro3d/core/Instance';
 
-import Fetcher, { UrlOrBlob } from '@/utils/Fetcher';
+import Fetcher, { type UrlOrBlob } from '@/utils/Fetcher';
+import OLFeatures from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
 import loader from './loader';
 
@@ -20,8 +19,6 @@ export interface GeoJSONParameters {
      */
     elevation?: number;
 }
-
-const geojsonFormat = new GeoJSONFormat();
 
 export default {
     async loadOne(
@@ -43,7 +40,6 @@ export default {
         const root = await this.loadOne(instance, url, parameters);
 
         const entity = new Entity3D(root.uuid, root);
-        entity.onObjectCreated(root);
         return entity;
     },
 
@@ -62,7 +58,6 @@ export default {
         objects.forEach(child => root.add(child));
 
         const entity = new Entity3D(root.uuid, root);
-        entity.onObjectCreated(root);
         return entity;
     },
 
@@ -71,6 +66,8 @@ export default {
         features: GeoJSON.Feature[],
         parameters: GeoJSONParameters = {},
     ): Promise<Group> {
+        const geojsonFormat = new GeoJSONFormat();
+
         const dataProjection = await Projections.loadProjCrsIfNeeded(
             parameters.projection ?? 'EPSG:4326',
         );
@@ -81,27 +78,11 @@ export default {
                 dataProjection,
                 featureProjection: instance.referenceCrs,
             }),
-        ) as Feature[];
-
-        const root = new Group();
-
-        const meshes = OlFeature2Mesh.convert(olFeatures, {
+        );
+        const simpleFeatures = OLFeatures.toSimpleFeatures(olFeatures);
+        return OLFeatures.toMeshes(simpleFeatures, {
             elevation: dataElevation,
         });
-        const bbox = new Box3();
-        const center = new Vector3();
-        for (const mesh of meshes) {
-            bbox.setFromObject(mesh);
-            bbox.getCenter(center);
-
-            mesh.geometry.translate(-center.x, -center.y, -center.z);
-            mesh.position.copy(center);
-            mesh.updateMatrix();
-            mesh.updateMatrixWorld();
-            root.add(mesh);
-        }
-
-        return root;
     },
 
     loadJson(

@@ -1,45 +1,51 @@
-import { Object3D } from 'three';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import Instance from '@giro3d/giro3d/core/Instance';
+import { type Object3D } from 'three';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type Instance from '@giro3d/giro3d/core/Instance';
 
-import { DatasetImportedConfig } from '@/types/configuration/dataset';
-import { Dataset, DatasetTypeImportable } from '@/types/Dataset';
-import { UrlOrGlDataType } from '@/utils/Fetcher';
-import CityJSON from './CityJSON';
-import GeoJSON from './GeoJSON';
-import IFC from './IFC';
-import PLY from './PLY';
+import { type DatasetImportedConfig } from '@/types/configuration/dataset';
+import { Dataset, type DatasetTypeImportable } from '@/types/Dataset';
+import { type UrlOrGlDataType } from '@/utils/Fetcher';
 import BDTopo from './BDTopo';
-import TiledPointCloud from './TiledPointCloud';
-import Shapefile from './Shapefile';
-import Geopackage from './Geopackage';
+import CityJSON from './CityJSON';
 import CSVPointCloud from './CSVPointCloud';
+import GeoJSON from './GeoJSON';
+import Geopackage from './Geopackage';
+import GPX from './GPX';
+import IFC from './IFC';
+import KML from './KML';
 import LAS from './LAS';
+import PLY from './PLY';
+import Shapefile from './Shapefile';
+import TiledPointCloud from './TiledPointCloud';
 
 /** Supported file types */
-type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc';
+type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'gpx' | 'kml';
 
 /** Mapping between file extensions and file types */
 const filetypesPerExtension: Record<string, FileType> = {
-    gpkg: 'gpkg',
-    laz: 'las',
-    las: 'las',
     csv: 'csv',
-    tsv: 'csv',
     dsv: 'csv',
-    json: 'cityjson',
     geojson: 'geojson',
+    gpkg: 'gpkg',
+    gpx: 'gpx',
     ifc: 'ifc',
+    json: 'cityjson',
+    kml: 'kml',
+    las: 'las',
+    laz: 'las',
+    tsv: 'csv',
 } as const;
 
 /** Mapping between file types and the dataset types */
 const datasetTypePerFileType: Record<FileType, DatasetTypeImportable> = {
-    gpkg: 'gpkg',
-    las: 'pointcloud',
-    csv: 'pointcloud',
     cityjson: 'cityjson',
+    csv: 'pointcloud',
     geojson: 'geojson',
+    gpkg: 'gpkg',
+    gpx: 'gpx',
     ifc: 'ifc',
+    kml: 'kml',
+    las: 'pointcloud',
 } as const;
 
 /** Information on a File */
@@ -112,35 +118,6 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             entity = CityJSON.load(instance, dataset.url);
             break;
         }
-        case 'ifc': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            const at = dataset.get('coordinates');
-            entity = IFC.load(instance, dataset.url, {
-                name: dataset.name,
-                at: at?.as(instance.referenceCrs),
-            });
-            break;
-        }
-        case 'ply': {
-            const at = dataset.get('coordinates');
-            if (!at) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = PLY.load(instance, dataset.url, {
-                at: at.as(instance.referenceCrs),
-            });
-            break;
-        }
-        case 'shp': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            entity = Shapefile.loadAll(instance, dataset.url, {
-                elevation: dataset.get('elevation'),
-            });
-            break;
-        }
         case 'geojson': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             entity = GeoJSON.loadAll(instance, dataset.url, {
@@ -155,11 +132,58 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             });
             break;
         }
+        case 'gpx': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            entity = GPX.load(instance, dataset.url, {
+                elevation: dataset.get('elevation'),
+            });
+            break;
+        }
+        case 'ifc': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            const at = dataset.get('coordinates');
+            entity = IFC.load(instance, dataset.url, {
+                name: dataset.name,
+                at: at?.as(instance.referenceCrs),
+            });
+            break;
+        }
+        case 'kml': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            entity = KML.load(instance, dataset.url, {
+                elevation: dataset.get('elevation'),
+            });
+            break;
+        }
+        case 'ply': {
+            const at = dataset.get('coordinates');
+            if (!at) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            if (Array.isArray(dataset.url))
+                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            entity = PLY.load(instance, dataset.url, {
+                at: at.as(instance.referenceCrs),
+            });
+            break;
+        }
         case 'pointcloud': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
             entity = TiledPointCloud.load(instance, dataset.url, { name: dataset.name });
+            break;
+        }
+        case 'shp': {
+            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            entity = Shapefile.loadAll(instance, dataset.url, {
+                elevation: dataset.get('elevation'),
+            });
             break;
         }
         default: {
@@ -197,8 +221,12 @@ async function loadFile(
             return GeoJSON.load(instance, file);
         case 'gpkg':
             return Geopackage.load(instance, file);
+        case 'gpx':
+            return GPX.load(instance, file);
         case 'ifc':
             return IFC.load(instance, file, { name: fileinfo.name });
+        case 'kml':
+            return KML.load(instance, file);
         case 'las':
             return LAS.load(instance, file);
         default: {

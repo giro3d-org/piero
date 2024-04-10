@@ -15,14 +15,16 @@ import { isObject } from '@/utils/Types';
 
 /** All types of datasets supported in this app */
 export type DatasetType =
+    | 'bdtopo'
     | 'cityjson'
+    | 'geojson'
+    | 'gpkg'
+    | 'gpx'
     | 'ifc'
+    | 'kml'
     | 'ply'
     | 'pointcloud'
-    | 'bdtopo'
-    | 'shp'
-    | 'geojson'
-    | 'gpkg';
+    | 'shp';
 /** List of dataset types that can be drag-and-dropped into the app */
 export type DatasetTypeImportable = Exclude<DatasetType, 'bdtopo' | 'ply' | 'shp'>;
 /** List of dataset types that support multiple URL sources in their configuration */
