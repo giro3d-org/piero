@@ -20,6 +20,32 @@ interface ImportMetaEnv {
      */
     readonly VITE_AUTHORIZATION_VALUE?: string;
 
+    /**
+     * If the app requires "Authorization" headers for multiple paths, set this variable to a string-typed object with host as keys and headers as values.
+     *
+     * Example:
+     * ```
+     * VITE_AUTHORIZATIONS="{
+     * 'https://3d.oslandia.com/mypath': 'Basic V6d1y/39htSu2av+gx3Tkg==',
+     * 'https://example.com/': 'Basic hZsFiDj4ZbQ8QrkDVqV7ug=='
+     * }"
+     * ```
+     */
+    readonly VITE_AUTHORIZATIONS?: Record<string, string>;
+
+    /**
+     * If the app requires custom headers for domains, set this variable to a string-typed object with host as keys and name:value as values.
+     *
+     * Example:
+     * ```
+     * VITE_HEADERS="{
+     * 'https://3d.oslandia.com/myfirstdomain': {'X-API-Token': 'mytoken'},
+     * 'https://example.com/': {'X-Custom-Header': 'value'}
+     * }"
+     * ```
+     */
+    readonly VITE_HEADERS?: Record<string, Record<string, string>>;
+
     readonly PROD: boolean;
     readonly BASE_URL: string;
     readonly VITE_DEPENDENCIES: Record<string, DependencyInfo>;

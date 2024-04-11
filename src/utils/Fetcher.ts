@@ -5,6 +5,17 @@ export type UrlOrBlob = string | Blob | Response;
 export type UrlOrGlDataType = string | DataType;
 
 /**
+ * Checks a host is parsable and starts with `http(s)://`.
+ * This is useful when passing hosts to Giro3D's HttpConfiguration.
+ *
+ * @param host - Host (e.g. https://example.com/foobar)
+ * @returns true if valid
+ */
+function checkAbsoluteHost(host: string): boolean {
+    return URL.canParse(host) && (host.startsWith('http://') || host.startsWith('https://'));
+}
+
+/**
  * Fetches a url and returns a Blob-like object
  * @param url - URL or Blob-like object
  * @returns Blob-like object
@@ -45,4 +56,4 @@ async function json<T extends object = object>(url: UrlOrBlob): Promise<T> {
     return JSON.parse(content);
 }
 
-export default { blob, arrayBuffer, text, json };
+export default { checkAbsoluteHost, blob, arrayBuffer, text, json };
