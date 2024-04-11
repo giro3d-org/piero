@@ -4,6 +4,8 @@ import {
 } from 'cityjson-threejs-loader';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type { CityJSON } from '@giro3d/cityjson-schemas-typescript';
+import type { Metadata as CityJSONMetadata } from '@giro3d/cityjson-schemas-typescript/CityJSONV2_0_1';
 
 import CityJSONEntity from '@/giro3d/CityJSONEntity';
 import Fetcher from '@/utils/Fetcher';
@@ -27,8 +29,7 @@ export type CityJSONImplParameters = CityJSONParameters & {
  * @param parameters - Loader parameters
  * @returns CityJSON entity
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toEntity(json: any, parameters: CityJSONImplParameters): Promise<CityJSONEntity> {
+function toEntity(json: CityJSON, parameters: CityJSONImplParameters): Promise<CityJSONEntity> {
     return new Promise<CityJSONEntity>(resolve => {
         const parser = new CityJSONWorkerParser();
         const loader = new CityJSONThreeLoader(parser);
@@ -50,20 +51,23 @@ function toEntity(json: any, parameters: CityJSONImplParameters): Promise<CityJS
         } else if (json.vertices?.at(0)?.at(2) !== 0) {
             // Z already taken into account in the vertices
             z = 0;
-        } else if (json.metadata?.geographicalExtent?.at(5) != null) {
-            // We have to take Z into account - FIXME
-            z =
-                json.metadata?.geographicalExtent[5] -
-                json.CityObjects?.['1']?.attributes?.['ArrDissolve-LoD12.global_elevation_max']
-                    ? json.CityObjects?.['1']?.attributes?.[
-                          'ArrDissolve-LoD12.global_elevation_max'
-                      ]
-                    : 0;
+        } else if (json.metadata) {
+            const md = json.metadata as CityJSONMetadata;
+            if (md.geographicalExtent?.at(5) != null) {
+                // We have to take Z into account - FIXME
+                const attributes = json.CityObjects?.['1']?.attributes as
+                    | { [k: string]: unknown }
+                    | undefined;
+                const offset = attributes?.['ArrDissolve-LoD12.global_elevation_max'] as
+                    | number
+                    | undefined;
+                z = md.geographicalExtent[5] - (offset ?? 0);
+            }
         }
 
         const m = loader.matrix.toArray();
         const projection =
-            json?.metadata?.referenceSystem ??
+            (json?.metadata?.referenceSystem as string) ??
             parameters.dataProjection ??
             parameters.featureProjection;
 
@@ -89,7 +93,7 @@ function toEntity(json: any, parameters: CityJSONImplParameters): Promise<CityJS
  * CityJSON loader
  */
 export const CityJSONLoaderImpl = {
-    fetch: Fetcher.fetchJson,
+    fetch: Fetcher.fetchJson<CityJSON>,
     toEntity,
 };
 

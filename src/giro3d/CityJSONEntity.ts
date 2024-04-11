@@ -1,8 +1,19 @@
-import { Vector2 } from 'three';
-import { CityJSONLoader, CityObjectsMesh } from 'cityjson-threejs-loader';
+import { type Vector2 } from 'three';
+import { type CityJSONLoader, type CityObjectsMesh } from 'cityjson-threejs-loader';
 import { Entity3D } from '@giro3d/giro3d/entities';
-import { PickOptions, PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
+import type { PickOptions, PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
 import { isObject } from '@/utils/Types';
+import type {
+    CompositeSolid,
+    CompositeSurface,
+    GeometryInstance,
+    MultiLineString,
+    MultiPoint,
+    MultiSolid,
+    MultiSurface,
+    Solid,
+    _AbstractCityObject as _AbstractCityObjectV201,
+} from '@giro3d/cityjson-schemas-typescript/CityJSONV2_0_1';
 
 export interface CityJSONIntersectionInfo {
     vertexId: number;
@@ -15,10 +26,22 @@ export interface CityJSONIntersectionInfo {
     lodIndex: number;
 }
 
+export type CityModel = _AbstractCityObjectV201 & {
+    geometry?: (
+        | CompositeSolid
+        | CompositeSurface
+        | GeometryInstance
+        | MultiLineString
+        | MultiPoint
+        | MultiSolid
+        | MultiSurface
+        | Solid
+    )[];
+};
+
 export interface CityJSONFeature {
     cityjsonInfo: CityJSONIntersectionInfo;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    citymodel: any;
+    citymodel: CityModel;
 }
 
 export interface CityJSONPickResult extends PickResult<CityJSONFeature> {
@@ -57,11 +80,11 @@ export default class CityJSONEntity
 
     pickFeaturesFrom(pickedResult: CityJSONPickResult): CityJSONFeature[] {
         const { object } = pickedResult;
-        // @ts-expect-error - resolveIntersectionInfo typing is broken
+        // @ts-expect-error - resolveIntersectionInfo typing is broken (https://github.com/cityjson/cityjson-threejs-loader/pull/10)
         const cityjsonInfo = object.resolveIntersectionInfo(
             pickedResult,
         ) as CityJSONIntersectionInfo;
-        // @ts-expect-error - CityObjectsMesh / cityjsonInfo don't have proper typing
+        // @ts-expect-error - CityObjectsMesh / cityjsonInfo don't have proper typing (https://github.com/cityjson/cityjson-threejs-loader/pull/11)
         const citymodel = object.citymodel.CityObjects[cityjsonInfo.objectId];
         const result = [{ cityjsonInfo, citymodel }];
         pickedResult.features = result;

@@ -89,13 +89,17 @@ export default class Picker {
         cityjsonAttributes.push({ key: 'ID', value: cityjsonInfo.objectId });
         cityjsonAttributes.push({ key: 'Type', value: citymodel.type });
 
-        const geometry = citymodel.geometry?.[cityjsonInfo.geometryIndex];
+        const geometry = citymodel?.geometry?.[cityjsonInfo.geometryIndex];
         if (geometry) {
-            cityjsonAttributes.push({ key: 'LoD', value: geometry.lod });
+            if ('lod' in geometry) {
+                cityjsonAttributes.push({ key: 'LoD', value: geometry.lod });
+            }
 
-            const surface = geometry.semantics?.surfaces?.[cityjsonInfo.surfaceTypeIndex];
-            if (surface) {
-                cityjsonAttributes.push({ key: 'Surface type', value: surface.type });
+            if ('semantics' in geometry) {
+                const surface = geometry.semantics?.surfaces?.[cityjsonInfo.surfaceTypeIndex];
+                if (surface) {
+                    cityjsonAttributes.push({ key: 'Surface type', value: surface.type });
+                }
             }
         }
     }
