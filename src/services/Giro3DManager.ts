@@ -12,7 +12,6 @@ import Highlighter from '@/services/Highlighter';
 import Picker from '@/services/Picker';
 import MeasurementManager from '@/services/MeasurementManager';
 import { useGiro3dStore } from '@/stores/giro3d';
-import { getPublicFolderUrl } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
 
 Instance.registerCRS(
@@ -147,7 +146,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.notifyChange();
 
         // Preload web-ifc.wasm
-        Fetcher.blob(getPublicFolderUrl('web-ifc.wasm')).catch(e => {
+        Fetcher.fetch('web-ifc.wasm').catch(e => {
             console.warn('Could not load web-ifc.wasm', e);
         });
     }

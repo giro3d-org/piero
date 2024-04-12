@@ -29,26 +29,29 @@
     const propertyViews: Map<DatasetType, Component> = new Map();
     propertyViews.set('ifc', IfcPropertyView);
 
-    const icons: Map<DatasetType, string> = new Map();
-    icons.set('bdtopo', 'bi-buildings');
-    icons.set('cityjson', 'bi-buildings');
-    icons.set('geojson', 'fg-geojson-file');
-    icons.set('gpkg', 'polygon-pt');
-    icons.set('ifc', 'bi-building');
-    icons.set('ply', 'bi-file-earmark-binary');
-    icons.set('pointcloud', 'fg-multipoint');
-    icons.set('shp', 'fg-shape-file');
+    const icons: Record<DatasetType, string> = {
+        bdtopo: 'bi-buildings',
+        cityjson: 'bi-buildings',
+        geojson: 'fg-geojson-file',
+        gpkg: 'fg-polygon-pt',
+        gpx: 'fg-polyline',
+        ifc: 'bi-building',
+        kml: 'fg-polygon-pt',
+        ply: 'bi-file-earmark-binary',
+        pointcloud: 'fg-multipoint',
+        shp: 'fg-shape-file',
+    };
 </script>
 
 <template>
     <div class="d-flex">
         <IconList class="me-1 text-body-tertiary">
             <i
-                v-if="icons.get(dataset.type)?.startsWith('bi-')"
+                v-if="icons[dataset.type]?.startsWith('bi-')"
                 class="bi"
-                :class="icons.get(dataset.type)"
+                :class="icons[dataset.type]"
             />
-            <i v-else-if="icons.get(dataset.type)" :class="icons.get(dataset.type)" />
+            <i v-else-if="icons[dataset.type]" :class="icons[dataset.type]" />
             <i v-else class="bi bi-file-earmark-x" />
         </IconList>
         <VisibilityControl

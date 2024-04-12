@@ -1,22 +1,21 @@
-import { type Object3D } from 'three';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Instance from '@giro3d/giro3d/core/Instance';
 
 import { type DatasetImportedConfig } from '@/types/configuration/dataset';
 import { Dataset, type DatasetTypeImportable } from '@/types/Dataset';
-import { type UrlOrGlDataType } from '@/utils/Fetcher';
-import BDTopo from './BDTopo';
-import CityJSON from './CityJSON';
-import CSVPointCloud from './CSVPointCloud';
-import GeoJSON from './GeoJSON';
-import Geopackage from './Geopackage';
-import GPX from './GPX';
-import IFC from './IFC';
-import KML from './KML';
-import LAS from './LAS';
-import PLY from './PLY';
-import Shapefile from './Shapefile';
-import TiledPointCloud from './TiledPointCloud';
+import Fetcher, { FetchContext, UrlOrFetchedData } from '@/utils/Fetcher';
+import { BDTopoLoader } from './BDTopo';
+import { CityJSONLoader } from './CityJSON';
+import { CSVPointCloudLoader } from './CSVPointCloud';
+import { GeoJSONLoader } from './GeoJSON';
+import { GeopackageLoader } from './Geopackage';
+import { GPXLoader } from './GPX';
+import { IFCLoader } from './IFC';
+import { KMLLoader } from './KML';
+import { LASLoader } from './LAS';
+import { PLYLoader } from './PLY';
+import { ShapefileLoader } from './Shapefile';
+import { TiledPointCloudLoader } from './TiledPointCloud';
 
 /** Supported file types */
 type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'gpx' | 'kml';
@@ -49,11 +48,7 @@ const datasetTypePerFileType: Record<FileType, DatasetTypeImportable> = {
 } as const;
 
 /** Information on a File */
-interface FileInfo {
-    /** Filename */
-    name?: string;
-    /** File extension */
-    ext?: string;
+interface FileInfo extends FetchContext {
     /** File type (if recognized) */
     type?: FileType;
     /** Dataset type (if recognized) */
@@ -77,22 +72,16 @@ export type ImportFileResult = {
  * @param fileOrUrl - File or URL
  * @returns File name and extension
  */
-function getFilename(fileOrUrl: UrlOrGlDataType): FileInfo {
-    let filename: string | undefined = undefined;
+function getFilename(fileOrUrl: UrlOrFetchedData): FileInfo {
+    const context = Fetcher.getContext(fileOrUrl);
+    const type = context.fileext ? filetypesPerExtension[context.fileext] : undefined;
+    const datasetType = type ? datasetTypePerFileType[type] : undefined;
 
-    if (fileOrUrl instanceof File) {
-        filename = fileOrUrl.name;
-    } else if (fileOrUrl instanceof Response) {
-        filename = fileOrUrl.url.split('/').at(-1);
-    } else if (typeof fileOrUrl === 'string' || fileOrUrl instanceof String) {
-        filename = fileOrUrl.split('/').at(-1);
-    }
-
-    const fileext = filename?.split('.').at(-1);
-    const filetype = fileext ? filetypesPerExtension[fileext] : undefined;
-    const datasetType = filetype ? datasetTypePerFileType[filetype] : undefined;
-
-    return { name: filename, ext: fileext, type: filetype, datasetType };
+    return {
+        ...context,
+        type,
+        datasetType,
+    };
 }
 
 /**
@@ -108,19 +97,20 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
 
     switch (dataset.type) {
         case 'bdtopo': {
-            entity = BDTopo.load(instance, { name: dataset.name });
+            entity = new BDTopoLoader().load(instance, { name: dataset.name });
             break;
         }
         case 'cityjson': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = CityJSON.load(instance, dataset.url);
+            entity = new CityJSONLoader().load(instance, { url: dataset.url });
             break;
         }
         case 'geojson': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            entity = GeoJSON.loadAll(instance, dataset.url, {
+            entity = new GeoJSONLoader().load(instance, {
+                url: dataset.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -132,7 +122,8 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
         }
         case 'gpkg': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            entity = Geopackage.loadAll(instance, dataset.url, {
+            entity = new GeopackageLoader().load(instance, {
+                url: dataset.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -144,9 +135,8 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
         }
         case 'gpx': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = GPX.load(instance, dataset.url, {
+            entity = new GPXLoader().load(instance, {
+                url: dataset.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -160,18 +150,17 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            const at = dataset.get('coordinates');
-            entity = IFC.load(instance, dataset.url, {
+            entity = new IFCLoader().load(instance, {
+                url: dataset.url,
                 name: dataset.name,
-                at: at?.as(instance.referenceCrs),
+                at: dataset.get('coordinates'),
             });
             break;
         }
         case 'kml': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = KML.load(instance, dataset.url, {
+            entity = new KMLLoader().load(instance, {
+                url: dataset.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -187,7 +176,8 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = PLY.load(instance, dataset.url, {
+            entity = new PLYLoader().load(instance, {
+                url: dataset.url,
                 at: at.as(instance.referenceCrs),
             });
             break;
@@ -196,12 +186,16 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
             if (Array.isArray(dataset.url))
                 throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = TiledPointCloud.load(instance, dataset.url, { name: dataset.name });
+            entity = new TiledPointCloudLoader().load(instance, {
+                url: dataset.url,
+                name: dataset.name,
+            });
             break;
         }
         case 'shp': {
             if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            entity = Shapefile.loadAll(instance, dataset.url, {
+            entity = new ShapefileLoader().load(instance, {
+                url: dataset.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -239,21 +233,21 @@ async function loadFile(
 ): Promise<Entity3D> {
     switch (fileinfo.type) {
         case 'cityjson':
-            return CityJSON.load(instance, file);
+            return new CityJSONLoader().load(instance, { url: file });
         case 'csv':
-            return CSVPointCloud.load(instance, file);
+            return new CSVPointCloudLoader().load(instance, { url: file });
         case 'geojson':
-            return GeoJSON.load(instance, file, { fetchElevation: true });
+            return new GeoJSONLoader().load(instance, { url: file, fetchElevation: true });
         case 'gpkg':
-            return Geopackage.load(instance, file, { fetchElevation: true });
+            return new GeopackageLoader().load(instance, { url: file, fetchElevation: true });
         case 'gpx':
-            return GPX.load(instance, file, { fetchElevation: true });
+            return new GPXLoader().load(instance, { url: file, fetchElevation: true });
         case 'ifc':
-            return IFC.load(instance, file, { name: fileinfo.name });
+            return new IFCLoader().load(instance, { url: file, name: fileinfo.filename });
         case 'kml':
-            return KML.load(instance, file, { fetchElevation: true });
+            return new KMLLoader().load(instance, { url: file, fetchElevation: true });
         case 'las':
-            return LAS.load(instance, file);
+            return new LASLoader().load(instance, { url: file });
         default: {
             // Exhaustiveness checking
             const _exhaustiveCheck: never = fileinfo.type;
@@ -273,19 +267,19 @@ async function loadFile(
 async function importFile(instance: Instance, file: File): Promise<ImportFileResult> {
     const fileinfo = getFilename(file);
 
-    if (fileinfo.name == null || fileinfo.ext == null) {
+    if (fileinfo.filename == null || fileinfo.fileext == null) {
         throw new Error('Could not determine filename');
     }
     if (fileinfo.type == null || fileinfo.datasetType == null) {
-        throw new Error(`File ${fileinfo.ext} not supported`);
+        throw new Error(`File ${fileinfo.fileext} not supported`);
     }
 
     const entity = await loadFile(instance, file, fileinfo as ImportableFileInfo);
     if (!('dataset' in entity.object3d.userData)) entity.object3d.userData.dataset = {};
-    entity.object3d.userData.dataset.name = fileinfo.name;
+    entity.object3d.userData.dataset.name = fileinfo.filename;
 
     const datasetConfig: DatasetImportedConfig = {
-        name: fileinfo.name,
+        name: fileinfo.filename,
         type: fileinfo.datasetType,
         url: null,
         visible: true,
@@ -294,17 +288,7 @@ async function importFile(instance: Instance, file: File): Promise<ImportFileRes
     return { entity, dataset };
 }
 
-function fillOrigin(object: Object3D, url: UrlOrGlDataType) {
-    const fileinfo = getFilename(url);
-    if (fileinfo.name) {
-        if (!('dataset' in object.userData)) object.userData.dataset = {};
-        object.userData.dataset.filename = fileinfo.name;
-    }
-}
-
 export default {
     loadDataset,
     importFile,
-    getFilename,
-    fillOrigin,
 };

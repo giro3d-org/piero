@@ -59,7 +59,7 @@ export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
      */
     fetchElevation?: boolean;
     /**
-     * When fetching elevation, fetches only the centroïd (otherwise will fetch all vertices).
+     * When fetching elevation, fetches only the centroid (otherwise will fetch all vertices).
      * Optional for SHP, GeoJSON, Geopackage datasets. Ignored for all other datasets.
      * When set on a group, will be inherited to all descendants.
      *
