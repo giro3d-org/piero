@@ -15,7 +15,7 @@ const config: Configuration = {
             crs: 'EPSG:2154',
             x: 841869,
             y: 6518359,
-            z: 168,
+            z: -100,
         },
     },
     basemap: {
