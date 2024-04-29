@@ -4,7 +4,7 @@ import BilFormat from '@giro3d/giro3d/formats/BilFormat';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 
 import { GPX, KML, MVT, WMTSCapabilities } from 'ol/format';
-import { WMTS } from 'ol/source';
+import { OSM, WMTS } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
 import { CogSource, ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources';
 import { ImageFormat } from '@giro3d/giro3d/formats';
@@ -70,6 +70,8 @@ async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
                 format: getFormat(input.format),
             });
         }
+        case 'osm':
+            return new TiledImageSource({ source: new OSM() });
         case 'wmts': {
             const source = await createWMTSSource(
                 input.layer,

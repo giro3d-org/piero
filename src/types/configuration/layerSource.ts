@@ -3,7 +3,7 @@ import { VectorStyle } from '../VectorStyle';
 import { CRS } from './geographic';
 
 /** Supported layer source types */
-export type LayerSourceType = 'wms' | 'wmts' | 'cog' | 'geojson' | 'kml' | 'gpx' | 'mvt';
+export type LayerSourceType = 'osm' | 'wms' | 'wmts' | 'cog' | 'geojson' | 'kml' | 'gpx' | 'mvt';
 
 /** Base configuration for layers and overlays sources */
 export type LayerSourceBaseConfig<TType extends LayerSourceType> = {
@@ -16,6 +16,8 @@ export type LayerSourceBaseConfig<TType extends LayerSourceType> = {
      */
     resolution?: number;
 };
+
+export type OpenStreetMapConfig = LayerSourceBaseConfig<'osm'>;
 
 /** WMS source configuration */
 export type WMSSourceConfig = LayerSourceBaseConfig<'wms'> & {
@@ -93,7 +95,7 @@ export type MVTSourceConfig = LayerSourceBaseConfig<'mvt'> & {
 };
 
 /** Available configuration for layer sources */
-export type BasemapLayerSourceConfig = WMSSourceConfig | WMTSSourceConfig | COGSourceConfig;
+export type BasemapLayerSourceConfig = OpenStreetMapConfig | WMSSourceConfig | WMTSSourceConfig | COGSourceConfig;
 
 /** Basemap layer configuration */
 export type LayerConfig = {
