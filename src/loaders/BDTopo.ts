@@ -50,7 +50,6 @@ export default {
             },
             style: (feature: Feature) => {
                 const properties = feature.getProperties();
-                const fid = feature.getId();
                 let color = '#FFFFFF';
                 let visible = true;
                 if (properties.usage_1 === 'Résidentiel') {
@@ -60,9 +59,10 @@ export default {
                 }
 
                 if (
-                    fid === 'batiment.BATIMENT0000000240851971' ||
-                    fid === 'batiment.BATIMENT0000000240851972'
+                    properties.cleabs === 'BATIMENT0000000240851971' ||
+                    properties.cleabs === 'BATIMENT0000000240851972'
                 ) {
+                    // Hide the buildings of our IFC
                     visible = false;
                 }
 
