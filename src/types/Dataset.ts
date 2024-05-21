@@ -15,14 +15,16 @@ import { isObject } from '@/utils/Types';
 
 /** All types of datasets supported in this app */
 export type DatasetType =
+    | 'bdtopo'
     | 'cityjson'
+    | 'geojson'
+    | 'gpkg'
+    | 'gpx'
     | 'ifc'
+    | 'kml'
     | 'ply'
     | 'pointcloud'
-    | 'bdtopo'
-    | 'shp'
-    | 'geojson'
-    | 'gpkg';
+    | 'shp';
 /** List of dataset types that can be drag-and-dropped into the app */
 export type DatasetTypeImportable = Exclude<DatasetType, 'bdtopo' | 'ply' | 'shp'>;
 /** List of dataset types that support multiple URL sources in their configuration */
@@ -68,6 +70,8 @@ abstract class DatasetBase<
     /* Properties for initializing entity, not used/changed afterwards */
     readonly coordinates?: Coordinates;
     readonly elevation?: number;
+    readonly fetchElevation?: boolean;
+    readonly fetchElevationFast?: boolean;
     readonly canMaskBasemap?: boolean;
     readonly isMaskingBasemap?: boolean;
     readonly onObjectPreloaded?: OnObjectPreloaded;
@@ -96,6 +100,8 @@ abstract class DatasetBase<
             );
         }
         this.elevation = conf.elevation;
+        this.fetchElevation = conf.fetchElevation;
+        this.fetchElevationFast = conf.fetchElevationFast;
         this.onObjectPreloaded = conf.onObjectPreloaded;
     }
 

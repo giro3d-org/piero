@@ -1,17 +1,21 @@
 import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
-import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
+import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Instance from '@giro3d/giro3d/core/Instance';
-import { PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
+import { type PickResult, type PickableFeatures } from '@giro3d/giro3d/core/picking';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import Fetcher, { UrlOrBlob } from '@/utils/Fetcher';
+import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
-import loader from './loader';
+import { Loader, type UrlParams } from './core/LoaderCore';
 
 /** Parameters for creating PLY object */
 export type PLYParameters = {
     at: Coordinates;
+};
+
+export type PLYImplParameters = PLYParameters & {
+    featureProjection: string;
 };
 
 export interface PlyFeature {
@@ -46,45 +50,59 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
         isObject(obj) && PlyMesh.isPlyMesh((obj as PickResult<unknown>)?.object);
 }
 
-export default {
-    async load(
-        instance: Instance,
-        url: UrlOrBlob | ArrayBuffer,
-        parameters: PLYParameters,
-    ): Promise<Entity3D> {
-        const data = await Fetcher.arrayBuffer(url);
-        const entity = await this.loadArrayBuffer(instance, data, parameters);
-        loader.fillOrigin(entity.object3d, url);
-        return entity;
-    },
+/**
+ * Converts loaded data into a Entity3D
+ *
+ * @param data - Data to parse
+ * @param parameters - Loader parameters
+ * @returns PLY entity
+ */
+async function toEntity(data: ArrayBuffer, parameters: PLYImplParameters): Promise<Entity3D> {
+    const position = parameters.at.as(parameters.featureProjection).toVector3();
 
-    async loadArrayBuffer(
-        instance: Instance,
-        data: ArrayBuffer,
-        parameters: PLYParameters,
-    ): Promise<Entity3D> {
-        const position = parameters.at.as(instance.referenceCrs).toVector3();
+    const loader = new PLYThreeLoader();
+    const geometry = loader.parse(data);
 
-        const loader = new PLYLoader();
-        const geometry = loader.parse(data);
+    const material = new MeshLambertMaterial({
+        side: DoubleSide,
+    });
+    if (geometry.hasAttribute('color')) {
+        material.vertexColors = true;
+    }
+    geometry.computeVertexNormals();
 
-        const material = new MeshLambertMaterial({
-            side: DoubleSide,
-        });
-        if (geometry.hasAttribute('color')) {
-            material.vertexColors = true;
-        }
-        geometry.computeVertexNormals();
+    const mesh = new PlyMesh(geometry, material);
+    mesh.name = 'plyModel';
+    geometry.computeBoundingBox();
 
-        const mesh = new PlyMesh(geometry, material);
-        mesh.name = 'plyModel';
-        geometry.computeBoundingBox();
+    mesh.position.copy(position);
+    mesh.updateWorldMatrix(true, true);
 
-        mesh.position.copy(position);
-        mesh.updateWorldMatrix(true, true);
+    const entity = new Entity3D(mesh.uuid, mesh);
+    return Promise.resolve(entity);
+}
 
-        const entity = new Entity3D(mesh.uuid, mesh);
-        entity.onObjectCreated(mesh);
-        return entity;
-    },
+/**
+ * PLY loader
+ */
+export const PLYLoaderImpl = {
+    fetch: Fetcher.fetchArrayBuffer,
+    toEntity,
 };
+
+/**
+ * PLY loader
+ */
+export class PLYLoader extends Loader<PLYParameters, Entity3D> {
+    async loadOne(
+        instance: Instance,
+        { url, ...parameters }: PLYParameters & UrlParams,
+    ): Promise<Entity3D> {
+        const data = await PLYLoaderImpl.fetch(url);
+        const entity = await PLYLoaderImpl.toEntity(data, {
+            ...parameters,
+            featureProjection: instance.referenceCrs,
+        });
+        return entity;
+    }
+}

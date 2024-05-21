@@ -51,6 +51,22 @@ export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
      */
     elevation?: number;
     /**
+     * Fetch elevation in case the source doesn't provide it.
+     * Optional for SHP, GeoJSON, Geopackage datasets. Ignored for all other datasets.
+     * When set on a group, will be inherited to all descendants.
+     *
+     * @defaultValue false
+     */
+    fetchElevation?: boolean;
+    /**
+     * When fetching elevation, fetches only the centroid (otherwise will fetch all vertices).
+     * Optional for SHP, GeoJSON, Geopackage datasets. Ignored for all other datasets.
+     * When set on a group, will be inherited to all descendants.
+     *
+     * @defaultValue true
+     */
+    fetchElevationFast?: boolean;
+    /**
      * Whether this dataset can mask the basemap (enables the "mask" button for this dataset).
      * This can help against Z-fighting when your dataset is on the ground and the map's elevation layer is not precise-enough.
      * When set on a group, will be inherited to all descendants.

@@ -1,32 +1,59 @@
 import { load } from '@loaders.gl/core';
 import { CSVLoader } from '@loaders.gl/csv';
 import { type ArrayRowTable } from '@loaders.gl/schema';
-import { type Instance } from '@giro3d/giro3d/core';
+import { type TypedArray } from 'three';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import { type UrlOrGlDataType } from '@/utils/Fetcher';
-import PointCloud, { type PointCloudParameters } from './PointCloud';
-import loader from './loader';
+import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
+import {
+    PointCloudLoaderImpl,
+    type PointCloudLoaderParameters,
+    type PointCloudLoaderImplParameters,
+} from './core/PointCloudLoader';
+import { Loader, type UrlParams } from './core/LoaderCore';
 
-export default {
-    async load(
-        instance: Instance,
-        url: UrlOrGlDataType,
-        parameters: PointCloudParameters = {},
-    ): Promise<Entity3D> {
-        const raw = (await load(url, CSVLoader, {
-            csv: { shape: 'array-row-table' },
-        })) as ArrayRowTable;
+/**
+ * Fetches data via loaders.gl loader.
+ * @param url - URL to load or Blob
+ * @returns Flat array of 3D points
+ */
+async function fetchCSV(url: UrlOrData): Promise<TypedArray> {
+    const raw = (await load(url, CSVLoader, {
+        fetch: Fetcher.fetch,
+        csv: { shape: 'array-row-table' },
+    })) as ArrayRowTable;
 
-        const posArray = new Float32Array(raw.data.length * 3);
-        for (let i = 0; i < raw.data.length; i += 1) {
-            posArray[i * 3 + 0] = raw.data[i][0];
-            posArray[i * 3 + 1] = raw.data[i][1];
-            posArray[i * 3 + 2] = raw.data[i][2];
-        }
+    const posArray = new Float32Array(raw.data.length * 3);
+    for (let i = 0; i < raw.data.length; i += 1) {
+        posArray[i * 3 + 0] = raw.data[i][0];
+        posArray[i * 3 + 1] = raw.data[i][1];
+        posArray[i * 3 + 2] = raw.data[i][2];
+    }
+    return posArray;
+}
 
-        const entity = await PointCloud.loadArray(instance, posArray, parameters);
-        loader.fillOrigin(entity.object3d, url);
-        return entity;
-    },
+/**
+ * CSV Point cloud loader
+ */
+export const CSVPointCloudLoaderImpl = {
+    fetch: fetchCSV,
 };
+
+/**
+ * CSV Point cloud loader
+ */
+export class CSVPointCloudLoader extends Loader<PointCloudLoaderParameters, Entity3D> {
+    async loadOne(
+        instance: Instance,
+        { url, ...parameters }: PointCloudLoaderParameters & UrlParams,
+    ): Promise<Entity3D> {
+        const implParameters: PointCloudLoaderImplParameters = {
+            ...parameters,
+            featureProjection: instance.referenceCrs,
+        };
+        const data = await CSVPointCloudLoaderImpl.fetch(url);
+        const entity = PointCloudLoaderImpl.toEntity(data, implParameters);
+        return entity;
+    }
+}

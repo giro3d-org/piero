@@ -2,6 +2,33 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 const tmpCoords = new Coordinates('EPSG:4326', 0, 0, 0);
 
+type AltitudeResponse = {
+    elevations: number[];
+};
+
+async function alticodeBatch(lngs: number[], lats: number[]): Promise<number[]> {
+    const requestAltitude = await fetch(
+        `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lngs.join(
+            '|',
+        )}&lat=${lats.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
+    );
+    const altitude: AltitudeResponse = await requestAltitude.json();
+    return altitude.elevations;
+}
+
+async function alticode(lngs: number[], lats: number[]): Promise<number[]> {
+    const chunkSize = 200;
+    const promises = [];
+    for (let i = 0; i < lngs.length; i += chunkSize) {
+        const chunkLng = lngs.slice(i, i + chunkSize);
+        const chunkLat = lats.slice(i, i + chunkSize);
+        promises.push(alticodeBatch(chunkLng, chunkLat));
+    }
+
+    const res = await Promise.all(promises);
+    return res.flat();
+}
+
 export default {
     /**
      * Fetches altitudes from IGN Alti service.
@@ -19,14 +46,10 @@ export default {
             lat.push(tmpCoords.latitude);
         });
 
-        const requestAltitude = await fetch(
-            `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lng.join(
-                '|',
-            )}&lat=${lat.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
-        );
-        const altitude = await requestAltitude.json();
-        altitude.elevations.forEach((value: number, i: number) => {
-            coordinates[i].setAltitude(value);
+        const altitude = await alticode(lng, lat);
+        altitude.forEach((value: number, i: number) => {
+            // @ts-expect-error Bypass isGeographic test as we don't care
+            coordinates[i]._values[2] = value;
         });
     },
 };

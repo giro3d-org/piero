@@ -1,73 +1,75 @@
 import { load } from '@loaders.gl/core';
-import { GeoPackageLoader } from '@loaders.gl/geopackage';
+import { GeoPackageLoader as GeoPackageGLLoader } from '@loaders.gl/geopackage';
 import { type GeoJSONTable, type Tables } from '@loaders.gl/schema';
-import { Group } from 'three';
+import { type Group } from 'three';
 import type Instance from '@giro3d/giro3d/core/Instance';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import { type UrlOrGlDataType } from '@/utils/Fetcher';
-import GeoJSON, { type GeoJSONParameters } from './GeoJSON';
-import loader from './loader';
+import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
+import { GeoJSONLoaderImpl, type GeoJSONParameters, type GeoJSONImplParameters } from './GeoJSON';
+import { LoaderMultiple, type UrlParams } from './core/LoaderCore';
+import { OLLoaderImpl } from './core/OLLoader';
 
-export default {
+export type GeopackageParameters = Omit<GeoJSONParameters, 'dataProjection'>;
+export type GeopackageImplParameters = {
+    featureProjection: string;
+};
+
+/**
+ * Fetches data via loaders.gl loader.
+ * @param url - URL to load or Blob
+ * @param parameters - Parameters
+ * @returns Array of GeoJSON features
+ */
+async function fetchGpgk(
+    url: UrlOrData,
+    parameters: GeopackageImplParameters,
+): Promise<GeoJSON.Feature[]> {
+    const raw = (await load(url, GeoPackageGLLoader, {
+        fetch: Fetcher.fetch,
+        gis: {
+            format: 'geojson',
+            reproject: true,
+            _targetCrs: parameters.featureProjection,
+        },
+    })) as Tables<GeoJSONTable>;
+
+    const features: GeoJSON.Feature[] = [];
+    for (const [table, array] of Object.entries(raw.tables)) {
+        for (const feature of array.table.features) {
+            if (!feature.properties) feature.properties = {};
+            feature.properties['table'] = table;
+            features.push(feature);
+        }
+    }
+    return features;
+}
+
+/**
+ * Geopackage loader.
+ * @see GeoJSONLoaderImpl for post-processing
+ */
+export const GeopackageLoaderImpl = {
+    fetch: fetchGpgk,
+};
+
+/**
+ * Geopackage loader.
+ */
+export class GeopackageLoader extends LoaderMultiple<GeopackageParameters> {
     async loadOne(
         instance: Instance,
-        url: UrlOrGlDataType,
-        parameters: GeoJSONParameters = {},
+        { url, ...parameters }: GeoJSONParameters & UrlParams,
     ): Promise<Group> {
-        const raw = (await load(url, GeoPackageLoader, {
-            gis: {
-                format: 'geojson',
-                reproject: true,
-                _targetCrs: instance.referenceCrs,
-            },
-        })) as Tables<GeoJSONTable>;
-
-        const features: GeoJSON.Feature[] = [];
-        for (const [table, array] of Object.entries(raw.tables)) {
-            for (const feature of array.table.features) {
-                if (!feature.properties) feature.properties = {};
-                feature.properties['table'] = table;
-                features.push(feature);
-            }
-        }
-
-        const group = await GeoJSON.loadFeatures(instance, features, {
-            ...parameters,
-            projection: instance.referenceCrs,
+        const features = await GeopackageLoaderImpl.fetch(url, {
+            featureProjection: instance.referenceCrs,
         });
-        loader.fillOrigin(group, url);
+        const implParameters: GeoJSONImplParameters = {
+            ...parameters,
+            dataProjection: instance.referenceCrs,
+            featureProjection: instance.referenceCrs,
+        };
+        const olFeatures = await GeoJSONLoaderImpl.toOlFeatures(features, implParameters);
+        const group = await OLLoaderImpl.toGroup(olFeatures, implParameters);
         return group;
-    },
-
-    async load(
-        instance: Instance,
-        url: UrlOrGlDataType,
-        parameters: GeoJSONParameters = {},
-    ): Promise<Entity3D> {
-        const root = await this.loadOne(instance, url, parameters);
-
-        const entity = new Entity3D(root.uuid, root);
-        entity.onObjectCreated(root);
-        return entity;
-    },
-
-    async loadAll(
-        instance: Instance,
-        urls: UrlOrGlDataType | UrlOrGlDataType[],
-        parameters: GeoJSONParameters = {},
-    ): Promise<Entity3D> {
-        if (!Array.isArray(urls)) return this.load(instance, urls, parameters);
-        if (urls.length === 1) return this.load(instance, urls[0], parameters);
-
-        const promises = urls.map(u => this.loadOne(instance, u, parameters));
-        const objects = await Promise.all(promises);
-
-        const root = new Group();
-        objects.forEach(child => root.add(child));
-
-        const entity = new Entity3D(root.uuid, root);
-        entity.onObjectCreated(root);
-        return entity;
-    },
-};
+    }
+}
