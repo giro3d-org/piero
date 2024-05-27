@@ -174,6 +174,15 @@ export default class LayerManager extends EventDispatcher {
         return layer;
     }
 
+    private removeBasemap(basemap: BaseLayer) {
+        const layer = this._baseLayers.get(basemap.uuid);
+        if (layer) {
+            this._baseLayers.delete(basemap.uuid);
+            this._basemap.removeLayer(layer);
+            this.updateLayerOrdering();
+        }
+    }
+
     private async loadOverlay(overlay: Overlay) {
         const source = await LayerBuilder.getSource(overlay.config.source);
         const layer = new ColorLayer({
@@ -239,8 +248,12 @@ export default class LayerManager extends EventDispatcher {
     async onLayerVisibilityChanged(basemap: BaseLayer, newVisibility: boolean) {
         const layer = await this.getLayer(basemap, newVisibility);
         if (layer) {
-            layer.visible = newVisibility;
-            this.notify(layer);
+            if (!newVisibility) {
+                this.removeBasemap(basemap);
+            } else {
+                layer.visible = newVisibility;
+                this.notify(layer);
+            }
         }
     }
 
