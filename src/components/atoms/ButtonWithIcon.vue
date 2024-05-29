@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import Icon from './Icon.vue';
+
     defineProps<{
         title: string;
         icon?: string;
@@ -10,7 +12,7 @@
 
 <template>
     <button :title="title" class="btn" type="button" @click="$emit('click', $event)">
-        <i v-if="icon" :class="['bi', icon]" />
+        <Icon v-if="icon" :icon="icon" />
         {{ text }}
     </button>
 </template>

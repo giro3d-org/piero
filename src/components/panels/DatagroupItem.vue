@@ -33,7 +33,7 @@
 <template>
     <div class="d-flex">
         <IconList class="me-1 text-body-tertiary">
-            <i class="bi bi-folder2" />
+            <i class="bi bi-folder2" title="Group" />
         </IconList>
         <VisibilityControl
             :visible="isVisible"
