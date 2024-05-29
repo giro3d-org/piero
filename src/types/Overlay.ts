@@ -1,6 +1,7 @@
+import { type EventDispatcher } from 'three';
+
 import LayerObject from './LayerObject';
-import { EventDispatcher } from 'three';
-import { OverlayConfig } from './configuration/layerSource';
+import type { OverlayConfig } from './configuration/layers';
 
 export interface Overlay extends EventDispatcher {
     uuid: string;

@@ -1,11 +1,11 @@
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import {
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type {
     DatasetOrGroup,
     DatasetType,
     DatasetTypeImportable,
     DatasetTypeMultiple,
 } from '../Dataset';
-import { GeoVec3 } from './geographic';
+import type { GeoVec3 } from './geographic';
 
 /**
  * Callback which is called when the dataset is preloaded into the app.
@@ -18,7 +18,7 @@ import { GeoVec3 } from './geographic';
 export type OnObjectPreloaded = (dataset: DatasetOrGroup, entity: Entity3D) => void;
 
 /** Base configuration for datasets and groups */
-export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
+export interface DatasetBaseConfig<TType extends DatasetType | 'group'> {
     /** Type of dataset */
     type: TType;
     /** Name of dataset displayed in the UI */
@@ -83,23 +83,25 @@ export type DatasetBaseConfig<TType extends DatasetType | 'group'> = {
     isMaskingBasemap?: boolean;
     /** Callback when the dataset or group is preloaded into the app. */
     onObjectPreloaded?: OnObjectPreloaded;
-};
+}
 
 /** Configuration for imported datasets */
-export type DatasetImportedBaseConfig<TType extends DatasetType> = DatasetBaseConfig<TType> & {
+export interface DatasetImportedBaseConfig<TType extends DatasetType>
+    extends DatasetBaseConfig<TType> {
     url: null;
-};
+}
 
 /** Configuration for datasets that require a URL */
-export type DatasetRemoteBaseConfig<TType extends DatasetType> = DatasetBaseConfig<TType> & {
+export interface DatasetRemoteBaseConfig<TType extends DatasetType>
+    extends DatasetBaseConfig<TType> {
     url: string;
-};
+}
 
 /** Configuration for datasets that support multiple URLs */
-export type DatasetMultipleRemoteBaseConfig<TType extends DatasetType> =
-    DatasetBaseConfig<TType> & {
-        url: string[];
-    };
+export interface DatasetMultipleRemoteBaseConfig<TType extends DatasetType>
+    extends DatasetBaseConfig<TType> {
+    url: string[];
+}
 
 /** Configuration for datasets */
 export type DatasetConfig =
@@ -109,10 +111,10 @@ export type DatasetConfig =
 export type DatasetImportedConfig = DatasetImportedBaseConfig<DatasetTypeImportable>;
 
 /** Configuration for group */
-export type DatagroupConfig = DatasetBaseConfig<'group'> & {
+export interface DatagroupConfig extends DatasetBaseConfig<'group'> {
     /** Datasets contained in this group */
     children: DatasetOrGroupConfig[];
-};
+}
 
 /** Configuration for dataset or group */
 export type DatasetOrGroupConfig = DatasetConfig | DatagroupConfig;

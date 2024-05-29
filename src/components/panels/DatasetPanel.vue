@@ -63,13 +63,25 @@
         >
             <CompactList id="layers-list-group">
                 <BasemapItem
+                    v-if="layers.getGraticuleLayer() !== undefined"
+                    type="graticule"
+                    :opacity="1"
+                    :name="layers.getGraticuleLayer()!.name"
+                    :isLoading="false"
+                    :visible="layers.getGraticuleLayer()!.visible"
+                    :hasOpacitySlider="false"
+                    @update:visible="v => (layers.getGraticuleLayer()!.visible = v)"
+                />
+
+                <BasemapItem
                     v-for="layer in layers.getBasemaps()"
                     :key="layer.name"
+                    :type="layer.type"
                     :opacity="layer.opacity"
                     :name="layer.name"
                     :isLoading="layer.isLoading"
                     :visible="layer.visible"
-                    :hasOpacitySlider="true"
+                    :hasOpacitySlider="layer.type === 'color' || layer.type === 'elevation'"
                     @update:visible="v => layers.setBasemapVisibility(layer, v)"
                     @update:opacity="v => layers.setBasemapOpacity(layer, v)"
                 /> </CompactList

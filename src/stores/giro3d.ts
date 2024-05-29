@@ -77,8 +77,27 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return mapExtent.center();
     }
 
+    function getDefaultBasemapOptions() {
+        const opts = {
+            hillshading: config.basemap.hillshading ?? {
+                enabled: true,
+                elevationLayersOnly: true,
+            },
+            contourLines: config.basemap.contourLines,
+            graticule: config.basemap.graticule,
+            colorimetry: config.basemap.colorimetry,
+            doubleSided: config.basemap.doubleSided ?? true,
+            terrain: config.basemap.terrain,
+            backgroundColor: config.basemap.backgroundColor ?? 'white',
+            backgroundOpacity: config.basemap.backgroundOpacity,
+            showOutline: config.basemap.showOutline,
+            elevationRange: config.basemap.elevationRange,
+        };
+        return opts;
+    }
+
     function getDefaultBasemapExtent() {
-        if ('extent' in config.basemap) {
+        if (config.basemap.extent) {
             const extent = new Extent(
                 config.basemap.extent.crs ?? config.default_crs,
                 config.basemap.extent,
@@ -86,8 +105,16 @@ export const useGiro3dStore = defineStore('giro3d', () => {
             return extent.as(config.default_crs);
         }
 
+        console.warn(
+            'Configuration is using basemap.center/basemap.size, you should switch to extent. This will be removed in release v24.10.',
+        );
+
         const size = config.basemap.size;
         const center = config.basemap.center;
+        if (size == null || center == null) {
+            throw new Error('basemap.center and basemap.size need to be defined');
+        }
+
         let centerLocal: Coordinates;
         if (Array.isArray(center)) {
             console.warn(
@@ -124,6 +151,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         setInspector,
         getDefaultCameraPosition,
         getDefaultCameraLookAt,
+        getDefaultBasemapOptions,
         getDefaultBasemapExtent,
         getCRS,
         notifyChange,

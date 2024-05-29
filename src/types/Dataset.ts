@@ -53,7 +53,7 @@ export type DatasetGroupEventMap = DatasetEventMap & {
     /** empty */
 };
 
-abstract class DatasetBase<
+export abstract class DatasetBase<
     TType extends DatasetOrGroupType,
     TEventMap extends DatasetEventMap = DatasetEventMap,
 > extends EventDispatcher<TEventMap & DatasetEventMap> {

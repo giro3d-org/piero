@@ -1,33 +1,62 @@
-import { CRS, GeoExtent, GeoVec2, GeoVec3, Vec3 } from './configuration/geographic';
-import { ExperimentalFeatures } from './configuration/features';
-import { ColorMapConfig } from './configuration/color';
-import {
+import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
+import type { CRS, GeoExtent, GeoVec2, GeoVec3, Vec3 } from './configuration/geographic';
+import type { ExperimentalFeatures } from './configuration/features';
+import type { ColorMapConfig } from './configuration/color';
+import type {
     LayerConfig,
     OverlayConfig,
     OverlayRasterConfigDeprecated,
     OverlayVectorConfigDeprecated,
     OverlayVectorTileConfigDeprecated,
-} from './configuration/layerSource';
-import { DatasetOrGroupConfig } from './configuration/dataset';
-import { BookmarkConfig } from './configuration/bookmark';
-import { CameraConfig, CameraConfigDeprecated } from './configuration/camera';
+} from './configuration/layers';
+import type { DatasetOrGroupConfig } from './configuration/dataset';
+import type { BookmarkConfig } from './configuration/bookmark';
+import type { CameraConfig, CameraConfigDeprecated } from './configuration/camera';
 
-/** Extent configuration */
-export type ExtentConfig =
-    | {
-          extent: GeoExtent;
-      }
-    | {
-          center: GeoVec2 | [number, number];
-          size: [number, number];
-      };
+/**
+ * Extent configuration
+ *
+ * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+ */
+export interface ExtentConfigWithCenter {
+    /**
+     * Center of the map.
+     *
+     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+     */
+    center?: GeoVec2 | [number, number];
+    /**
+     * Size of the map in CRS units.
+     *
+     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+     */
+    size?: [number, number];
+}
 
 /** Basemap configuration */
-export type BasemapConfig = ExtentConfig & {
+export interface BasemapConfig
+    extends ExtentConfigWithCenter,
+        Pick<
+            MapConstructorOptions,
+            | 'hillshading'
+            | 'contourLines'
+            | 'graticule'
+            | 'colorimetry'
+            | 'doubleSided'
+            | 'terrain'
+            | 'backgroundColor'
+            | 'backgroundOpacity'
+            | 'showOutline'
+            | 'elevationRange'
+        > {
+    /** Extent configuration */
+    extent?: GeoExtent;
+
     /**
      * Color map configuration for Elevation layer, used when it's the only layer displayed
      */
     colormap: ColorMapConfig;
+
     /**
      * Layers
      *
@@ -38,7 +67,7 @@ export type BasemapConfig = ExtentConfig & {
      * There should be exactly one elevation layer and one or several color layers.
      */
     layers: LayerConfig[];
-};
+}
 
 /** Piero configuration */
 export type Configuration = {

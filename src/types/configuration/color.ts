@@ -6,11 +6,11 @@ export type ColorRamp = string;
 /**
  * Color map configuration for Elevation layer, used when it's the only layer displayed
  */
-export type ColorMapConfig = {
+export interface ColorMapConfig {
     /** Value mapped to the start of the color ramp */
     min: number;
     /** Value mapped to the end of the color ramp */
     max: number;
     /** Color ramp */
     ramp: ColorRamp;
-};
+}

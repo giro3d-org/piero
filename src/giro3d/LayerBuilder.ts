@@ -1,12 +1,20 @@
+import chroma from 'chroma-js';
 import TileWMS from 'ol/source/TileWMS';
-
+import { Color } from 'three';
+import { ColorLayer, ColorMap, ElevationLayer, MaskLayer } from '@giro3d/giro3d/core/layer';
 import BilFormat from '@giro3d/giro3d/formats/BilFormat';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 
 import { GPX, KML, MVT, WMTSCapabilities } from 'ol/format';
-import { WMTS } from 'ol/source';
+import { BingMaps, OSM, StadiaMaps, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
-import { CogSource, ImageSource, VectorSource, VectorTileSource } from '@giro3d/giro3d/sources';
+import {
+    CogSource,
+    ImageSource,
+    ImageSourceOptions,
+    VectorSource,
+    VectorTileSource,
+} from '@giro3d/giro3d/sources';
 import { ImageFormat } from '@giro3d/giro3d/formats';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
@@ -21,7 +29,16 @@ import {
 } from '@/types/VectorStyle';
 import dynamicStyles from '@/styles';
 import { getPublicFolderUrl } from '@/utils/Configuration';
-import { LayerSourceConfig } from '@/types/configuration/layerSource';
+import type { SourceConfig } from '@/types/configuration/layers';
+import { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
+import { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
+import {
+    ColorLayerConfig,
+    ElevationLayerConfig,
+    MaskLayerConfig,
+} from '@/types/configuration/layers/core/baseConfig';
+import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
+import { ColorMapConfig } from '@/types/configuration/color';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -53,10 +70,97 @@ function getFormat(mimeType?: string): ImageFormat | undefined {
     }
 }
 
-async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
+async function getSource(input: SourceConfig): Promise<ImageSource> {
+    const commonOptions: ImageSourceOptions = {
+        // Not supported yet, needs https://gitlab.com/giro3d/giro3d/-/issues/455
+        // flipY: input.flipY,
+        // is8bit: input.is8bit,
+        // colorSpace: input.colorSpace,
+    };
+
     switch (input.type) {
+        case 'bingmaps': {
+            return new TiledImageSource({
+                ...commonOptions,
+                source: new BingMaps(input),
+            });
+        }
+        case 'cog': {
+            return new CogSource({
+                ...commonOptions,
+                url: getPublicFolderUrl(input.url),
+                crs: input.projection,
+            });
+        }
+        case 'geojson': {
+            return new VectorSource({
+                ...commonOptions,
+                data: getPublicFolderUrl(input.url),
+                format: new GeoJSON(),
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
+        case 'gpx': {
+            return new VectorSource({
+                ...commonOptions,
+                data: getPublicFolderUrl(input.url),
+                format: new GPX(),
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
+        case 'kml': {
+            return new VectorSource({
+                ...commonOptions,
+                data: getPublicFolderUrl(input.url),
+                format: new KML(),
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
+        case 'mvt': {
+            return new VectorTileSource({
+                ...commonOptions,
+                url: getPublicFolderUrl(input.url),
+                format: new MVT(),
+                style: getStyle(input.style),
+                backgroundColor: input.backgroundColor,
+            });
+        }
+        case 'osm': {
+            return new TiledImageSource({
+                ...commonOptions,
+                source: new OSM(input),
+            });
+        }
+        case 'stadiamaps': {
+            return new TiledImageSource({
+                ...commonOptions,
+                source: new StadiaMaps(input),
+            });
+        }
+        case 'vector-tile': {
+            return new VectorTileSource({
+                ...commonOptions,
+                url: getPublicFolderUrl(input.url),
+                format: input.format,
+                style: getStyle(input.style),
+                backgroundColor: input.backgroundColor,
+            });
+        }
+        case 'vector': {
+            return new VectorSource({
+                ...commonOptions,
+                data: getPublicFolderUrl(input.url),
+                format: input.format,
+                dataProjection: input.projection,
+                style: getStyle(input.style),
+            });
+        }
         case 'wms': {
             return new TiledImageSource({
+                ...commonOptions,
                 source: new TileWMS({
                     url: input.url,
                     projection: input.projection,
@@ -78,52 +182,92 @@ async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
                 input.projection,
             );
             return new TiledImageSource({
+                ...commonOptions,
                 source,
                 noDataValue: input.nodata,
                 format: getFormat(input.format),
             });
         }
-        case 'cog': {
-            return new CogSource({
-                url: getPublicFolderUrl(input.url),
-                crs: input.projection,
-            });
-        }
-        case 'geojson': {
-            return new VectorSource({
-                data: getPublicFolderUrl(input.url),
-                format: new GeoJSON(),
-                dataProjection: input.projection,
-                style: getStyle(input.style),
-            });
-        }
-        case 'gpx': {
-            return new VectorSource({
-                data: getPublicFolderUrl(input.url),
-                format: new GPX(),
-                dataProjection: input.projection,
-                style: getStyle(input.style),
-            });
-        }
-        case 'kml': {
-            return new VectorSource({
-                data: getPublicFolderUrl(input.url),
-                format: new KML(),
-                dataProjection: input.projection,
-                style: getStyle(input.style),
-            });
-        }
-        case 'mvt': {
-            return new VectorTileSource({
-                url: getPublicFolderUrl(input.url),
-                format: new MVT(),
-                style: getStyle(input.style),
-                backgroundColor: input.backgroundColor,
+        case 'xyz': {
+            return new TiledImageSource({
+                ...commonOptions,
+                source: new XYZ(input),
+                noDataValue: input.nodata,
             });
         }
         default: {
             // Exhaustiveness checking
             const _exhaustiveCheck: never = input;
+            return _exhaustiveCheck;
+        }
+    }
+}
+
+function getColorMap(conf: ColorMapConfig) {
+    const scale = chroma.scale(conf.ramp);
+    const colors = [];
+    for (let i = 0; i < 256; i++) {
+        const rgb = scale(i / 255).gl();
+        const c = new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
+        colors.push(c);
+    }
+    return new ColorMap(colors, conf.min, conf.max);
+}
+
+async function getLayer(basemap: BaseLayer, defaultElevationColorMap: ColorMapConfig) {
+    const source = await getSource(basemap.source);
+    const resolution = 'resolution' in basemap.source ? basemap.source.resolution : undefined;
+    const colorMapConfig =
+        basemap.options.colorMap ??
+        (basemap.type === 'elevation' ? defaultElevationColorMap : undefined);
+    const colorMap = colorMapConfig ? getColorMap(colorMapConfig) : undefined;
+
+    const commonOptions: LayerOptions = {
+        name: basemap.uuid,
+        source,
+        extent: undefined, // TODO
+        interpretation: basemap.options.interpretation
+            ? new Interpretation(
+                  basemap.options.interpretation.mode,
+                  basemap.options.interpretation,
+              )
+            : undefined,
+        showTileBorders: basemap.options.showTileBorders,
+        showEmptyTextures: basemap.options.showEmptyTextures,
+        colorMap,
+        preloadImages: basemap.options.preloadImages,
+        backgroundColor: basemap.options.backgroundColor,
+        resolutionFactor: resolution,
+        noDataOptions: basemap.options.noDataOptions,
+    };
+    switch (basemap.type) {
+        case 'elevation': {
+            const opts = basemap.options as BaseLayerOptions<ElevationLayerConfig>;
+            return new ElevationLayer({
+                ...commonOptions,
+                minmax: opts.minmax ?? { min: 0, max: 5000 },
+                noDataOptions: {
+                    replaceNoData: false,
+                },
+            });
+        }
+        case 'color': {
+            const opts = basemap.options as BaseLayerOptions<ColorLayerConfig>;
+            return new ColorLayer({
+                ...commonOptions,
+                elevationRange: opts.elevationRange,
+            });
+        }
+        case 'mask': {
+            const opts = basemap.options as BaseLayerOptions<MaskLayerConfig>;
+            return new MaskLayer({
+                ...commonOptions,
+                maskMode: opts.maskMode,
+            });
+        }
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = basemap.type;
             return _exhaustiveCheck;
         }
     }
@@ -210,4 +354,5 @@ function getDefaultStyle(geometry: string) {
 
 export default {
     getSource,
+    getLayer,
 };
