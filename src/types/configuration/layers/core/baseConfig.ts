@@ -14,7 +14,7 @@ import type { SourceConfig } from '..';
 export interface SourceConfigBase<TSourceType extends string>
     extends Pick<
         ImageSourceOptions,
-        // If adding options here, don't forget to update LayerBuilder.getSource for them to be takin into account
+        // If adding options here, don't forget to update LayerBuilder.getSource for them to be taken into account
         'flipY' | 'is8bit' | 'colorSpace'
     > {
     /** Type of source */
@@ -31,7 +31,7 @@ export interface SourceConfigBase<TSourceType extends string>
 export interface LayerConfigBase<TLayerType extends string>
     extends Pick<
         LayerOptions,
-        // If adding options here, don't forget to update LayerBuilder.getLayer for them to be takin into account
+        // If adding options here, don't forget to update LayerBuilder.getLayer for them to be taken into account
         | 'showTileBorders'
         | 'showEmptyTextures'
         | 'noDataOptions'

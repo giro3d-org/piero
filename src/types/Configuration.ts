@@ -1,5 +1,5 @@
 import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
-import type { CRS, GeoExtent, GeoVec2, GeoVec3, Vec3 } from './configuration/geographic';
+import type { CRS, GeoExtent, GeoVec2 } from './configuration/geographic';
 import type { ExperimentalFeatures } from './configuration/features';
 import type { ColorMapConfig } from './configuration/color';
 import type {
@@ -12,6 +12,9 @@ import type {
 import type { DatasetOrGroupConfig } from './configuration/dataset';
 import type { BookmarkConfig } from './configuration/bookmark';
 import type { CameraConfig, CameraConfigDeprecated } from './configuration/camera';
+import type { AnalysisConfig } from './configuration/analysis';
+
+// For configuration, please use interfaces instead of types, it enables inheritance in the API documentation.
 
 /**
  * Extent configuration
@@ -70,7 +73,7 @@ export interface BasemapConfig
 }
 
 /** Piero configuration */
-export type Configuration = {
+export interface Configuration {
     /**
      * The default CRS to be used in the view
      *
@@ -87,31 +90,7 @@ export type Configuration = {
     /** Pointcloud display configuration */
     pointcloud: ColorMapConfig;
     /** Analysis tools configuration */
-    analysis: {
-        /** Cross section configuration */
-        cross_section: {
-            /** Default pivot point */
-            pivot: GeoVec2;
-            /** Default orientation in degrees of the cross section plane */
-            orientation: number;
-        };
-        /** Clipping box configuration */
-        clipping_box: {
-            /** Default center of the clipping box */
-            center: GeoVec3;
-            /** Default size of the clipping box */
-            size: Vec3;
-            /** Default settings for floor presets */
-            floor_preset: {
-                /** Altitude of the ground of floor 0 */
-                altitude: number;
-                /** Height of a floor */
-                size: number;
-                /** Default floor number */
-                floor: number;
-            };
-        };
-    };
+    analysis: AnalysisConfig;
     /**
      * Array of datasets to display
      *
@@ -136,4 +115,4 @@ export type Configuration = {
     )[];
     /** Array of bookmarks - can be empty */
     bookmarks: BookmarkConfig[];
-};
+}
