@@ -40,6 +40,12 @@ To tweak your app, chances are you will first want to:
 6. Change the overlays displayed on the map: `overlays` (can be empty)
 7. Change the default bookmarks: `bookmarks` (can be empty)
 
+When defining layers and datasets, you can unleash Giro3D's advanced features via _some_ configuration. This is reserved for advanced users. You can generate the API doc for the configuration to dive deeper:
+
+```bash
+npx typedoc && npx http-server apidoc/
+```
+
 ## `styles.ts`
 
 The file **must** follow this pattern:

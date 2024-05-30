@@ -1,0 +1,21 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": [
+        "src/types/Configuration.ts",
+        "src/types/configuration/**/*.ts",
+        "src/types/Dataset.ts",
+        "src/types/VectorStyle.ts",
+        "src/config.ts",
+        "src/styles.ts"
+    ],
+    "readme": "src/types/configuration/apidoc.md",
+    "tsconfig": "tsconfig.json",
+    "out": "apidoc",
+    "name": "Configuration API",
+    "basePath": "src/",
+    "titleLink": "/",
+    "excludeInternal": true,
+    "excludeExternals": false,
+    "navigationLinks": {},
+    "exclude": []
+}
