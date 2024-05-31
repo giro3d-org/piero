@@ -169,12 +169,7 @@ export default class LayerManager extends EventDispatcher {
     }
 
     private async loadOverlay(overlay: Overlay) {
-        const source = await LayerBuilder.getSource(overlay.config.source);
-        const layer = new ColorLayer({
-            name: overlay.name,
-            source,
-            extent: this.extent,
-        });
+        const layer = await LayerBuilder.getOverlay(overlay, this.extent);
 
         this._overlays.set(overlay.uuid, layer);
         this._basemap.addLayer(layer);

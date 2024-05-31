@@ -1,44 +1,44 @@
 import chroma from 'chroma-js';
-import TileWMS from 'ol/source/TileWMS';
-import { Color } from 'three';
-import { ColorLayer, ColorMap, ElevationLayer, MaskLayer } from '@giro3d/giro3d/core/layer';
-import BilFormat from '@giro3d/giro3d/formats/BilFormat';
-import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
-
-import { GPX, KML, MVT, WMTSCapabilities } from 'ol/format';
-import { BingMaps, OSM, StadiaMaps, WMTS, XYZ } from 'ol/source';
+import { GPX, KML, MVT, WMTSCapabilities, GeoJSON } from 'ol/format';
+import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
+import { Circle, Fill, Stroke, Style } from 'ol/style';
+import type { StyleFunction } from 'ol/style/Style';
+import { Color } from 'three';
+import { Extent } from '@giro3d/giro3d/core/geographic';
+import { ColorLayer, ColorMap, ElevationLayer, MaskLayer } from '@giro3d/giro3d/core/layer';
+import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
+import type { ImageFormat } from '@giro3d/giro3d/formats';
+import BilFormat from '@giro3d/giro3d/formats/BilFormat';
 import {
     CogSource,
     ImageSource,
     ImageSourceOptions,
     VectorSource,
     VectorTileSource,
+    TiledImageSource,
 } from '@giro3d/giro3d/sources';
-import { ImageFormat } from '@giro3d/giro3d/formats';
-import GeoJSON from 'ol/format/GeoJSON';
-import { Circle, Fill, Stroke, Style } from 'ol/style';
-import CircleStyle from 'ol/style/Circle';
-import { StyleFunction } from 'ol/style/Style';
-import {
+import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
+
+import config from '@/config';
+import dynamicStyles from '@/styles';
+import { getPublicFolderUrl } from '@/utils/Configuration';
+import type { SourceConfig } from '@/types/configuration/layers';
+import type { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
+import type {
+    ColorLayerConfig,
+    ElevationLayerConfig,
+    MaskLayerConfig,
+} from '@/types/configuration/layers/core/baseConfig';
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { Overlay, OverlayOptions } from '@/types/Overlay';
+import type {
     FillStyle,
     PointStyle,
     StaticVectorStyle,
     StrokeStyle,
     VectorStyle,
 } from '@/types/VectorStyle';
-import dynamicStyles from '@/styles';
-import { getPublicFolderUrl } from '@/utils/Configuration';
-import type { SourceConfig } from '@/types/configuration/layers';
-import { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
-import { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
-import {
-    ColorLayerConfig,
-    ElevationLayerConfig,
-    MaskLayerConfig,
-} from '@/types/configuration/layers/core/baseConfig';
-import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
-import { ColorMapConfig } from '@/types/configuration/color';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -77,6 +77,9 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
         // is8bit: input.is8bit,
         // colorSpace: input.colorSpace,
     };
+    if (input.flipY !== undefined) commonOptions.flipY = input.flipY;
+    if (input.is8bit !== undefined) commonOptions.is8bit = input.is8bit;
+    if (input.colorSpace !== undefined) commonOptions.colorSpace = input.colorSpace;
 
     switch (input.type) {
         case 'bingmaps': {
@@ -214,32 +217,53 @@ function getColorMap(conf: ColorMapConfig) {
     return new ColorMap(colors, conf.min, conf.max);
 }
 
-async function getLayer(basemap: BaseLayer, defaultElevationColorMap: ColorMapConfig) {
-    const source = await getSource(basemap.source);
-    const resolution = 'resolution' in basemap.source ? basemap.source.resolution : undefined;
+async function layerOptions(
+    layer: BaseLayer | Overlay,
+    defaultElevationColorMap?: ColorMapConfig,
+): Promise<LayerOptions> {
+    const source = await getSource(layer.source);
+    const resolution = 'resolution' in layer.source ? layer.source.resolution : undefined;
     const colorMapConfig =
-        basemap.options.colorMap ??
-        (basemap.type === 'elevation' ? defaultElevationColorMap : undefined);
+        layer.options.colorMap ??
+        ('type' in layer && layer.type === 'elevation' ? defaultElevationColorMap : undefined);
     const colorMap = colorMapConfig ? getColorMap(colorMapConfig) : undefined;
+    let extent: Extent | undefined;
+    if (layer.options.extent) {
+        extent = new Extent(
+            layer.options.extent.crs ?? config.default_crs,
+            layer.options.extent,
+        ).as(config.default_crs);
+    }
 
-    const commonOptions: LayerOptions = {
-        name: basemap.uuid,
+    return {
+        name: layer.uuid,
         source,
-        extent: undefined, // TODO
-        interpretation: basemap.options.interpretation
-            ? new Interpretation(
-                  basemap.options.interpretation.mode,
-                  basemap.options.interpretation,
-              )
+        extent,
+        interpretation: layer.options.interpretation
+            ? new Interpretation(layer.options.interpretation.mode, layer.options.interpretation)
             : undefined,
-        showTileBorders: basemap.options.showTileBorders,
-        showEmptyTextures: basemap.options.showEmptyTextures,
+        showTileBorders: layer.options.showTileBorders,
+        showEmptyTextures: layer.options.showEmptyTextures,
         colorMap,
-        preloadImages: basemap.options.preloadImages,
-        backgroundColor: basemap.options.backgroundColor,
+        preloadImages: layer.options.preloadImages,
+        backgroundColor: layer.options.backgroundColor,
         resolutionFactor: resolution,
-        noDataOptions: basemap.options.noDataOptions,
+        noDataOptions: layer.options.noDataOptions,
     };
+}
+
+async function getOverlay(overlay: Overlay, extent: Extent) {
+    const commonOptions = await layerOptions(overlay);
+    const opts = overlay.options as OverlayOptions;
+    return new ColorLayer({
+        extent,
+        ...commonOptions,
+        elevationRange: opts.elevationRange,
+    });
+}
+
+async function getLayer(basemap: BaseLayer, defaultElevationColorMap: ColorMapConfig) {
+    const commonOptions = await layerOptions(basemap, defaultElevationColorMap);
     switch (basemap.type) {
         case 'elevation': {
             const opts = basemap.options as BaseLayerOptions<ElevationLayerConfig>;
@@ -293,7 +317,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
     }
     function parsePoint(point?: PointStyle) {
         if (point) {
-            return new CircleStyle({
+            return new Circle({
                 radius: point.radius,
                 fill: parseFill(point.fill),
                 stroke: parseStroke(point.stroke),
@@ -355,4 +379,5 @@ function getDefaultStyle(geometry: string) {
 export default {
     getSource,
     getLayer,
+    getOverlay,
 };
