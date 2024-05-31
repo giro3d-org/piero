@@ -1,7 +1,7 @@
 import type { TiledImageSourceOptions } from '@giro3d/giro3d/sources/TiledImageSource';
 
 import type { GeoExtent } from '@/types/configuration/geographic';
-import type { SourceConfigBase } from './baseConfig';
+import type { SourceConfigBase } from '@/types/configuration/layers/core/baseConfig';
 
 /** Base configuration for tiled layers */
 export interface TiledImageSourceBaseConfig<TType extends string>

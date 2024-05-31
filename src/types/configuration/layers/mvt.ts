@@ -1,5 +1,5 @@
 import type { VectorStyle } from '@/types/VectorStyle';
-import type { VectorTileSourceBaseConfig } from './core/vectorTile';
+import type { VectorTileSourceBaseConfig } from '@/types/configuration/layers/core/vectorTile';
 
 /** MVT source configuration */
 export interface MVTSourceConfig extends Omit<VectorTileSourceBaseConfig<'mvt'>, 'format'> {

@@ -6,9 +6,9 @@ import type { InterpretationOptions } from '@giro3d/giro3d/core/layer/Interpreta
 import type { InterpretationMode } from '@giro3d/giro3d/core/layer';
 import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
 
-import type { GeoExtent } from '../../geographic';
-import type { ColorMapConfig } from '../../color';
-import type { SourceConfig } from '..';
+import type { GeoExtent } from '@/types/configuration/geographic';
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { SourceConfig } from '@/types/configuration/layers';
 
 /** Base configuration for layers and overlays sources */
 export interface SourceConfigBase<TSourceType extends string>

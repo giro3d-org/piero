@@ -1,7 +1,7 @@
 import { type EventDispatcher } from 'three';
 
-import LayerObject from './LayerObject';
-import type { OverlayConfig, OverlaySourceConfig } from './configuration/layers';
+import LayerObject from '@/types/LayerObject';
+import type { OverlayConfig, OverlaySourceConfig } from '@/types/configuration/layers';
 
 export type OverlayOptions = Omit<OverlayConfig, 'name' | 'source'>;
 

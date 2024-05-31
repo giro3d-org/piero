@@ -1,8 +1,12 @@
 import type { EventDispatcher } from 'three';
 import type { ColorLayer, ElevationLayer } from '@giro3d/giro3d/core/layer';
 
-import LayerObject from './LayerObject';
-import type { LayerConfig, BasemapLayerSourceConfig, LayerType } from './configuration/layers';
+import LayerObject from '@/types/LayerObject';
+import type {
+    BasemapLayerSourceConfig,
+    LayerConfig,
+    LayerType,
+} from '@/types/configuration/layers';
 import { isObject } from '@/utils/Types';
 
 export const isColorLayer = (obj: unknown): obj is ColorLayer =>

@@ -1,4 +1,4 @@
-import type { GeoVec2, GeoVec3, Vec3 } from './geographic';
+import type { GeoVec2, GeoVec3, Vec3 } from '@/types/configuration/geographic';
 
 export interface AnalysisConfig {
     /** Cross section configuration */

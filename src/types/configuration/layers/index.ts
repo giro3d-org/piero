@@ -3,20 +3,20 @@ import type {
     ElevationLayerConfig,
     SourceConfigBase,
     MaskLayerConfig,
-} from './core/baseConfig';
-import type { BingMapsSourceConfig } from './bingMaps';
-import type { COGSourceConfig } from './cog';
-import type { GeoJSONSourceConfig } from './geojson';
-import type { GPXSourceConfig } from './gpx';
-import type { KMLSourceConfig } from './kml';
-import type { MVTSourceConfig } from './mvt';
-import type { OSMSourceConfig } from './osm';
-import type { StadiaMapsSourceConfig } from './stadiaMaps';
-import type { VectorSourceConfig } from './core/vector';
-import type { VectorTileSourceConfig } from './core/vectorTile';
-import type { WMSSourceConfig } from './wms';
-import type { WMTSSourceConfig } from './wmts';
-import type { XYZSourceConfig } from './xyz';
+} from '@/types/configuration/layers/core/baseConfig';
+import type { BingMapsSourceConfig } from '@/types/configuration/layers/bingMaps';
+import type { COGSourceConfig } from '@/types/configuration/layers/cog';
+import type { GeoJSONSourceConfig } from '@/types/configuration/layers/geojson';
+import type { GPXSourceConfig } from '@/types/configuration/layers/gpx';
+import type { KMLSourceConfig } from '@/types/configuration/layers/kml';
+import type { MVTSourceConfig } from '@/types/configuration/layers/mvt';
+import type { OSMSourceConfig } from '@/types/configuration/layers/osm';
+import type { StadiaMapsSourceConfig } from '@/types/configuration/layers/stadiaMaps';
+import type { VectorSourceConfig } from '@/types/configuration/layers/core/vector';
+import type { VectorTileSourceConfig } from '@/types/configuration/layers/core/vectorTile';
+import type { WMSSourceConfig } from '@/types/configuration/layers/wms';
+import type { WMTSSourceConfig } from '@/types/configuration/layers/wmts';
+import type { XYZSourceConfig } from '@/types/configuration/layers/xyz';
 
 /** Supported layer sources */
 export type SourceConfig =

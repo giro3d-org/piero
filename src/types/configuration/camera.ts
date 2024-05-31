@@ -1,4 +1,4 @@
-import type { GeoVec2, GeoVec3 } from './geographic';
+import type { GeoVec2, GeoVec3 } from '@/types/configuration/geographic';
 
 /**
  * Deprecated camera configuration

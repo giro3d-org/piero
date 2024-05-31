@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import { computed, shallowReactive } from 'vue';
 
-import config from '../config.ts';
-import { GraticuleLayer } from '@/giro3d/Graticule.ts';
-import { BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
-import { Overlay, OverlayObject } from '@/types/Overlay';
-import { OverlayConfig } from '@/types/configuration/layers';
+import config from '@/config.ts';
+import { GraticuleLayer } from '@/giro3d/Graticule';
+import { type BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
+import { type Overlay, OverlayObject } from '@/types/Overlay';
+import type { OverlayConfig } from '@/types/configuration/layers';
 
 function buildBaseLayers() {
     const result: BaseLayer[] = [];

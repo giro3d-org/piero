@@ -1,4 +1,4 @@
-import type { Vec3 } from './geographic';
+import type { Vec3 } from '@/types/configuration/geographic';
 
 /**
  * Bookmark configuration.

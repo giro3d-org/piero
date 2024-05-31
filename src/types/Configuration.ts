@@ -1,20 +1,22 @@
 import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
-import type { CRS, GeoExtent, GeoVec2 } from './configuration/geographic';
-import type { ExperimentalFeatures } from './configuration/features';
-import type { ColorMapConfig } from './configuration/color';
+import type { AnalysisConfig } from '@/types/configuration/analysis';
+import type { BookmarkConfig } from '@/types/configuration/bookmark';
+import type { CameraConfig, CameraConfigDeprecated } from '@/types/configuration/camera';
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { DatasetOrGroupConfig } from '@/types/configuration/dataset';
+import type { ExperimentalFeatures } from '@/types/configuration/features';
+import type { CRS, GeoExtent, GeoVec2 } from '@/types/configuration/geographic';
 import type {
     LayerConfig,
     OverlayConfig,
     OverlayRasterConfigDeprecated,
     OverlayVectorConfigDeprecated,
     OverlayVectorTileConfigDeprecated,
-} from './configuration/layers';
-import type { DatasetOrGroupConfig } from './configuration/dataset';
-import type { BookmarkConfig } from './configuration/bookmark';
-import type { CameraConfig, CameraConfigDeprecated } from './configuration/camera';
-import type { AnalysisConfig } from './configuration/analysis';
+} from '@/types/configuration/layers';
 
 // For configuration, please use interfaces instead of types, it enables inheritance in the API documentation.
+// Also, please prefer JSON-serializable fields, so that one day if we want to fetch the configuration from
+// a back-end, we won't have too much rework to do.
 
 /**
  * Extent configuration

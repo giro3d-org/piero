@@ -1,7 +1,7 @@
 import type { CogSourceOptions } from '@giro3d/giro3d/sources/CogSource';
 
-import type { SourceConfigBase } from './core/baseConfig';
-import type { CRS } from '../geographic';
+import type { SourceConfigBase } from '@/types/configuration/layers/core/baseConfig';
+import type { CRS } from '@/types/configuration/geographic';
 
 /** COG source configuration */
 export interface COGSourceConfig

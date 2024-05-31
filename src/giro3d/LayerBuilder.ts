@@ -6,25 +6,28 @@ import { Circle, Fill, Stroke, Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
 import { Color } from 'three';
 import { Extent } from '@giro3d/giro3d/core/geographic';
-import { ColorLayer, ColorMap, ElevationLayer, MaskLayer } from '@giro3d/giro3d/core/layer';
-import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
-import type { ImageFormat } from '@giro3d/giro3d/formats';
-import BilFormat from '@giro3d/giro3d/formats/BilFormat';
+import {
+    ColorLayer,
+    ColorMap,
+    ElevationLayer,
+    MaskLayer,
+    type LayerOptions,
+} from '@giro3d/giro3d/core/layer';
+import { BilFormat, type ImageFormat } from '@giro3d/giro3d/formats';
 import {
     CogSource,
     ImageSource,
     ImageSourceOptions,
+    TiledImageSource,
     VectorSource,
     VectorTileSource,
-    TiledImageSource,
 } from '@giro3d/giro3d/sources';
 import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
 
 import config from '@/config';
 import dynamicStyles from '@/styles';
-import { getPublicFolderUrl } from '@/utils/Configuration';
-import type { SourceConfig } from '@/types/configuration/layers';
 import type { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
+import type { SourceConfig } from '@/types/configuration/layers';
 import type {
     ColorLayerConfig,
     ElevationLayerConfig,
@@ -39,6 +42,7 @@ import type {
     StrokeStyle,
     VectorStyle,
 } from '@/types/VectorStyle';
+import { getPublicFolderUrl } from '@/utils/Configuration';
 
 async function createWMTSSource(
     layer: string | string[],

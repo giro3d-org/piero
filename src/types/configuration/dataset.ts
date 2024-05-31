@@ -4,8 +4,8 @@ import type {
     DatasetType,
     DatasetTypeImportable,
     DatasetTypeMultiple,
-} from '../Dataset';
-import type { GeoVec3 } from './geographic';
+} from '@/types/Dataset';
+import type { GeoVec3 } from '@/types/configuration/geographic';
 
 /**
  * Callback which is called when the dataset is preloaded into the app.

@@ -1,7 +1,7 @@
 import type { Options as XYZOptions } from 'ol/source/XYZ';
 
-import type { CRS } from '../geographic';
-import type { TiledImageSourceBaseConfig } from './core/tiled';
+import type { CRS } from '@/types/configuration/geographic';
+import type { TiledImageSourceBaseConfig } from '@/types/configuration/layers/core/tiled';
 
 /** XYZ source configuration */
 export interface XYZSourceConfig

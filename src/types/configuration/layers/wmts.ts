@@ -1,5 +1,5 @@
-import type { CRS } from '../geographic';
-import type { TiledImageSourceBaseConfig } from './core/tiled';
+import type { CRS } from '@/types/configuration/geographic';
+import type { TiledImageSourceBaseConfig } from '@/types/configuration/layers/core/tiled';
 
 /** WMTS source configuration */
 export interface WMTSSourceConfig extends TiledImageSourceBaseConfig<'wmts'> {

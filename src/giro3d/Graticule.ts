@@ -1,5 +1,5 @@
-import Instance from '@giro3d/giro3d/core/Instance';
-import Map from '@giro3d/giro3d/entities/Map';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type Map from '@giro3d/giro3d/entities/Map';
 import { EventDispatcher } from 'three';
 
 export class GraticuleLayer extends EventDispatcher {

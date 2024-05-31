@@ -1,6 +1,6 @@
 import type { Options as StadiaMapsOptions } from 'ol/source/StadiaMaps';
 
-import type { SourceConfigBase } from './core/baseConfig';
+import type { SourceConfigBase } from '@/types/configuration/layers/core/baseConfig';
 
 /** StadiaMaps source configuration */
 export interface StadiaMapsSourceConfig

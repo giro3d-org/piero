@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import OpacitySlider from '@/components/OpacitySlider.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
-    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
-    import Icon from '@/components/atoms/Icon.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import OpacitySlider from '@/components/OpacitySlider.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     defineProps<{
         visible: boolean;

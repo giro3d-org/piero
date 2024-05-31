@@ -1,15 +1,15 @@
 <script setup lang="ts">
-    import DropZone from '@/components/DropZone.vue';
-    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import BasemapItem from '@/components/panels/BasemapItem.vue';
-    import OverlayItem from '@/components/panels/OverlayItem.vue';
-    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
-    import CompactList from '@/components/atoms/CompactList.vue';
+    import { DatasetOrGroup } from '@/types/Dataset';
+    import { useAnalysisStore } from '@/stores/analysis';
+    import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
     import { useLayerStore } from '@/stores/layers';
-    import { DatasetOrGroup } from '@/types/Dataset';
-    import { useCameraStore } from '@/stores/camera';
-    import { useAnalysisStore } from '@/stores/analysis';
+    import BasemapItem from '@/components/panels/BasemapItem.vue';
+    import CompactList from '@/components/atoms/CompactList.vue';
+    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
+    import DropZone from '@/components/DropZone.vue';
+    import OverlayItem from '@/components/panels/OverlayItem.vue';
+    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();

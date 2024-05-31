@@ -1,7 +1,8 @@
 import { EventDispatcher, MathUtils } from 'three';
 import { Coordinates } from '@giro3d/giro3d/core/geographic';
 
-import {
+import config from '@/config';
+import type {
     DatagroupConfig,
     DatasetBaseConfig,
     DatasetConfig,
@@ -10,7 +11,6 @@ import {
     OnObjectPreloaded,
 } from '@/types/configuration/dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';
-import config from '@/config';
 import { isObject } from '@/utils/Types';
 
 /** All types of datasets supported in this app */
