@@ -1,22 +1,26 @@
-import Instance from '@giro3d/giro3d/core/Instance';
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
-import Layer from '@giro3d/giro3d/core/layer/Layer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
 import { EventDispatcher } from 'three';
-import { useCameraStore } from '@/stores/camera';
-import { useGiro3dStore } from '@/stores/giro3d';
-import { useLayerStore } from '@/stores/layers';
-import { Overlay } from '@/types/Overlay';
-import { BaseLayer, isColorLayer, isElevationLayer } from '@/types/BaseLayer';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type { ColorLayer, ElevationLayer, Layer, MaskLayer } from '@giro3d/giro3d/core/layer';
+import Giro3dMap from '@giro3d/giro3d/entities/Map';
+
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import Grid from '@/giro3d/Grid';
 import Plane from '@/giro3d/Plane';
+import { useCameraStore } from '@/stores/camera';
+import { useGiro3dStore } from '@/stores/giro3d';
+import { useLayerStore } from '@/stores/layers';
+import type { Overlay } from '@/types/Overlay';
+import { type BaseLayer, isColorLayer, isElevationLayer } from '@/types/BaseLayer';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;
 export const GRID_NAME = 'grid';
 export const PLANE_NAME = 'plane';
+
+// Hide the graticule when above this altitude threshold
+const GRATICULE_ALTITUDE_THRESHOLD = 5000;
+
+export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
 
 export default class LayerManager extends EventDispatcher {
     private readonly _instance: Instance;
@@ -27,7 +31,7 @@ export default class LayerManager extends EventDispatcher {
     private readonly _grid: Grid;
     private readonly _plane: Plane;
 
-    private readonly _baseLayers: Map<string, Layer>;
+    private readonly _baseLayers: Map<string, BasemapLayer>;
     private readonly _overlays: Map<string, ColorLayer>;
 
     private readonly _boundOnAfterCameraUpdate: () => void;
@@ -40,16 +44,12 @@ export default class LayerManager extends EventDispatcher {
         this._overlays = new Map();
 
         const extent = this._giro3dStore.getDefaultBasemapExtent();
+        const mapOptions = this._giro3dStore.getDefaultBasemapOptions();
 
         this._basemap = new Giro3dMap('basemaps', {
             extent,
-            hillshading: {
-                enabled: true,
-                elevationLayersOnly: true,
-            },
-            doubleSided: true,
             segments: 128,
-            backgroundColor: 'white',
+            ...mapOptions,
         });
         this._instance.add(this._basemap);
 
@@ -69,6 +69,12 @@ export default class LayerManager extends EventDispatcher {
             if (basemap.visible) {
                 this.loadBasemap(basemap);
             }
+        }
+
+        const graticuleLayer = this._layerStore.getGraticuleLayer();
+        if (graticuleLayer) {
+            graticuleLayer.instance = this._instance;
+            graticuleLayer.map = this._basemap;
         }
 
         this._layerStore.$onAction(({ name, args, after }) => {
@@ -106,16 +112,26 @@ export default class LayerManager extends EventDispatcher {
 
     private onAfterCameraUpdate() {
         const pos = this._cameraStore.getCamera3dPosition();
-        const oldVisible = this._grid.visible;
-        const newVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
+        const oldGridVisible = this._grid.visible;
+        const newGridVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
 
-        if (oldVisible !== newVisible) {
-            this._grid.visible = newVisible;
-            this._plane.visible = newVisible;
+        if (oldGridVisible !== newGridVisible) {
+            this._grid.visible = newGridVisible;
+            this._plane.visible = newGridVisible;
+        }
+
+        const graticule = this._layerStore.getGraticuleLayer();
+        if (graticule) {
+            const oldGraticuleVisible = graticule.enabled;
+            const newGraticuleVisible = pos.z < GRATICULE_ALTITUDE_THRESHOLD;
+
+            if (oldGraticuleVisible !== newGraticuleVisible) {
+                graticule.enabled = newGraticuleVisible;
+            }
         }
     }
 
-    notify(layer: Layer) {
+    notify(layer: BasemapLayer) {
         this._instance.notifyChange(layer);
     }
 
@@ -129,37 +145,13 @@ export default class LayerManager extends EventDispatcher {
     }
 
     private async loadBasemap(basemap: BaseLayer) {
-        let layer: Layer;
-        const source = await LayerBuilder.getSource(basemap.source);
-        switch (basemap.type) {
-            case 'elevation':
-                layer = new ElevationLayer({
-                    name: basemap.uuid,
-                    source,
-                    resolutionFactor: basemap.source.resolution,
-                    minmax: { min: 0, max: 5000 },
-                    colorMap: this._layerStore.getElevationColorMap(),
-                    noDataOptions: {
-                        replaceNoData: false,
-                    },
-                });
-                layer.addEventListener('visible-property-changed', () => {
-                    this._basemap.visible = layer.visible;
-                    this._instance.notifyChange(this._basemap);
-                });
-                break;
-            case 'color':
-                layer = new ColorLayer({
-                    name: basemap.uuid,
-                    source,
-                    resolutionFactor: basemap.source.resolution,
-                });
-                break;
-            default: {
-                // Exhaustiveness checking
-                const _exhaustiveCheck: never = basemap.type;
-                return _exhaustiveCheck;
-            }
+        const layer = await LayerBuilder.getLayer(basemap, this._layerStore.getElevationColorMap());
+
+        if (isElevationLayer(layer)) {
+            layer.addEventListener('visible-property-changed', () => {
+                this._basemap.visible = layer.visible;
+                this._instance.notifyChange(this._basemap);
+            });
         }
 
         this._baseLayers.set(basemap.uuid, layer);
@@ -175,12 +167,7 @@ export default class LayerManager extends EventDispatcher {
     }
 
     private async loadOverlay(overlay: Overlay) {
-        const source = await LayerBuilder.getSource(overlay.config.source);
-        const layer = new ColorLayer({
-            name: overlay.name,
-            source,
-            extent: this.extent,
-        });
+        const layer = await LayerBuilder.getOverlay(overlay, this.extent);
 
         this._overlays.set(overlay.uuid, layer);
         this._basemap.addLayer(layer);
@@ -192,7 +179,10 @@ export default class LayerManager extends EventDispatcher {
         return layer;
     }
 
-    private async getLayer(basemap: BaseLayer, load: boolean = true): Promise<Layer | undefined> {
+    private async getLayer(
+        basemap: BaseLayer,
+        load: boolean = true,
+    ): Promise<BasemapLayer | undefined> {
         const layer = this._baseLayers.get(basemap.uuid);
         if (!layer && load) {
             return this.loadBasemap(basemap);
@@ -237,6 +227,24 @@ export default class LayerManager extends EventDispatcher {
     }
 
     async onLayerVisibilityChanged(basemap: BaseLayer, newVisibility: boolean) {
+        if (basemap.type === 'elevation' && newVisibility) {
+            // First make sure we don't have any other elevation layer enabled
+            const keys = [...this._baseLayers.keys()];
+            keys.forEach(uuid => {
+                const elevationLayer = this._baseLayers.get(uuid);
+                if (elevationLayer && isElevationLayer(elevationLayer)) {
+                    // Remove from here
+                    this._baseLayers.delete(uuid);
+                    this._basemap.removeLayer(elevationLayer);
+                    this._instance.notifyChange(this._basemap);
+
+                    // And update the store
+                    const storeLayer = this._layerStore.getBasemaps().find(l => l.uuid === uuid);
+                    if (storeLayer) this._layerStore.setBasemapVisibility(storeLayer, false);
+                }
+            });
+        }
+
         const layer = await this.getLayer(basemap, newVisibility);
         if (layer) {
             layer.visible = newVisibility;

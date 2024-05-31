@@ -1,21 +1,31 @@
-import { EventDispatcher } from 'three';
-import LayerObject from './LayerObject';
-import { LayerConfig, BasemapLayerSourceConfig } from './configuration/layerSource';
-import { ColorLayer, ElevationLayer } from '@giro3d/giro3d/core/layer';
-import { isObject } from '@/utils/Types';
+import type { EventDispatcher } from 'three';
+import type { ColorLayer, ElevationLayer } from '@giro3d/giro3d/core/layer';
 
-export type BaseLayerType = 'elevation' | 'color';
+import LayerObject from '@/types/LayerObject';
+import type {
+    BasemapLayerSourceConfig,
+    LayerConfig,
+    LayerType,
+} from '@/types/configuration/layers';
+import { isObject } from '@/utils/Types';
 
 export const isColorLayer = (obj: unknown): obj is ColorLayer =>
     isObject(obj) && (obj as ColorLayer).isColorLayer;
 export const isElevationLayer = (obj: unknown): obj is ElevationLayer =>
     isObject(obj) && (obj as ElevationLayer).isElevationLayer;
 
+export type BaseLayerOptions<TLayerType extends LayerConfig> = Omit<
+    TLayerType,
+    'type' | 'name' | 'source'
+>;
+
 export interface BaseLayer extends EventDispatcher {
     name: string;
-    type: BaseLayerType;
+    type: LayerType;
     source: BasemapLayerSourceConfig;
     uuid: string;
+    options: BaseLayerOptions<LayerConfig>;
+
     get isLoading(): boolean;
     set isLoading(v: boolean);
     get visible(): boolean;
@@ -26,14 +36,16 @@ export interface BaseLayer extends EventDispatcher {
 
 export class BaseLayerObject extends LayerObject implements BaseLayer {
     private _loading: boolean;
-    readonly type: BaseLayerType;
+    readonly type: LayerType;
     readonly source: BasemapLayerSourceConfig;
+    readonly options: BaseLayerOptions<LayerConfig>;
 
-    constructor(opts: LayerConfig) {
-        super(opts.name);
+    constructor({ type, name, source, ...options }: LayerConfig) {
+        super(name);
         this._loading = false;
-        this.type = opts.type;
-        this.source = opts.source;
+        this.type = type;
+        this.source = source;
+        this.options = options;
     }
 
     get isLoading() {

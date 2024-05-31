@@ -1,29 +1,34 @@
-import LayerObject from './LayerObject';
-import { EventDispatcher } from 'three';
-import { OverlayConfig } from './configuration/layerSource';
+import { type EventDispatcher } from 'three';
+
+import LayerObject from '@/types/LayerObject';
+import type { OverlayConfig, OverlaySourceConfig } from '@/types/configuration/layers';
+
+export type OverlayOptions = Omit<OverlayConfig, 'name' | 'source'>;
 
 export interface Overlay extends EventDispatcher {
-    uuid: string;
     name: string;
+    source: OverlaySourceConfig;
+    uuid: string;
+    options: OverlayOptions;
+
     get isLoading(): boolean;
     set isLoading(v: boolean);
     get visible(): boolean;
     set visible(v: boolean);
     get opacity(): number;
     set opacity(v: number);
-
-    config: OverlayConfig;
 }
 
 export class OverlayObject extends LayerObject implements Overlay {
     private _loading: boolean;
-    readonly config: OverlayConfig;
+    readonly source: OverlaySourceConfig;
+    readonly options: OverlayOptions;
 
-    constructor(config: OverlayConfig) {
-        super(config.name);
-
+    constructor({ name, source, ...options }: OverlayConfig) {
+        super(name);
         this._loading = false;
-        this.config = config;
+        this.source = source;
+        this.options = options;
     }
 
     get isLoading() {

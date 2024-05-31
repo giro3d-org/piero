@@ -1,14 +1,15 @@
 <script setup lang="ts">
     import { type Component } from 'vue';
-    import { Dataset, DatasetType } from '@/types/Dataset';
     import { useDatasetStore } from '@/stores/datasets';
+    import type { Dataset, DatasetType } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
-    import SpinnerControl from '@/components/SpinnerControl.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
-    import IfcPropertyView from '@/components/panels/ifc/IfcPropertyView.vue';
-    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
+    import IfcPropertyView from '@/components/panels/ifc/IfcPropertyView.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import SpinnerControl from '@/components/SpinnerControl.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     const store = useDatasetStore();
 
@@ -41,18 +42,28 @@
         pointcloud: 'fg-multipoint',
         shp: 'fg-shape-file',
     };
+
+    const iconTitles: Record<DatasetType, string> = {
+        bdtopo: 'BDTopo',
+        cityjson: 'CityJSON',
+        geojson: 'GeoJSON',
+        gpkg: 'Geopackage',
+        gpx: 'GPX',
+        ifc: 'IFC',
+        kml: 'KML',
+        ply: 'PLY',
+        pointcloud: 'Point Cloud',
+        shp: 'Shapefile',
+    };
 </script>
 
 <template>
     <div class="d-flex">
         <IconList class="me-1 text-body-tertiary">
-            <i
-                v-if="icons[dataset.type]?.startsWith('bi-')"
-                class="bi"
-                :class="icons[dataset.type]"
+            <Icon
+                :icon="icons[dataset.type] ?? 'bi-file-earmark-x'"
+                :title="iconTitles[dataset.type] ?? 'Unknown'"
             />
-            <i v-else-if="icons[dataset.type]" :class="icons[dataset.type]" />
-            <i v-else class="bi bi-file-earmark-x" />
         </IconList>
         <VisibilityControl
             :visible="isVisible"

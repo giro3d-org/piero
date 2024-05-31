@@ -1,16 +1,14 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
-import { Color } from 'three';
-import chroma from 'chroma-js';
-import { ColorMap } from '@giro3d/giro3d/core/layer';
+import { computed, shallowReactive } from 'vue';
 
-import config from '../config.ts';
-import { BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
-import { Overlay, OverlayObject } from '@/types/Overlay';
-import { OverlayConfig } from '@/types/configuration/layerSource.ts';
+import config from '@/config.ts';
+import { GraticuleLayer } from '@/giro3d/Graticule';
+import { type BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
+import { type Overlay, OverlayObject } from '@/types/Overlay';
+import type { OverlayConfig } from '@/types/configuration/layers';
 
-function getBaseLayers() {
-    const result: BaseLayerObject[] = [];
+function buildBaseLayers() {
+    const result: BaseLayer[] = [];
 
     const conf = config.basemap.layers;
     for (const item of conf) {
@@ -22,7 +20,18 @@ function getBaseLayers() {
     return result;
 }
 
-function getInitialOverlays() {
+function buildGraticuleLayer() {
+    if ('graticule' in config.basemap && config.basemap.graticule !== undefined) {
+        // Build only if needed
+        const layer = new GraticuleLayer();
+        if (typeof config.basemap.graticule === 'boolean') layer.visible = config.basemap.graticule;
+        else layer.visible = config.basemap.graticule.enabled ?? true;
+        return shallowReactive(layer);
+    }
+    return undefined;
+}
+
+function buildOverlays() {
     const result: Overlay[] = [];
     for (const item of config.overlays) {
         let overlayConfig: OverlayConfig;
@@ -50,14 +59,23 @@ function getInitialOverlays() {
 }
 
 export const useLayerStore = defineStore('layers', () => {
-    const basemaps = reactive(getBaseLayers());
+    // We have 2 layers of shallowReactive-ness because we want to react to:
+    // 1. the ordering of the layers,
+    // 2. changes of the root properties (only)
+    const basemaps = shallowReactive(buildBaseLayers().map(layer => shallowReactive(layer)));
     const basemapCount = computed(() => basemaps.length);
 
-    const overlays: Overlay[] = reactive(getInitialOverlays());
+    const overlays = shallowReactive(buildOverlays().map(layer => shallowReactive(layer)));
     const overlayCount = computed(() => overlays.length);
+
+    const graticuleLayer = buildGraticuleLayer();
 
     function getBasemaps(): BaseLayer[] {
         return basemaps;
+    }
+
+    function getGraticuleLayer(): GraticuleLayer | undefined {
+        return graticuleLayer;
     }
 
     function setBasemapVisibility(layer: BaseLayer, visible: boolean) {
@@ -65,16 +83,7 @@ export const useLayerStore = defineStore('layers', () => {
     }
 
     function getElevationColorMap() {
-        const conf = config.basemap.colormap;
-
-        const scale = chroma.scale(conf.ramp);
-        const colors = [];
-        for (let i = 0; i < 256; i++) {
-            const rgb = scale(i / 255).gl();
-            const c = new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
-            colors.push(c);
-        }
-        return new ColorMap(colors, conf.min, conf.max);
+        return config.basemap.colormap;
     }
 
     function setBasemapOpacity(layer: BaseLayer, opacity: number) {
@@ -115,6 +124,7 @@ export const useLayerStore = defineStore('layers', () => {
     return {
         basemapCount,
         getBasemaps,
+        getGraticuleLayer,
         setBasemapOpacity,
         setBasemapVisibility,
         overlayCount,

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-    import DropZone from '@/components/DropZone.vue';
-    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import BasemapItem from '@/components/panels/BasemapItem.vue';
-    import OverlayItem from '@/components/panels/OverlayItem.vue';
-    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
-    import CompactList from '@/components/atoms/CompactList.vue';
+    import { DatasetOrGroup } from '@/types/Dataset';
+    import { useAnalysisStore } from '@/stores/analysis';
+    import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
     import { useLayerStore } from '@/stores/layers';
-    import { DatasetOrGroup } from '@/types/Dataset';
-    import { useCameraStore } from '@/stores/camera';
-    import { useAnalysisStore } from '@/stores/analysis';
+    import BasemapItem from '@/components/panels/BasemapItem.vue';
+    import CompactList from '@/components/atoms/CompactList.vue';
+    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
+    import DropZone from '@/components/DropZone.vue';
+    import OverlayItem from '@/components/panels/OverlayItem.vue';
+    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
@@ -63,13 +63,25 @@
         >
             <CompactList id="layers-list-group">
                 <BasemapItem
+                    v-if="layers.getGraticuleLayer() !== undefined"
+                    type="graticule"
+                    :opacity="1"
+                    :name="layers.getGraticuleLayer()!.name"
+                    :isLoading="false"
+                    :visible="layers.getGraticuleLayer()!.visible"
+                    :hasOpacitySlider="false"
+                    @update:visible="v => (layers.getGraticuleLayer()!.visible = v)"
+                />
+
+                <BasemapItem
                     v-for="layer in layers.getBasemaps()"
                     :key="layer.name"
+                    :type="layer.type"
                     :opacity="layer.opacity"
                     :name="layer.name"
                     :isLoading="layer.isLoading"
                     :visible="layer.visible"
-                    :hasOpacitySlider="true"
+                    :hasOpacitySlider="layer.type === 'color' || layer.type === 'elevation'"
                     @update:visible="v => layers.setBasemapVisibility(layer, v)"
                     @update:opacity="v => layers.setBasemapOpacity(layer, v)"
                 /> </CompactList

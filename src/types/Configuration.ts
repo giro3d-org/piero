@@ -1,33 +1,67 @@
-import { CRS, GeoExtent, GeoVec2, GeoVec3, Vec3 } from './configuration/geographic';
-import { ExperimentalFeatures } from './configuration/features';
-import { ColorMapConfig } from './configuration/color';
-import {
+import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
+import type { AnalysisConfig } from '@/types/configuration/analysis';
+import type { BookmarkConfig } from '@/types/configuration/bookmark';
+import type { CameraConfig, CameraConfigDeprecated } from '@/types/configuration/camera';
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { DatasetOrGroupConfig } from '@/types/configuration/dataset';
+import type { ExperimentalFeatures } from '@/types/configuration/features';
+import type { CRS, GeoExtent, GeoVec2 } from '@/types/configuration/geographic';
+import type {
     LayerConfig,
     OverlayConfig,
     OverlayRasterConfigDeprecated,
     OverlayVectorConfigDeprecated,
     OverlayVectorTileConfigDeprecated,
-} from './configuration/layerSource';
-import { DatasetOrGroupConfig } from './configuration/dataset';
-import { BookmarkConfig } from './configuration/bookmark';
-import { CameraConfig, CameraConfigDeprecated } from './configuration/camera';
+} from '@/types/configuration/layers';
 
-/** Extent configuration */
-export type ExtentConfig =
-    | {
-          extent: GeoExtent;
-      }
-    | {
-          center: GeoVec2 | [number, number];
-          size: [number, number];
-      };
+// For configuration, please use interfaces instead of types, it enables inheritance in the API documentation.
+// Also, please prefer JSON-serializable fields, so that one day if we want to fetch the configuration from
+// a back-end, we won't have too much rework to do.
+
+/**
+ * Extent configuration
+ *
+ * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+ */
+export interface ExtentConfigWithCenter {
+    /**
+     * Center of the map.
+     *
+     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+     */
+    center?: GeoVec2 | [number, number];
+    /**
+     * Size of the map in CRS units.
+     *
+     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+     */
+    size?: [number, number];
+}
 
 /** Basemap configuration */
-export type BasemapConfig = ExtentConfig & {
+export interface BasemapConfig
+    extends ExtentConfigWithCenter,
+        Pick<
+            MapConstructorOptions,
+            | 'hillshading'
+            | 'contourLines'
+            | 'graticule'
+            | 'colorimetry'
+            | 'doubleSided'
+            | 'terrain'
+            | 'backgroundColor'
+            | 'backgroundOpacity'
+            | 'showOutline'
+            | 'elevationRange'
+        > {
+    /** Extent configuration */
+    extent?: GeoExtent;
+
     /**
      * Color map configuration for Elevation layer, used when it's the only layer displayed
      */
     colormap: ColorMapConfig;
+
     /**
      * Layers
      *
@@ -38,10 +72,10 @@ export type BasemapConfig = ExtentConfig & {
      * There should be exactly one elevation layer and one or several color layers.
      */
     layers: LayerConfig[];
-};
+}
 
 /** Piero configuration */
-export type Configuration = {
+export interface Configuration {
     /**
      * The default CRS to be used in the view
      *
@@ -58,31 +92,7 @@ export type Configuration = {
     /** Pointcloud display configuration */
     pointcloud: ColorMapConfig;
     /** Analysis tools configuration */
-    analysis: {
-        /** Cross section configuration */
-        cross_section: {
-            /** Default pivot point */
-            pivot: GeoVec2;
-            /** Default orientation in degrees of the cross section plane */
-            orientation: number;
-        };
-        /** Clipping box configuration */
-        clipping_box: {
-            /** Default center of the clipping box */
-            center: GeoVec3;
-            /** Default size of the clipping box */
-            size: Vec3;
-            /** Default settings for floor presets */
-            floor_preset: {
-                /** Altitude of the ground of floor 0 */
-                altitude: number;
-                /** Height of a floor */
-                size: number;
-                /** Default floor number */
-                floor: number;
-            };
-        };
-    };
+    analysis: AnalysisConfig;
     /**
      * Array of datasets to display
      *
@@ -107,4 +117,4 @@ export type Configuration = {
     )[];
     /** Array of bookmarks - can be empty */
     bookmarks: BookmarkConfig[];
-};
+}

@@ -1,14 +1,14 @@
 <script setup lang="ts">
     import { reactive, ref, watch } from 'vue';
     import { MathUtils } from 'three';
-    import { Datagroup } from '@/types/Dataset';
-    import SpinnerControl from '@/components/SpinnerControl.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
+    import type { Datagroup } from '@/types/Dataset';
+    import CompactList from '@/components/atoms/CompactList.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
-    import CompactList from '@/components/atoms/CompactList.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import SpinnerControl from '@/components/SpinnerControl.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     const props = defineProps<{
         group: Datagroup;
@@ -33,7 +33,7 @@
 <template>
     <div class="d-flex">
         <IconList class="me-1 text-body-tertiary">
-            <i class="bi bi-folder2" />
+            <i class="bi bi-folder2" title="Group" />
         </IconList>
         <VisibilityControl
             :visible="isVisible"

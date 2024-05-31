@@ -10,6 +10,9 @@ dist
 src/config.ts
 src/styles.ts
 
+# App apidoc
+apidoc/
+
 # IFC
 public/web-ifc.wasm
 

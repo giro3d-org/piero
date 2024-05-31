@@ -1,9 +1,10 @@
 <script setup lang="ts">
-    import OpacitySlider from '@/components/OpacitySlider.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
-    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
+    import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import OpacitySlider from '@/components/OpacitySlider.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     defineProps<{
         visible: boolean;
@@ -15,6 +16,9 @@
 
 <template>
     <li class="list-group-item d-flex">
+        <IconList class="me-1 text-body-tertiary">
+            <Icon icon="fg-contour-map" title="Overlay" />
+        </IconList>
         <VisibilityControl :visible="visible" @update:visible="v => $emit('update:visible', v)" />
         <ListLabelButton
             class="label"
