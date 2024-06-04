@@ -5,7 +5,7 @@ import type { SourceConfigBase } from '@/types/configuration/layers/core/baseCon
 
 /** Base configuration for tiled layers */
 export interface TiledImageSourceBaseConfig<TType extends string>
-    extends Pick<TiledImageSourceOptions, 'noDataValue'>,
+    extends Pick<TiledImageSourceOptions, 'noDataValue' | 'httpTimeout' | 'retries'>,
         SourceConfigBase<TType> {
     format?: string;
     extent?: GeoExtent;
