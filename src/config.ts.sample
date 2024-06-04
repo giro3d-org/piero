@@ -71,6 +71,7 @@ const config: Configuration = {
                     format: 'image/jpeg',
                     projection: 'EPSG:3857',
                     url: 'https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities',
+                    retries: 0,
                 },
             },
             {

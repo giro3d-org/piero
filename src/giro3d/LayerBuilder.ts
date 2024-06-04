@@ -179,6 +179,8 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
                 }),
                 noDataValue: input.nodata,
                 format: getFormat(input.format),
+                httpTimeout: input.httpTimeout,
+                retries: input.retries,
             });
         }
         case 'wmts': {
@@ -193,6 +195,8 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
                 source,
                 noDataValue: input.nodata,
                 format: getFormat(input.format),
+                httpTimeout: input.httpTimeout,
+                retries: input.retries,
             });
         }
         case 'xyz': {
@@ -200,6 +204,8 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
                 ...commonOptions,
                 source: new XYZ(input),
                 noDataValue: input.nodata,
+                httpTimeout: input.httpTimeout,
+                retries: input.retries,
             });
         }
         default: {
