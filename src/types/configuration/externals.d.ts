@@ -6,6 +6,8 @@ import type { ElevationLayerOptions } from '@giro3d/giro3d/core/layer/ElevationL
 import type { MaskLayerOptions } from '@giro3d/giro3d/core/layer/MaskLayer';
 import type { InterpretationOptions } from '@giro3d/giro3d/core/layer/Interpretation';
 import type { InterpretationMode } from '@giro3d/giro3d/core/layer';
+import type ColorMapMode from '@giro3d/giro3d/core/layer/ColorMapMode';
+import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
 import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
 import type { TiledImageSourceOptions } from '@giro3d/giro3d/sources/TiledImageSource';
 import type { VectorSourceOptions } from '@giro3d/giro3d/sources/VectorSource';
@@ -15,7 +17,6 @@ import type { CogSourceOptions } from '@giro3d/giro3d/sources/CogSource';
 import type { Options as OSMOptions } from 'ol/source/OSM';
 import type { Options as StadiaMapsOptions } from 'ol/source/StadiaMaps';
 import type { Options as XYZOptions } from 'ol/source/XYZ';
-import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
 import type { ColorRepresentation, ColorSpace } from 'three';
 import type FeatureFormat from 'ol/format/Feature';
 
@@ -26,6 +27,7 @@ export {
     MaskLayerOptions,
     InterpretationOptions,
     InterpretationMode,
+    ColorMapMode,
     ImageSourceOptions,
     TiledImageSourceOptions,
     VectorSourceOptions,
