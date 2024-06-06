@@ -36,7 +36,7 @@
     "bugs": {
         "url": "https://gitlab.com/giro3d/piero/-/issues"
     },
-    "homepage": "https://app.giro3d.org/",
+    "homepage": "https://piero.giro3d.org/",
     "private": true,
     "scripts": {
         "build": "vue-tsc && vite build",
