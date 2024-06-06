@@ -37,7 +37,7 @@ pages:
           variables:
               ENVIRONMENT_NAME: $CI_COMMIT_BRANCH
     variables:
-        DEPLOY_URL: https://app.giro3d.org
+        DEPLOY_URL: https://piero.giro3d.org
         OUTPUT: ./dist
     cache:
         key: gitlab-pages
