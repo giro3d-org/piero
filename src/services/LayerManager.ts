@@ -237,7 +237,7 @@ export default class LayerManager extends EventDispatcher {
                 if (elevationLayer && isElevationLayer(elevationLayer)) {
                     // Remove from here
                     this._baseLayers.delete(uuid);
-                    this._basemap.removeLayer(elevationLayer);
+                    this._basemap.removeLayer(elevationLayer, { disposeLayer: true });
                     this._instance.notifyChange(this._basemap);
 
                     // And update the store
