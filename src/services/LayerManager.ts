@@ -231,6 +231,8 @@ export default class LayerManager extends EventDispatcher {
             // First make sure we don't have any other elevation layer enabled
             const keys = [...this._baseLayers.keys()];
             keys.forEach(uuid => {
+                if (uuid === basemap.uuid) return;
+
                 const elevationLayer = this._baseLayers.get(uuid);
                 if (elevationLayer && isElevationLayer(elevationLayer)) {
                     // Remove from here
