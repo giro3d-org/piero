@@ -135,6 +135,11 @@ export default class LayerManager extends EventDispatcher {
         this._instance.notifyChange(layer);
     }
 
+    private removeBasemapLayer(layer: BasemapLayer) {
+        this._basemap.removeLayer(layer, { disposeLayer: true });
+        this._instance.notifyChange(this._basemap);
+    }
+
     get extent() {
         return this._basemap.extent;
     }
@@ -147,21 +152,24 @@ export default class LayerManager extends EventDispatcher {
     private async loadBasemap(basemap: BaseLayer) {
         const layer = await LayerBuilder.getLayer(basemap, this._layerStore.getElevationColorMap());
 
-        if (isElevationLayer(layer)) {
-            layer.addEventListener('visible-property-changed', () => {
-                this._basemap.visible = layer.visible;
-                this._instance.notifyChange(this._basemap);
-            });
-        }
-
         this._baseLayers.set(basemap.uuid, layer);
         this._basemap.addLayer(layer);
         this.updateLayerOrdering();
 
         layer.visible = basemap.visible;
+
         if (isColorLayer(layer)) {
             layer.opacity = basemap.opacity;
         }
+        if (isElevationLayer(layer)) {
+            layer.addEventListener('visible-property-changed', () => {
+                this._basemap.visible = layer.visible;
+                this._instance.notifyChange(this._basemap);
+            });
+            this._basemap.visible = layer.visible;
+        }
+
+        this._instance.notifyChange(this._basemap);
 
         return layer;
     }
@@ -175,6 +183,8 @@ export default class LayerManager extends EventDispatcher {
 
         layer.visible = overlay.visible;
         layer.opacity = overlay.opacity;
+
+        this._instance.notifyChange(this._basemap);
 
         return layer;
     }
@@ -231,12 +241,13 @@ export default class LayerManager extends EventDispatcher {
             // First make sure we don't have any other elevation layer enabled
             const keys = [...this._baseLayers.keys()];
             keys.forEach(uuid => {
+                if (uuid === basemap.uuid) return;
+
                 const elevationLayer = this._baseLayers.get(uuid);
                 if (elevationLayer && isElevationLayer(elevationLayer)) {
                     // Remove from here
                     this._baseLayers.delete(uuid);
-                    this._basemap.removeLayer(elevationLayer);
-                    this._instance.notifyChange(this._basemap);
+                    this.removeBasemapLayer(elevationLayer);
 
                     // And update the store
                     const storeLayer = this._layerStore.getBasemaps().find(l => l.uuid === uuid);
@@ -248,6 +259,10 @@ export default class LayerManager extends EventDispatcher {
         const layer = await this.getLayer(basemap, newVisibility);
         if (layer) {
             layer.visible = newVisibility;
+            if (!newVisibility) {
+                this._baseLayers.delete(basemap.uuid);
+                this.removeBasemapLayer(layer);
+            }
             this.notify(layer);
         }
     }
@@ -256,6 +271,10 @@ export default class LayerManager extends EventDispatcher {
         const layer = await this.getOverlay(overlay, newVisibility);
         if (layer) {
             layer.visible = newVisibility;
+            if (!newVisibility) {
+                this._overlays.delete(overlay.uuid);
+                this.removeBasemapLayer(layer);
+            }
             this.notify(layer);
         }
     }
