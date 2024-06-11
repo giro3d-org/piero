@@ -1,6 +1,5 @@
 import GML32 from 'ol/format/GML32.js';
 import { Color } from 'three';
-import { Mode } from '@giro3d/giro3d/core/layer/Interpretation';
 import { Configuration } from './types/Configuration';
 
 const config: Configuration = {
@@ -31,8 +30,9 @@ const config: Configuration = {
         },
         colormap: {
             min: 0,
-            max: 100,
-            ramp: 'RdYlBu',
+            max: 90,
+            ramp: 'Greys',
+            mode: 2,
         },
         graticule: {
             enabled: false,
@@ -102,11 +102,9 @@ const config: Configuration = {
                 type: 'elevation',
                 name: 'Mapbox Elevation',
                 visible: false,
-                interpretation: {
-                    mode: Mode.MapboxTerrainRGB,
-                },
                 source: {
                     type: 'xyz',
+                    imageFormat: 'MapboxTerrain',
                     url: 'https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=pk.eyJ1IjoidG11Z3VldCIsImEiOiJjbGJ4dTNkOW0wYWx4M25ybWZ5YnpicHV6In0.KhDJ7W5N3d1z3ArrsDjX_A',
                 },
             },

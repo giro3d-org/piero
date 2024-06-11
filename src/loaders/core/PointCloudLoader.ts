@@ -2,10 +2,11 @@ import { BufferAttribute, BufferGeometry, type TypedArray } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
+import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
 
-import PointCloudMaterial from '@/giro3d/PointCloudMaterial';
+import config from '@/config';
 import Projections from '@/utils/Projections';
+import { getColorMap } from '@/utils/Configuration';
 
 /** Parameters for creating point clouds */
 export type PointCloudLoaderParameters = {
@@ -45,12 +46,14 @@ async function toEntity(
 
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(data, 3));
+    const material = new PointCloudMaterial({
+        size: 2,
+        mode: MODE.ELEVATION,
+    });
+    material.colorMap = getColorMap(config.pointcloud);
     const mypoints = new PointCloud({
         geometry,
-        material: new PointCloudMaterial({
-            size: 2,
-            mode: MODE.ELEVATION,
-        }),
+        material,
     });
 
     const entity = new Entity3D(mypoints.uuid, mypoints);

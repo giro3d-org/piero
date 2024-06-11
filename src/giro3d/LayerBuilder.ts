@@ -1,19 +1,21 @@
-import chroma from 'chroma-js';
 import { GPX, KML, MVT, WMTSCapabilities, GeoJSON } from 'ol/format';
 import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
-import { Color } from 'three';
 import { Extent } from '@giro3d/giro3d/core/geographic';
 import {
     ColorLayer,
-    ColorMap,
     ElevationLayer,
     MaskLayer,
     type LayerOptions,
 } from '@giro3d/giro3d/core/layer';
-import { BilFormat, type ImageFormat } from '@giro3d/giro3d/formats';
+import {
+    BilFormat,
+    GeoTIFFFormat,
+    MapboxTerrainFormat,
+    type ImageFormat,
+} from '@giro3d/giro3d/formats';
 import {
     CogSource,
     ImageSource,
@@ -27,12 +29,13 @@ import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
 import config from '@/config';
 import dynamicStyles from '@/styles';
 import type { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
-import type { SourceConfig } from '@/types/configuration/layers';
+import type { LayerSourceType, SourceConfig } from '@/types/configuration/layers';
 import type {
     ColorLayerConfig,
     ElevationLayerConfig,
     MaskLayerConfig,
 } from '@/types/configuration/layers/core/baseConfig';
+import { TiledImageSourceBaseConfig } from '@/types/configuration/layers/core/tiled';
 import type { ColorMapConfig } from '@/types/configuration/color';
 import type { Overlay, OverlayOptions } from '@/types/Overlay';
 import type {
@@ -42,7 +45,7 @@ import type {
     StrokeStyle,
     VectorStyle,
 } from '@/types/VectorStyle';
-import { getPublicFolderUrl } from '@/utils/Configuration';
+import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -65,8 +68,25 @@ async function createWMTSSource(
     return new WMTS(options);
 }
 
-function getFormat(mimeType?: string): ImageFormat | undefined {
-    switch (mimeType) {
+function getImageFormat(
+    imageSourceConfig: TiledImageSourceBaseConfig<LayerSourceType>,
+): ImageFormat | undefined {
+    if (imageSourceConfig.imageFormat) {
+        switch (imageSourceConfig.imageFormat) {
+            case 'Bil':
+                return new BilFormat();
+            case 'GeoTIFF':
+                return new GeoTIFFFormat();
+            case 'MapboxTerrain':
+                return new MapboxTerrainFormat();
+            default: {
+                const _exhaustiveCheck: never = imageSourceConfig.imageFormat;
+                return _exhaustiveCheck;
+            }
+        }
+    }
+
+    switch (imageSourceConfig.format) {
         case 'image/x-bil;bits=32':
             return new BilFormat();
         default:
@@ -76,14 +96,10 @@ function getFormat(mimeType?: string): ImageFormat | undefined {
 
 async function getSource(input: SourceConfig): Promise<ImageSource> {
     const commonOptions: ImageSourceOptions = {
-        // Not supported yet, needs https://gitlab.com/giro3d/giro3d/-/issues/455
-        // flipY: input.flipY,
-        // is8bit: input.is8bit,
-        // colorSpace: input.colorSpace,
+        flipY: input.flipY,
+        is8bit: input.is8bit,
+        colorSpace: input.colorSpace,
     };
-    if (input.flipY !== undefined) commonOptions.flipY = input.flipY;
-    if (input.is8bit !== undefined) commonOptions.is8bit = input.is8bit;
-    if (input.colorSpace !== undefined) commonOptions.colorSpace = input.colorSpace;
 
     switch (input.type) {
         case 'bingmaps': {
@@ -178,7 +194,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
                     },
                 }),
                 noDataValue: input.nodata,
-                format: getFormat(input.format),
+                format: getImageFormat(input),
                 httpTimeout: input.httpTimeout,
                 retries: input.retries,
             });
@@ -194,7 +210,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
                 ...commonOptions,
                 source,
                 noDataValue: input.nodata,
-                format: getFormat(input.format),
+                format: getImageFormat(input),
                 httpTimeout: input.httpTimeout,
                 retries: input.retries,
             });
@@ -204,6 +220,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
                 ...commonOptions,
                 source: new XYZ(input),
                 noDataValue: input.nodata,
+                format: getImageFormat(input),
                 httpTimeout: input.httpTimeout,
                 retries: input.retries,
             });
@@ -214,17 +231,6 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
             return _exhaustiveCheck;
         }
     }
-}
-
-function getColorMap(conf: ColorMapConfig) {
-    const scale = chroma.scale(conf.ramp);
-    const colors = [];
-    for (let i = 0; i < 256; i++) {
-        const rgb = scale(i / 255).gl();
-        const c = new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
-        colors.push(c);
-    }
-    return new ColorMap(colors, conf.min, conf.max);
 }
 
 async function layerOptions(
