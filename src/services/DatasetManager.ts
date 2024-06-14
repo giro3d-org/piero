@@ -61,36 +61,44 @@ export default class DatasetManager {
         // Nothing to do (?)
     }
 
+    private createGrid(dataset: DatasetOrGroup) {
+        const box = this._store.getBoundingBox(dataset);
+        if (!box || box.isEmpty()) {
+            return;
+        }
+
+        const grid = new AxisGrid(`AxisGrid-${dataset.uuid}`, {
+            ticks: {
+                x: 50,
+                y: 50,
+                z: 50,
+            },
+            style: {
+                color: new Color('orange'),
+                numberFormat: Intl.NumberFormat('fr'),
+                fontSize: 12,
+            },
+            volume: {
+                floor: box.min.z - 10,
+                ceiling: box.max.z + 10,
+                extent: Extent.fromBox3(this._instance.referenceCrs, box).withMargin(20, 20),
+            },
+        });
+        this._instance.add(grid);
+        this._axisGrids.set(dataset.uuid, grid);
+    }
+
+    private deleteGrid(dataset: DatasetOrGroup) {
+        const grid = this._axisGrids.get(dataset.uuid);
+        if (grid) this._instance.remove(grid);
+        this._axisGrids.delete(dataset.uuid);
+    }
+
     private onToggleGrid(dataset: DatasetOrGroup) {
         if (this._axisGrids.has(dataset.uuid)) {
-            const grid = this._axisGrids.get(dataset.uuid);
-            if (grid) this._instance.remove(grid);
-            this._axisGrids.delete(dataset.uuid);
+            this.deleteGrid(dataset);
         } else {
-            const box = this._store.getBoundingBox(dataset);
-            if (!box || box.isEmpty()) {
-                return;
-            }
-
-            const grid = new AxisGrid(`AxisGrid-${dataset.uuid}`, {
-                ticks: {
-                    x: 50,
-                    y: 50,
-                    z: 50,
-                },
-                style: {
-                    color: new Color('orange'),
-                    numberFormat: Intl.NumberFormat('fr'),
-                    fontSize: 12,
-                },
-                volume: {
-                    floor: box.min.z - 10,
-                    ceiling: box.max.z + 10,
-                    extent: Extent.fromBox3(this._instance.referenceCrs, box).withMargin(20, 20),
-                },
-            });
-            this._instance.add(grid);
-            this._axisGrids.set(dataset.uuid, grid);
+            this.createGrid(dataset);
         }
     }
 
@@ -208,6 +216,9 @@ export default class DatasetManager {
     }
 
     private deleteDataset(dataset: DatasetOrGroup) {
+        this.deleteGrid(dataset);
+        this.deleteMask(dataset);
+
         const entity = this._entities.get(dataset.uuid);
         if (entity) {
             this._instance.remove(entity);
