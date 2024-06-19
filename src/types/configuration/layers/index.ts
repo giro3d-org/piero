@@ -12,7 +12,10 @@ import type { KMLSourceConfig } from '@/types/configuration/layers/kml';
 import type { MVTSourceConfig } from '@/types/configuration/layers/mvt';
 import type { OSMSourceConfig } from '@/types/configuration/layers/osm';
 import type { StadiaMapsSourceConfig } from '@/types/configuration/layers/stadiaMaps';
-import type { VectorSourceConfig } from '@/types/configuration/layers/core/vector';
+import type {
+    VectorSourceBaseConfig,
+    VectorSourceConfig,
+} from '@/types/configuration/layers/core/vector';
 import type { VectorTileSourceConfig } from '@/types/configuration/layers/core/vectorTile';
 import type { WMSSourceConfig } from '@/types/configuration/layers/wms';
 import type { WMTSSourceConfig } from '@/types/configuration/layers/wmts';
@@ -54,7 +57,8 @@ export interface OverlayConfig extends Omit<ColorLayerConfig, 'type'> {
  *
  * @deprecated Use 'source' field instead. Will be removed in release v24.7.
  */
-export type OverlayVectorConfigDeprecated = Omit<OverlayConfig, 'source'> & VectorSourceConfig;
+export type OverlayVectorConfigDeprecated = Omit<OverlayConfig, 'source'> &
+    VectorSourceBaseConfig<'geojson' | 'gpx' | 'kml'>;
 /**
  * Vector tile overlay configuration
  *
