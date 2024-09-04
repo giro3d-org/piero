@@ -2,20 +2,9 @@ import { Box3, type Object3D, Vector3, Vector2 } from 'three';
 import { type Feature as OLFeature } from 'ol';
 import { IfcCategoryMap } from 'openbim-components';
 import type Instance from '@giro3d/giro3d/core/Instance';
-import {
-    type PickResult,
-    type PointsPickResult,
-    isMapPickResult,
-    isPointsPickResult,
-    VectorPickFeature,
-} from '@giro3d/giro3d/core/picking';
 import type Entity from '@giro3d/giro3d/entities/Entity';
 import type Giro3DMap from '@giro3d/giro3d/entities/Map';
 import type FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import {
-    type DrawingPickResult,
-    isDrawingPickResult,
-} from '@giro3d/giro3d/entities/DrawingCollection';
 
 import { type CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/CityJSONEntity';
 import { type IFCPickResult, isIFCPickResult } from '@/giro3d/IfcEntity';
@@ -26,6 +15,9 @@ import type Measure from '@/types/Measure';
 import { PlyFeature, PlyMesh } from '@/loaders/PLY';
 import { useAnalysisStore } from '@/stores/analysis';
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
+import PickResult, { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
+import { isPointsPickResult, PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
 
 export default class Picker {
     private readonly _analysisStore = useAnalysisStore();
@@ -40,8 +32,8 @@ export default class Picker {
             }
         }
         if (
-            result.distance < instance.camera.camera3D.near ||
-            result.distance > instance.camera.camera3D.far
+            result.distance < instance.view.camera.near ||
+            result.distance > instance.view.camera.far
         ) {
             return false;
         }

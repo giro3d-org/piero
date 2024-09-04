@@ -3,7 +3,7 @@ import type { ColorLayerOptions } from '@giro3d/giro3d/core/layer/ColorLayer';
 import type { ElevationLayerOptions } from '@giro3d/giro3d/core/layer/ElevationLayer';
 import type { MaskLayerOptions } from '@giro3d/giro3d/core/layer/MaskLayer';
 import type { InterpretationOptions } from '@giro3d/giro3d/core/layer/Interpretation';
-import type { InterpretationMode } from '@giro3d/giro3d/core/layer';
+import type { Mode as InterpretationMode } from '@giro3d/giro3d/core/layer/Interpretation';
 import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
 
 import type { GeoExtent } from '@/types/configuration/geographic';

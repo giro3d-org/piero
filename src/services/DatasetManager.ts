@@ -67,7 +67,7 @@ export default class DatasetManager {
             return;
         }
 
-        const grid = new AxisGrid(`AxisGrid-${dataset.uuid}`, {
+        const grid = new AxisGrid({
             ticks: {
                 x: 50,
                 y: 50,
@@ -84,6 +84,7 @@ export default class DatasetManager {
                 extent: Extent.fromBox3(this._instance.referenceCrs, box).withMargin(20, 20),
             },
         });
+        grid.name = `AxisGrid-${dataset.uuid}`;
         this._instance.add(grid);
         this._axisGrids.set(dataset.uuid, grid);
     }

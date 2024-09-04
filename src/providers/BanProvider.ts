@@ -27,7 +27,7 @@ export default {
         coordinates.forEach((c, i) => {
             // Here we have EPSG:2154 coordinates, which are not the same as in feature.geometry!
             data.features[i].properties.crs = 'EPSG:2154';
-            data.features[i].properties.z = c.altitude();
+            data.features[i].properties.z = c.altitude;
         });
         return data.features.map((f: { properties: object }) => f.properties);
     },

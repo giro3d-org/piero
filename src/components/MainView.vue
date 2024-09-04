@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
     import Inspector from '@giro3d/giro3d/gui/Inspector';
-    import { Instance } from '@giro3d/giro3d/core';
+    import Instance from '@giro3d/giro3d/core/Instance';
     import { useGiro3dStore } from '@/stores/giro3d';
     import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
     import IfcEntityInspector from '@/giro3d/IfcEntityInspector';
@@ -13,11 +13,10 @@
     const store = useGiro3dStore();
 
     onMounted(() => {
-        instance.value = new Instance(mainView.value as HTMLDivElement, {
+        instance.value = new Instance({
+            target: mainView.value as HTMLDivElement,
             crs: store.getCRS(),
-            renderer: {
-                clearColor: false,
-            },
+            backgroundColor: null,
         });
         store.setMainView(instance.value);
 

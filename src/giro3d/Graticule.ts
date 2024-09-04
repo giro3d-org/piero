@@ -3,8 +3,8 @@ import type Map from '@giro3d/giro3d/entities/Map';
 import { EventDispatcher } from 'three';
 
 export class GraticuleLayer extends EventDispatcher {
-    readonly name = 'Graticule';
-    readonly uuid = 'graticule';
+    readonly name = 'Graticule' as const;
+    readonly uuid = 'graticule' as const;
     readonly canSetOpacity = false;
     private _enabled: boolean = false;
     private _visible: boolean = false;
@@ -41,7 +41,7 @@ export class GraticuleLayer extends EventDispatcher {
 
     private _updateVisible() {
         if (this._map && this._instance) {
-            this._map.materialOptions.graticule!.enabled = this.displayed;
+            this._map.graticule.enabled = this.displayed;
             this._instance.notifyChange(this._map);
         }
     }

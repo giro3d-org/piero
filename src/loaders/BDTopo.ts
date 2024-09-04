@@ -1,12 +1,15 @@
-import { GeoJSON } from 'ol/format';
-import { tile } from 'ol/loadingstrategy.js';
-import { createXYZ } from 'ol/tilegrid.js';
-import Feature from 'ol/Feature';
-import VectorSource from 'ol/source/Vector';
-import { Color, MeshLambertMaterial } from 'three';
+import { FillStyle } from '@giro3d/giro3d/core/FeatureTypes';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
+
+import Feature from 'ol/Feature';
+import { GeoJSON } from 'ol/format';
+import { tile } from 'ol/loadingstrategy.js';
+import VectorSource from 'ol/source/Vector';
+import { createXYZ } from 'ol/tilegrid.js';
+
+import { Color } from 'three';
 
 import LoaderCore from './core/LoaderCore';
 
@@ -47,10 +50,9 @@ function toEntity(parameters: BDTopoImplParameters): Promise<FeatureCollection> 
         strategy: tile(createXYZ({ tileSize: 512 })),
     });
 
-    const entity = new FeatureCollection(parameters.name, {
+    const entity = new FeatureCollection({
         source: vectorSource,
         extent: new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64),
-        material: new MeshLambertMaterial(),
         extrusionOffset: (feature: Feature) => {
             const hauteur = -feature.getProperties().hauteur;
             if (Number.isNaN(hauteur)) {
@@ -76,11 +78,19 @@ function toEntity(parameters: BDTopoImplParameters): Promise<FeatureCollection> 
                 visible = false;
             }
 
-            return { color: new Color(color), visible };
+            const fill: FillStyle = {
+                color: new Color(color),
+            };
+
+            return {
+                fill: visible ? fill : undefined,
+            };
         },
         minLevel: 11,
         maxLevel: 11,
     });
+
+    entity.name = parameters.name;
     return Promise.resolve(entity);
 }
 

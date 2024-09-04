@@ -1,4 +1,4 @@
-import { Instance } from '@giro3d/giro3d/core';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import { CubeTextureLoader } from 'three';
 
 const px = '/skyboxsun25deg_zup/px.jpg';

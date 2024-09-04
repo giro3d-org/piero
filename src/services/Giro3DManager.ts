@@ -1,7 +1,7 @@
 import { EventDispatcher, Box3, AmbientLight, DirectionalLight, Object3D } from 'three';
 
 import Instance from '@giro3d/giro3d/core/Instance';
-import { HttpConfiguration } from '@giro3d/giro3d/utils';
+import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 
 import LayerManager from '@/services/LayerManager';
 import CameraController from '@/services/CameraController';
@@ -167,7 +167,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     onFrameEnd() {
         // Temporary solution to avoid annoying horizontal line artifacts
         // on point cloud due to constantly shifting near clipping plane.
-        const camera = this.mainInstance.camera.camera3D;
+        const camera = this.mainInstance.view.camera;
         camera.near = 2;
 
         this.dispatchEvent({ type: 'update' });

@@ -1,5 +1,5 @@
 import { GridHelper, Material, Vector3 } from 'three';
-import { Extent } from '@giro3d/giro3d/core/geographic';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 class Grid {

@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, type TypedArray } from 'three';
+import { BufferAttribute, BufferGeometry, Vector2, type TypedArray } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
@@ -53,10 +53,11 @@ async function toEntity(
     material.colorMap = getColorMap(config.pointcloud);
     const mypoints = new PointCloud({
         geometry,
+        textureSize: new Vector2(0, 0), // Only used for coloring with a color layer
         material,
     });
 
-    const entity = new Entity3D(mypoints.uuid, mypoints);
+    const entity = new Entity3D(mypoints);
     return entity;
 }
 

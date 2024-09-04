@@ -26,7 +26,7 @@ export default class MeasureTool {
             n.transformDirection(picked.object.matrixWorld);
             n.normalize();
 
-            this._raycaster.camera = instance.camera.camera3D;
+            this._raycaster.camera = instance.view.camera;
             this._raycaster.set(picked.point, n);
             const intersects = this._raycaster
                 .intersectObject(instance.scene, true)

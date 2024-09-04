@@ -47,9 +47,10 @@ export default class MinimapController {
 
         this._minimapInstance.notifyChange();
 
-        this._basemap = new GiroMap('minimap', {
+        this._basemap = new GiroMap({
             extent: DEFAULT_EXTENT,
         });
+        this._basemap.name = 'minimap';
 
         this._minimapInstance.add(this._basemap);
 
@@ -60,7 +61,7 @@ export default class MinimapController {
         );
 
         const xyz = new Vector3(center.x, center.y, 0);
-        const camera = this._minimapInstance.camera.camera3D;
+        const camera = this._minimapInstance.view.camera;
         camera.position.set(xyz.x, xyz.y, 20000);
         camera.lookAt(xyz.x, xyz.y + 1, 0);
 
@@ -98,7 +99,7 @@ export default class MinimapController {
 
         if (instance === null) throw new Error('Must call setMainInstance before getCorners');
 
-        const canvasSize = instance.mainLoop.gfxEngine.getWindowSize();
+        const canvasSize = instance.engine.getWindowSize();
 
         const raycast = (x: number, y: number) => {
             const results = instance.pickObjectsAt(new Vector2(x, y), { limit: 1, radius: 0 });
@@ -134,8 +135,8 @@ export default class MinimapController {
             throw new Error('Must call setMainInstance before updateViewbox');
 
         const corners = null;
-        const mainCamera = this._mainInstance.camera.camera3D;
-        const minimapCamera = this._minimapInstance.camera.camera3D;
+        const mainCamera = this._mainInstance.view.camera;
+        const minimapCamera = this._minimapInstance.view.camera;
 
         if (corners) {
             this._viewbox.object3D.visible = true;

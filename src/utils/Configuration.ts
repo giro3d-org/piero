@@ -1,6 +1,6 @@
 import { Color } from 'three';
 import chroma from 'chroma-js';
-import { ColorMap } from '@giro3d/giro3d/core/layer';
+import ColorMap from '@giro3d/giro3d/core/layer/ColorMap';
 
 import Download from './Download';
 import type { ColorMapConfig } from '@/types/configuration/color';

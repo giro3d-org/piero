@@ -6,7 +6,6 @@ import DrawTool, {
     DrawToolState,
 } from '@giro3d/giro3d/interactions/DrawTool';
 import Drawing, { DrawingGeometryType } from '@giro3d/giro3d/interactions/Drawing';
-import { PickResult } from '@giro3d/giro3d/core/picking';
 import DrawingCollection from '@giro3d/giro3d/entities/DrawingCollection';
 import Instance from '@giro3d/giro3d/core/Instance';
 
@@ -18,6 +17,7 @@ import Measure from '@/utils/Measure';
 import Annotation from '@/types/Annotation';
 import AnnotationMode from '@/types/AnnotationMode';
 import Notification from '@/types/Notification';
+import PickResult from '@giro3d/giro3d/core/picking/PickResult';
 
 const drawnFaceMaterial = new MeshBasicMaterial({
     color: 'yellow',
