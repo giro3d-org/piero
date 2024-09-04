@@ -19,7 +19,6 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 import Inspector from '@giro3d/giro3d/gui/Inspector';
 import { useCameraStore } from '@/stores/camera';
@@ -630,6 +629,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
     }
 
+    get enabled() {
+        return this._orbitControls.enabled;
+    }
+
+    set enabled(v: boolean) {
+        this._orbitControls.enabled = v;
+    }
+
     getCameraPosition(target?: CameraPosition): CameraPosition {
         const controls = this._orbitControls;
         const cameraPosition =
@@ -722,33 +729,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             } else if ('extent' in entity3d) {
                 // In case object is hidden
                 bbox = (entity3d.extent as Extent).toBox3(0, 200);
-            }
-        } else if ((obj as Drawing).isDrawing) {
-            const drawing = obj as Drawing;
-            // TODO: this should probably be part of Drawing in Giro3D
-            if (drawing.geometryType === 'Point') {
-                bbox.setFromCenterAndSize(
-                    new Vector3(
-                        drawing.coordinates[0],
-                        drawing.coordinates[1],
-                        drawing.coordinates[2],
-                    ),
-                    new Vector3(10, 10, 10),
-                );
-            } else if (drawing.geometryType === 'MultiPoint') {
-                const pts = [];
-                for (let i = 0; i < drawing.coordinates.length; i += 3) {
-                    pts.push(
-                        new Vector3(
-                            drawing.coordinates[i],
-                            drawing.coordinates[i + 1],
-                            drawing.coordinates[i + 2],
-                        ),
-                    );
-                }
-                bbox.setFromPoints(pts);
-            } else {
-                bbox.setFromObject(drawing);
             }
         } else if ((obj as Object3D).isObject3D) {
             bbox.setFromObject(obj as Object3D);

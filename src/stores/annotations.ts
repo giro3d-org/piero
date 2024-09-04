@@ -8,9 +8,18 @@ export const useAnnotationStore = defineStore('annotations', () => {
     const annotationMode = ref<AnnotationMode>('normal');
     const count = computed(() => annotations.length);
     const _isUserDrawing = ref<boolean>(false);
+    const _showLabels = ref<boolean>(true);
 
     function isUserDrawing(): boolean {
         return _isUserDrawing.value;
+    }
+
+    function showLabels(): boolean {
+        return _showLabels.value;
+    }
+
+    function setShowLabels(v: boolean): void {
+        _showLabels.value = v;
     }
 
     function setIsUserDrawing(value: boolean) {
@@ -58,6 +67,10 @@ export const useAnnotationStore = defineStore('annotations', () => {
         // Nothing to do.
     }
 
+    function stopEdition() {
+        // Nothing to do.
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function importAnnotationFile(file: Blob) {
         // Nothing to do
@@ -70,6 +83,8 @@ export const useAnnotationStore = defineStore('annotations', () => {
 
     return {
         count,
+        showLabels,
+        setShowLabels,
         isUserDrawing,
         setIsUserDrawing,
         getAnnotationMode,
@@ -82,6 +97,7 @@ export const useAnnotationStore = defineStore('annotations', () => {
         createLine,
         createPolygon,
         edit,
+        stopEdition,
         importAnnotationFile,
         importAnnotationsFiles,
     };

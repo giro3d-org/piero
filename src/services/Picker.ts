@@ -18,6 +18,14 @@ import { GRID_NAME, PLANE_NAME } from './LayerManager';
 import PickResult, { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
 import { isPointsPickResult, PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
 import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import { ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import { PieroShapeUserData } from '@/types/Annotation';
+import { isMap } from '@giro3d/giro3d/entities/Map';
+
+// TODO use Giro3D predicate
+export function isShapePickResult(obj?: unknown): obj is ShapePickResult {
+    return (obj as ShapePickResult)?.isShapePickResult;
+}
 
 export default class Picker {
     private readonly _analysisStore = useAnalysisStore();
@@ -202,30 +210,28 @@ export default class Picker {
      * may return nothing)
      * @returns Result or null if notthing found
      */
-    getObjectAt(
+    getObjectsAt(
         instance: Instance,
         e: MouseEvent,
         radius = 1,
         filterOnObjects?: (obj: Object3D | Entity) => boolean,
-    ): PickResult | null {
+    ): PickResult[] | null {
         let where = instance.getObjects(
             o =>
-                (o as Giro3DMap).isMap !== true &&
+                !isMap(o) &&
                 (o as Object3D).name !== PLANE_NAME &&
                 (o as Object3D).name !== GRID_NAME,
         );
         if (filterOnObjects) where = where.filter(filterOnObjects);
 
-        const picked = instance
-            .pickObjectsAt(e, {
-                radius,
-                where,
-                sortByDistance: true,
-                limit: 1,
-                pickFeatures: true,
-                filter: res => this.filterPick(instance, res),
-            })
-            .at(0);
+        const picked = instance.pickObjectsAt(e, {
+            radius,
+            where,
+            sortByDistance: true,
+            pickFeatures: true,
+            filter: res => this.filterPick(instance, res),
+        });
+
         return picked ?? null;
     }
 
@@ -257,7 +263,7 @@ export default class Picker {
         radius = 1,
         filterOnObjects?: (obj: Object3D | Entity) => boolean,
     ): PickResult | null {
-        const picked = this.getObjectAt(instance, e, radius, filterOnObjects);
+        const picked = this.getObjectsAt(instance, e, radius, filterOnObjects)?.at(0);
         if (picked) {
             return picked;
         }
@@ -293,34 +299,40 @@ export default class Picker {
         });
     }
 
-    getAttributesFromDrawing(pickResult: DrawingPickResult, attributesGroups: AttributesGroups) {
+    getAttributesFromDrawing(pickResult: ShapePickResult, attributesGroups: AttributesGroups) {
         if (!attributesGroups.has('GeoJSON')) {
             attributesGroups.set('GeoJSON', []);
         }
+
         const attributesGeoJSON = attributesGroups.get('GeoJSON') as Attribute[];
 
-        for (const [key, value] of Object.entries(
-            pickResult.drawing.userData.annotation.properties,
-        )) {
-            if (
-                key === 'geometry' ||
-                key === 'geometryProperty' ||
-                key === 'metadata' ||
-                key === 'entity'
-            )
-                continue;
-            attributesGeoJSON.push({ key, value });
+        const shape = pickResult.entity;
+        const userData = shape.userData as PieroShapeUserData;
+        const annotation = userData.annotation;
+
+        if (annotation) {
+            for (const [key, value] of Object.entries(userData.annotation.properties)) {
+                if (
+                    key === 'geometry' ||
+                    key === 'geometryProperty' ||
+                    key === 'metadata' ||
+                    key === 'entity'
+                )
+                    continue;
+                attributesGeoJSON.push({ key, value });
+            }
         }
 
-        const measurements = pickResult.drawing.userData.measurements;
+        const { type, measurements } = userData;
+
         if (measurements) {
             if (!attributesGroups.has('Measurement')) {
                 attributesGroups.set('Measurement', []);
             }
             const attributes = attributesGroups.get('Measurement') as Attribute[];
 
-            if (pickResult.drawing.geometryType === 'MultiPoint') {
-                attributes.push({ key: 'Number of points', value: measurements.nbPoints });
+            if (type === 'MultiPoint') {
+                attributes.push({ key: 'Number of points', value: shape.points.length });
             }
 
             const unit = 'm';
@@ -329,7 +341,7 @@ export default class Picker {
             }
             if (measurements.perimeter) {
                 attributes.push({
-                    key: pickResult.drawing.geometryType === 'Polygon' ? 'Perimeter' : 'Length',
+                    key: type === 'Polygon' ? 'Perimeter' : 'Length',
                     value: `${measurements.perimeter.toFixed(2)}${unit}`,
                 });
             }
@@ -407,8 +419,8 @@ export default class Picker {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
             } else if (PlyMesh.isPlyPickResult(pickedObject)) {
                 this.getAttributesFromPlyObject(pickedObject, attributesGroups);
-            } else if (isDrawingPickResult(pickedObject)) {
-                const annotation = pickedObject.drawing.userData?.annotation as Annotation;
+            } else if (isShapePickResult(pickedObject)) {
+                const annotation = pickedObject.entity.userData?.annotation as Annotation;
                 name = annotation?.title ?? name;
                 this.getAttributesFromDrawing(pickedObject, attributesGroups);
             } else if (object?.userData) {

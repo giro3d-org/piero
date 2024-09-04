@@ -1,10 +1,24 @@
 import Download from '@/utils/Download';
-import Drawing from '@giro3d/giro3d/interactions/Drawing';
+import Shape from '@giro3d/giro3d/entities/Shape';
 import { EventDispatcher, MathUtils } from 'three';
 
+type EmptyEvent = {
+    /** empty */
+};
+
 type AnnotationEventMap = {
-    visible: {
-        /** empty */
+    visible: EmptyEvent;
+    isEditing: EmptyEvent;
+};
+
+export type PieroShapeUserData = {
+    type: 'Point' | 'Polygon' | 'LineString' | 'MultiPoint';
+    annotation: Annotation;
+    highlightable: boolean;
+    measurements: {
+        area?: number | null;
+        perimeter?: number | null;
+        minmax: [number, number];
     };
 };
 
@@ -12,14 +26,16 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     readonly uuid: string;
     readonly title: string;
     private _visible: boolean;
-    private _object: Drawing;
+    private _isEditing: boolean;
+    private _object: () => Shape<PieroShapeUserData>;
     properties: object;
 
-    constructor(title: string, object: Drawing, properties: object = {}) {
+    constructor(title: string, object: () => Shape<PieroShapeUserData>, properties: object = {}) {
         super();
 
         this.title = title;
         this._visible = true;
+        this._isEditing = false;
         this._object = object;
         this.properties = properties;
         this.uuid = MathUtils.generateUUID();
@@ -35,52 +51,28 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     }
 
     get object() {
-        return this._object;
+        return this._object();
     }
 
-    set object(obj) {
-        this._object = obj;
+    get isEditing() {
+        return this._isEditing;
+    }
+
+    set isEditing(v) {
+        this._isEditing = v;
+        this.dispatchEvent({ type: 'isEditing' });
     }
 
     toGeoJSON() {
-        const coords: GeoJSON.Position[] = [];
-        const objectFlatCoords = this.object.coordinates;
-        for (let i = 0; i < objectFlatCoords.length; i += 3) {
-            coords.push([objectFlatCoords[i], objectFlatCoords[i + 1], objectFlatCoords[i + 2]]);
-        }
-        let geometry;
-        switch (this.object.geometryType) {
-            case 'Point':
-                geometry = {
-                    type: this.object.geometryType,
-                    coordinates: coords[0],
-                };
-                break;
-            case 'LineString':
-            case 'MultiPoint':
-                geometry = {
-                    type: this.object.geometryType,
-                    coordinates: coords,
-                };
-                break;
-            case 'Polygon':
-                geometry = {
-                    type: this.object.geometryType,
-                    coordinates: [coords],
-                };
-                break;
-            default:
-                throw new Error(`Unsupported type ${this.object.geometryType}`);
-        }
-        const geojson: GeoJSON.Feature = {
-            type: 'Feature',
-            id: `${Download.getBaseUrl()}#${this.uuid}`,
-            geometry,
-            properties: {
-                ...this.properties,
-                title: this.title,
-                updated: new Date().toISOString(),
-            },
+        const geojson = this.object.toGeoJSON({
+            includeAltitudes: true,
+        });
+
+        geojson.id = `${Download.getBaseUrl()}#${this.uuid}`;
+        geojson.properties = {
+            ...geojson.properties,
+            title: this.title,
+            updated: new Date().toISOString(),
         };
 
         return geojson;

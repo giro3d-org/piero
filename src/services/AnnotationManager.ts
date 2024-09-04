@@ -1,118 +1,136 @@
-import { LineBasicMaterial, MathUtils, MeshBasicMaterial, Object3D, PointsMaterial } from 'three';
+import { MathUtils, Object3D, Vector3 } from 'three';
 
 import DrawTool, {
-    DrawToolMode,
-    DrawToolOptions,
-    DrawToolState,
+    afterRemovePointOfRing,
+    afterUpdatePointOfRing,
+    CreationOptions,
+    inhibitHook,
+    limitRemovePointHook,
 } from '@giro3d/giro3d/interactions/DrawTool';
-import Drawing, { DrawingGeometryType } from '@giro3d/giro3d/interactions/Drawing';
-import DrawingCollection from '@giro3d/giro3d/entities/DrawingCollection';
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import CameraController from '@/services/CameraController';
-import Picker from '@/services/Picker';
+import Picker, { isShapePickResult } from '@/services/Picker';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/utils/Measure';
-import Annotation from '@/types/Annotation';
-import AnnotationMode from '@/types/AnnotationMode';
+import Annotation, { PieroShapeUserData } from '@/types/Annotation';
 import Notification from '@/types/Notification';
 import PickResult from '@giro3d/giro3d/core/picking/PickResult';
-
-const drawnFaceMaterial = new MeshBasicMaterial({
-    color: 'yellow',
-    depthWrite: false,
-    depthTest: false,
-    opacity: 0.4,
-});
-const drawnSideMaterial = new MeshBasicMaterial({
-    color: 'yellow',
-    depthWrite: false,
-    depthTest: false,
-    opacity: 0.8,
-});
-const drawnLineMaterial = new LineBasicMaterial({
-    color: 'yellow',
-    depthWrite: false,
-    depthTest: false,
-});
-const drawnPointMaterial = new PointsMaterial({
-    color: 'yellow',
-    depthWrite: false,
-    depthTest: false,
-    size: 100,
-});
+import Shape, {
+    SegmentLabelFormatter,
+    SurfaceLabelFormatter,
+    VertexLabelFormatter,
+} from '@giro3d/giro3d/entities/Shape';
+import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
+import View from '@giro3d/giro3d/renderer/View';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import { Position } from 'geojson';
 
 function promptTitle(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
 }
 
-/**
- * Creates a point to be added via CSS2DRenderer.
- *
- * @param text - Label of the point
- * @returns The created HTML element
- */
-function point2DFactory(text: string) {
-    const pt = document.createElement('div');
-    pt.style.position = 'absolute';
-    pt.style.borderRadius = '50%';
-    pt.style.width = '28px';
-    pt.style.height = '28px';
-    pt.style.backgroundColor = '#433C73';
-    pt.style.color = '#ffffff';
-    pt.style.border = '2px solid #070607';
-    pt.style.fontSize = '14px';
-    pt.style.textAlign = 'center';
-    pt.style.pointerEvents = 'none';
-    pt.style.cursor = 'pointer';
-    pt.innerText = text;
-    return pt;
-}
+const numberFormat = new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 1,
+});
+
+const areaFormatter: SurfaceLabelFormatter = values => {
+    let area = values.area;
+
+    let unit = 'm²';
+    if (area > 1_000_000) {
+        area = area / 1_000_000;
+        unit = 'km²';
+    }
+
+    return `${numberFormat.format(area)} ${unit}`;
+};
+
+const tmpStart = new Vector3();
+const tmpEnd = new Vector3();
+
+const lengthFormatter: (view: View) => SegmentLabelFormatter = (view: View) => values => {
+    const { camera } = view;
+    const { start, end } = values;
+
+    const ndcStart = tmpStart.copy(start).project(camera);
+    const ndcEnd = tmpEnd.copy(end).project(camera);
+
+    const sqLimit = Math.pow(100 / view.width, 2); // pixels
+
+    const distanceOnScreen = ndcStart.distanceToSquared(ndcEnd);
+
+    // Don't display the label if the segment is too short on the screen
+    if (distanceOnScreen < sqLimit) {
+        return null;
+    }
+
+    let length = values.length;
+
+    if (length == null || length <= 0) {
+        return null;
+    }
+
+    let unit = 'm';
+    if (length > 1_000) {
+        length = length / 1_000;
+        unit = 'km';
+    }
+
+    return `${numberFormat.format(length)} ${unit}`;
+};
+
+const pointFormatter: VertexLabelFormatter = values => {
+    const shape = values.shape as Shape<PieroShapeUserData>;
+
+    if (shape.userData.annotation) {
+        return shape.userData.annotation.title;
+    }
+
+    return null;
+};
 
 export default class AnnotationManager {
     private readonly _drawTool: DrawTool;
-    private readonly _drawEntity: DrawingCollection;
-    private readonly _camera: CameraController;
+    private readonly _shapes: Map<string, Shape<PieroShapeUserData>> = new Map();
     private readonly _picker: Picker;
     private readonly _instance: Instance;
     private readonly _store = useAnnotationStore();
     private readonly _notificationStore = useNotificationStore();
-    private _previousFeature: Object3D | null;
-    private _previousHoveredFeature: Object3D | null;
-    private _drawToolOptions: DrawToolOptions;
-    private readonly _boundOnEscape: (e: KeyboardEvent) => void;
+    private readonly _boundOnKeyDown: (e: KeyboardEvent) => void;
+    private readonly _boundOnStartDrag: () => void;
+    private readonly _boundOnEndDrag: () => void;
+    private readonly _boundUpdateLabels: () => void;
+
+    private _previousFeature: Object3D | null = null;
+    private _previousHoveredFeature: Object3D | null = null;
+    private _editedShape: Shape<PieroShapeUserData> | null = null;
+    private _isEditing = false;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this._instance = instance;
         this._picker = picker;
+        this._drawTool = new DrawTool({ instance });
 
-        this._drawToolOptions = {
-            drawObjectOptions: {
-                minExtrudeDepth: 1,
-                maxExtrudeDepth: 5,
-            },
-            enableDragging: true,
-            enableSplicing: false,
-            splicingHitTolerance: 0,
-            endDrawingOnRightClick: true,
-            getPointAt: this.getPointAt.bind(this),
-        };
+        // FIXME this would override whatever setting is currently
+        // present (depending on navigation modes)
+        this._boundOnEndDrag = () => (camera.enabled = true);
+        this._boundOnStartDrag = () => (camera.enabled = false);
 
-        this._drawTool = new DrawTool(instance, this._drawToolOptions);
-        this._drawEntity = new DrawingCollection();
-        this._instance.add(this._drawEntity);
-        this._previousFeature = null;
-        this._previousHoveredFeature = null;
+        this._boundUpdateLabels = this.updateLabels.bind(this);
 
-        this._camera = camera;
+        // We want to prevent moving the camera while dragging a point
+        this._drawTool.addEventListener('start-drag', this._boundOnStartDrag);
+        this._drawTool.addEventListener('end-drag', this._boundOnEndDrag);
 
-        this._camera.addEventListener('interaction-start', this._drawTool.pause);
-        this._camera.addEventListener('interaction-end', this._drawTool.continue);
+        this._boundOnKeyDown = this.onKeyDown.bind(this);
+        document.addEventListener('keydown', this._boundOnKeyDown);
 
-        this._boundOnEscape = this.onEscape.bind(this);
-        document.addEventListener('keydown', this._boundOnEscape);
+        this._instance.addEventListener('after-camera-update', this._boundUpdateLabels);
 
+        // TODO
         this._drawTool.addEventListener('add', () => {
             this._previousFeature = this._previousHoveredFeature;
         });
@@ -120,8 +138,14 @@ export default class AnnotationManager {
         this._store.$onAction(({ name, args, after }) => {
             after(() => {
                 switch (name) {
+                    case 'setShowLabels':
+                        this.udpateLabelVisibility(args[0]);
+                        break;
                     case 'edit':
                         this.editAnnotation(args[0]);
+                        break;
+                    case 'stopEdition':
+                        this.stopEdition();
                         break;
                     case 'remove':
                         this.deleteAnnotation(args[0]);
@@ -135,9 +159,6 @@ export default class AnnotationManager {
                     case 'createPolygon':
                         this.drawPolygon();
                         break;
-                    case 'setAnnotationMode':
-                        this.onUpdateAnnotationMode(args[0]);
-                        break;
                     case 'importAnnotationFile':
                         this.importAnnotationFile(args[0]);
                         break;
@@ -149,171 +170,312 @@ export default class AnnotationManager {
         });
     }
 
+    private udpateLabelVisibility(show: boolean) {
+        this._shapes.forEach(shape => {
+            switch (shape.userData.type) {
+                case 'Point':
+                case 'MultiPoint':
+                    shape.showVertexLabels = show;
+                    break;
+                case 'Polygon':
+                    shape.showSurfaceLabel = show;
+                    break;
+                case 'LineString':
+                    shape.showSegmentLabels = show;
+                    break;
+            }
+        });
+    }
+
+    private updateLabels() {
+        this._shapes.forEach(shape => {
+            if (shape.visible) {
+                shape.rebuildLabels();
+            }
+        });
+    }
+
     dispose() {
-        document.removeEventListener('keydown', this._boundOnEscape);
+        document.removeEventListener('keydown', this._boundOnKeyDown);
 
-        this._camera.removeEventListener('interaction-start', this._drawTool.pause);
-        this._camera.removeEventListener('interaction-end', this._drawTool.continue);
+        this._drawTool.removeEventListener('start-drag', this._boundOnStartDrag);
+        this._drawTool.removeEventListener('end-drag', this._boundOnEndDrag);
 
-        this._instance.remove(this._drawEntity);
-        this._drawEntity.dispose();
+        this._instance.removeEventListener('after-camera-update', this._boundUpdateLabels);
+
+        this._shapes.forEach(shape => this._instance.remove(shape));
         this._drawTool.dispose();
     }
 
-    private onEscape(e: KeyboardEvent) {
-        if (e.code === 'Escape' && this._drawTool.state !== DrawToolState.READY) {
-            this._drawTool.reset();
+    private stopEdition() {
+        this._drawTool.exitEditMode();
+        this._isEditing = false;
+        this._store.setIsUserDrawing(false);
+
+        if (this._editedShape) {
+            this._editedShape.userData.annotation.isEditing = false;
+            this._editedShape.color = DEFAULT_SHAPE_COLOR;
+            this._editedShape.userData.highlightable = true;
+            this._editedShape = null;
         }
     }
 
-    getPointAt(event: MouseEvent) {
-        const radius = 10;
-        let pickedObject: PickResult | null;
+    // Note this was directly imported from the drawtool example
+    // We might want to make it part of the Shape API, but we have to think
+    // about potential pitfalls as there is not a single mapping between GeoJSON and Shapes.
+    private importShapeFromGeoJSON(feature: GeoJSON.Feature): Shape<PieroShapeUserData> {
+        if (feature.type !== 'Feature') {
+            throw new Error('not a valid GeoJSON feature');
+        }
+
+        const crs = 'EPSG:4326';
+
+        const getPoint = (c: Position) => {
+            const coord = new Coordinates(crs, c[0], c[1], c[2] ?? 0);
+            return coord.as(this._instance.referenceCrs, coord).toVector3();
+        };
+
+        let result: Shape<PieroShapeUserData>;
+
+        switch (feature.geometry.type) {
+            case 'Point':
+                result = new Shape<PieroShapeUserData>({
+                    color: DEFAULT_SHAPE_COLOR,
+                    vertexRadius: SHAPE_POINT_RADIUS,
+                    showVertexLabels: true,
+                    showLine: false,
+                    showVertices: true,
+                    beforeRemovePoint: inhibitHook,
+                    vertexLabelFormatter: pointFormatter,
+                });
+                result.setPoints([getPoint(feature.geometry.coordinates)]);
+                break;
+            case 'MultiPoint':
+                result = new Shape<PieroShapeUserData>({
+                    color: DEFAULT_SHAPE_COLOR,
+                    vertexRadius: SHAPE_POINT_RADIUS,
+                    showVertexLabels: true,
+                    showLine: false,
+                    showVertices: true,
+                    beforeRemovePoint: limitRemovePointHook(1),
+                    vertexLabelFormatter: pointFormatter,
+                });
+                result.setPoints(feature.geometry.coordinates.map(getPoint));
+                break;
+            case 'LineString':
+                result = new Shape<PieroShapeUserData>({
+                    color: DEFAULT_SHAPE_COLOR,
+                    showVertexLabels: false,
+                    showLine: true,
+                    showVertices: true,
+                    showSegmentLabels: true,
+                    segmentLabelFormatter: lengthFormatter(this._instance.view),
+                    beforeRemovePoint: limitRemovePointHook(2),
+                });
+                result.setPoints(feature.geometry.coordinates.map(getPoint));
+                break;
+            case 'Polygon':
+                result = new Shape<PieroShapeUserData>({
+                    color: DEFAULT_SHAPE_COLOR,
+                    showVertexLabels: false,
+                    showLine: true,
+                    showVertices: true,
+                    showSurface: true,
+                    showSurfaceLabel: true,
+                    surfaceLabelFormatter: areaFormatter,
+                    beforeRemovePoint: limitRemovePointHook(4), // We take into account the doubled first/last point
+                    afterRemovePoint: afterRemovePointOfRing,
+                    afterUpdatePoint: afterUpdatePointOfRing,
+                });
+                result.setPoints(feature.geometry.coordinates[0].map(getPoint));
+                break;
+            default:
+                throw new Error(
+                    'could not import shape from given GeoJSON geometry: ' + feature.geometry.type,
+                );
+        }
+
+        this.computeMeasurements(result);
+
+        this._instance.add(result);
+
+        return result;
+    }
+
+    private onKeyDown(e: KeyboardEvent) {
+        if (e.code === 'Escape') {
+            this.stopEdition();
+        }
+    }
+
+    private filterPickResults(results: PickResult[], edition: boolean): PickResult[] {
+        if (!edition) {
+            // Avoid picking shapes in creation mode
+            return results.filter(res => !isShapePickResult(res));
+        }
+
+        return results;
+    }
+
+    private pickDefault(event: MouseEvent): PickResult[] {
+        const results = this._instance.pickObjectsAt(event, { sortByDistance: true });
+
+        return this.filterPickResults(results, this._isEditing);
+    }
+
+    private pickMap(event: MouseEvent): PickResult[] {
+        const results = this._instance.pickObjectsAt(event, {
+            sortByDistance: true,
+            filter: res => isShapePickResult(res) || isMapPickResult(res),
+        });
+
+        return this.filterPickResults(results, this._isEditing);
+    }
+
+    private pickFeatures(event: MouseEvent): PickResult[] {
+        const results = this._picker.getObjectsAt(this._instance, event, 0) ?? [];
+
+        return this.filterPickResults(results, this._isEditing);
+    }
+
+    private pick(event: MouseEvent): PickResult[] {
+        const radius = 0;
+        let results: PickResult[];
+
         switch (this._store.getAnnotationMode()) {
             case 'normal':
-                pickedObject = this._picker.getFirstFeatureAt(
-                    this._instance,
-                    event,
-                    radius,
-                    o =>
-                        (o as DrawingCollection).isDrawingCollection !== true &&
-                        (o as Drawing).isDrawing !== true,
-                );
+                results = this.pickDefault(event);
                 break;
             case 'snapToMap':
-                pickedObject = this._picker.getMapAt(this._instance, event, radius);
+                results = this.pickMap(event);
                 break;
             case 'snapToFeatures':
-                pickedObject = this._picker.getObjectAt(
-                    this._instance,
-                    event,
-                    radius,
-                    o =>
-                        (o as DrawingCollection).isDrawingCollection !== true &&
-                        (o as Drawing).isDrawing !== true,
-                );
+                results = this.pickFeatures(event);
                 break;
             case 'snapToSameFeature':
                 if (this._previousFeature) {
-                    pickedObject =
-                        this._instance
-                            .pickObjectsAt(event, {
-                                radius,
-                                where: [this._previousFeature],
-                                sortByDistance: true,
-                                limit: 1,
-                                pickFeatures: true,
-                            })
-                            .at(0) ?? null;
+                    results = this._instance.pickObjectsAt(event, {
+                        radius,
+                        where: [this._previousFeature, ...this._shapes.values()],
+                        sortByDistance: true,
+                        pickFeatures: true,
+                    });
                     break;
                 } else {
-                    pickedObject = this._picker.getObjectAt(
-                        this._instance,
-                        event,
-                        radius,
-                        o =>
-                            (o as DrawingCollection).isDrawingCollection !== true &&
-                            (o as Drawing).isDrawing !== true,
-                    );
+                    results = this._picker.getObjectsAt(this._instance, event, radius) ?? [];
                     break;
                 }
-                break;
         }
 
-        if (pickedObject && pickedObject.point) {
-            this._previousHoveredFeature = pickedObject.object;
-            return {
-                ...pickedObject,
-                picked: true,
-            };
-        }
+        return results;
+        // if (results && results.length > 0) {
+        //     results.sort((a, b) => a.distance - b.distance);
+        //     // const nonShapeResult = results.filter(res => !isShapePickResult(res))[0];
+        //     // if (nonShapeResult) {
+        //     //     this._previousHoveredFeature = nonShapeResult.object;
+        //     // }
 
-        return null;
+        //     return results;
+        // }
+
+        // return [];
     }
 
-    private beforeDraw() {
-        if (this._drawTool.state !== DrawToolState.READY) {
-            // We're already drawing, do something with the current drawing
-            if (this._drawTool.mode === DrawToolMode.EDIT) this._drawTool.end();
-            else this._drawTool.reset();
-        }
-    }
-
-    updateDrawing(annotation: Annotation) {
+    private updateDrawing(annotation: Annotation) {
         annotation.object.visible = annotation.visible;
         annotation.object.traverse(o => (o.visible = annotation.visible));
         this._instance.notifyChange();
     }
 
-    private _draw(type: DrawingGeometryType, defaultName: string) {
-        this.beforeDraw();
+    private addShape(
+        shape: Shape<PieroShapeUserData> | null,
+        type: PieroShapeUserData['type'],
+        defaultName: string,
+    ) {
+        if (shape && !this._shapes.has(shape.id)) {
+            const userData = shape.userData as PieroShapeUserData;
+            userData.type = type;
+            userData.highlightable = true;
 
-        this.drawObject(type)
-            .then(geometry => {
-                let title = defaultName;
-                if (this._store.hasAnnotation(title)) {
-                    for (let i = 1; i < 1000; i += 1) {
-                        title = `${defaultName} (${i})`;
-                        if (!this._store.hasAnnotation(title)) break;
-                    }
-                    if (this._store.hasAnnotation(title))
-                        title = 'Achieved unlocked: 1000 annotations with default name';
+            let title = defaultName;
+            if (this._store.hasAnnotation(title)) {
+                for (let i = 1; i < 1000; i += 1) {
+                    title = `${defaultName} (${i})`;
+                    if (!this._store.hasAnnotation(title)) break;
                 }
-                const name = promptTitle(title);
-                if (name) {
-                    const o = this.addAnnotation(geometry);
-                    this.pushNewAnnotation(name, o);
-                }
-            })
-            .catch(() => {
-                // aborted, do nothing
-            });
+                if (this._store.hasAnnotation(title))
+                    title = 'Achievement unlocked: 1000 annotations with default name';
+            }
+            const name = promptTitle(title);
+            if (name) {
+                this.computeMeasurements(shape);
+                const annotation = this.pushNewAnnotation(name, shape);
+
+                this._shapes.set(annotation.uuid, shape);
+            } else {
+                this._instance.remove(shape);
+            }
+        }
+    }
+
+    private getCreationOptions(): CreationOptions {
+        return {
+            color: DEFAULT_SHAPE_COLOR,
+            pick: this.pick.bind(this),
+        };
+    }
+
+    private draw(
+        drawFn: 'createPoint' | 'createPolygon' | 'createLineString',
+        type: PieroShapeUserData['type'],
+        defaultName: string,
+        opts: Partial<CreationOptions>,
+    ) {
+        this._store.setIsUserDrawing(true);
+
+        this._drawTool[drawFn]({
+            ...this.getCreationOptions(),
+            ...opts,
+        }).then(shape => {
+            this.addShape(shape as Shape<PieroShapeUserData>, type, defaultName);
+            this._store.setIsUserDrawing(false);
+        });
     }
 
     private drawPoint() {
-        this._draw('MultiPoint', 'New point annotation');
+        this.draw('createPoint', 'Point', 'New point annotation', {
+            vertexRadius: SHAPE_POINT_RADIUS,
+            showVertexLabels: this._store.showLabels(),
+            vertexLabelFormatter: pointFormatter,
+            borderWidth: 3,
+        });
     }
 
     private drawPolygon() {
-        this._draw('Polygon', 'New polygon annotation');
+        this.draw('createPolygon', 'Polygon', 'New polygon annotation', {
+            showSurfaceLabel: this._store.showLabels(),
+            surfaceLabelFormatter: areaFormatter,
+        });
     }
 
     private drawLine() {
-        this._draw('LineString', 'New line annotation');
+        this.draw('createLineString', 'LineString', 'New line annotation', {
+            showSegmentLabels: this._store.showLabels(),
+            segmentLabelFormatter: lengthFormatter(this._instance.view),
+        });
     }
 
-    pushNewAnnotation(title: string, drawing: Drawing, properties: object = {}) {
-        const annotation = new Annotation(title, drawing, properties);
-        drawing.userData.annotation = annotation;
+    pushNewAnnotation(
+        title: string,
+        shape: Shape<PieroShapeUserData>,
+        properties: object = {},
+    ): Annotation {
+        const annotation = new Annotation(title, () => shape, properties);
+        shape.userData.annotation = annotation;
         annotation.addEventListener('visible', () => this.updateDrawing(annotation));
         this._store.add(annotation);
-    }
-
-    private addAnnotation(geojson: GeoJSON.Geometry) {
-        const { minExtrudeDepth, maxExtrudeDepth } = this.getExtrudeDepth(
-            this._store.getAnnotationMode(),
-        );
-        const o = new Drawing(
-            {
-                faceMaterial: drawnFaceMaterial,
-                sideMaterial: drawnSideMaterial,
-                lineMaterial: drawnLineMaterial,
-                pointMaterial: drawnPointMaterial,
-                minExtrudeDepth,
-                maxExtrudeDepth,
-                use3Dpoints: false,
-                point2DFactory,
-            },
-            geojson,
-        );
-
-        this.computeMeasurements(o);
-        o.traverse(child => (child.renderOrder = 2));
-
-        this._drawEntity.add(o);
-        this._instance.notifyChange(this._drawEntity);
-
-        return o;
+        this._shapes.set(annotation.uuid, shape);
+        return annotation;
     }
 
     private importAnnotation(feature: GeoJSON.Feature, skipNames: Set<string>) {
@@ -322,8 +484,8 @@ export default class AnnotationManager {
 
         if (skipNames.has(feature.properties.title)) return false;
 
-        const o = this.addAnnotation(feature.geometry);
-        this.pushNewAnnotation(feature.properties.title, o, feature.properties);
+        const shape = this.importShapeFromGeoJSON(feature);
+        this.pushNewAnnotation(feature.properties.title, shape, feature.properties);
         return true;
     }
 
@@ -401,89 +563,49 @@ export default class AnnotationManager {
     }
 
     private async editAnnotation(annotation: Annotation) {
-        const obj = this._drawEntity.children.find(d => d.uuid === annotation.object.uuid);
-        if (obj) {
-            const originalShape = obj.toGeoJSON();
-            obj.setMaterials({});
-            this._drawEntity.remove(obj);
-            this._store.setIsUserDrawing(true);
-            this._drawTool.setOptions({
-                ...this._drawToolOptions,
-                enableSplicing: true,
-                splicingHitTolerance: 10,
-            });
-            try {
-                const geojson = await this._drawTool.editAsAPromise(obj);
-                const o = this.addAnnotation(geojson);
-                annotation.object = o;
-                o.userData.annotation = annotation;
-            } catch {
-                // Aborted, restore!
-                const o = this.addAnnotation(originalShape);
-                annotation.object = o;
-                o.userData.annotation = annotation;
-                this._instance.notifyChange(this._drawEntity);
-            } finally {
-                this._store.setIsUserDrawing(false);
-                this._previousFeature = null;
-                this._previousHoveredFeature = null;
-            }
-        }
-    }
+        const shape = this._shapes.get(annotation.uuid);
 
-    private deleteAnnotation(annotation: Annotation) {
-        const obj = this._drawEntity.children.find(d => d.uuid === annotation.object.uuid);
-        if (obj) {
-            this._drawEntity.add(obj);
-            obj.dispose();
-            this._instance.notifyChange(this._drawEntity);
+        if (!shape) {
+            console.warn(`no shape found for annotation ${annotation.uuid}`);
+            return;
         }
-    }
 
-    private async drawObject(type: DrawingGeometryType): Promise<GeoJSON.Geometry> {
-        // Start drawing!
+        this._editedShape = shape;
+
+        annotation.isEditing = true;
+
+        shape.color = EDIT_SHAPE_COLOR;
+        shape.userData.highlightable = false;
+
+        this._instance.notifyChange(shape);
+
         this._store.setIsUserDrawing(true);
-        this._drawTool.setOptions(this._drawToolOptions);
-        try {
-            const geojson = await this._drawTool.startAsAPromise(type);
-            return geojson;
-        } finally {
-            this._store.setIsUserDrawing(false);
-            this._previousFeature = null;
-            this._previousHoveredFeature = null;
-        }
-    }
 
-    private getExtrudeDepth(mode: AnnotationMode) {
-        if (mode === 'snapToFeatures' || mode === 'snapToSameFeature') {
-            return { minExtrudeDepth: 0, maxExtrudeDepth: 1 };
-        }
-        return { minExtrudeDepth: 1, maxExtrudeDepth: 5 };
-    }
-
-    onUpdateAnnotationMode(mode: AnnotationMode) {
-        const { minExtrudeDepth, maxExtrudeDepth } = this.getExtrudeDepth(mode);
-        this._drawTool.setOptions({
-            ...this._drawToolOptions,
-            drawObjectOptions: {
-                ...this._drawToolOptions.drawObjectOptions,
-                minExtrudeDepth,
-                maxExtrudeDepth,
-            },
+        this._isEditing = true;
+        this._drawTool.enterEditMode({
+            shapesToEdit: [shape],
+            pick: this.pick.bind(this),
         });
     }
 
-    private computeMeasurements(drawing: Drawing) {
-        drawing.userData.measurements = {
-            minmax: Measure.getMinMaxAltitudes(drawing),
-            nbPoints: drawing.coordinates.length / 3,
+    private deleteAnnotation(annotation: Annotation) {
+        if (this._shapes.has(annotation.uuid)) {
+            const shape = annotation.object;
+            this._instance.remove(shape);
+            this._shapes.delete(annotation.uuid);
+        }
+    }
+
+    private computeMeasurements(shape: Shape<PieroShapeUserData>) {
+        shape.userData.measurements = {
+            minmax: Measure.getMinMaxAltitudes(shape),
         };
 
-        if (drawing.geometryType === 'Polygon' || drawing.geometryType === 'LineString') {
-            drawing.userData.measurements.perimeter = Measure.getPerimeter(drawing);
+        if (shape.userData.type === 'Polygon' || shape.userData.type === 'LineString') {
+            shape.userData.measurements.perimeter = shape.getLength();
         }
-        if (drawing.geometryType === 'Polygon') {
-            drawing.userData.measurements.area = Measure.getArea(drawing);
+        if (shape.userData.type === 'Polygon') {
+            shape.userData.measurements.area = shape.getArea();
         }
     }
 }
