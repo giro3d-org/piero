@@ -52,7 +52,7 @@ export default class LayerManager extends EventDispatcher {
 
         this._basemap = new Giro3dMap({
             extent,
-            segments: 128,
+            segments: 32,
             ...mapOptions,
         });
         this._basemap.name = 'basemaps';
