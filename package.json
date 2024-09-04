@@ -54,7 +54,7 @@
         "prepare": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && husky"
     },
     "dependencies": {
-        "@giro3d/giro3d": "^0.37.2",
+        "@giro3d/giro3d": "^0.39.0",
         "@loaders.gl/core": "^4.1.1",
         "@loaders.gl/csv": "^4.1.1",
         "@loaders.gl/geopackage": "^4.1.1",
@@ -88,6 +88,7 @@
         "@rushstack/eslint-patch": "^1.7.2",
         "@types/bootstrap": "^5.2.10",
         "@types/chroma-js": "^2.4.4",
+        "@types/geojson": "^7946.0.14",
         "@types/three": "^0.157.0",
         "@vitejs/plugin-vue": "^5.0.4",
         "@vitejs/plugin-vue-jsx": "^3.1.0",
