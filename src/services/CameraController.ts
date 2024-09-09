@@ -211,7 +211,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this._instance.notifyChange(this._instance.view.camera),
         );
 
-        // Dispatch our our events
+        // Dispatch our events
         this._orbitControls.addEventListener('control', () => {
             if (this._orbitControls.active || this._orbitControls.currentAction !== 0) {
                 this.dispatchEvent({ type: 'interaction-start' });

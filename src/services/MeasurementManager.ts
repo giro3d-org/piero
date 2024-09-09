@@ -33,7 +33,7 @@ export default class MeasurementManager {
         this._camera = camera;
 
         this._boundPause = () => (this._paused = true);
-        this._boundRestart = () => (this._paused = true);
+        this._boundRestart = () => (this._paused = false);
         this._camera.addEventListener('interaction-start', this._boundPause);
         this._camera.addEventListener('interaction-end', this._boundRestart);
 
