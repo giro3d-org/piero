@@ -12,5 +12,6 @@
             :checked="modelValue"
             @input="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
         />
+        <slot></slot>
     </div>
 </template>
