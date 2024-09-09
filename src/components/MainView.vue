@@ -3,6 +3,8 @@
     import Inspector from '@giro3d/giro3d/gui/Inspector';
     import { Instance } from '@giro3d/giro3d/core';
     import { useGiro3dStore } from '@/stores/giro3d';
+    import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+    import IfcEntityInspector from '@/giro3d/IfcEntityInspector';
 
     const mainView = ref<HTMLDivElement | null>(null);
     const inspectorView = ref<HTMLDivElement | null>(null);
@@ -20,6 +22,8 @@
         store.setMainView(instance.value);
 
         if (!import.meta.env.PROD) {
+            EntityPanel.registerInspector('IfcEntity', IfcEntityInspector);
+
             const inspector = Inspector.attach(
                 inspectorView.value as HTMLDivElement,
                 instance.value,
