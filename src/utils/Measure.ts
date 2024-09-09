@@ -5,7 +5,7 @@ function getMinMaxAltitudes(coordsOrDrawing: Shape | Vector3[]): [number, number
     let min = +Infinity;
     let max = -Infinity;
 
-    let points: Vector3[];
+    let points: Readonly<Vector3[]>;
 
     if (Array.isArray(coordsOrDrawing)) {
         points = coordsOrDrawing;

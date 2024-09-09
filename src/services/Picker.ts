@@ -262,15 +262,15 @@ export default class Picker {
         e: MouseEvent,
         radius = 1,
         filterOnObjects?: (obj: Object3D | Entity) => boolean,
-    ): PickResult | null {
-        const picked = this.getObjectsAt(instance, e, radius, filterOnObjects)?.at(0);
-        if (picked) {
+    ): PickResult[] | null {
+        const picked = this.getObjectsAt(instance, e, radius, filterOnObjects);
+        if (picked != null && picked.length > 0) {
             return picked;
         }
 
         const pickedOnMap = this.getMapAt(instance, e, radius);
         if (pickedOnMap) {
-            return pickedOnMap;
+            return [pickedOnMap];
         }
 
         return null;
@@ -364,7 +364,7 @@ export default class Picker {
         }
         const attributesGeoJSON = attributesGroups.get('GeoJSON') as Attribute[];
 
-        const parent = pickResult.object.parent as Measure3D;
+        const parent = pickResult.object.userData.parentEntity as Measure3D;
 
         for (const [key, value] of Object.entries(parent.userData.measure.properties)) {
             if (
@@ -426,8 +426,9 @@ export default class Picker {
             } else if (object?.userData) {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
             }
-        } else if (Measure3D.isMeasure3D(pickedObject.object.parent)) {
-            const measure = pickedObject.object.parent.userData?.measure as Measure;
+        } else if (Measure3D.isMeasure3D(pickedObject.object.userData.parentEntity)) {
+            const entity = pickedObject.object.userData.parentEntity;
+            const measure = entity.userData?.measure as Measure;
             name = measure?.title ?? name;
             this.getAttributesFromMeasure(pickedObject, attributesGroups);
         } else if (object?.userData) {
@@ -476,7 +477,7 @@ export default class Picker {
         instance: Instance,
         event: MouseEvent,
     ): { point: Vector3; feature: Feature | null; pickResult: PickResult } | null {
-        const picked = this.getFirstFeatureAt(instance, event);
+        const picked = this.getFirstFeatureAt(instance, event)?.at(0);
         if (picked) {
             const feature = this.getFeatureFromPickedObject(picked);
             if (feature) {
