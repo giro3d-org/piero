@@ -18,13 +18,19 @@ import { GRID_NAME, PLANE_NAME } from './LayerManager';
 import PickResult, { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
 import { isPointsPickResult, PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
 import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
-import { ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import { isShapePickResult, ShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { PieroShapeUserData } from '@/types/Annotation';
 import { isMap } from '@giro3d/giro3d/entities/Map';
 
-// TODO use Giro3D predicate
-export function isShapePickResult(obj?: unknown): obj is ShapePickResult {
-    return (obj as ShapePickResult)?.isShapePickResult;
+function comparePickResults(a: PickResult, b: PickResult): number {
+    if (isShapePickResult(a)) {
+        return -1;
+    }
+    if (isShapePickResult(b)) {
+        return 1;
+    }
+
+    return a.distance - b.distance;
 }
 
 export default class Picker {
@@ -227,10 +233,11 @@ export default class Picker {
         const picked = instance.pickObjectsAt(e, {
             radius,
             where,
-            sortByDistance: true,
             pickFeatures: true,
             filter: res => this.filterPick(instance, res),
         });
+
+        picked.sort(comparePickResults);
 
         return picked ?? null;
     }
