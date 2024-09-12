@@ -1,6 +1,6 @@
 import Download from '@/utils/Download';
 import Shape from '@giro3d/giro3d/entities/Shape';
-import { EventDispatcher, MathUtils } from 'three';
+import { ColorRepresentation, EventDispatcher, MathUtils } from 'three';
 
 type EmptyEvent = {
     /** empty */
@@ -15,6 +15,7 @@ export type PieroShapeUserData = {
     type: 'Point' | 'Polygon' | 'LineString' | 'MultiPoint';
     annotation: Annotation;
     highlightable: boolean;
+    highlightColor: ColorRepresentation;
     measurements: {
         area?: number | null;
         perimeter?: number | null;

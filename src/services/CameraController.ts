@@ -116,7 +116,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this.initializeOrbitControls();
 
         this._pickObjectsAt = (event: MouseEvent) =>
-            this._picker.getFirstFeatureAt(this._instance, event, 1)?.at(0);
+            this._picker.getFirstFeatureAt(this._instance, event, 1)?.at(0) ?? null;
 
         this._clock = new Clock();
 

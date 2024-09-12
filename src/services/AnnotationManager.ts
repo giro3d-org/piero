@@ -10,7 +10,7 @@ import DrawTool, {
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import CameraController from '@/services/CameraController';
-import Picker, { isShapePickResult } from '@/services/Picker';
+import Picker from '@/services/Picker';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/utils/Measure';
@@ -18,6 +18,7 @@ import Annotation, { PieroShapeUserData } from '@/types/Annotation';
 import Notification from '@/types/Notification';
 import PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import Shape, {
+    isShapePickResult,
     SegmentLabelFormatter,
     SurfaceLabelFormatter,
     VertexLabelFormatter,

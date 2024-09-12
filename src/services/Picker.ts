@@ -306,7 +306,7 @@ export default class Picker {
         });
     }
 
-    getAttributesFromDrawing(pickResult: ShapePickResult, attributesGroups: AttributesGroups) {
+    getAttributesFromAnnotation(pickResult: ShapePickResult, attributesGroups: AttributesGroups) {
         if (!attributesGroups.has('GeoJSON')) {
             attributesGroups.set('GeoJSON', []);
         }
@@ -371,7 +371,7 @@ export default class Picker {
         }
         const attributesGeoJSON = attributesGroups.get('GeoJSON') as Attribute[];
 
-        const parent = pickResult.object.userData.parentEntity as Measure3D;
+        const parent = pickResult.entity as Measure3D;
 
         for (const [key, value] of Object.entries(parent.userData.measure.properties)) {
             if (
@@ -427,17 +427,20 @@ export default class Picker {
             } else if (PlyMesh.isPlyPickResult(pickedObject)) {
                 this.getAttributesFromPlyObject(pickedObject, attributesGroups);
             } else if (isShapePickResult(pickedObject)) {
-                const annotation = pickedObject.entity.userData?.annotation as Annotation;
-                name = annotation?.title ?? name;
-                this.getAttributesFromDrawing(pickedObject, attributesGroups);
+                const entity = pickedObject.entity;
+
+                if (Measure3D.isMeasure3D(entity)) {
+                    const measure = entity.userData.measure as Measure;
+                    name = measure?.title ?? name;
+                    this.getAttributesFromMeasure(pickedObject, attributesGroups);
+                } else {
+                    const annotation = entity.userData.annotation as Annotation;
+                    name = annotation?.title ?? name;
+                    this.getAttributesFromAnnotation(pickedObject, attributesGroups);
+                }
             } else if (object?.userData) {
                 this.getAttributesFromObject3D(pickedObject, attributesGroups);
             }
-        } else if (Measure3D.isMeasure3D(pickedObject.object.userData.parentEntity)) {
-            const entity = pickedObject.object.userData.parentEntity;
-            const measure = entity.userData?.measure as Measure;
-            name = measure?.title ?? name;
-            this.getAttributesFromMeasure(pickedObject, attributesGroups);
         } else if (object?.userData) {
             this.getAttributesFromObject3D(pickedObject, attributesGroups);
         }
