@@ -1,4 +1,4 @@
-import { MathUtils, Object3D, Vector3 } from 'three';
+import { MathUtils, Vector3 } from 'three';
 
 import DrawTool, {
     afterRemovePointOfRing,
@@ -104,8 +104,6 @@ export default class AnnotationManager {
     private readonly _boundOnEndDrag: () => void;
     private readonly _boundUpdateLabels: () => void;
 
-    private _previousFeature: Object3D | null = null;
-    private _previousHoveredFeature: Object3D | null = null;
     private _editedShape: Shape<PieroShapeUserData> | null = null;
     private _isEditing = false;
 
@@ -129,11 +127,6 @@ export default class AnnotationManager {
         document.addEventListener('keydown', this._boundOnKeyDown);
 
         this._instance.addEventListener('after-camera-update', this._boundUpdateLabels);
-
-        // TODO
-        this._drawTool.addEventListener('add', () => {
-            this._previousFeature = this._previousHoveredFeature;
-        });
 
         this._store.$onAction(({ name, args, after }) => {
             after(() => {
@@ -339,46 +332,21 @@ export default class AnnotationManager {
     }
 
     private pick(event: MouseEvent): PickResult[] {
-        const radius = 0;
         let results: PickResult[];
 
         switch (this._store.getAnnotationMode()) {
             case 'normal':
                 results = this.pickDefault(event);
                 break;
-            case 'snapToMap':
+            case 'mapOnly':
                 results = this.pickMap(event);
                 break;
-            case 'snapToFeatures':
+            case 'objectsOnly':
                 results = this.pickFeatures(event);
                 break;
-            case 'snapToSameFeature':
-                if (this._previousFeature) {
-                    results = this._instance.pickObjectsAt(event, {
-                        radius,
-                        where: [this._previousFeature, ...this._shapes.values()],
-                        sortByDistance: true,
-                        pickFeatures: true,
-                    });
-                    break;
-                } else {
-                    results = this._picker.getObjectsAt(this._instance, event, radius) ?? [];
-                    break;
-                }
         }
 
         return results;
-        // if (results && results.length > 0) {
-        //     results.sort((a, b) => a.distance - b.distance);
-        //     // const nonShapeResult = results.filter(res => !isShapePickResult(res))[0];
-        //     // if (nonShapeResult) {
-        //     //     this._previousHoveredFeature = nonShapeResult.object;
-        //     // }
-
-        //     return results;
-        // }
-
-        // return [];
     }
 
     private updateDrawing(annotation: Annotation) {

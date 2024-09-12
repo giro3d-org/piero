@@ -1,6 +1,6 @@
 import Named from './Named';
 
-type AnnotationMode = 'normal' | 'snapToMap' | 'snapToFeatures' | 'snapToSameFeature';
+type AnnotationMode = 'normal' | 'mapOnly' | 'objectsOnly';
 
 type AnnotationNamed = Named & {
     value: AnnotationMode;
@@ -9,20 +9,14 @@ type AnnotationNamed = Named & {
 export const annotationModes: AnnotationNamed[] = [
     { name: 'Default', value: 'normal' },
     {
-        name: 'Snap to map',
-        value: 'snapToMap',
+        name: 'Map only',
+        value: 'mapOnly',
         description: 'Will only pick points from the map and not to any 3D object',
     },
     {
-        name: 'Snap to features',
-        value: 'snapToFeatures',
+        name: '3D objects only',
+        value: 'objectsOnly',
         description: 'Will only pick points from 3D objects, and not from the map',
-    },
-    {
-        name: 'Snap on same feature',
-        value: 'snapToSameFeature',
-        description:
-            'Will only pick points from 3D objects for the first one. Once a point is picked, will pick only on the same object.',
     },
 ] as const;
 
