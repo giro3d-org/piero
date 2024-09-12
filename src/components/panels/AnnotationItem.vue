@@ -55,7 +55,7 @@
                     title="Edit geometry (press Escape to exit edition mode)"
                     @click="isEditing ? $emit('stop-edit') : $emit('edit')"
                 >
-                    <i :class="`bi bi-pencil ${isEditing ? 'text-warning' : ''}`"></i>
+                    <i :class="`bi bi-pencil ${isEditing ? 'text-primary' : ''}`"></i>
                 </a>
                 <a href="#" class="icon" title="Download..." @click="$emit('download')">
                     <i class="bi bi-download"></i>
