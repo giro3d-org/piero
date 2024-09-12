@@ -52,7 +52,7 @@
                 <a
                     href="#"
                     class="icon"
-                    title="Edit geometry (press Escape to exit edition mode)"
+                    title="Edit geometry (right-click to exit edition, or press Escape to cancel modifications)"
                     @click="isEditing ? $emit('stop-edit') : $emit('edit')"
                 >
                     <i :class="`bi bi-pencil ${isEditing ? 'text-primary' : ''}`"></i>

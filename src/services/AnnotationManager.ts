@@ -100,12 +100,14 @@ export default class AnnotationManager {
     private readonly _store = useAnnotationStore();
     private readonly _notificationStore = useNotificationStore();
     private readonly _boundOnKeyDown: (e: KeyboardEvent) => void;
+    private readonly _boundExitEdition: (e: MouseEvent) => void;
     private readonly _boundOnStartDrag: () => void;
     private readonly _boundOnEndDrag: () => void;
     private readonly _boundUpdateLabels: () => void;
 
-    private _editedShape: Shape<PieroShapeUserData> | null = null;
     private _isEditing = false;
+    private _editedShape: Shape<PieroShapeUserData> | null = null;
+    private _editedShapePreviousPoints: Vector3[] | null = null;
 
     constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this._instance = instance;
@@ -118,6 +120,10 @@ export default class AnnotationManager {
         this._boundOnStartDrag = () => (camera.enabled = false);
 
         this._boundUpdateLabels = this.updateLabels.bind(this);
+        this._boundExitEdition = () => {
+            this._instance.domElement.removeEventListener('contextmenu', this._boundExitEdition);
+            this.stopEdition(false);
+        };
 
         // We want to prevent moving the camera while dragging a point
         this._drawTool.addEventListener('start-drag', this._boundOnStartDrag);
@@ -138,7 +144,7 @@ export default class AnnotationManager {
                         this.editAnnotation(args[0]);
                         break;
                     case 'stopEdition':
-                        this.stopEdition();
+                        this.stopEdition(false);
                         break;
                     case 'remove':
                         this.deleteAnnotation(args[0]);
@@ -200,12 +206,16 @@ export default class AnnotationManager {
         this._drawTool.dispose();
     }
 
-    private stopEdition() {
+    private stopEdition(restoreShape: boolean) {
         this._drawTool.exitEditMode();
         this._isEditing = false;
         this._store.setIsUserDrawing(false);
 
         if (this._editedShape) {
+            if (restoreShape && this._editedShapePreviousPoints) {
+                this._editedShape.setPoints(this._editedShapePreviousPoints);
+                this._editedShapePreviousPoints = null;
+            }
             this._editedShape.userData.annotation.isEditing = false;
             this._editedShape.color = DEFAULT_SHAPE_COLOR;
             this._editedShape.userData.highlightable = true;
@@ -297,7 +307,7 @@ export default class AnnotationManager {
 
     private onKeyDown(e: KeyboardEvent) {
         if (e.code === 'Escape') {
-            this.stopEdition();
+            this.stopEdition(true);
         }
     }
 
@@ -539,6 +549,7 @@ export default class AnnotationManager {
         }
 
         this._editedShape = shape;
+        this._editedShapePreviousPoints = [...shape.points];
 
         annotation.isEditing = true;
 
@@ -548,6 +559,8 @@ export default class AnnotationManager {
         this._instance.notifyChange(shape);
 
         this._store.setIsUserDrawing(true);
+
+        this._instance.domElement.addEventListener('contextmenu', this._boundExitEdition);
 
         this._isEditing = true;
         this._drawTool.enterEditMode({
