@@ -1,9 +1,25 @@
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Instance from '@giro3d/giro3d/core/Instance';
 
-import { type DatasetImportedConfig } from '@/types/configuration/dataset';
-import { Dataset, type DatasetTypeImportable } from '@/types/Dataset';
-import Fetcher, { FetchContext, UrlOrFetchedData } from '@/utils/Fetcher';
+import type {
+    DatasetConfigImportable,
+    DatasetTypeImportable,
+} from '@/types/configuration/datasets';
+import { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJSON';
+import { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
+import { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
+import { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
+import { GPXDatasetConfig } from '@/types/configuration/datasets/GPX';
+import { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
+import { KMLDatasetConfig } from '@/types/configuration/datasets/KML';
+import { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
+import { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
+import { PotreePointcCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
+import { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
+import { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
+import { Dataset, type DatasetConfigParameters } from '@/types/Dataset';
+import { getCoordinates } from '@/utils/Configuration';
+import Fetcher, { type FetchContext, type UrlOrFetchedData } from '@/utils/Fetcher';
 import { BDTopoLoader } from './BDTopo';
 import { CityJSONLoader } from './CityJSON';
 import { CSVPointCloudLoader } from './CSVPointCloud';
@@ -14,6 +30,7 @@ import { IFCLoader } from './IFC';
 import { KMLLoader } from './KML';
 import { LASLoader } from './LAS';
 import { PLYLoader } from './PLY';
+import { PotreePointCloudLoader } from './PotreePointCloud';
 import { ShapefileLoader } from './Shapefile';
 import { TiledPointCloudLoader } from './TiledPointCloud';
 
@@ -38,13 +55,13 @@ const filetypesPerExtension: Record<string, FileType> = {
 /** Mapping between file types and the dataset types */
 const datasetTypePerFileType: Record<FileType, DatasetTypeImportable> = {
     cityjson: 'cityjson',
-    csv: 'pointcloud',
+    csv: 'pointcloud-csv',
     geojson: 'geojson',
     gpkg: 'gpkg',
     gpx: 'gpx',
     ifc: 'ifc',
     kml: 'kml',
-    las: 'pointcloud',
+    las: 'las',
 } as const;
 
 /** Information on a File */
@@ -54,9 +71,6 @@ interface FileInfo extends FetchContext {
     /** Dataset type (if recognized) */
     datasetType?: DatasetTypeImportable;
 }
-
-/** Information on a File that we know is importable */
-type ImportableFileInfo = Required<FileInfo>;
 
 /** Result of import */
 export type ImportFileResult = {
@@ -101,16 +115,14 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'cityjson': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
-            entity = new CityJSONLoader().load(instance, { url: dataset.url });
+            const opts = dataset.parameters as DatasetConfigParameters<CityJSONDatasetConfig>;
+            entity = new CityJSONLoader().load(instance, { url: opts.url });
             break;
         }
         case 'geojson': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            const opts = dataset.parameters as DatasetConfigParameters<GeoJSONDatasetConfig>;
             entity = new GeoJSONLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -121,9 +133,9 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'gpkg': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            const opts = dataset.parameters as DatasetConfigParameters<GeopackageDatasetConfig>;
             entity = new GeopackageLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -134,9 +146,9 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'gpx': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            const opts = dataset.parameters as DatasetConfigParameters<GPXDatasetConfig>;
             entity = new GPXLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -147,20 +159,18 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'ifc': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            const opts = dataset.parameters as DatasetConfigParameters<IFCDatasetConfig>;
             entity = new IFCLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 name: dataset.name,
-                at: dataset.get('coordinates'),
+                at: getCoordinates(dataset.get('position')),
             });
             break;
         }
         case 'kml': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            const opts = dataset.parameters as DatasetConfigParameters<KMLDatasetConfig>;
             entity = new KMLLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -170,32 +180,52 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             });
             break;
         }
+        case 'las': {
+            const opts = dataset.parameters as DatasetConfigParameters<LASDatasetConfig>;
+            entity = new LASLoader().load(instance, {
+                url: opts.url,
+            });
+            break;
+        }
         case 'ply': {
-            const at = dataset.get('coordinates');
+            const opts = dataset.parameters as DatasetConfigParameters<PLYDatasetConfig>;
+            const at = getCoordinates(dataset.get('position'));
             if (!at) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
             entity = new PLYLoader().load(instance, {
-                url: dataset.url,
-                at: at.as(instance.referenceCrs),
+                url: opts.url,
+                at,
             });
             break;
         }
         case 'pointcloud': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
-            if (Array.isArray(dataset.url))
-                throw new Error(`Cannot load ${dataset.name}: multiple urls`);
+            const opts =
+                dataset.parameters as DatasetConfigParameters<TiledPointCloudDatasetConfig>;
             entity = new TiledPointCloudLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 name: dataset.name,
             });
             break;
         }
+        case 'pointcloud-csv': {
+            const opts = dataset.parameters as DatasetConfigParameters<CSVPointCloudDatasetConfig>;
+            entity = new CSVPointCloudLoader().load(instance, {
+                url: opts.url,
+            });
+            break;
+        }
+        case 'potree': {
+            const opts =
+                dataset.parameters as DatasetConfigParameters<PotreePointcCloudDatasetConfig>;
+            entity = new PotreePointCloudLoader().load(instance, {
+                urlBase: opts.url,
+                filename: opts.filename,
+            });
+            break;
+        }
         case 'shp': {
-            if (dataset.url == null) throw new Error(`Cannot load ${dataset.name}: empty url`);
+            const opts = dataset.parameters as DatasetConfigParameters<ShapefileDatasetConfig>;
             entity = new ShapefileLoader().load(instance, {
-                url: dataset.url,
+                url: opts.url,
                 elevation: dataset.get('elevation'),
                 fetchElevation:
                     dataset.get('fetchElevation') == null
@@ -219,44 +249,6 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
 }
 
 /**
- * Loads a supported file and creates its Entity3D
- *
- * @param instance - Giro3D instance
- * @param file - File to load
- * @param fileinfo - File info
- * @returns Entity3D
- */
-async function loadFile(
-    instance: Instance,
-    file: File,
-    fileinfo: ImportableFileInfo,
-): Promise<Entity3D> {
-    switch (fileinfo.type) {
-        case 'cityjson':
-            return new CityJSONLoader().load(instance, { url: file });
-        case 'csv':
-            return new CSVPointCloudLoader().load(instance, { url: file });
-        case 'geojson':
-            return new GeoJSONLoader().load(instance, { url: file, fetchElevation: true });
-        case 'gpkg':
-            return new GeopackageLoader().load(instance, { url: file, fetchElevation: true });
-        case 'gpx':
-            return new GPXLoader().load(instance, { url: file, fetchElevation: true });
-        case 'ifc':
-            return new IFCLoader().load(instance, { url: file, name: fileinfo.filename });
-        case 'kml':
-            return new KMLLoader().load(instance, { url: file, fetchElevation: true });
-        case 'las':
-            return new LASLoader().load(instance, { url: file });
-        default: {
-            // Exhaustiveness checking
-            const _exhaustiveCheck: never = fileinfo.type;
-            return _exhaustiveCheck;
-        }
-    }
-}
-
-/**
  * Loads a file and creates its Entity3D and Dataset.
  *
  * @param instance - Giro3D instance
@@ -274,17 +266,16 @@ async function importFile(instance: Instance, file: File): Promise<ImportFileRes
         throw new Error(`File ${fileinfo.fileext} not supported`);
     }
 
-    const entity = await loadFile(instance, file, fileinfo as ImportableFileInfo);
-    if (!('dataset' in entity.object3d.userData)) entity.object3d.userData.dataset = {};
-    entity.object3d.userData.dataset.name = fileinfo.filename;
-
-    const datasetConfig: DatasetImportedConfig = {
-        name: fileinfo.filename,
+    const datasetConfig = {
         type: fileinfo.datasetType,
-        url: null,
+        name: fileinfo.filename,
+        url: file,
         visible: true,
-    };
+    } as DatasetConfigImportable;
+
     const dataset = new Dataset(datasetConfig);
+    const entity = await loadDataset(instance, dataset);
+
     return { entity, dataset };
 }
 

@@ -1,34 +1,17 @@
 import { EventDispatcher, MathUtils } from 'three';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
-import config from '@/config';
+import { isObject } from '@/utils/Types';
 import type {
     DatagroupConfig,
-    DatasetBaseConfig,
     DatasetConfig,
-    DatasetImportedConfig,
     DatasetOrGroupConfig,
+    DatasetType,
+} from './configuration/datasets';
+import type {
+    DatasetCascadingConfig,
     OnObjectPreloaded,
-} from '@/types/configuration/dataset';
-import { getPublicFolderUrl } from '@/utils/Configuration';
-import { isObject } from '@/utils/Types';
+} from './configuration/datasets/core/baseConfig';
 
-/** All types of datasets supported in this app */
-export type DatasetType =
-    | 'bdtopo'
-    | 'cityjson'
-    | 'geojson'
-    | 'gpkg'
-    | 'gpx'
-    | 'ifc'
-    | 'kml'
-    | 'ply'
-    | 'pointcloud'
-    | 'shp';
-/** List of dataset types that can be drag-and-dropped into the app */
-export type DatasetTypeImportable = Exclude<DatasetType, 'bdtopo' | 'ply' | 'shp'>;
-/** List of dataset types that support multiple URL sources in their configuration */
-export type DatasetTypeMultiple = Extract<DatasetType, 'geojson' | 'gpkg' | 'shp'>;
 export type DatasetOrGroupType = DatasetType | 'group';
 
 export type DatasetEventMap = {
@@ -53,13 +36,19 @@ export type DatasetGroupEventMap = DatasetEventMap & {
     /** empty */
 };
 
+export type DatasetConfigParameters<TConfig extends DatasetOrGroupConfig> = Omit<
+    TConfig,
+    'type' | 'name' | 'visible' | 'opacity' | 'onObjectPreloaded'
+>;
+
 export abstract class DatasetBase<
-    TType extends DatasetOrGroupType,
+    TConfig extends DatasetOrGroupConfig,
     TEventMap extends DatasetEventMap = DatasetEventMap,
 > extends EventDispatcher<TEventMap & DatasetEventMap> {
-    readonly type: TType;
+    readonly type: TConfig['type'];
     readonly uuid: string;
     readonly name: string;
+    readonly onObjectPreloaded?: OnObjectPreloaded;
 
     protected _parent: Datagroup | null;
     protected _visible: boolean;
@@ -67,42 +56,21 @@ export abstract class DatasetBase<
     protected _isPreloading: boolean;
     protected _isPreloaded: boolean;
 
-    /* Properties for initializing entity, not used/changed afterwards */
-    readonly coordinates?: Coordinates;
-    readonly elevation?: number;
-    readonly fetchElevation?: boolean;
-    readonly fetchElevationFast?: boolean;
-    readonly canMaskBasemap?: boolean;
-    readonly isMaskingBasemap?: boolean;
-    readonly onObjectPreloaded?: OnObjectPreloaded;
+    readonly parameters: DatasetConfigParameters<TConfig>;
 
-    constructor(conf: DatasetBaseConfig<TType>) {
+    constructor({ type, name, visible, opacity, onObjectPreloaded, ...parameters }: TConfig) {
         super();
-        this.type = conf.type;
+        this.type = type;
         this.uuid = MathUtils.generateUUID();
-        this.name = conf.name;
+        this.name = name;
+        this.onObjectPreloaded = onObjectPreloaded;
         this._parent = null;
-        this._visible = conf.visible ?? false;
-        this._opacity = conf.opacity ?? 1;
+        this._visible = visible ?? false;
+        this._opacity = opacity ?? 1;
         this._isPreloading = false;
         this._isPreloaded = false;
 
-        this.canMaskBasemap = conf.canMaskBasemap;
-        this.isMaskingBasemap = conf.isMaskingBasemap;
-
-        if (conf.position) {
-            const position = conf.position;
-            this.coordinates = new Coordinates(
-                position.crs ?? config.default_crs,
-                position.x,
-                position.y,
-                position.z ?? 0,
-            );
-        }
-        this.elevation = conf.elevation;
-        this.fetchElevation = conf.fetchElevation;
-        this.fetchElevationFast = conf.fetchElevationFast;
-        this.onObjectPreloaded = conf.onObjectPreloaded;
+        this.parameters = parameters;
     }
 
     get parent() {
@@ -160,28 +128,23 @@ export abstract class DatasetBase<
      * @param propertyName - Name of the property
      * @returns Value
      */
-    get<K extends keyof DatasetBase<DatasetOrGroupType, DatasetEventMap>>(
+    get<K extends keyof DatasetCascadingConfig>(
         propertyName: K,
-    ): DatasetBase<DatasetOrGroupType, DatasetEventMap>[K] | undefined {
-        return this[propertyName] ?? this.parent?.get(propertyName);
+    ): DatasetCascadingConfig[K] | undefined {
+        if (
+            propertyName in this.parameters &&
+            (this.parameters as DatasetCascadingConfig)[propertyName] != null
+        )
+            return (this.parameters as DatasetCascadingConfig)[propertyName];
+
+        return this.parent?.get(propertyName);
     }
 }
 
 /** Dataset item */
-export class Dataset extends DatasetBase<DatasetType, DatasetEventMap> {
-    readonly url: string | string[] | null;
-
-    constructor(conf: DatasetConfig | DatasetImportedConfig) {
+export class Dataset extends DatasetBase<DatasetConfig, DatasetEventMap> {
+    constructor(conf: DatasetConfig) {
         super(conf);
-        if (conf.url) {
-            if (Array.isArray(conf.url)) {
-                this.url = conf.url.map(url => getPublicFolderUrl(url));
-            } else {
-                this.url = getPublicFolderUrl(conf.url);
-            }
-        } else {
-            this.url = null;
-        }
     }
 
     traverse(callback: (dataset: DatasetOrGroup) => void) {
@@ -194,7 +157,7 @@ export class Dataset extends DatasetBase<DatasetType, DatasetEventMap> {
 }
 
 /** Datagroup item */
-export class Datagroup extends DatasetBase<'group', DatasetGroupEventMap> {
+export class Datagroup extends DatasetBase<DatagroupConfig, DatasetGroupEventMap> {
     protected _children: DatasetOrGroup[];
 
     constructor(conf: DatagroupConfig) {

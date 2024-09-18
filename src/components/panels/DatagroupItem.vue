@@ -63,7 +63,9 @@
             <IconListButton
                 v-if="
                     hasLeafPreloaded &&
-                    (group.get('canMaskBasemap') || group.get('isMaskingBasemap'))
+                    (('canMaskBasemap' in group.parameters && group.parameters.canMaskBasemap) ||
+                        ('isMaskingBasemap' in group.parameters &&
+                            group.parameters.isMaskingBasemap))
                 "
                 title="Toggle basemap masking"
                 icon="bi-mask"

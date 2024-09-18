@@ -3,7 +3,7 @@ import type { AnalysisConfig } from '@/types/configuration/analysis';
 import type { BookmarkConfig } from '@/types/configuration/bookmark';
 import type { CameraConfig, CameraConfigDeprecated } from '@/types/configuration/camera';
 import type { ColorMapConfig } from '@/types/configuration/color';
-import type { DatasetOrGroupConfig } from '@/types/configuration/dataset';
+import type { DatasetOrGroupConfig } from './configuration/datasets';
 import type { ExperimentalFeatures } from '@/types/configuration/features';
 import type { CRS, GeoExtent, GeoVec2 } from '@/types/configuration/geographic';
 import type {

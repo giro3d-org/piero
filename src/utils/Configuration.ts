@@ -1,9 +1,12 @@
 import { Color } from 'three';
 import chroma from 'chroma-js';
 import ColorMap from '@giro3d/giro3d/core/layer/ColorMap';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
+import config from '@/config';
 import Download from './Download';
 import type { ColorMapConfig } from '@/types/configuration/color';
+import type { GeoVec3 } from '@/types/configuration/geographic';
 
 export function getPublicFolderUrl(url: string): string {
     if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -24,4 +27,18 @@ export function getColorMap(config: ColorMapConfig): ColorMap {
             return new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
         });
     return new ColorMap(colors, config.min, config.max, config.mode);
+}
+
+export function getCoordinates(geovec3: GeoVec3): Coordinates;
+export function getCoordinates(): undefined;
+export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined;
+export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined {
+    return geovec3
+        ? new Coordinates(
+              geovec3.crs ?? config.default_crs,
+              geovec3.x,
+              geovec3.y,
+              geovec3.z ?? 0,
+          ).as(config.default_crs)
+        : undefined;
 }

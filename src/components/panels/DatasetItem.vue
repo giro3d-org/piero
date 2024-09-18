@@ -1,7 +1,8 @@
 <script setup lang="ts">
     import { type Component } from 'vue';
     import { useDatasetStore } from '@/stores/datasets';
-    import type { Dataset, DatasetType } from '@/types/Dataset';
+    import type { DatasetType } from '@/types/configuration/datasets';
+    import type { Dataset } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
@@ -40,6 +41,9 @@
         kml: 'fg-polygon-pt',
         ply: 'bi-file-earmark-binary',
         pointcloud: 'fg-multipoint',
+        'pointcloud-csv': 'fg-multipoint',
+        las: 'fg-multipoint',
+        potree: 'fg-multipoint',
         shp: 'fg-shape-file',
     };
 
@@ -53,6 +57,9 @@
         kml: 'KML',
         ply: 'PLY',
         pointcloud: 'Point Cloud',
+        'pointcloud-csv': 'CSV Point Cloud',
+        las: 'LAS Point Cloud',
+        potree: 'Potree Point Cloud',
         shp: 'Shapefile',
     };
 </script>
@@ -92,7 +99,10 @@
             <IconListButton
                 v-if="
                     isPreloaded &&
-                    (dataset.get('canMaskBasemap') || dataset.get('isMaskingBasemap'))
+                    (('canMaskBasemap' in dataset.parameters &&
+                        dataset.parameters.canMaskBasemap) ||
+                        ('isMaskingBasemap' in dataset.parameters &&
+                            dataset.parameters.isMaskingBasemap))
                 "
                 title="Toggle basemap masking"
                 icon="bi-mask"
