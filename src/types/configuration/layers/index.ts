@@ -45,6 +45,26 @@ export interface OverlayConfig extends Omit<ColorLayerConfig, 'type'> {
     source: OverlaySourceConfig;
 }
 
+/**
+ * Vector overlay configuration
+ *
+ * @deprecated Use 'source' field instead. Will be removed in release v24.7.
+ */
+export type OverlayVectorConfigDeprecated = Omit<OverlayConfig, 'source'> &
+    (GeoJSONAsLayerSourceConfig | GPXAsLayerSourceConfig | KMLAsLayerSourceConfig);
+/**
+ * Vector tile overlay configuration
+ *
+ * @deprecated Use 'source' field instead. Will be removed in release v24.7.
+ */
+export type OverlayVectorTileConfigDeprecated = Omit<OverlayConfig, 'source'> & MVTSourceConfig;
+/**
+ * Raster overlay configuration
+ *
+ * @deprecated Use 'source' field instead. Will be removed in release v24.7.
+ */
+export type OverlayRasterConfigDeprecated = OverlayConfig & (WMSSourceConfig | WMTSSourceConfig);
+
 /** Layer configuration */
 export type LayerConfig = ColorLayerConfig | ElevationLayerConfig | MaskLayerConfig;
 /** Supported Giro3D layer types */

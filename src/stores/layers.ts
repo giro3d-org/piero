@@ -3,6 +3,7 @@ import { computed, shallowReactive } from 'vue';
 
 import config from '@/config.ts';
 import { GraticuleLayer } from '@/giro3d/Graticule';
+import type { OverlayConfig } from '@/types/configuration/layers';
 import { type BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
 import { type Overlay, OverlayObject } from '@/types/Overlay';
 
@@ -33,7 +34,22 @@ function buildGraticuleLayer() {
 function buildOverlays() {
     const result: Overlay[] = [];
     for (const item of config.overlays) {
-        const overlay = new OverlayObject(item);
+        let conf: OverlayConfig;
+        if (!('source' in item)) {
+            console.warn(
+                `Configuration for ${item.name} is deprecated. This will be removed in release v24.7.`,
+            );
+            conf = {
+                name: item.name,
+                visible: item.visible,
+                source: {
+                    ...item,
+                },
+            };
+        } else {
+            conf = item;
+        }
+        const overlay = new OverlayObject(conf);
         overlay.visible = item.visible;
         result.push(overlay);
     }

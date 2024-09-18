@@ -6,7 +6,13 @@ import type { ColorMapConfig } from '@/types/configuration/color';
 import type { DatasetOrGroupConfig } from './configuration/datasets';
 import type { ExperimentalFeatures } from '@/types/configuration/features';
 import type { CRS, GeoExtent, GeoVec2 } from '@/types/configuration/geographic';
-import type { LayerConfig, OverlayConfig } from '@/types/configuration/layers';
+import type {
+    LayerConfig,
+    OverlayConfig,
+    OverlayRasterConfigDeprecated,
+    OverlayVectorConfigDeprecated,
+    OverlayVectorTileConfigDeprecated,
+} from '@/types/configuration/layers';
 
 // For configuration, please use interfaces instead of types, it enables inheritance in the API documentation.
 // Also, please prefer JSON-serializable fields, so that one day if we want to fetch the configuration from
@@ -108,7 +114,12 @@ export interface Configuration {
      * Overlays define data that are merged into the 2.5D map.
      * These are typically vector data or rasters with transparent backgrounds.
      */
-    overlays: OverlayConfig[];
+    overlays: (
+        | OverlayConfig
+        | OverlayVectorConfigDeprecated
+        | OverlayVectorTileConfigDeprecated
+        | OverlayRasterConfigDeprecated
+    )[];
     /** Array of bookmarks - can be empty */
     bookmarks: BookmarkConfig[];
 }
