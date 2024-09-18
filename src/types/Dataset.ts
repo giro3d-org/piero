@@ -11,8 +11,10 @@ import type {
     DatasetCascadingConfig,
     OnObjectPreloaded,
 } from './configuration/datasets/core/baseConfig';
+import { ColorLayer, MaskLayer } from '@giro3d/giro3d/core/layer';
 
 export type DatasetOrGroupType = DatasetType | 'group';
+export type DatasetLayer = ColorLayer | MaskLayer;
 
 export type DatasetEventMap = {
     visible: {

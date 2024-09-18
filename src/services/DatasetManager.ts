@@ -12,15 +12,16 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Giro3DMap from '@giro3d/giro3d/entities/Map';
 import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 
-import loader from '@/loaders/loader';
+import loader, { datasetSupportsOverlay } from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Datagroup, DatasetOrGroup } from '@/types/Dataset';
+import { Datagroup, DatasetLayer, DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
 
 export default class DatasetManager {
     private readonly _instance: Instance;
     private readonly _entities: Map<string, Entity3D> = new Map();
+    private readonly _overlays: Map<string, DatasetLayer> = new Map();
     private readonly _axisGrids: Map<string, AxisGrid> = new Map();
     private readonly _masks: Map<string, MaskLayer> = new Map();
     private readonly _store = useDatasetStore();
@@ -60,6 +61,12 @@ export default class DatasetManager {
 
     dispose() {
         // Nothing to do (?)
+    }
+
+    private getMap(): Giro3DMap | undefined {
+        return this._instance.getEntities(e => (e as Giro3DMap).isMap).at(0) as
+            | Giro3DMap
+            | undefined;
     }
 
     private createGrid(dataset: DatasetOrGroup) {
@@ -224,6 +231,12 @@ export default class DatasetManager {
             }
             this._instance.notifyChange(entity);
         }
+
+        const layer = this._overlays.get(dataset.uuid);
+        if (layer) {
+            layer.visible = dataset.visible;
+            this._instance.notifyChange(this.getMap());
+        }
     }
 
     private deleteDataset(dataset: DatasetOrGroup) {
@@ -233,8 +246,15 @@ export default class DatasetManager {
         const entity = this._entities.get(dataset.uuid);
         if (entity) {
             this._instance.remove(entity);
+            this._instance.notifyChange();
         }
-        this._instance.notifyChange();
+
+        const layer = this._overlays.get(dataset.uuid);
+        if (layer) {
+            const map = this.getMap();
+            map?.removeLayer(layer);
+            this._instance.notifyChange(map);
+        }
     }
 
     private onDatasetLoaded(dataset: DatasetOrGroup, entity: Entity3D) {
@@ -248,6 +268,13 @@ export default class DatasetManager {
         this._store.attachEntity(dataset, entity);
     }
 
+    private onDatasetLoadedAsOverlay(dataset: DatasetOrGroup, layer: DatasetLayer) {
+        dataset.isPreloaded = true;
+        dataset.isPreloading = false;
+
+        this._store.attachLayer(dataset, layer);
+    }
+
     private async loadDataset(dataset: DatasetOrGroup) {
         if (dataset.isPreloaded) return dataset;
 
@@ -259,14 +286,26 @@ export default class DatasetManager {
         dataset.isPreloading = true;
 
         try {
-            const entity = await loader.loadDataset(this._instance, dataset);
+            if (datasetSupportsOverlay(dataset)) {
+                const layer = await loader.loadDatasetAsOverlay(this._instance, dataset);
+                const map = this.getMap();
+                if (layer && map) {
+                    layer.visible = dataset.visible;
+                    this._overlays.set(dataset.uuid, layer);
+                    map.addLayer(layer);
 
-            if (entity) {
-                entity.visible = dataset.visible;
-                this._entities.set(dataset.uuid, entity);
-                this._instance.add(entity);
+                    this.onDatasetLoadedAsOverlay(dataset, layer);
+                }
+            } else {
+                const entity = await loader.loadDataset(this._instance, dataset);
 
-                this.onDatasetLoaded(dataset, entity);
+                if (entity) {
+                    entity.visible = dataset.visible;
+                    this._entities.set(dataset.uuid, entity);
+                    this._instance.add(entity);
+
+                    this.onDatasetLoaded(dataset, entity);
+                }
             }
         } catch (e) {
             console.error('Could not load dataset', dataset, e);

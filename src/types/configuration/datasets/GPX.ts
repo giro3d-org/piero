@@ -1,4 +1,5 @@
-import { GPXSourceConfig } from '../sources/gpx';
-import type { DatasetConfigBaseWithSources } from './core/baseConfig';
+import { GPXAsLayerSourceConfig, GPXAsMeshSourceConfig } from '../sources/gpx';
+import { VectorAsLayerDatasetConfigBase, VectorAsMeshDatasetConfigBase } from './core/vector';
 
-export interface GPXDatasetConfig extends DatasetConfigBaseWithSources<'gpx', GPXSourceConfig> {}
+export type GPXAsMeshDatasetConfig = VectorAsMeshDatasetConfigBase<'gpx', GPXAsMeshSourceConfig>;
+export type GPXAsLayerDatasetConfig = VectorAsLayerDatasetConfigBase<'gpx', GPXAsLayerSourceConfig>;

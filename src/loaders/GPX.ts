@@ -1,12 +1,12 @@
 import GPX from 'ol/format/GPX';
 
 import { OLLoader } from './core/OLLoader';
-import { GPXDatasetConfig } from '@/types/configuration/datasets/GPX';
+import { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/GPX';
 
 const GPXFormat = new GPX();
 
 /** GPX loader */
-export class GPXLoader extends OLLoader<'gpx', GPXDatasetConfig> {
+export class GPXLoader extends OLLoader<'gpx', GPXAsMeshDatasetConfig> {
     constructor() {
         super(GPXFormat);
     }

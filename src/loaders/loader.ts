@@ -2,6 +2,7 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Instance from '@giro3d/giro3d/core/Instance';
 
 import type {
+    DatasetAsLayerConfig,
     DatasetConfigImportable,
     DatasetTypeImportable,
 } from '@/types/configuration/datasets';
@@ -10,7 +11,7 @@ import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJ
 import type { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
 import type { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
 import type { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
-import type { GPXDatasetConfig } from '@/types/configuration/datasets/GPX';
+import type { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/GPX';
 import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
 import type { KMLDatasetConfig } from '@/types/configuration/datasets/KML';
 import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
@@ -33,6 +34,14 @@ import { PLYLoader } from './PLY';
 import { PotreePointCloudLoader } from './PotreePointCloud';
 import { ShapefileLoader } from './Shapefile';
 import { TiledPointCloudLoader } from './TiledPointCloud';
+import LayerBuilder from '@/giro3d/LayerBuilder';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import { isObject } from '@/utils/Types';
+
+export const datasetSupportsOverlay = (
+    obj: unknown,
+): obj is Dataset & DatasetBase<DatasetAsLayerConfig> =>
+    isObject(obj) && 'config' in obj && 'loadAsOverlay' in (obj as Dataset).config;
 
 /** Supported file types */
 type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'gpx' | 'kml';
@@ -136,7 +145,7 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'gpx': {
-            entity = new GPXLoader().load(instance, dataset as DatasetBase<GPXDatasetConfig>);
+            entity = new GPXLoader().load(instance, dataset as DatasetBase<GPXAsMeshDatasetConfig>);
             break;
         }
         case 'ifc': {
@@ -196,6 +205,18 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
     return e;
 }
 
+async function loadDatasetAsOverlay(
+    instance: Instance,
+    dataset: Dataset & DatasetBase<DatasetAsLayerConfig>,
+) {
+    const source = await LayerBuilder.getSource(dataset.config.source);
+    const colorLayer = new ColorLayer({
+        source,
+        name: dataset.name,
+    });
+    return colorLayer;
+}
+
 /**
  * Loads a file and creates its Entity3D and Dataset.
  *
@@ -232,5 +253,6 @@ async function importFile(instance: Instance, file: File): Promise<ImportFileRes
 
 export default {
     loadDataset,
+    loadDatasetAsOverlay,
     importFile,
 };

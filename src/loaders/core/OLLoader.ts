@@ -6,6 +6,7 @@ import Fetcher from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import { LoaderMultiple } from './LoaderCore';
 import type {
+    DatasetSourceConfigBase,
     DatasetSourceConfigDataProjection,
     DatasetSourceConfigElevation,
 } from '@/types/configuration/datasets/core/baseConfig';
@@ -14,10 +15,8 @@ import type {
     DatasetSourceConfig,
     DatasetType,
 } from '@/types/configuration/datasets';
-import {
-    VectorDatasetConfigBase,
-    VectorDatasetSourceConfigBase,
-} from '@/types/configuration/datasets/core/vector';
+import { VectorSourceAsMeshConfig } from '@/types/configuration/sources/core/vector';
+import { VectorAsMeshDatasetConfigBase } from '@/types/configuration/datasets/core/vector';
 
 export interface OLLoaderImplParameters
     extends DatasetSourceConfigDataProjection,
@@ -90,7 +89,11 @@ export const OLLoaderImpl = {
  */
 export abstract class OLLoader<
     TType extends DatasetType,
-    TConfig extends DatasetConfig & VectorDatasetConfigBase<TType>,
+    TConfig extends DatasetConfig &
+        VectorAsMeshDatasetConfigBase<
+            TType,
+            DatasetSourceConfigBase<TType> & VectorSourceAsMeshConfig
+        >,
 > extends LoaderMultiple<TType, TConfig> {
     protected _format: FeatureFormat;
 
@@ -101,7 +104,7 @@ export abstract class OLLoader<
 
     async loadOne(
         instance: Instance,
-        source: DatasetSourceConfig & VectorDatasetSourceConfigBase<TType>,
+        source: DatasetSourceConfig & DatasetSourceConfigBase<TType> & VectorSourceAsMeshConfig,
     ): Promise<Group> {
         const text = await OLLoaderImpl.fetch(source.url);
         const implParameters: OLLoaderImplParameters = {

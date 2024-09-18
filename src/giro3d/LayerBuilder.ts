@@ -40,6 +40,7 @@ import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
 
 import { LayerOptions } from '@/types/configuration/externals';
 import { TiledImageSourceConfig } from '@/types/configuration/sources/core/tiled';
+import { DatasetAsLayerSourceConfig } from '@/types/configuration/datasets';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -86,7 +87,9 @@ function getImageFormat(imageSourceConfig: TiledImageSourceConfig): ImageFormat 
     }
 }
 
-async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
+async function getSource(
+    input: LayerSourceConfig | DatasetAsLayerSourceConfig,
+): Promise<ImageSource> {
     const commonOptions: ImageSourceOptions = {
         flipY: input.flipY,
         is8bit: input.is8bit,

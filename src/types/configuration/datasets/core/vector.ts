@@ -1,13 +1,22 @@
 import { DatasetType } from '..';
-import { SourceConfigBase } from '../../sources/core/baseConfig';
-import { VectorSourceAsMeshConfig } from '../../sources/core/vector';
-import { DatasetConfigBase } from './baseConfig';
+import { VectorSourceAsLayerConfig, VectorSourceAsMeshConfig } from '../../sources/core/vector';
+import {
+    DatasetConfigBase,
+    DatasetConfigBaseWithSource,
+    DatasetConfigBaseWithSources,
+    DatasetSourceConfigBase,
+} from './baseConfig';
 
-export interface VectorDatasetSourceConfigBase<TType extends DatasetType>
-    extends SourceConfigBase<TType>,
-        VectorSourceAsMeshConfig {}
+export interface VectorAsMeshDatasetConfigBase<
+    TDatasetType extends DatasetType,
+    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> & VectorSourceAsMeshConfig,
+> extends DatasetConfigBase<TDatasetType>,
+        DatasetConfigBaseWithSources<TDatasetType, TSourceConfigType> {}
 
-export interface VectorDatasetConfigBase<TType extends DatasetType>
-    extends DatasetConfigBase<TType> {
-    sources: VectorDatasetSourceConfigBase<TType> | VectorDatasetSourceConfigBase<TType>[];
+export interface VectorAsLayerDatasetConfigBase<
+    TDatasetType extends DatasetType,
+    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> & VectorSourceAsLayerConfig,
+> extends DatasetConfigBase<TDatasetType>,
+        DatasetConfigBaseWithSource<TDatasetType, TSourceConfigType> {
+    loadAsOverlay: true;
 }

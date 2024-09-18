@@ -11,7 +11,7 @@ import type { CityJSONDatasetConfig } from './CityJSON';
 import type { CSVPointCloudDatasetConfig } from './CSVPointCloud';
 import type { GeoJSONDatasetConfig } from './GeoJSON';
 import type { GeopackageDatasetConfig } from './Geopackage';
-import type { GPXDatasetConfig } from './GPX';
+import type { GPXAsLayerDatasetConfig, GPXAsMeshDatasetConfig } from './GPX';
 import type { IFCDatasetConfig } from './IFC';
 import type { KMLDatasetConfig } from './KML';
 import type { LASDatasetConfig } from './LAS';
@@ -19,6 +19,8 @@ import type { PLYDatasetConfig } from './PLY';
 import type { PotreePointCloudDatasetConfig } from './PotreePointCloud';
 import type { ShapefileDatasetConfig } from './Shapefile';
 import type { TiledPointCloudDatasetConfig } from './TiledPointCloud';
+import { VectorAsLayerDatasetConfigBase } from './core/vector';
+import { VectorSourceAsLayerConfig } from '../sources/core/vector';
 
 export type DatasetConfig =
     | BDTopoDatasetConfig
@@ -26,7 +28,8 @@ export type DatasetConfig =
     | CSVPointCloudDatasetConfig
     | GeoJSONDatasetConfig
     | GeopackageDatasetConfig
-    | GPXDatasetConfig
+    | GPXAsMeshDatasetConfig
+    | GPXAsLayerDatasetConfig
     | IFCDatasetConfig
     | KMLDatasetConfig
     | LASDatasetConfig
@@ -48,7 +51,8 @@ export type DatasetConfigImportable =
     | CSVPointCloudDatasetConfig
     | GeoJSONDatasetConfig
     | GeopackageDatasetConfig
-    | GPXDatasetConfig
+    | GPXAsMeshDatasetConfig
+    | GPXAsLayerDatasetConfig
     | IFCDatasetConfig
     | KMLDatasetConfig
     | LASDatasetConfig
@@ -63,7 +67,7 @@ export type DatasetConfigMultiple =
     | CSVPointCloudDatasetConfig
     | GeoJSONDatasetConfig
     | GeopackageDatasetConfig
-    | GPXDatasetConfig
+    | GPXAsMeshDatasetConfig
     | KMLDatasetConfig
     | LASDatasetConfig
     | ShapefileDatasetConfig;
@@ -86,6 +90,13 @@ export type DatasetSourceConfig =
           >['sources'],
           DatasetSourceConfigBase<DatasetType>
       >;
+
+export type DatasetAsLayerSourceConfig = Extract<DatasetSourceConfig, VectorSourceAsLayerConfig>;
+
+export type DatasetAsLayerConfig = Extract<
+    DatasetConfig,
+    VectorAsLayerDatasetConfigBase<DatasetType, DatasetAsLayerSourceConfig>
+>;
 
 export interface DatagroupConfig
     extends DatasetConfigBase<'group'>,

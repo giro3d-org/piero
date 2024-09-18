@@ -6,7 +6,7 @@ import type {
 import type { BingMapsSourceConfig } from '@/types/configuration/sources/bingMaps';
 import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
 import type { GeoJSONSourceConfig } from '@/types/configuration/sources/geojson';
-import type { GPXSourceConfig } from '@/types/configuration/sources/gpx';
+import type { GPXAsLayerSourceConfig } from '@/types/configuration/sources/gpx';
 import type { KMLSourceConfig } from '@/types/configuration/sources/kml';
 import type { MVTSourceConfig } from '@/types/configuration/sources/mvt';
 import type { OSMSourceConfig } from '@/types/configuration/sources/osm';
@@ -22,7 +22,7 @@ export type LayerSourceConfig =
     | BingMapsSourceConfig
     | GeoTIFFSourceConfig
     | GeoJSONSourceConfig
-    | GPXSourceConfig
+    | GPXAsLayerSourceConfig
     | KMLSourceConfig
     | MVTSourceConfig
     | OSMSourceConfig

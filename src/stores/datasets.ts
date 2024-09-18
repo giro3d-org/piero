@@ -3,7 +3,12 @@ import { defineStore } from 'pinia';
 import { Box3 } from 'three';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import { type Dataset, type DatasetOrGroup, parseDatasetConfig } from '@/types/Dataset';
+import {
+    type Dataset,
+    type DatasetOrGroup,
+    parseDatasetConfig,
+    DatasetLayer,
+} from '@/types/Dataset';
 import config from '../config';
 
 export const useDatasetStore = defineStore('datasets', () => {
@@ -12,6 +17,7 @@ export const useDatasetStore = defineStore('datasets', () => {
     const count = computed(() => leafs.value.length);
 
     const entities: Map<string, Entity3D> = new Map();
+    const layers: Map<string, DatasetLayer> = new Map();
 
     /** Get hierarchy of datasets & groups */
     function getTree(): DatasetOrGroup[] {
@@ -31,6 +37,11 @@ export const useDatasetStore = defineStore('datasets', () => {
     /** Binds an entity to a dataset */
     function attachEntity(ds: DatasetOrGroup, entity: Entity3D): void {
         entities.set(ds.uuid, entity);
+    }
+
+    /** Binds a layer to a dataset */
+    function attachLayer(ds: DatasetOrGroup, layer: DatasetLayer): void {
+        layers.set(ds.uuid, layer);
     }
 
     /** Removes a dataset from the hierarchy */
@@ -65,6 +76,11 @@ export const useDatasetStore = defineStore('datasets', () => {
         return entities.get(ds.uuid);
     }
 
+    /** Gets the layer attached to a dataset (if bound) */
+    function getLayer(ds: DatasetOrGroup): DatasetLayer | undefined {
+        return layers.get(ds.uuid);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function importFromFile(file: File): void {
         // Nothing to do, rely on action listeners.
@@ -95,7 +111,9 @@ export const useDatasetStore = defineStore('datasets', () => {
         setVisible,
         getBoundingBox,
         getEntity,
+        getLayer,
         attachEntity,
+        attachLayer,
         toggleGrid,
         toggleMask,
     };
