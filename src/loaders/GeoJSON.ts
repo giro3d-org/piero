@@ -16,7 +16,7 @@ import type {
 import type { Dataset, DatasetBase } from '@/types/Dataset';
 
 /** Dataset configuration usable with {@link getImplParameters} */
-export interface GeoJSONCompatibleDatasetConfig
+export interface GeoJSONCompatibleDatasetSourceConfig
     extends SourceConfigProjectionMixin,
         SourceConfigElevationMixin {}
 
@@ -92,7 +92,7 @@ async function toOlFeatures(
     return simpleFeatures;
 }
 
-function getImplParameters<TConfig extends GeoJSONCompatibleDatasetConfig>(
+function getImplParameters<TConfig extends GeoJSONCompatibleDatasetSourceConfig>(
     instance: Instance,
     parameters: TConfig,
     dataset: Dataset,
@@ -123,7 +123,7 @@ export class GeoJSONLoader extends LoaderMultiple<'geojson', GeoJSONAsMeshDatase
     async loadOne(
         instance: Instance,
         source: GeoJSONAsMeshSourceConfig,
-        dataset: DatasetBase<GeoJSONAsMeshDatasetConfig>,
+        dataset: Dataset & DatasetBase<GeoJSONAsMeshDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as GeoJSON
         const json = await GeoJSONLoaderImpl.fetch(source.url);

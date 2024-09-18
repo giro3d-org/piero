@@ -1,4 +1,10 @@
 import { EventDispatcher } from 'three';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
+import ElevationLayer, { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
+import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import Layer from '@giro3d/giro3d/core/layer/Layer';
+import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
 import Grid from '@/giro3d/Grid';
 import LayerBuilder from '@/giro3d/LayerBuilder';
@@ -6,15 +12,8 @@ import Plane from '@/giro3d/Plane';
 import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import { useLayerStore } from '@/stores/layers';
-import { type BaseLayer } from '@/types/BaseLayer';
+import type { BaseLayer } from '@/types/BaseLayer';
 import type { Overlay } from '@/types/Overlay';
-
-import type Instance from '@giro3d/giro3d/core/Instance';
-import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer, { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
-import Layer from '@giro3d/giro3d/core/layer/Layer';
-import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;

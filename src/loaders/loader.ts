@@ -5,6 +5,7 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import type {
     DatasetAsLayerConfig,
+    DatasetConfig,
     DatasetConfigImportable,
     DatasetTypeImportable,
 } from '@/types/configuration/datasets';
@@ -115,7 +116,10 @@ function getFilename(fileOrUrl: UrlOrFetchedData): FileInfo {
  * @returns Entity3D
  * @throws `Error` if bad dataset parameters
  */
-async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity3D> {
+async function loadDataset(
+    instance: Instance,
+    dataset: Dataset & DatasetBase<DatasetConfig>,
+): Promise<Entity3D> {
     let entity: Promise<Entity3D>;
 
     switch (dataset.type) {

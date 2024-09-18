@@ -11,7 +11,7 @@ import type {
     ShapefileDatasetConfig,
     ShapefileDatasetSourceConfig,
 } from '@/types/configuration/datasets/shapefile';
-import type { DatasetBase } from '@/types/Dataset';
+import type { Dataset, DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating Shapefile entities */
 export interface ShapefileImplParameters {
@@ -58,7 +58,7 @@ export class ShapefileLoader extends LoaderMultiple<'shp', ShapefileDatasetConfi
     async loadOne(
         instance: Instance,
         source: ShapefileDatasetSourceConfig,
-        dataset: DatasetBase<ShapefileDatasetConfig>,
+        dataset: Dataset & DatasetBase<ShapefileDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as a list of GeoJSON features
         const features = await ShapefileLoaderImpl.fetch(source.url, {

@@ -28,8 +28,9 @@ import type {
     ElevationLayerConfig,
     MaskLayerConfig,
 } from '@/types/configuration/layers/core/baseConfig';
-import { DatasetAsLayerSourceConfig } from '@/types/configuration/datasets';
-import type { Overlay, OverlayOptions } from '@/types/Overlay';
+import type { TiledImageSourceConfigMixin } from '@/types/configuration/sources/core/tiled';
+import type { DatasetAsLayerSourceConfig } from '@/types/configuration/datasets';
+import type { Overlay } from '@/types/Overlay';
 import type {
     FillStyle,
     PointStyle,
@@ -38,9 +39,7 @@ import type {
     VectorStyle,
 } from '@/types/VectorStyle';
 import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
-
 import { LayerOptions } from '@/types/configuration/externals';
-import { TiledImageSourceConfigMixin } from '@/types/configuration/sources/core/tiled';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -261,7 +260,7 @@ async function layerOptions(
 
 async function getOverlay(overlay: Overlay, extent: Extent) {
     const commonOptions = await layerOptions(overlay);
-    const opts = overlay.options as OverlayOptions;
+    const opts = overlay.options;
     return new ColorLayer({
         extent,
         ...commonOptions,

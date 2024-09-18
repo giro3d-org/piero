@@ -3,10 +3,12 @@ import type {
     SourceConfigUrlOrDataMixin,
 } from '@/types/configuration/sources/core/baseConfig';
 import type { VectorAsLayerSourceConfigMixin } from '@/types/configuration/sources/core/vector';
+import type { GeoVec3 } from '@/types/configuration/geographic';
 import type {
     DatasetCascadingConfig,
     DatasetConfigBase,
     DatasetConfigMaskingMixin,
+    OnObjectPreloaded,
 } from './core/baseConfig';
 import type { VectorAsLayerDatasetConfigBase } from './core/vector';
 import type { BDTopoDatasetConfig } from './bdtopo';
@@ -22,6 +24,22 @@ import type { PLYDatasetConfig } from './ply';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
 import type { ShapefileDatasetConfig } from './shapefile';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
+
+/**
+ * Deprecated dataset configuration
+ *
+ * @deprecated Use new configurations from {@link DatasetConfig}.
+ */
+export interface DatasetConfigDeprecated<TType extends string> extends DatasetConfigBase<TType> {
+    url?: string | string[];
+    position?: GeoVec3;
+    elevation?: number;
+    fetchElevation?: boolean;
+    fetchElevationFast?: boolean;
+    canMaskBasemap?: boolean;
+    isMaskingBasemap?: boolean;
+    onObjectPreloaded?: OnObjectPreloaded;
+}
 
 /** All supported datasets */
 export type DatasetConfig =
@@ -54,7 +72,19 @@ export interface DatagroupConfig
     children: DatasetOrGroupConfig[];
 }
 /** Configuration for dataset hierarchy */
-export type DatasetOrGroupConfig = DatasetConfig | DatagroupConfig;
+export type DatasetOrGroupConfig =
+    | DatasetConfig
+    | DatagroupConfig
+    | DatasetConfigDeprecated<'bdtopo'>
+    | DatasetConfigDeprecated<'cityjson'>
+    | DatasetConfigDeprecated<'geojson'>
+    | DatasetConfigDeprecated<'gpkg'>
+    | DatasetConfigDeprecated<'gpx'>
+    | DatasetConfigDeprecated<'ifc'>
+    | DatasetConfigDeprecated<'kml'>
+    | DatasetConfigDeprecated<'ply'>
+    | DatasetConfigDeprecated<'pointcloud'>
+    | DatasetConfigDeprecated<'shp'>;
 
 // Now let's define some utility types to help typing in the rest of the app:
 // - which datasets needs a source

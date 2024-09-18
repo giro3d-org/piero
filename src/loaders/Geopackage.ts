@@ -12,7 +12,7 @@ import type {
     GeopackageDatasetConfig,
     GeopackageDatasetSourceConfig,
 } from '@/types/configuration/datasets/geopackage';
-import type { DatasetBase } from '@/types/Dataset';
+import type { Dataset, DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating Geopackage entities */
 export interface GeopackageImplParameters {
@@ -64,7 +64,7 @@ export class GeopackageLoader extends LoaderMultiple<'gpkg', GeopackageDatasetCo
     async loadOne(
         instance: Instance,
         source: GeopackageDatasetSourceConfig,
-        dataset: DatasetBase<GeopackageDatasetConfig>,
+        dataset: Dataset & DatasetBase<GeopackageDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as a list of GeoJSON features
         const features = await GeopackageLoaderImpl.fetch(source.url, {
