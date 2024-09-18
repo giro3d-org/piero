@@ -2,6 +2,7 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 
+import config from '@/config';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import type {
     DatasetAsLayerConfig,
@@ -258,15 +259,28 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
             };
             break;
         case 'geojson':
-            datasetConfig = {
-                ...commonConfig,
-                type: 'geojson',
-                source: {
+            if (config.import_dataset_as_overlay) {
+                datasetConfig = {
+                    ...commonConfig,
                     type: 'geojson',
-                    url: file,
-                    fetchElevation: true,
-                },
-            };
+                    loadAsOverlay: true,
+                    source: {
+                        type: 'geojson',
+                        url: file,
+                        style: 'default',
+                    },
+                };
+            } else {
+                datasetConfig = {
+                    ...commonConfig,
+                    type: 'geojson',
+                    source: {
+                        type: 'geojson',
+                        url: file,
+                        fetchElevation: true,
+                    },
+                };
+            }
             break;
         case 'gpkg':
             datasetConfig = {
@@ -280,15 +294,27 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
             };
             break;
         case 'gpx':
-            datasetConfig = {
-                ...commonConfig,
-                type: 'gpx',
-                source: {
+            if (config.import_dataset_as_overlay) {
+                datasetConfig = {
+                    ...commonConfig,
                     type: 'gpx',
-                    url: file,
-                    fetchElevation: true,
-                },
-            };
+                    loadAsOverlay: true,
+                    source: {
+                        type: 'gpx',
+                        url: file,
+                        style: 'default',
+                    },
+                };
+            } else {
+                datasetConfig = {
+                    ...commonConfig,
+                    type: 'gpx',
+                    source: {
+                        type: 'gpx',
+                        url: file,
+                    },
+                };
+            }
             break;
         case 'ifc':
             datasetConfig = {
@@ -311,15 +337,28 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
             };
             break;
         case 'kml':
-            datasetConfig = {
-                ...commonConfig,
-                type: 'kml',
-                source: {
+            if (config.import_dataset_as_overlay) {
+                datasetConfig = {
+                    ...commonConfig,
                     type: 'kml',
-                    url: file,
-                    fetchElevation: true,
-                },
-            };
+                    loadAsOverlay: true,
+                    source: {
+                        type: 'kml',
+                        url: file,
+                        style: 'default',
+                    },
+                };
+            } else {
+                datasetConfig = {
+                    ...commonConfig,
+                    type: 'kml',
+                    source: {
+                        type: 'kml',
+                        url: file,
+                        fetchElevation: true,
+                    },
+                };
+            }
             break;
         case 'pointcloud-csv':
             datasetConfig = {

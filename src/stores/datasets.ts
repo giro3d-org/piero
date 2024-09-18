@@ -1,4 +1,4 @@
-import { ref, computed, Ref } from 'vue';
+import { computed, shallowReactive } from 'vue';
 import { defineStore } from 'pinia';
 import { Box3 } from 'three';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
@@ -7,13 +7,27 @@ import {
     type Dataset,
     type DatasetOrGroup,
     parseDatasetConfig,
-    DatasetLayer,
+    type DatasetLayer,
 } from '@/types/Dataset';
 import config from '../config';
 
+function buildDatasets(root: DatasetOrGroup) {
+    // We have multiple levels or shallowReactive-ness because we want to react to:
+    // 1. Changes in the root properties (visible, isPreloading, etc.)
+    const ds = shallowReactive(root);
+    if (ds.type === 'group') {
+        // 2. To the list of children (in case we add/delete datasets)
+        // 3. To the children themselves (see 1.)
+        ds.children = shallowReactive(ds.children.map(c => buildDatasets(c)));
+    }
+    return ds;
+}
+
 export const useDatasetStore = defineStore('datasets', () => {
-    const datasets = ref(parseDatasetConfig(config.datasets)) as Ref<DatasetOrGroup[]>;
-    const leafs = computed(() => datasets.value.map(c => c.leafs()).flat());
+    const datasets = shallowReactive(
+        parseDatasetConfig(config.datasets).map(ds => buildDatasets(ds)),
+    );
+    const leafs = computed(() => datasets.map(c => c.leafs()).flat());
     const count = computed(() => leafs.value.length);
 
     const entities: Map<string, Entity3D> = new Map();
@@ -21,7 +35,7 @@ export const useDatasetStore = defineStore('datasets', () => {
 
     /** Get hierarchy of datasets & groups */
     function getTree(): DatasetOrGroup[] {
-        return datasets.value;
+        return datasets;
     }
 
     /** Get leaf datasets */
@@ -30,8 +44,10 @@ export const useDatasetStore = defineStore('datasets', () => {
     }
 
     /** Adds a dataset at the end of the tree */
-    function add(ds: DatasetOrGroup): void {
-        datasets.value.push(ds);
+    function add(ds: DatasetOrGroup): DatasetOrGroup {
+        const dataset = shallowReactive(ds);
+        datasets.push(dataset);
+        return dataset;
     }
 
     /** Binds an entity to a dataset */
@@ -46,7 +62,7 @@ export const useDatasetStore = defineStore('datasets', () => {
 
     /** Removes a dataset from the hierarchy */
     function remove(ds: DatasetOrGroup): void {
-        const list = ds.parent ? ds.parent.children : datasets.value;
+        const list = ds.parent ? ds.parent.children : datasets;
         list.splice(list.indexOf(ds), 1);
     }
 

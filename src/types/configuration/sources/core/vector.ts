@@ -4,7 +4,6 @@ import type {
     ImageSourceConfigMixin,
     SourceConfigElevationMixin,
     SourceConfigProjectionMixin,
-    SourceConfigUrlMixin,
     SourceConfigUrlOrDataMixin,
 } from './baseConfig';
 
@@ -23,7 +22,7 @@ export interface VectorAsMeshSourceConfigMixin
 /** Mixin configuration for vector sources displayed as map layers */
 export interface VectorAsLayerSourceConfigMixin
     extends VectorSourceConfigMixin,
-        SourceConfigUrlMixin,
+        SourceConfigUrlOrDataMixin,
         ImageSourceConfigMixin {
     /** Style */
     style: VectorStyle;

@@ -15,7 +15,7 @@ import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 import loader, { datasetSupportsOverlay } from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Datagroup, DatasetLayer, DatasetOrGroup } from '@/types/Dataset';
+import { Datagroup, type DatasetLayer, type DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
 
 export default class DatasetManager {
@@ -194,26 +194,28 @@ export default class DatasetManager {
     }
 
     private async importFromFile(file: File) {
+        let dataset: DatasetOrGroup;
         try {
             this._notifications.push(new Notification(file.name, 'Importing file...'));
-            const dataset = await loader.importFile(this._instance, file);
+            const _dataset = await loader.importFile(this._instance, file);
+            dataset = this._store.add(_dataset); // We need to keep track of the reactive dataset!
+            this._notifications.push(
+                new Notification(dataset.name, 'Import done, parsing data...', 'success'),
+            );
+        } catch (e) {
+            console.error(e);
+            this._notifications.push(new Notification(file.name, (e as Error).message, 'error'));
+            return;
+        }
+
+        try {
             dataset.isPreloading = true;
-            this._store.add(dataset);
-
             await this.loadDataset(dataset);
-
-            this._store.remove(dataset);
-            dataset.isPreloading = false;
-            // FIXME: Not sure why it's not reactive
-            setTimeout(() => this._store.add(dataset), 0);
-
             this._notifications.push(
                 new Notification(dataset.name, 'Import successful.', 'success'),
             );
         } catch (e) {
-            console.error(e);
-            const error = e as Error;
-            this._notifications.push(new Notification(file.name, error.message, 'error'));
+            // Already logged, ignore
         }
     }
 
@@ -293,7 +295,8 @@ export default class DatasetManager {
                 if (layer && map) {
                     layer.visible = dataset.visible;
                     this._overlays.set(dataset.uuid, layer);
-                    map.addLayer(layer);
+
+                    await map.addLayer(layer);
 
                     this.onDatasetLoadedAsOverlay(dataset, layer);
                 }

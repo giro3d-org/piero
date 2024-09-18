@@ -240,6 +240,7 @@ const config: Configuration = {
             ],
         },
     ],
+    import_dataset_as_overlay: true,
     overlays: [
         {
             name: "Cours d'eau",

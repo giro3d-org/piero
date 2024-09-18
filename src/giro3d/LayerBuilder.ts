@@ -1,3 +1,4 @@
+import type { FeatureLike } from 'ol/Feature';
 import { GPX, KML, MVT, WMTSCapabilities, GeoJSON } from 'ol/format';
 import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
@@ -40,6 +41,18 @@ import type {
 } from '@/types/VectorStyle';
 import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
 import { LayerOptions } from '@/types/configuration/externals';
+import Fetcher from '@/utils/Fetcher';
+
+type OLGeometryType =
+    | 'Point'
+    | 'LineString'
+    | 'LinearRing'
+    | 'Polygon'
+    | 'MultiPoint'
+    | 'MultiLineString'
+    | 'MultiPolygon'
+    | 'GeometryCollection'
+    | 'Circle';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -106,30 +119,48 @@ async function getSource(
             return new GeoTIFFSource({
                 ...commonOptions,
                 url: getPublicFolderUrl(input.url),
-                crs: input.projection,
+                crs: input.dataProjection ?? input.projection,
             });
         }
         case 'geojson': {
+            const format = new GeoJSON();
+            const url =
+                input.url instanceof Blob
+                    ? await Fetcher.toDataURL(input.url)
+                    : getPublicFolderUrl(input.url);
+
             return new VectorSource({
                 ...commonOptions,
-                data: { url: getPublicFolderUrl(input.url), format: new GeoJSON() },
-                dataProjection: input.projection,
+                data: { url, format },
+                dataProjection: input.dataProjection ?? input.projection ?? 'EPSG:4326',
                 style: getStyle(input.style),
             });
         }
         case 'gpx': {
+            const format = new GPX();
+            const url =
+                input.url instanceof Blob
+                    ? await Fetcher.toDataURL(input.url)
+                    : getPublicFolderUrl(input.url);
+
             return new VectorSource({
                 ...commonOptions,
-                data: { url: getPublicFolderUrl(input.url), format: new GPX() },
-                dataProjection: input.projection,
+                data: { url, format },
+                dataProjection: input.dataProjection ?? input.projection ?? 'EPSG:4326',
                 style: getStyle(input.style),
             });
         }
         case 'kml': {
+            const format = new KML();
+            const url =
+                input.url instanceof Blob
+                    ? await Fetcher.toDataURL(input.url)
+                    : getPublicFolderUrl(input.url);
+
             return new VectorSource({
                 ...commonOptions,
-                data: { url: getPublicFolderUrl(input.url), format: new KML() },
-                dataProjection: input.projection,
+                data: { url, format },
+                dataProjection: input.dataProjection ?? input.projection ?? 'EPSG:4326',
                 style: getStyle(input.style),
             });
         }
@@ -164,10 +195,15 @@ async function getSource(
             });
         }
         case 'vector': {
+            const url =
+                input.url instanceof Blob
+                    ? await Fetcher.toDataURL(input.url)
+                    : getPublicFolderUrl(input.url);
+
             return new VectorSource({
                 ...commonOptions,
-                data: { url: getPublicFolderUrl(input.url), format: input.format },
-                dataProjection: input.projection,
+                data: { url, format: input.format },
+                dataProjection: input.dataProjection ?? input.projection ?? 'EPSG:4326',
                 style: getStyle(input.style),
             });
         }
@@ -176,7 +212,7 @@ async function getSource(
                 ...commonOptions,
                 source: new TileWMS({
                     url: input.url,
-                    projection: input.projection,
+                    projection: input.dataProjection ?? input.projection,
                     crossOrigin: 'anonymous',
                     params: {
                         LAYERS: Array.isArray(input.layer) ? input.layer : [input.layer],
@@ -194,7 +230,7 @@ async function getSource(
                 input.layer,
                 input.url,
                 input.format,
-                input.projection,
+                input.dataProjection ?? input.projection,
             );
             return new TiledImageSource({
                 ...commonOptions,
@@ -341,6 +377,9 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
 
 function getStyle(style: VectorStyle): Style | StyleFunction {
     if (typeof style === 'string') {
+        if (style === 'default') {
+            return (feature: FeatureLike) => getDefaultStyle(feature.getGeometry()?.getType());
+        }
         if (dynamicStyles[style] == null) {
             // As config is not checked against TS, we can't know if during build :(
             console.warn(`Could not find style ${style} in configuration`);
@@ -352,10 +391,12 @@ function getStyle(style: VectorStyle): Style | StyleFunction {
     return parseStaticStyle(style);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getDefaultStyle(geometry: string) {
+function getDefaultStyle(geometry?: OLGeometryType): Style {
+    if (geometry == null) return new Style();
+
     switch (geometry) {
-        case 'point':
+        case 'Point':
+        case 'MultiPoint':
             return new Style({
                 image: new Circle({
                     radius: 3,
@@ -367,7 +408,16 @@ function getDefaultStyle(geometry: string) {
                     }),
                 }),
             });
-        case 'polygon':
+        case 'LineString':
+        case 'MultiLineString':
+            return new Style({
+                stroke: new Stroke({
+                    color: 'yellow',
+                    width: 1,
+                }),
+            });
+        case 'Polygon':
+        case 'MultiPolygon':
             return new Style({
                 stroke: new Stroke({
                     color: 'black',
@@ -378,7 +428,8 @@ function getDefaultStyle(geometry: string) {
                 }),
             });
         default:
-            throw new Error('not implemented');
+            console.warn(`Geometry ${geometry} not supported`);
+            return new Style();
     }
 }
 

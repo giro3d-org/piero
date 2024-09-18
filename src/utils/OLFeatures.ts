@@ -48,7 +48,7 @@ export type SimpleFeature = Feature<SimpleGeometry>;
 async function readFeatures(
     data: string,
     format: FeatureFormat,
-    dataProjection: string,
+    dataProjection: string | undefined,
     featureProjection: string,
 ): Promise<FeatureLike[]> {
     const projIn = await Projections.loadProjCrsIfNeeded(dataProjection ?? 'EPSG:4326');

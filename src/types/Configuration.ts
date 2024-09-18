@@ -98,6 +98,11 @@ export interface Configuration {
      */
     datasets: DatasetOrGroupConfig[];
     /**
+     * When importing vector datasets, imports them as map overlays instead of 3D meshes.
+     * @defaultValue false
+     */
+    import_dataset_as_overlay?: boolean;
+    /**
      * Array of overlays to display on the 2.5D map - can be empty
      *
      * Overlays define data that are merged into the 2.5D map.
