@@ -11,7 +11,9 @@ export interface VectorAsMeshDatasetConfigBase<
     TDatasetType extends DatasetType,
     TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> & VectorSourceAsMeshConfig,
 > extends DatasetConfigBase<TDatasetType>,
-        DatasetConfigBaseWithSources<TDatasetType, TSourceConfigType> {}
+        DatasetConfigBaseWithSources<TDatasetType, TSourceConfigType> {
+    loadAsOverlay?: never;
+}
 
 export interface VectorAsLayerDatasetConfigBase<
     TDatasetType extends DatasetType,

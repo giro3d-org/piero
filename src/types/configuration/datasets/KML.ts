@@ -1,4 +1,7 @@
-import { KMLSourceConfig } from '../sources/kml';
-import { DatasetConfigBaseWithSources } from './core/baseConfig';
+import { KMLAsLayerSourceConfig, KMLAsMeshSourceConfig } from '../sources/kml';
+import { VectorAsLayerDatasetConfigBase, VectorAsMeshDatasetConfigBase } from './core/vector';
 
-export interface KMLDatasetConfig extends DatasetConfigBaseWithSources<'kml', KMLSourceConfig> {}
+export interface KMLAsMeshDatasetConfig
+    extends VectorAsMeshDatasetConfigBase<'kml', KMLAsMeshSourceConfig> {}
+export interface KMLAsLayerDatasetConfig
+    extends VectorAsLayerDatasetConfigBase<'kml', KMLAsLayerSourceConfig> {}

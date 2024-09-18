@@ -196,15 +196,16 @@ export default class DatasetManager {
     private async importFromFile(file: File) {
         try {
             this._notifications.push(new Notification(file.name, 'Importing file...'));
-            const { dataset, entity } = await loader.importFile(this._instance, file);
-
-            this._entities.set(dataset.uuid, entity);
-            this._instance.add(entity);
-            this._instance.notifyChange(entity);
-
+            const dataset = await loader.importFile(this._instance, file);
+            dataset.isPreloading = true;
             this._store.add(dataset);
 
-            this.onDatasetLoaded(dataset, entity);
+            await this.loadDataset(dataset);
+
+            this._store.remove(dataset);
+            dataset.isPreloading = false;
+            // FIXME: Not sure why it's not reactive
+            setTimeout(() => this._store.add(dataset), 0);
 
             this._notifications.push(
                 new Notification(dataset.name, 'Import successful.', 'success'),

@@ -1,5 +1,7 @@
-import { GeoJSONSourceConfig } from '../sources/geojson';
-import type { DatasetConfigBaseWithSources } from './core/baseConfig';
+import { GeoJSONAsLayerSourceConfig, GeoJSONAsMeshSourceConfig } from '../sources/geojson';
+import { VectorAsLayerDatasetConfigBase, VectorAsMeshDatasetConfigBase } from './core/vector';
 
-export interface GeoJSONDatasetConfig
-    extends DatasetConfigBaseWithSources<'geojson', GeoJSONSourceConfig> {}
+export interface GeoJSONAsMeshDatasetConfig
+    extends VectorAsMeshDatasetConfigBase<'geojson', GeoJSONAsMeshSourceConfig> {}
+export interface GeoJSONAsLayerDatasetConfig
+    extends VectorAsLayerDatasetConfigBase<'geojson', GeoJSONAsLayerSourceConfig> {}

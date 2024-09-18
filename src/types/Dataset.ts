@@ -1,4 +1,6 @@
 import { EventDispatcher, MathUtils } from 'three';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
 
 import { isObject } from '@/utils/Types';
 import type {
@@ -11,7 +13,6 @@ import type {
     DatasetCascadingConfig,
     OnObjectPreloaded,
 } from './configuration/datasets/core/baseConfig';
-import { ColorLayer, MaskLayer } from '@giro3d/giro3d/core/layer';
 
 export type DatasetOrGroupType = DatasetType | 'group';
 export type DatasetLayer = ColorLayer | MaskLayer;

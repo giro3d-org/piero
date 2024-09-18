@@ -9,11 +9,11 @@ import type {
 import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/BDTopo';
 import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJSON';
 import type { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
-import type { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
+import type { GeoJSONAsMeshDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
 import type { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
 import type { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/GPX';
 import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
-import type { KMLDatasetConfig } from '@/types/configuration/datasets/KML';
+import type { KMLAsMeshDatasetConfig } from '@/types/configuration/datasets/KML';
 import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
 import type { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
 import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
@@ -133,7 +133,7 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
         case 'geojson': {
             entity = new GeoJSONLoader().load(
                 instance,
-                dataset as DatasetBase<GeoJSONDatasetConfig>,
+                dataset as DatasetBase<GeoJSONAsMeshDatasetConfig>,
             );
             break;
         }
@@ -153,7 +153,7 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
             break;
         }
         case 'kml': {
-            entity = new KMLLoader().load(instance, dataset as DatasetBase<KMLDatasetConfig>);
+            entity = new KMLLoader().load(instance, dataset as DatasetBase<KMLAsMeshDatasetConfig>);
             break;
         }
         case 'las': {
@@ -225,7 +225,7 @@ async function loadDatasetAsOverlay(
  * @returns Created objects
  * @throws `Error` if file cannot be imported (unsupported, etc.)
  */
-async function importFile(instance: Instance, file: File): Promise<ImportFileResult> {
+async function importFile(instance: Instance, file: File): Promise<Dataset> {
     const fileinfo = getFilename(file);
 
     if (fileinfo.filename == null || fileinfo.fileext == null) {
@@ -235,20 +235,116 @@ async function importFile(instance: Instance, file: File): Promise<ImportFileRes
         throw new Error(`File ${fileinfo.fileext} not supported`);
     }
 
-    const datasetConfig = {
-        type: fileinfo.datasetType,
+    let datasetConfig: DatasetConfigImportable;
+
+    const commonConfig = {
         name: fileinfo.filename,
         visible: true,
-        source: {
-            type: fileinfo.datasetType,
-            url: file,
-        },
-    } as DatasetConfigImportable;
+    };
 
-    const dataset = new Dataset(datasetConfig);
-    const entity = await loadDataset(instance, dataset);
+    switch (fileinfo.datasetType) {
+        case 'cityjson':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'cityjson',
+                source: {
+                    type: 'cityjson',
+                    url: file,
+                },
+            };
+            break;
+        case 'geojson':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'geojson',
+                source: {
+                    type: 'geojson',
+                    url: file,
+                    fetchElevation: true,
+                },
+            };
+            break;
+        case 'gpkg':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'gpkg',
+                source: {
+                    type: 'gpkg',
+                    url: file,
+                    fetchElevation: true,
+                },
+            };
+            break;
+        case 'gpx':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'gpx',
+                source: {
+                    type: 'gpx',
+                    url: file,
+                    fetchElevation: true,
+                },
+            };
+            break;
+        case 'ifc':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'ifc',
+                source: {
+                    type: 'ifc',
+                    url: file,
+                },
+            };
+            break;
+        case 'las':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'las',
+                source: {
+                    type: 'las',
+                    url: file,
+                },
+            };
+            break;
+        case 'kml':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'kml',
+                source: {
+                    type: 'kml',
+                    url: file,
+                    fetchElevation: true,
+                },
+            };
+            break;
+        case 'pointcloud-csv':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'pointcloud-csv',
+                source: {
+                    type: 'pointcloud-csv',
+                    url: file,
+                },
+            };
+            break;
+        case 'shp':
+            datasetConfig = {
+                ...commonConfig,
+                type: 'shp',
+                source: {
+                    type: 'shp',
+                    url: file,
+                },
+            };
+            break;
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = fileinfo.datasetType;
+            return _exhaustiveCheck;
+        }
+    }
 
-    return { entity, dataset };
+    return new Dataset(datasetConfig);
 }
 
 export default {

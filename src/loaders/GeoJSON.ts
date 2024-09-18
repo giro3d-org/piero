@@ -7,13 +7,13 @@ import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
 import { LoaderMultiple } from './core/LoaderCore';
 import { OLLoaderImpl, type OLLoaderImplParameters } from './core/OLLoader';
-import type { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
+import type { GeoJSONAsMeshDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
 import type {
     DatasetSourceConfigDataProjection,
     DatasetSourceConfigElevation,
 } from '@/types/configuration/datasets/core/baseConfig';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
-import { GeoJSONSourceConfig } from '@/types/configuration/sources/geojson';
+import { GeoJSONAsMeshSourceConfig } from '@/types/configuration/sources/geojson';
 
 /** Dataset configuration usable with {@link getImplParameters} */
 export interface GeoJSONCompatibleDatasetConfig
@@ -119,11 +119,11 @@ export const GeoJSONLoaderImpl = {
 /**
  * GeoJSON loader
  */
-export class GeoJSONLoader extends LoaderMultiple<'geojson', GeoJSONDatasetConfig> {
+export class GeoJSONLoader extends LoaderMultiple<'geojson', GeoJSONAsMeshDatasetConfig> {
     async loadOne(
         instance: Instance,
-        source: GeoJSONSourceConfig,
-        dataset: DatasetBase<GeoJSONDatasetConfig>,
+        source: GeoJSONAsMeshSourceConfig,
+        dataset: DatasetBase<GeoJSONAsMeshDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as GeoJSON
         const json = await GeoJSONLoaderImpl.fetch(source.url);

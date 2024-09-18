@@ -148,7 +148,7 @@ const config: Configuration = {
             type: 'kml',
             name: 'Sytral lines (KML)',
             visible: false,
-            sources: {
+            source: {
                 type: 'kml',
                 projection: 'EPSG:4326',
                 url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',

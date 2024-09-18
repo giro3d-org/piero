@@ -145,9 +145,9 @@ export abstract class LoaderMultipleBase<
     TOutputSingle extends Object3D,
 > extends LoaderCore<TType, TConfig, TOutput> {
     async load(instance: Instance, dataset: DatasetBase<TConfig>): Promise<TOutput> {
-        const sources = Array.isArray(dataset.config.sources)
-            ? dataset.config.sources
-            : [dataset.config.sources];
+        const sources = Array.isArray(dataset.config.source)
+            ? dataset.config.source
+            : [dataset.config.source];
         const promises = sources.map(async source => {
             const context = this.getContext(
                 instance,

@@ -36,7 +36,7 @@ export interface DatasetConfigBaseWithSources<
     TDatasetType extends string,
     TSourceConfigType extends DatasetSourceConfigBase<TDatasetType>,
 > extends DatasetConfigBase<TDatasetType> {
-    sources: TSourceConfigType | TSourceConfigType[];
+    source: TSourceConfigType | TSourceConfigType[];
 }
 
 export interface DatasetSourceConfigUrl {

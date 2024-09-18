@@ -61,12 +61,19 @@ export const useDatasetStore = defineStore('datasets', () => {
         const box = new Box3();
         dataset.traverse(ds => {
             const entity = entities.get(ds.uuid);
-            if (!entity) return;
+            const localBox = entity?.getBoundingBox();
+            if (localBox && !localBox.isEmpty()) {
+                box.union(localBox);
+                return;
+            }
 
-            const localBox = entity.getBoundingBox();
-            if (!localBox || localBox.isEmpty()) return;
-
-            box.union(localBox);
+            const layer = layers.get(ds.uuid);
+            const layerExtent = layer?.getExtent()?.as(config.default_crs);
+            if (layerExtent && layerExtent.isValid()) {
+                const localBox = layerExtent.toBox3(0, 0);
+                box.union(localBox);
+                return;
+            }
         });
         return box;
     }

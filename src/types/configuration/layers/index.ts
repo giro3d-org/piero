@@ -5,9 +5,9 @@ import type {
 } from '@/types/configuration/layers/core/baseConfig';
 import type { BingMapsSourceConfig } from '@/types/configuration/sources/bingMaps';
 import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
-import type { GeoJSONSourceConfig } from '@/types/configuration/sources/geojson';
+import type { GeoJSONAsLayerSourceConfig } from '@/types/configuration/sources/geojson';
 import type { GPXAsLayerSourceConfig } from '@/types/configuration/sources/gpx';
-import type { KMLSourceConfig } from '@/types/configuration/sources/kml';
+import type { KMLAsLayerSourceConfig } from '@/types/configuration/sources/kml';
 import type { MVTSourceConfig } from '@/types/configuration/sources/mvt';
 import type { OSMSourceConfig } from '@/types/configuration/sources/osm';
 import type { StadiaMapsSourceConfig } from '@/types/configuration/sources/stadiaMaps';
@@ -21,9 +21,9 @@ import { CustomVectorTileSourceConfig } from './core/vectorTile';
 export type LayerSourceConfig =
     | BingMapsSourceConfig
     | GeoTIFFSourceConfig
-    | GeoJSONSourceConfig
+    | GeoJSONAsLayerSourceConfig
     | GPXAsLayerSourceConfig
-    | KMLSourceConfig
+    | KMLAsLayerSourceConfig
     | MVTSourceConfig
     | OSMSourceConfig
     | StadiaMapsSourceConfig
