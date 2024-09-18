@@ -17,9 +17,11 @@ import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
 import { Datagroup, type DatasetLayer, type DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
+import type LayerManager from './LayerManager';
 
 export default class DatasetManager {
     private readonly _instance: Instance;
+    private readonly _layerManager: LayerManager;
     private readonly _entities: Map<string, Entity3D> = new Map();
     private readonly _overlays: Map<string, DatasetLayer> = new Map();
     private readonly _axisGrids: Map<string, AxisGrid> = new Map();
@@ -27,8 +29,9 @@ export default class DatasetManager {
     private readonly _store = useDatasetStore();
     private readonly _notifications = useNotificationStore();
 
-    constructor(instance: Instance) {
+    constructor(instance: Instance, layerManager: LayerManager) {
         this._instance = instance;
+        this._layerManager = layerManager;
 
         this._store.$onAction(({ name, args, after }) => {
             after(() => {
@@ -61,12 +64,6 @@ export default class DatasetManager {
 
     dispose() {
         // Nothing to do (?)
-    }
-
-    private getMap(): Giro3DMap | undefined {
-        return this._instance.getEntities(e => (e as Giro3DMap).isMap).at(0) as
-            | Giro3DMap
-            | undefined;
     }
 
     private createGrid(dataset: DatasetOrGroup) {
@@ -238,7 +235,7 @@ export default class DatasetManager {
         const layer = this._overlays.get(dataset.uuid);
         if (layer) {
             layer.visible = dataset.visible;
-            this._instance.notifyChange(this.getMap());
+            this._layerManager.notify(layer);
         }
     }
 
@@ -254,9 +251,7 @@ export default class DatasetManager {
 
         const layer = this._overlays.get(dataset.uuid);
         if (layer) {
-            const map = this.getMap();
-            map?.removeLayer(layer);
-            this._instance.notifyChange(map);
+            this._layerManager.removeBasemapLayer(layer);
         }
     }
 
@@ -291,12 +286,11 @@ export default class DatasetManager {
         try {
             if (datasetSupportsOverlay(dataset)) {
                 const layer = await loader.loadDatasetAsOverlay(this._instance, dataset);
-                const map = this.getMap();
-                if (layer && map) {
+                if (layer) {
                     layer.visible = dataset.visible;
                     this._overlays.set(dataset.uuid, layer);
 
-                    await map.addLayer(layer);
+                    await this._layerManager.addDatasetLayer(layer);
 
                     this.onDatasetLoadedAsOverlay(dataset, layer);
                 }

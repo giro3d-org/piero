@@ -36,6 +36,7 @@ export default class LayerManager extends EventDispatcher {
 
     private readonly _baseLayers: Map<string, BasemapLayer>;
     private readonly _overlays: Map<string, ColorLayer>;
+    private readonly _datasetLayers: Set<string>;
 
     private readonly _boundOnAfterCameraUpdate: () => void;
 
@@ -45,6 +46,7 @@ export default class LayerManager extends EventDispatcher {
         this._instance = instance;
         this._baseLayers = new Map();
         this._overlays = new Map();
+        this._datasetLayers = new Set();
 
         const extent = this._giro3dStore.getDefaultBasemapExtent();
         const mapOptions = this._giro3dStore.getDefaultBasemapOptions();
@@ -139,9 +141,16 @@ export default class LayerManager extends EventDispatcher {
         this._instance.notifyChange(layer);
     }
 
-    private removeBasemapLayer(layer: BasemapLayer) {
+    removeBasemapLayer(layer: BasemapLayer) {
+        this._datasetLayers.delete(layer.id);
         this._basemap.removeLayer(layer, { disposeLayer: true });
         this._instance.notifyChange(this._basemap);
+    }
+
+    async addDatasetLayer(layer: BasemapLayer) {
+        this._datasetLayers.add(layer.id);
+        await this._basemap.addLayer(layer);
+        this.updateLayerOrdering();
     }
 
     get extent() {
@@ -301,6 +310,8 @@ export default class LayerManager extends EventDispatcher {
                 .getOverlays()
                 .map(layer => this._overlays.get(layer.uuid)?.id)
                 .reverse(),
+            // And finally add layers coming from datasets
+            ...[...this._datasetLayers.values()].reverse(),
         ];
 
         this._basemap.sortColorLayers((a: Layer, b: Layer) => {
