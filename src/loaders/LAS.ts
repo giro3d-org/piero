@@ -5,12 +5,11 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
-import {
-    PointCloudLoaderImpl,
-    type PointCloudLoaderParameters,
-    type PointCloudLoaderImplParameters,
-} from './core/PointCloudLoader';
-import { Loader, type UrlParams } from './core/LoaderCore';
+import { PointCloudLoaderImpl } from './core/PointCloudLoader';
+import { Loader } from './core/LoaderCore';
+import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
+import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { DatasetBase } from '@/types/Dataset';
 
 /**
  * Fetches data via loaders.gl loader.
@@ -27,7 +26,7 @@ async function fetchLAS(url: UrlOrData): Promise<TypedArray> {
 }
 
 /**
- * LAS loader
+ * LAS internal loader
  */
 export const LASLoaderImpl = {
     fetch: fetchLAS,
@@ -36,16 +35,14 @@ export const LASLoaderImpl = {
 /**
  * LAS loader
  */
-export class LASLoader extends Loader<PointCloudLoaderParameters, Entity3D> {
+export class LASLoader extends Loader<LASDatasetConfig, Entity3D> {
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: PointCloudLoaderParameters & UrlParams,
+        config: LASDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        dataset: DatasetBase<LASDatasetConfig>,
     ): Promise<Entity3D> {
-        const implParameters: PointCloudLoaderImplParameters = {
-            ...parameters,
-            featureProjection: instance.referenceCrs,
-        };
-        const data = await LASLoaderImpl.fetch(url);
+        const data = await LASLoaderImpl.fetch(config.url);
+        const implParameters = PointCloudLoaderImpl.getImplParameters(instance, config, dataset);
         const entity = PointCloudLoaderImpl.toEntity(data, implParameters);
         return entity;
     }

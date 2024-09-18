@@ -8,17 +8,14 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import CityJSONEntity from '@/giro3d/CityJSONEntity';
 import Fetcher from '@/utils/Fetcher';
 import Projections from '@/utils/Projections';
-import { Loader, type UrlParams } from './core/LoaderCore';
+import { Loader } from './core/LoaderCore';
+import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJSON';
 
-/** Parameters for creating CityJSON objects */
-export type CityJSONParameters = {
-    /** Projection to use (if not provided in the file) */
+/** Parameters for creating a CityJSON entity */
+export interface CityJSONImplParameters {
     dataProjection?: string;
-};
-
-export type CityJSONImplParameters = CityJSONParameters & {
     featureProjection: string;
-};
+}
 
 /**
  * Converts a loaded CityJSON model into an Entity
@@ -86,7 +83,7 @@ function toEntity(json: any, parameters: CityJSONImplParameters): Promise<CityJS
 }
 
 /**
- * CityJSON loader
+ * CityJSON internal loader
  */
 export const CityJSONLoaderImpl = {
     fetch: Fetcher.fetchJson,
@@ -96,14 +93,11 @@ export const CityJSONLoaderImpl = {
 /**
  * CityJSON loader
  */
-export class CityJSONLoader extends Loader<CityJSONParameters, CityJSONEntity> {
-    async loadOne(
-        instance: Instance,
-        { url, ...parameters }: CityJSONParameters & UrlParams,
-    ): Promise<CityJSONEntity> {
-        const json = await CityJSONLoaderImpl.fetch(url);
+export class CityJSONLoader extends Loader<CityJSONDatasetConfig, CityJSONEntity> {
+    async loadOne(instance: Instance, config: CityJSONDatasetConfig): Promise<CityJSONEntity> {
+        const json = await CityJSONLoaderImpl.fetch(config.url);
         const entity = await CityJSONLoaderImpl.toEntity(json, {
-            ...parameters,
+            dataProjection: config.dataProjection,
             featureProjection: instance.referenceCrs,
         });
         return entity;

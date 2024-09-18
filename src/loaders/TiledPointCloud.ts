@@ -5,6 +5,8 @@ import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMate
 
 import config from '@/config';
 import LoaderCore from './core/LoaderCore';
+import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
+import type { DatasetBase } from '@/types/Dataset';
 import { getColorMap } from '@/utils/Configuration';
 
 /** Parameters for creating Tiled PointCloud object */
@@ -18,18 +20,19 @@ export type TiledPointCloudParameters = {
 /**
  * Tiled point cloud loader
  */
-export class TiledPointCloudLoader extends LoaderCore<TiledPointCloudParameters, Tiles3D> {
-    load(instance: Instance, parameters: TiledPointCloudParameters): Promise<Tiles3D> {
+export class TiledPointCloudLoader extends LoaderCore<TiledPointCloudDatasetConfig, Tiles3D> {
+    load(instance: Instance, dataset: DatasetBase<TiledPointCloudDatasetConfig>): Promise<Tiles3D> {
         const material = new PointCloudMaterial({
             size: 2,
             mode: MODE.ELEVATION,
         });
         material.colorMap = getColorMap(config.pointcloud);
 
-        const pointcloud = new Tiles3D(new Tiles3DSource(parameters.url), { material });
-        pointcloud.name = `pointcloud-${parameters.name}`;
-        this._fillObject3DUserData(pointcloud, { filename: parameters.url });
-
+        const pointcloud = new Tiles3D(new Tiles3DSource(dataset.config.url), {
+            material,
+        });
+        pointcloud.name = `pointcloud-${dataset.name}`;
+        this._fillObject3DUserData(pointcloud, { filename: dataset.config.url });
         return Promise.resolve(pointcloud);
     }
 }

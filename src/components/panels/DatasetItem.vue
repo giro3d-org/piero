@@ -99,10 +99,8 @@
             <IconListButton
                 v-if="
                     isPreloaded &&
-                    (('canMaskBasemap' in dataset.parameters &&
-                        dataset.parameters.canMaskBasemap) ||
-                        ('isMaskingBasemap' in dataset.parameters &&
-                            dataset.parameters.isMaskingBasemap))
+                    (('canMaskBasemap' in dataset.config && dataset.config.canMaskBasemap) ||
+                        ('isMaskingBasemap' in dataset.config && dataset.config.isMaskingBasemap))
                 "
                 title="Toggle basemap masking"
                 icon="bi-mask"

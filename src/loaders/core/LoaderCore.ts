@@ -1,12 +1,13 @@
 import { Group, type Object3D } from 'three';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
-
-/** Parameters type for loaders taking a URL-like parameter */
-export type UrlParams = { url: UrlOrData };
-/** Parameters type for loaders taking multiple URL-like parameter */
-export type UrlsParams = { url: UrlOrData | UrlOrData[] };
+import Fetcher from '@/utils/Fetcher';
+import type {
+    DatasetConfigWithMultipleUrlOrData,
+    DatasetConfigWithSingleUrlOrData,
+} from '@/types/configuration/datasets/core/baseConfig';
+import type { DatasetConfig } from '@/types/configuration/datasets';
+import type { DatasetBase } from '@/types/Dataset';
 
 /** User data to be set on the loaded entities */
 export interface UserData {
@@ -18,19 +19,19 @@ export interface UserData {
  * Base class for implementing any Loader for Piero.
  * A Loader enables loading datasets, both from configuration and from the UI (drag and drop, URL, etc.).
  *
- * @typeParam TParams - Expected parameters for loading
+ * @typeParam TConfig - Configuration type of the dataset
  * @typeParam TOutput - Output type of the loader
  */
-abstract class LoaderCore<TParams extends object, TOutput extends Entity3D> {
+abstract class LoaderCore<TConfig extends DatasetConfig, TOutput extends Entity3D> {
     /**
      * Loading method.
      * To fully integrate into the app, this function must call _fillObject3DUserData once done to
      * fill the origin of the dataset.
      * @param instance - Giro3D instance
-     * @param parameters - Parameters
+     * @param dataset - Dataset to load
      * @returns Pre-loaded entity, ready to be added into the scene
      */
-    abstract load(instance: Instance, parameters: TParams): Promise<TOutput>;
+    abstract load(instance: Instance, dataset: DatasetBase<TConfig>): Promise<TOutput>;
 
     /**
      * Fills the userData object
@@ -48,19 +49,19 @@ abstract class LoaderCore<TParams extends object, TOutput extends Entity3D> {
 }
 
 /**
- * Base class for generic Loaders that generate 1 Entity per file.
+ * Base class for generic Loaders that generate 1 Entity per dataset.
  *
- * @typeParam TParams - Expected parameters for loading
+ * @typeParam TConfig - Configuration type of the dataset
  * @typeParam TOutput - Output type of the loader
  */
-export abstract class Loader<TParams extends object, TOutput extends Entity3D> extends LoaderCore<
-    TParams,
-    TOutput
-> {
-    async load(instance: Instance, parameters: TParams & UrlParams): Promise<TOutput> {
-        const context = Fetcher.getContext(parameters.url);
+export abstract class Loader<
+    TConfig extends DatasetConfig & DatasetConfigWithSingleUrlOrData,
+    TOutput extends Entity3D,
+> extends LoaderCore<TConfig, TOutput> {
+    async load(instance: Instance, dataset: DatasetBase<TConfig>): Promise<TOutput> {
+        const context = Fetcher.getContext(dataset.config.url);
 
-        const entity = await this.loadOne(instance, parameters);
+        const entity = await this.loadOne(instance, dataset.config, dataset);
         this._fillObject3DUserData(entity, { filename: context.baseUrl });
         return entity;
     }
@@ -68,30 +69,35 @@ export abstract class Loader<TParams extends object, TOutput extends Entity3D> e
     /**
      * Method to load a file and generate the entity.
      * @param instance - Giro3D instance
-     * @param parameters - Parameters
+     * @param config - Dataset configuration
+     * @param dataset - Dataset to load
      * @returns Pre-loaded entity, ready to be added into the scene
      */
-    abstract loadOne(instance: Instance, parameters: TParams & UrlParams): Promise<TOutput>;
+    abstract loadOne(
+        instance: Instance,
+        config: TConfig,
+        dataset: DatasetBase<TConfig>,
+    ): Promise<TOutput>;
 }
 
 /**
  * Base class for generic Loaders that can merge multiple files into 1 Entity.
  *
- * @typeParam TParams - Expected parameters for loading
+ * @typeParam TConfig - Configuration type of the dataset
  * @typeParam TOutput - Output type of the loader
  * @typeParam TOutputSingle - Intermediate output type, per file
  */
 export abstract class LoaderMultipleBase<
-    TParams extends object,
+    TConfig extends DatasetConfig & DatasetConfigWithMultipleUrlOrData,
     TOutput extends Entity3D,
     TOutputSingle extends Object3D,
-> extends LoaderCore<TParams, TOutput> {
-    async load(instance: Instance, { url, ...parameters }: TParams & UrlsParams): Promise<TOutput> {
-        const urls = Array.isArray(url) ? url : [url];
+> extends LoaderCore<TConfig, TOutput> {
+    async load(instance: Instance, dataset: DatasetBase<TConfig>): Promise<TOutput> {
+        const urls = Array.isArray(dataset.config.url) ? dataset.config.url : [dataset.config.url];
         const promises = urls.map(async u => {
             const context = Fetcher.getContext(u);
-            const params = { ...parameters, url: u } as TParams & UrlParams;
-            const loaded = await this.loadOne(instance, params);
+            const params = { ...dataset.config, url: u };
+            const loaded = await this.loadOne(instance, params, dataset);
             this._fillObject3DUserData(loaded, { filename: context.baseUrl });
             return loaded;
         });
@@ -102,10 +108,15 @@ export abstract class LoaderMultipleBase<
     /**
      * Method to load a file and generate the intermediate output.
      * @param instance - Giro3D instance
-     * @param parameters - Parameters
+     * @param config - Dataset configuration
+     * @param dataset - Dataset to load
      * @returns Intermediate output per-file
      */
-    abstract loadOne(instance: Instance, parameters: TParams & UrlParams): Promise<TOutputSingle>;
+    abstract loadOne(
+        instance: Instance,
+        config: TConfig & DatasetConfigWithSingleUrlOrData,
+        dataset: DatasetBase<TConfig>,
+    ): Promise<TOutputSingle>;
     /**
      * Method to merge one or multiple intermediate outputs into 1 Entity
      * @param outputs - Intermediate outputs per-file
@@ -119,13 +130,11 @@ export abstract class LoaderMultipleBase<
  * This is a simplified version of {@link LoaderMultipleBase}, where intermediate outputs are
  * `Group`s and the resulting output is a `Entity3D`.
  *
- * @typeParam TParams - Expected parameters for loading
+ * @typeParam TConfig - Configuration type of the dataset
  */
-export abstract class LoaderMultiple<TParams extends object> extends LoaderMultipleBase<
-    TParams,
-    Entity3D,
-    Group
-> {
+export abstract class LoaderMultiple<
+    TConfig extends DatasetConfig & DatasetConfigWithMultipleUrlOrData,
+> extends LoaderMultipleBase<TConfig, Entity3D, Group> {
     merge(inputs: Group[]): Promise<Entity3D> {
         const root = new Group();
         inputs.forEach(child => root.add(child));

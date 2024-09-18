@@ -1,27 +1,23 @@
 import { FillStyle } from '@giro3d/giro3d/core/FeatureTypes';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import { GeoJSON } from 'ol/format';
+import { tile } from 'ol/loadingstrategy.js';
+import { createXYZ } from 'ol/tilegrid.js';
+import type Feature from 'ol/Feature';
+import VectorSource from 'ol/source/Vector';
+import { Color } from 'three';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 
-import Feature from 'ol/Feature';
-import { GeoJSON } from 'ol/format';
-import { tile } from 'ol/loadingstrategy.js';
-import VectorSource from 'ol/source/Vector';
-import { createXYZ } from 'ol/tilegrid.js';
-
-import { Color } from 'three';
-
 import LoaderCore from './core/LoaderCore';
+import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/BDTopo';
+import type { DatasetBase } from '@/types/Dataset';
 
-/** Parameters for creating BDTopo object */
-export type BDTopoParameters = {
-    /** Name of the entity */
+/** Parameters for creating a BDTopo entity */
+export interface BDTopoImplParameters {
     name: string;
-};
-
-export type BDTopoImplParameters = BDTopoParameters & {
     featureProjection: string;
-};
+}
 
 /**
  * Generates the BDTopo entity
@@ -95,7 +91,7 @@ function toEntity(parameters: BDTopoImplParameters): Promise<FeatureCollection> 
 }
 
 /**
- * BDTopo Loader
+ * BDTopo internal loader
  */
 export const BDTopoLoaderImpl = {
     toEntity,
@@ -104,10 +100,13 @@ export const BDTopoLoaderImpl = {
 /**
  * BDTopo Loader
  */
-export class BDTopoLoader extends LoaderCore<BDTopoParameters, FeatureCollection> {
-    async load(instance: Instance, parameters: BDTopoParameters): Promise<FeatureCollection> {
+export class BDTopoLoader extends LoaderCore<BDTopoDatasetConfig, FeatureCollection> {
+    async load(
+        instance: Instance,
+        dataset: DatasetBase<BDTopoDatasetConfig>,
+    ): Promise<FeatureCollection> {
         const entity = await BDTopoLoaderImpl.toEntity({
-            ...parameters,
+            name: dataset.name,
             featureProjection: instance.referenceCrs,
         });
         this._fillObject3DUserData(entity, { filename: 'BDTOPO_V3:batiment' });

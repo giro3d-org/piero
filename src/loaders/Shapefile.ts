@@ -3,15 +3,18 @@ import { ShapefileLoader as ShapefileGLLoader } from '@loaders.gl/shapefile';
 import { type Group } from 'three';
 import type Instance from '@giro3d/giro3d/core/Instance';
 
-import { GeoJSONLoaderImpl, type GeoJSONParameters, type GeoJSONImplParameters } from './GeoJSON';
-import { LoaderMultiple, type UrlParams } from './core/LoaderCore';
+import { GeoJSONLoaderImpl } from './GeoJSON';
+import { LoaderMultiple } from './core/LoaderCore';
 import { OLLoaderImpl } from './core/OLLoader';
 import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
+import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
+import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { DatasetBase } from '@/types/Dataset';
 
-export type ShapefileParameters = Omit<GeoJSONParameters, 'dataProjection'>;
-export type ShapefileImplParameters = {
+/** Parameters for creating Shapefile entities */
+export interface ShapefileImplParameters {
     featureProjection: string;
-};
+}
 
 /**
  * Fetches data via loaders.gl loader.
@@ -39,7 +42,7 @@ async function fetchShp(
 }
 
 /**
- * Shapefile loader.
+ * Shapefile internal loader.
  * @see GeoJSONLoaderImpl for post-processing
  */
 export const ShapefileLoaderImpl = {
@@ -49,20 +52,22 @@ export const ShapefileLoaderImpl = {
 /**
  * Shapefile loader.
  */
-export class ShapefileLoader extends LoaderMultiple<ShapefileParameters> {
+export class ShapefileLoader extends LoaderMultiple<ShapefileDatasetConfig> {
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: ShapefileParameters & UrlParams,
+        config: ShapefileDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        dataset: DatasetBase<ShapefileDatasetConfig>,
     ): Promise<Group> {
-        const features = await ShapefileLoaderImpl.fetch(url, {
+        // First, get the data as a list of GeoJSON features
+        const features = await ShapefileLoaderImpl.fetch(config.url, {
             featureProjection: instance.referenceCrs,
         });
-        const implParameters: GeoJSONImplParameters = {
-            ...parameters,
-            dataProjection: instance.referenceCrs,
-            featureProjection: instance.referenceCrs,
-        };
+
+        // Convert them into OpenLayers features
+        const implParameters = GeoJSONLoaderImpl.getImplParameters(instance, config, dataset);
         const olFeatures = await GeoJSONLoaderImpl.toOlFeatures(features, implParameters);
+
+        // And create our ThreeJS Group
         const group = await OLLoaderImpl.toGroup(olFeatures, implParameters);
         return group;
     }

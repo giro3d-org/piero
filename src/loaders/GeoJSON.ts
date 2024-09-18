@@ -5,15 +5,23 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import Fetcher from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
-import { LoaderMultiple, type UrlParams } from './core/LoaderCore';
-import { OLLoaderImpl, type OLLoaderParameters } from './core/OLLoader';
+import { LoaderMultiple } from './core/LoaderCore';
+import { OLLoaderImpl, type OLLoaderImplParameters } from './core/OLLoader';
+import type { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
+import type {
+    DatasetConfigWithDataProjection,
+    DatasetConfigWithElevation,
+    DatasetConfigWithSingleUrlOrData,
+} from '@/types/configuration/datasets/core/baseConfig';
+import type { Dataset, DatasetBase } from '@/types/Dataset';
 
-/** Parameters for creating GeoJSON object */
-export type GeoJSONParameters = OLLoaderParameters;
+/** Dataset configuration usable with {@link getImplParameters} */
+export interface GeoJSONCompatibleDatasetConfig
+    extends DatasetConfigWithDataProjection,
+        DatasetConfigWithElevation {}
 
-export type GeoJSONImplParameters = GeoJSONParameters & {
-    featureProjection: string;
-};
+/** Parameters for creating GeoJSON entities */
+export interface GeoJSONImplParameters extends OLLoaderImplParameters {}
 
 const geojsonFormat = new GeoJSONFormat();
 
@@ -84,30 +92,50 @@ async function toOlFeatures(
     return simpleFeatures;
 }
 
+function getImplParameters<TConfig extends GeoJSONCompatibleDatasetConfig>(
+    instance: Instance,
+    parameters: TConfig,
+    dataset: Dataset,
+): GeoJSONImplParameters {
+    return {
+        dataProjection: parameters.dataProjection ?? dataset.get('dataProjection'),
+        elevation: parameters.elevation ?? dataset.get('elevation'),
+        fetchElevation: parameters.fetchElevation ?? dataset.get('fetchElevation'),
+        fetchElevationFast: parameters.fetchElevationFast ?? dataset.get('fetchElevationFast'),
+        featureProjection: instance.referenceCrs,
+    };
+}
+
 /**
- * GeoJSON loader
+ * GeoJSON internal loader
  */
 export const GeoJSONLoaderImpl = {
     fetch: Fetcher.fetchJson<GeoJSON.GeoJSON>,
     toGeoJSONFeatures,
     toOlFeatures,
+    getImplParameters,
 };
 
 /**
  * GeoJSON loader
  */
-export class GeoJSONLoader extends LoaderMultiple<GeoJSONParameters> {
+export class GeoJSONLoader extends LoaderMultiple<GeoJSONDatasetConfig> {
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: GeoJSONParameters & UrlParams,
+        config: GeoJSONDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        dataset: DatasetBase<GeoJSONDatasetConfig>,
     ): Promise<Group> {
-        const json = await GeoJSONLoaderImpl.fetch(url);
+        // First, get the data as GeoJSON
+        const json = await GeoJSONLoaderImpl.fetch(config.url);
+
+        // Convert them into a list of GeoJSON features
         const features = GeoJSONLoaderImpl.toGeoJSONFeatures(json);
-        const implParameters: GeoJSONImplParameters = {
-            ...parameters,
-            featureProjection: instance.referenceCrs,
-        };
+
+        // Convert them into OpenLayers features
+        const implParameters = getImplParameters(instance, config, dataset);
         const olFeatures = await GeoJSONLoaderImpl.toOlFeatures(features, implParameters);
+
+        // And create our ThreeJS Group
         const group = await OLLoaderImpl.toGroup(olFeatures, implParameters);
         return group;
     }

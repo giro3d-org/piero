@@ -5,20 +5,20 @@ import type {
     DatasetConfigImportable,
     DatasetTypeImportable,
 } from '@/types/configuration/datasets';
-import { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJSON';
-import { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
-import { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
-import { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
-import { GPXDatasetConfig } from '@/types/configuration/datasets/GPX';
-import { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
-import { KMLDatasetConfig } from '@/types/configuration/datasets/KML';
-import { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
-import { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
-import { PotreePointcCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
-import { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
-import { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
-import { Dataset, type DatasetConfigParameters } from '@/types/Dataset';
-import { getCoordinates } from '@/utils/Configuration';
+import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/BDTopo';
+import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJSON';
+import type { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
+import type { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
+import type { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
+import type { GPXDatasetConfig } from '@/types/configuration/datasets/GPX';
+import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
+import type { KMLDatasetConfig } from '@/types/configuration/datasets/KML';
+import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
+import type { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
+import type { PotreePointcCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
+import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
+import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
+import { Dataset, type DatasetBase } from '@/types/Dataset';
 import Fetcher, { type FetchContext, type UrlOrFetchedData } from '@/utils/Fetcher';
 import { BDTopoLoader } from './BDTopo';
 import { CityJSONLoader } from './CityJSON';
@@ -111,128 +111,76 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
 
     switch (dataset.type) {
         case 'bdtopo': {
-            entity = new BDTopoLoader().load(instance, { name: dataset.name });
+            entity = new BDTopoLoader().load(instance, dataset as DatasetBase<BDTopoDatasetConfig>);
             break;
         }
         case 'cityjson': {
-            const opts = dataset.parameters as DatasetConfigParameters<CityJSONDatasetConfig>;
-            entity = new CityJSONLoader().load(instance, { url: opts.url });
+            entity = new CityJSONLoader().load(
+                instance,
+                dataset as DatasetBase<CityJSONDatasetConfig>,
+            );
             break;
         }
         case 'geojson': {
-            const opts = dataset.parameters as DatasetConfigParameters<GeoJSONDatasetConfig>;
-            entity = new GeoJSONLoader().load(instance, {
-                url: opts.url,
-                elevation: dataset.get('elevation'),
-                fetchElevation:
-                    dataset.get('fetchElevation') == null
-                        ? dataset.get('elevation') == null
-                        : dataset.get('fetchElevation'),
-                fetchElevationFast: dataset.get('fetchElevationFast'),
-            });
+            entity = new GeoJSONLoader().load(
+                instance,
+                dataset as DatasetBase<GeoJSONDatasetConfig>,
+            );
             break;
         }
         case 'gpkg': {
-            const opts = dataset.parameters as DatasetConfigParameters<GeopackageDatasetConfig>;
-            entity = new GeopackageLoader().load(instance, {
-                url: opts.url,
-                elevation: dataset.get('elevation'),
-                fetchElevation:
-                    dataset.get('fetchElevation') == null
-                        ? dataset.get('elevation') == null
-                        : dataset.get('fetchElevation'),
-                fetchElevationFast: dataset.get('fetchElevationFast'),
-            });
+            entity = new GeopackageLoader().load(
+                instance,
+                dataset as DatasetBase<GeopackageDatasetConfig>,
+            );
             break;
         }
         case 'gpx': {
-            const opts = dataset.parameters as DatasetConfigParameters<GPXDatasetConfig>;
-            entity = new GPXLoader().load(instance, {
-                url: opts.url,
-                elevation: dataset.get('elevation'),
-                fetchElevation:
-                    dataset.get('fetchElevation') == null
-                        ? dataset.get('elevation') == null
-                        : dataset.get('fetchElevation'),
-                fetchElevationFast: dataset.get('fetchElevationFast'),
-            });
+            entity = new GPXLoader().load(instance, dataset as DatasetBase<GPXDatasetConfig>);
             break;
         }
         case 'ifc': {
-            const opts = dataset.parameters as DatasetConfigParameters<IFCDatasetConfig>;
-            entity = new IFCLoader().load(instance, {
-                url: opts.url,
-                name: dataset.name,
-                at: getCoordinates(dataset.get('position')),
-            });
+            entity = new IFCLoader().load(instance, dataset as DatasetBase<IFCDatasetConfig>);
             break;
         }
         case 'kml': {
-            const opts = dataset.parameters as DatasetConfigParameters<KMLDatasetConfig>;
-            entity = new KMLLoader().load(instance, {
-                url: opts.url,
-                elevation: dataset.get('elevation'),
-                fetchElevation:
-                    dataset.get('fetchElevation') == null
-                        ? dataset.get('elevation') == null
-                        : dataset.get('fetchElevation'),
-                fetchElevationFast: dataset.get('fetchElevationFast'),
-            });
+            entity = new KMLLoader().load(instance, dataset as DatasetBase<KMLDatasetConfig>);
             break;
         }
         case 'las': {
-            const opts = dataset.parameters as DatasetConfigParameters<LASDatasetConfig>;
-            entity = new LASLoader().load(instance, {
-                url: opts.url,
-            });
+            entity = new LASLoader().load(instance, dataset as DatasetBase<LASDatasetConfig>);
             break;
         }
         case 'ply': {
-            const opts = dataset.parameters as DatasetConfigParameters<PLYDatasetConfig>;
-            const at = getCoordinates(dataset.get('position'));
-            if (!at) throw new Error(`Cannot load ${dataset.name}: no coordinates set`);
-            entity = new PLYLoader().load(instance, {
-                url: opts.url,
-                at,
-            });
+            entity = new PLYLoader().load(instance, dataset as DatasetBase<PLYDatasetConfig>);
             break;
         }
         case 'pointcloud': {
-            const opts =
-                dataset.parameters as DatasetConfigParameters<TiledPointCloudDatasetConfig>;
-            entity = new TiledPointCloudLoader().load(instance, {
-                url: opts.url,
-                name: dataset.name,
-            });
+            entity = new TiledPointCloudLoader().load(
+                instance,
+                dataset as DatasetBase<TiledPointCloudDatasetConfig>,
+            );
             break;
         }
         case 'pointcloud-csv': {
-            const opts = dataset.parameters as DatasetConfigParameters<CSVPointCloudDatasetConfig>;
-            entity = new CSVPointCloudLoader().load(instance, {
-                url: opts.url,
-            });
+            entity = new CSVPointCloudLoader().load(
+                instance,
+                dataset as DatasetBase<CSVPointCloudDatasetConfig>,
+            );
             break;
         }
         case 'potree': {
-            const opts =
-                dataset.parameters as DatasetConfigParameters<PotreePointcCloudDatasetConfig>;
-            entity = new PotreePointCloudLoader().load(instance, {
-                urlBase: opts.url,
-                filename: opts.filename,
-            });
+            entity = new PotreePointCloudLoader().load(
+                instance,
+                dataset as DatasetBase<PotreePointcCloudDatasetConfig>,
+            );
             break;
         }
         case 'shp': {
-            const opts = dataset.parameters as DatasetConfigParameters<ShapefileDatasetConfig>;
-            entity = new ShapefileLoader().load(instance, {
-                url: opts.url,
-                elevation: dataset.get('elevation'),
-                fetchElevation:
-                    dataset.get('fetchElevation') == null
-                        ? dataset.get('elevation') == null
-                        : dataset.get('fetchElevation'),
-                fetchElevationFast: dataset.get('fetchElevationFast'),
-            });
+            entity = new ShapefileLoader().load(
+                instance,
+                dataset as DatasetBase<ShapefileDatasetConfig>,
+            );
             break;
         }
         default: {

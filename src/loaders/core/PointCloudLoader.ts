@@ -1,5 +1,6 @@
 import { BufferAttribute, BufferGeometry, Vector2, type TypedArray } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import Instance from '@giro3d/giro3d/core/Instance';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
@@ -7,16 +8,14 @@ import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMate
 import config from '@/config';
 import Projections from '@/utils/Projections';
 import { getColorMap } from '@/utils/Configuration';
+import { DatasetConfig } from '@/types/configuration/datasets';
+import { PointCloudDatasetConfig } from '@/types/configuration/datasets/core/pointcloud';
+import { DatasetBase } from '@/types/Dataset';
 
-/** Parameters for creating point clouds */
-export type PointCloudLoaderParameters = {
-    /** Projection of data */
+export interface PointCloudLoaderImplParameters {
     dataProjection?: string;
-};
-
-export type PointCloudLoaderImplParameters = PointCloudLoaderParameters & {
     featureProjection: string;
-};
+}
 
 /**
  * Converts a flat array of points into a pointcloud.
@@ -61,9 +60,21 @@ async function toEntity(
     return entity;
 }
 
+function getImplParameters<TConfig extends DatasetConfig & PointCloudDatasetConfig<string>>(
+    instance: Instance,
+    parameters: TConfig,
+    dataset: DatasetBase<TConfig>,
+): PointCloudLoaderImplParameters {
+    return {
+        dataProjection: parameters.dataProjection ?? dataset.get('dataProjection'),
+        featureProjection: instance.referenceCrs,
+    };
+}
+
 /**
  * PointCloud loader
  */
 export const PointCloudLoaderImpl = {
     toEntity,
+    getImplParameters,
 };

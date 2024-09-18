@@ -13,18 +13,19 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 import IfcEntity from '@/giro3d/IfcEntity';
+import { Loader } from './core/LoaderCore';
+import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
+import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { DatasetBase } from '@/types/Dataset';
+import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
-import { Loader, type UrlParams } from './core/LoaderCore';
 
-/** Parameters for creating IFC object */
-export type IFCParameters = {
+/** Parameters for creating IFC entities */
+export interface IFCImplParameters {
     name: string;
     at?: Coordinates;
-};
-
-export type IFCImplParameters = IFCParameters & {
     featureProjection: string;
-};
+}
 
 /**
  * Converts loaded data into a IfcEntity
@@ -89,7 +90,7 @@ async function toEntity(data: ArrayBuffer, parameters: IFCImplParameters): Promi
 }
 
 /**
- * IFC loader
+ * IFC internal loader
  */
 export const IFCLoaderImpl = {
     fetch: Fetcher.fetchArrayBuffer,
@@ -99,14 +100,17 @@ export const IFCLoaderImpl = {
 /**
  * IFC loader
  */
-export class IFCLoader extends Loader<IFCParameters, IfcEntity> {
+export class IFCLoader extends Loader<IFCDatasetConfig, IfcEntity> {
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: IFCParameters & UrlParams,
+        config: IFCDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        dataset: DatasetBase<IFCDatasetConfig>,
     ): Promise<IfcEntity> {
-        const data = await IFCLoaderImpl.fetch(url);
+        const at = getCoordinates(config.position ?? dataset.get('position'));
+        const data = await IFCLoaderImpl.fetch(config.url);
         const entity = await IFCLoaderImpl.toEntity(data, {
-            ...parameters,
+            name: dataset.name,
+            at,
             featureProjection: instance.referenceCrs,
         });
         return entity;

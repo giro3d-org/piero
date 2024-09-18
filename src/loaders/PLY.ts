@@ -1,6 +1,3 @@
-import Fetcher from '@/utils/Fetcher';
-import { isObject } from '@/utils/Types';
-
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
@@ -8,18 +5,21 @@ import PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
-
 import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
-import { Loader, type UrlParams } from './core/LoaderCore';
 
-/** Parameters for creating PLY object */
-export type PLYParameters = {
+import { Loader } from './core/LoaderCore';
+import type { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
+import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { DatasetBase } from '@/types/Dataset';
+import { getCoordinates } from '@/utils/Configuration';
+import Fetcher from '@/utils/Fetcher';
+import { isObject } from '@/utils/Types';
+
+/** Parameters for creating PLY entities */
+export interface PLYImplParameters {
     at: Coordinates;
-};
-
-export type PLYImplParameters = PLYParameters & {
     featureProjection: string;
-};
+}
 
 export interface PlyFeature {
     color: Color;
@@ -86,7 +86,7 @@ async function toEntity(data: ArrayBuffer, parameters: PLYImplParameters): Promi
 }
 
 /**
- * PLY loader
+ * PLY internal loader
  */
 export const PLYLoaderImpl = {
     fetch: Fetcher.fetchArrayBuffer,
@@ -96,14 +96,16 @@ export const PLYLoaderImpl = {
 /**
  * PLY loader
  */
-export class PLYLoader extends Loader<PLYParameters, Entity3D> {
+export class PLYLoader extends Loader<PLYDatasetConfig, Entity3D> {
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: PLYParameters & UrlParams,
+        config: PLYDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        dataset: DatasetBase<PLYDatasetConfig>,
     ): Promise<Entity3D> {
-        const data = await PLYLoaderImpl.fetch(url);
+        const at = getCoordinates(config.position ?? dataset.get('position'));
+        const data = await PLYLoaderImpl.fetch(config.url);
         const entity = await PLYLoaderImpl.toEntity(data, {
-            ...parameters,
+            at,
             featureProjection: instance.referenceCrs,
         });
         return entity;

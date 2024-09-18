@@ -36,11 +36,6 @@ export type DatasetGroupEventMap = DatasetEventMap & {
     /** empty */
 };
 
-export type DatasetConfigParameters<TConfig extends DatasetOrGroupConfig> = Omit<
-    TConfig,
-    'type' | 'name' | 'visible' | 'opacity' | 'onObjectPreloaded'
->;
-
 export abstract class DatasetBase<
     TConfig extends DatasetOrGroupConfig,
     TEventMap extends DatasetEventMap = DatasetEventMap,
@@ -56,21 +51,21 @@ export abstract class DatasetBase<
     protected _isPreloading: boolean;
     protected _isPreloaded: boolean;
 
-    readonly parameters: DatasetConfigParameters<TConfig>;
+    readonly config: TConfig;
 
-    constructor({ type, name, visible, opacity, onObjectPreloaded, ...parameters }: TConfig) {
+    constructor(config: TConfig) {
         super();
-        this.type = type;
+        this.type = config.type;
         this.uuid = MathUtils.generateUUID();
-        this.name = name;
-        this.onObjectPreloaded = onObjectPreloaded;
+        this.name = config.name;
+        this.onObjectPreloaded = config.onObjectPreloaded;
         this._parent = null;
-        this._visible = visible ?? false;
-        this._opacity = opacity ?? 1;
+        this._visible = config.visible ?? false;
+        this._opacity = config.opacity ?? 1;
         this._isPreloading = false;
         this._isPreloaded = false;
 
-        this.parameters = parameters;
+        this.config = config;
     }
 
     get parent() {
@@ -132,10 +127,10 @@ export abstract class DatasetBase<
         propertyName: K,
     ): DatasetCascadingConfig[K] | undefined {
         if (
-            propertyName in this.parameters &&
-            (this.parameters as DatasetCascadingConfig)[propertyName] != null
+            propertyName in this.config &&
+            (this.config as DatasetCascadingConfig)[propertyName] != null
         )
-            return (this.parameters as DatasetCascadingConfig)[propertyName];
+            return (this.config as DatasetCascadingConfig)[propertyName];
 
         return this.parent?.get(propertyName);
     }

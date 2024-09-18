@@ -4,35 +4,26 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 
 import Fetcher from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
-import { LoaderMultiple, type UrlParams } from './LoaderCore';
+import { LoaderMultiple } from './LoaderCore';
+import {
+    DatasetConfigWithDataProjection,
+    DatasetConfigWithElevation,
+    DatasetConfigWithMultipleUrlOrData,
+    DatasetConfigWithSingleUrlOrData,
+} from '@/types/configuration/datasets/core/baseConfig';
+import { DatasetConfig } from '@/types/configuration/datasets';
 
 /** Parameters for creating objects from OpenLayers features */
-export type OLLoaderParameters = {
-    /** Projection of data */
-    dataProjection?: string;
-    /**
-     * Elevation of data
-     *
-     * @defaultValue 0
-     */
-    elevation?: number;
-    /**
-     * Fetch elevation from provider
-     *
-     * @defaultValue false
-     */
-    fetchElevation?: boolean;
-    /**
-     * Fetch elevation only for centroids of features
-     *
-     * @defaultValue true
-     */
-    fetchElevationFast?: boolean;
-};
+export interface OLLoaderDatasetConfig
+    extends DatasetConfigWithMultipleUrlOrData,
+        DatasetConfigWithDataProjection,
+        DatasetConfigWithElevation {}
 
-export type OLLoaderImplParameters = OLLoaderParameters & {
+export interface OLLoaderImplParameters
+    extends DatasetConfigWithDataProjection,
+        DatasetConfigWithElevation {
     featureProjection: string;
-};
+}
 
 /**
  * Converts loaded data into OpenLayers {@link SimpleFeature}s.
@@ -97,7 +88,9 @@ export const OLLoaderImpl = {
 /**
  * Base class for Loaders using OpenLayers formats.
  */
-export abstract class OLLoader extends LoaderMultiple<OLLoaderParameters> {
+export abstract class OLLoader<
+    TConfig extends DatasetConfig & OLLoaderDatasetConfig,
+> extends LoaderMultiple<TConfig> {
     protected _format: FeatureFormat;
 
     constructor(format: FeatureFormat) {
@@ -107,10 +100,10 @@ export abstract class OLLoader extends LoaderMultiple<OLLoaderParameters> {
 
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: OLLoaderParameters & UrlParams,
+        { url, ...parameters }: TConfig & DatasetConfigWithSingleUrlOrData,
     ): Promise<Group> {
         const text = await OLLoaderImpl.fetch(url);
-        const implParameters: OLLoaderImplParameters = {
+        const implParameters = {
             ...parameters,
             featureProjection: instance.referenceCrs,
         };
