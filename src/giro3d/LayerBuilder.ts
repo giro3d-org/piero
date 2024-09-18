@@ -5,17 +5,28 @@ import { Circle, Fill, Stroke, Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
+import ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
+import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import VectorTileSource from '@giro3d/giro3d/sources/VectorTileSource';
+import VectorSource from '@giro3d/giro3d/sources/VectorSource';
+import ImageSource, { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
+import BilFormat from '@giro3d/giro3d/formats/BilFormat';
+import MapboxTerrainFormat from '@giro3d/giro3d/formats/MapboxTerrainFormat';
+import GeoTIFFFormat from '@giro3d/giro3d/formats/GeoTIFFFormat';
 
 import config from '@/config';
 import dynamicStyles from '@/styles';
 import type { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
-import type { LayerSourceType, SourceConfig } from '@/types/configuration/layers';
+import type { LayerSourceConfig } from '@/types/configuration/layers';
 import type {
     ColorLayerConfig,
     ElevationLayerConfig,
     MaskLayerConfig,
 } from '@/types/configuration/layers/core/baseConfig';
-import { TiledImageSourceBaseConfig } from '@/types/configuration/layers/core/tiled';
 import type { ColorMapConfig } from '@/types/configuration/color';
 import type { Overlay, OverlayOptions } from '@/types/Overlay';
 import type {
@@ -26,19 +37,9 @@ import type {
     VectorStyle,
 } from '@/types/VectorStyle';
 import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
-import ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
-import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
-import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
+
 import { LayerOptions } from '@/types/configuration/externals';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-import VectorTileSource from '@giro3d/giro3d/sources/VectorTileSource';
-import VectorSource from '@giro3d/giro3d/sources/VectorSource';
-import ImageSource, { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
-import BilFormat from '@giro3d/giro3d/formats/BilFormat';
-import MapboxTerrainFormat from '@giro3d/giro3d/formats/MapboxTerrainFormat';
-import GeoTIFFFormat from '@giro3d/giro3d/formats/GeoTIFFFormat';
+import { TiledImageSourceConfig } from '@/types/configuration/sources/core/tiled';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -61,9 +62,7 @@ async function createWMTSSource(
     return new WMTS(options);
 }
 
-function getImageFormat(
-    imageSourceConfig: TiledImageSourceBaseConfig<LayerSourceType>,
-): ImageFormat | undefined {
+function getImageFormat(imageSourceConfig: TiledImageSourceConfig): ImageFormat | undefined {
     if (imageSourceConfig.imageFormat) {
         switch (imageSourceConfig.imageFormat) {
             case 'Bil':
@@ -87,7 +86,7 @@ function getImageFormat(
     }
 }
 
-async function getSource(input: SourceConfig): Promise<ImageSource> {
+async function getSource(input: LayerSourceConfig): Promise<ImageSource> {
     const commonOptions: ImageSourceOptions = {
         flipY: input.flipY,
         is8bit: input.is8bit,

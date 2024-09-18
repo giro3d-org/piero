@@ -1,10 +1,14 @@
 import type {
-    DatasetConfigBase,
-    DatasetConfigWithLocation,
-    DatasetConfigWithSingleUrlOrData,
+    DatasetSourceConfigLocation,
+    DatasetSourceConfigUrlOrData,
+    DatasetSourceConfigBase,
+    DatasetConfigBaseWithSource,
 } from './core/baseConfig';
 
+export interface IFCDatasetSourceConfig
+    extends DatasetSourceConfigBase<'ifc'>,
+        DatasetSourceConfigUrlOrData,
+        DatasetSourceConfigLocation {}
+
 export interface IFCDatasetConfig
-    extends DatasetConfigBase<'ifc'>,
-        DatasetConfigWithSingleUrlOrData,
-        DatasetConfigWithLocation {}
+    extends DatasetConfigBaseWithSource<'ifc', IFCDatasetSourceConfig> {}

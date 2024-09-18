@@ -7,8 +7,10 @@ import { GeoJSONLoaderImpl } from './GeoJSON';
 import { LoaderMultiple } from './core/LoaderCore';
 import { OLLoaderImpl } from './core/OLLoader';
 import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
-import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
-import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type {
+    ShapefileDatasetConfig,
+    ShapefileDatasetSourceConfig,
+} from '@/types/configuration/datasets/Shapefile';
 import type { DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating Shapefile entities */
@@ -52,19 +54,19 @@ export const ShapefileLoaderImpl = {
 /**
  * Shapefile loader.
  */
-export class ShapefileLoader extends LoaderMultiple<ShapefileDatasetConfig> {
+export class ShapefileLoader extends LoaderMultiple<'shp', ShapefileDatasetConfig> {
     async loadOne(
         instance: Instance,
-        config: ShapefileDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        source: ShapefileDatasetSourceConfig,
         dataset: DatasetBase<ShapefileDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as a list of GeoJSON features
-        const features = await ShapefileLoaderImpl.fetch(config.url, {
+        const features = await ShapefileLoaderImpl.fetch(source.url, {
             featureProjection: instance.referenceCrs,
         });
 
         // Convert them into OpenLayers features
-        const implParameters = GeoJSONLoaderImpl.getImplParameters(instance, config, dataset);
+        const implParameters = GeoJSONLoaderImpl.getImplParameters(instance, source, dataset);
         const olFeatures = await GeoJSONLoaderImpl.toOlFeatures(features, implParameters);
 
         // And create our ThreeJS Group

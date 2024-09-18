@@ -8,7 +8,10 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
 import { PointCloudLoaderImpl } from './core/PointCloudLoader';
 import { Loader } from './core/LoaderCore';
-import type { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
+import type {
+    CSVPointCloudDatasetConfig,
+    CSVPointCloudDatasetSourceConfig,
+} from '@/types/configuration/datasets/CSVPointCloud';
 import type { DatasetBase } from '@/types/Dataset';
 
 /**
@@ -41,14 +44,18 @@ export const CSVPointCloudLoaderImpl = {
 /**
  * CSV Point cloud loader
  */
-export class CSVPointCloudLoader extends Loader<CSVPointCloudDatasetConfig, Entity3D> {
+export class CSVPointCloudLoader extends Loader<
+    'pointcloud-csv',
+    CSVPointCloudDatasetConfig,
+    Entity3D
+> {
     async loadOne(
         instance: Instance,
-        config: CSVPointCloudDatasetConfig,
+        source: CSVPointCloudDatasetSourceConfig,
         dataset: DatasetBase<CSVPointCloudDatasetConfig>,
     ): Promise<Entity3D> {
-        const data = await CSVPointCloudLoaderImpl.fetch(config.url);
-        const implParameters = PointCloudLoaderImpl.getImplParameters(instance, config, dataset);
+        const data = await CSVPointCloudLoaderImpl.fetch(source.url);
+        const implParameters = PointCloudLoaderImpl.getImplParameters(instance, source, dataset);
         const entity = PointCloudLoaderImpl.toEntity(data, implParameters);
         return entity;
     }

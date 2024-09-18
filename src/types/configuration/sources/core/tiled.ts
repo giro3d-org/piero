@@ -1,14 +1,14 @@
 import type { TiledImageSourceOptions } from '@giro3d/giro3d/sources/TiledImageSource';
 
 import type { GeoExtent } from '@/types/configuration/geographic';
-import type { SourceConfigBase } from '@/types/configuration/layers/core/baseConfig';
+import type { ImageSourceConfig } from '@/types/configuration/sources/core/baseConfig';
 
 export type DecodingFormat = 'Bil' | 'MapboxTerrain' | 'GeoTIFF';
 
 /** Base configuration for tiled layers */
-export interface TiledImageSourceBaseConfig<TType extends string>
-    extends Pick<TiledImageSourceOptions, 'noDataValue' | 'httpTimeout' | 'retries'>,
-        SourceConfigBase<TType> {
+export interface TiledImageSourceConfig
+    extends ImageSourceConfig,
+        Pick<TiledImageSourceOptions, 'noDataValue' | 'httpTimeout' | 'retries'> {
     /** Mime-type (`image/png`, `image/jpg`, etc.) */
     format?: string;
     /** Decoding format. Required for Mapbox Terrain for instance. */

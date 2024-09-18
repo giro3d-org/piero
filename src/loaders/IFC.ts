@@ -14,8 +14,7 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 import IfcEntity from '@/giro3d/IfcEntity';
 import { Loader } from './core/LoaderCore';
-import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
-import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { IFCDatasetConfig, IFCDatasetSourceConfig } from '@/types/configuration/datasets/IFC';
 import type { DatasetBase } from '@/types/Dataset';
 import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
@@ -100,14 +99,14 @@ export const IFCLoaderImpl = {
 /**
  * IFC loader
  */
-export class IFCLoader extends Loader<IFCDatasetConfig, IfcEntity> {
+export class IFCLoader extends Loader<'ifc', IFCDatasetConfig, IfcEntity> {
     async loadOne(
         instance: Instance,
-        config: IFCDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        source: IFCDatasetSourceConfig,
         dataset: DatasetBase<IFCDatasetConfig>,
     ): Promise<IfcEntity> {
-        const at = getCoordinates(config.position ?? dataset.get('position'));
-        const data = await IFCLoaderImpl.fetch(config.url);
+        const at = getCoordinates(source.position ?? dataset.get('position'));
+        const data = await IFCLoaderImpl.fetch(source.url);
         const entity = await IFCLoaderImpl.toEntity(data, {
             name: dataset.name,
             at,

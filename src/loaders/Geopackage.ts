@@ -8,8 +8,10 @@ import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
 import { GeoJSONLoaderImpl } from './GeoJSON';
 import { LoaderMultiple } from './core/LoaderCore';
 import { OLLoaderImpl } from './core/OLLoader';
-import type { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
-import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type {
+    GeopackageDatasetConfig,
+    GeopackageDatasetSourceConfig,
+} from '@/types/configuration/datasets/Geopackage';
 import type { DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating Geopackage entities */
@@ -58,19 +60,19 @@ export const GeopackageLoaderImpl = {
 /**
  * Geopackage loader.
  */
-export class GeopackageLoader extends LoaderMultiple<GeopackageDatasetConfig> {
+export class GeopackageLoader extends LoaderMultiple<'gpkg', GeopackageDatasetConfig> {
     async loadOne(
         instance: Instance,
-        config: GeopackageDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        source: GeopackageDatasetSourceConfig,
         dataset: DatasetBase<GeopackageDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as a list of GeoJSON features
-        const features = await GeopackageLoaderImpl.fetch(config.url, {
+        const features = await GeopackageLoaderImpl.fetch(source.url, {
             featureProjection: instance.referenceCrs,
         });
 
         // Convert them into OpenLayers features
-        const implParameters = GeoJSONLoaderImpl.getImplParameters(instance, config, dataset);
+        const implParameters = GeoJSONLoaderImpl.getImplParameters(instance, source, dataset);
         const olFeatures = await GeoJSONLoaderImpl.toOlFeatures(features, implParameters);
 
         // And create our ThreeJS Group

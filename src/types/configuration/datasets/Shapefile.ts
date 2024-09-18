@@ -1,6 +1,14 @@
-import type { DatasetConfigWithMultipleUrl } from './core/baseConfig';
-import type { VectorDatasetConfig } from './core/vector';
+import type {
+    DatasetSourceConfigElevation,
+    DatasetSourceConfigUrlOrData,
+    DatasetSourceConfigBase,
+    DatasetConfigBaseWithSources,
+} from './core/baseConfig';
+
+export interface ShapefileDatasetSourceConfig
+    extends DatasetSourceConfigBase<'shp'>,
+        DatasetSourceConfigUrlOrData,
+        DatasetSourceConfigElevation {}
 
 export interface ShapefileDatasetConfig
-    extends VectorDatasetConfig<'shp'>,
-        DatasetConfigWithMultipleUrl {}
+    extends DatasetConfigBaseWithSources<'shp', ShapefileDatasetSourceConfig> {}

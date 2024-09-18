@@ -1,6 +1,14 @@
-import type { DatasetConfigWithSingleUrlOrData } from './core/baseConfig';
-import type { PointCloudDatasetConfig } from './core/pointcloud';
+import type {
+    DatasetSourceConfigUrlOrData,
+    DatasetSourceConfigBase,
+    DatasetConfigBaseWithSource,
+    DatasetSourceConfigDataProjection,
+} from './core/baseConfig';
+
+export interface CSVPointCloudDatasetSourceConfig
+    extends DatasetSourceConfigBase<'pointcloud-csv'>,
+        DatasetSourceConfigUrlOrData,
+        DatasetSourceConfigDataProjection {}
 
 export interface CSVPointCloudDatasetConfig
-    extends PointCloudDatasetConfig<'pointcloud-csv'>,
-        DatasetConfigWithSingleUrlOrData {}
+    extends DatasetConfigBaseWithSource<'pointcloud-csv', CSVPointCloudDatasetSourceConfig> {}

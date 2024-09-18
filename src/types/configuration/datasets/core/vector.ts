@@ -1,5 +1,13 @@
-import type { DatasetConfigBase, DatasetConfigWithElevation } from './baseConfig';
+import { DatasetType } from '..';
+import { SourceConfigBase } from '../../sources/core/baseConfig';
+import { VectorSourceAsMeshConfig } from '../../sources/core/vector';
+import { DatasetConfigBase } from './baseConfig';
 
-export interface VectorDatasetConfig<TType extends string>
-    extends DatasetConfigBase<TType>,
-        DatasetConfigWithElevation {}
+export interface VectorDatasetSourceConfigBase<TType extends DatasetType>
+    extends SourceConfigBase<TType>,
+        VectorSourceAsMeshConfig {}
+
+export interface VectorDatasetConfigBase<TType extends DatasetType>
+    extends DatasetConfigBase<TType> {
+    sources: VectorDatasetSourceConfigBase<TType> | VectorDatasetSourceConfigBase<TType>[];
+}

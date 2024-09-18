@@ -1,17 +1,13 @@
-import type { VectorTileSourceOptions } from '@giro3d/giro3d/sources/VectorTileSource';
-
+import type FeatureFormat from 'ol/format/Feature';
+import { SourceConfigBase } from '../../sources/core/baseConfig';
+import { VectorTileSourceConfig } from '../../sources/core/vectorTile';
 import type { VectorStyle } from '@/types/VectorStyle';
-import type { SourceConfigBase } from '@/types/configuration/layers/core/baseConfig';
-
-/** Base configuration for vector tiled layers */
-export interface VectorTileSourceBaseConfig<TType extends string>
-    extends Pick<VectorTileSourceOptions, 'url' | 'backgroundColor' | 'format'>,
-        SourceConfigBase<TType> {}
 
 /** VectorTile source with custom format */
-export interface VectorTileSourceConfig
-    extends Pick<VectorTileSourceOptions, 'url' | 'backgroundColor' | 'format'>,
-        SourceConfigBase<'vector-tile'> {
+export interface CustomVectorTileSourceConfig
+    extends SourceConfigBase<'vector-tile'>,
+        VectorTileSourceConfig {
+    format: FeatureFormat;
     /** Style */
     style: VectorStyle;
 }

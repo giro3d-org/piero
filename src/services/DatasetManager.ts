@@ -24,6 +24,7 @@ export default class DatasetManager {
     private readonly _axisGrids: Map<string, AxisGrid> = new Map();
     private readonly _masks: Map<string, MaskLayer> = new Map();
     private readonly _store = useDatasetStore();
+    private readonly _notifications = useNotificationStore();
 
     constructor(instance: Instance) {
         this._instance = instance;
@@ -171,20 +172,23 @@ export default class DatasetManager {
     }
 
     private async onVisibilityChanged(dataset: DatasetOrGroup, newVisibility: boolean) {
-        dataset.visible = newVisibility;
-        if (!dataset.isPreloaded && newVisibility) {
-            await this.loadDataset(dataset);
-        }
-        this.updateDataset(dataset);
-        if (Datagroup.isGroup(dataset)) {
-            dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
+        try {
+            dataset.visible = newVisibility;
+            if (!dataset.isPreloaded && newVisibility) {
+                await this.loadDataset(dataset);
+            }
+            this.updateDataset(dataset);
+            if (Datagroup.isGroup(dataset)) {
+                dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
+            }
+        } catch (e) {
+            dataset.visible = false;
         }
     }
 
     private async importFromFile(file: File) {
-        const notifications = useNotificationStore();
         try {
-            notifications.push(new Notification(file.name, 'Importing file...'));
+            this._notifications.push(new Notification(file.name, 'Importing file...'));
             const { dataset, entity } = await loader.importFile(this._instance, file);
 
             this._entities.set(dataset.uuid, entity);
@@ -195,11 +199,13 @@ export default class DatasetManager {
 
             this.onDatasetLoaded(dataset, entity);
 
-            notifications.push(new Notification(dataset.name, 'Import successful.', 'success'));
+            this._notifications.push(
+                new Notification(dataset.name, 'Import successful.', 'success'),
+            );
         } catch (e) {
             console.error(e);
             const error = e as Error;
-            notifications.push(new Notification(file.name, error.message, 'error'));
+            this._notifications.push(new Notification(file.name, error.message, 'error'));
         }
     }
 
@@ -252,14 +258,27 @@ export default class DatasetManager {
 
         dataset.isPreloading = true;
 
-        const entity = await loader.loadDataset(this._instance, dataset);
+        try {
+            const entity = await loader.loadDataset(this._instance, dataset);
 
-        if (entity) {
-            entity.visible = dataset.visible;
-            this._entities.set(dataset.uuid, entity);
-            this._instance.add(entity);
+            if (entity) {
+                entity.visible = dataset.visible;
+                this._entities.set(dataset.uuid, entity);
+                this._instance.add(entity);
 
-            this.onDatasetLoaded(dataset, entity);
+                this.onDatasetLoaded(dataset, entity);
+            }
+        } catch (e) {
+            console.error('Could not load dataset', dataset, e);
+            dataset.isPreloading = false;
+            this._notifications.push(
+                new Notification(
+                    dataset.name,
+                    `Could not load dataset : ${(e as Error).message}`,
+                    'error',
+                ),
+            );
+            throw e;
         }
 
         return dataset;

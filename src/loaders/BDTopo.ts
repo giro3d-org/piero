@@ -100,7 +100,7 @@ export const BDTopoLoaderImpl = {
 /**
  * BDTopo Loader
  */
-export class BDTopoLoader extends LoaderCore<BDTopoDatasetConfig, FeatureCollection> {
+export class BDTopoLoader extends LoaderCore<'bdtopo', BDTopoDatasetConfig, FeatureCollection> {
     async load(
         instance: Instance,
         dataset: DatasetBase<BDTopoDatasetConfig>,

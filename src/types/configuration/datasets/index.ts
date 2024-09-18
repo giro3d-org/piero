@@ -1,7 +1,10 @@
 import type {
     DatasetCascadingConfig,
     DatasetConfigBase,
+    DatasetConfigBaseWithSource,
+    DatasetConfigBaseWithSources,
     DatasetConfigWithMasking,
+    DatasetSourceConfigBase,
 } from './core/baseConfig';
 import type { BDTopoDatasetConfig } from './BDTopo';
 import type { CityJSONDatasetConfig } from './CityJSON';
@@ -13,7 +16,7 @@ import type { IFCDatasetConfig } from './IFC';
 import type { KMLDatasetConfig } from './KML';
 import type { LASDatasetConfig } from './LAS';
 import type { PLYDatasetConfig } from './PLY';
-import type { PotreePointcCloudDatasetConfig } from './PotreePointCloud';
+import type { PotreePointCloudDatasetConfig } from './PotreePointCloud';
 import type { ShapefileDatasetConfig } from './Shapefile';
 import type { TiledPointCloudDatasetConfig } from './TiledPointCloud';
 
@@ -28,7 +31,7 @@ export type DatasetConfig =
     | KMLDatasetConfig
     | LASDatasetConfig
     | PLYDatasetConfig
-    | PotreePointcCloudDatasetConfig
+    | PotreePointCloudDatasetConfig
     | ShapefileDatasetConfig
     | TiledPointCloudDatasetConfig;
 
@@ -70,6 +73,19 @@ export type DatasetType = DatasetConfig['type'];
 export type DatasetTypeImportable = DatasetConfigImportable['type'];
 /** List of dataset types that support multiple URL sources in their configuration */
 export type DatasetTypeMultiple = DatasetConfigMultiple['type'];
+
+export type DatasetSourceConfig =
+    | Extract<
+          DatasetConfig,
+          DatasetConfigBaseWithSource<DatasetType, DatasetSourceConfigBase<DatasetType>>
+      >['source']
+    | Extract<
+          Extract<
+              DatasetConfig,
+              DatasetConfigBaseWithSources<DatasetType, DatasetSourceConfigBase<DatasetType>>
+          >['sources'],
+          DatasetSourceConfigBase<DatasetType>
+      >;
 
 export interface DatagroupConfig
     extends DatasetConfigBase<'group'>,

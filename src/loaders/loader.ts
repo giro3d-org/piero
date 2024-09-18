@@ -15,7 +15,7 @@ import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
 import type { KMLDatasetConfig } from '@/types/configuration/datasets/KML';
 import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
 import type { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
-import type { PotreePointcCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
+import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
 import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
 import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
 import { Dataset, type DatasetBase } from '@/types/Dataset';
@@ -172,7 +172,7 @@ async function loadDataset(instance: Instance, dataset: Dataset): Promise<Entity
         case 'potree': {
             entity = new PotreePointCloudLoader().load(
                 instance,
-                dataset as DatasetBase<PotreePointcCloudDatasetConfig>,
+                dataset as DatasetBase<PotreePointCloudDatasetConfig>,
             );
             break;
         }
@@ -217,8 +217,11 @@ async function importFile(instance: Instance, file: File): Promise<ImportFileRes
     const datasetConfig = {
         type: fileinfo.datasetType,
         name: fileinfo.filename,
-        url: file,
         visible: true,
+        source: {
+            type: fileinfo.datasetType,
+            url: file,
+        },
     } as DatasetConfigImportable;
 
     const dataset = new Dataset(datasetConfig);

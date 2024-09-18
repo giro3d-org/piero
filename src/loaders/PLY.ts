@@ -8,8 +8,7 @@ import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
 import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
 
 import { Loader } from './core/LoaderCore';
-import type { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
-import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { PLYDatasetConfig, PLYDatasetSourceConfig } from '@/types/configuration/datasets/PLY';
 import type { DatasetBase } from '@/types/Dataset';
 import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
@@ -96,14 +95,14 @@ export const PLYLoaderImpl = {
 /**
  * PLY loader
  */
-export class PLYLoader extends Loader<PLYDatasetConfig, Entity3D> {
+export class PLYLoader extends Loader<'ply', PLYDatasetConfig, Entity3D> {
     async loadOne(
         instance: Instance,
-        config: PLYDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        source: PLYDatasetSourceConfig,
         dataset: DatasetBase<PLYDatasetConfig>,
     ): Promise<Entity3D> {
-        const at = getCoordinates(config.position ?? dataset.get('position'));
-        const data = await PLYLoaderImpl.fetch(config.url);
+        const at = getCoordinates(source.position ?? dataset.get('position'));
+        const data = await PLYLoaderImpl.fetch(source.url);
         const entity = await PLYLoaderImpl.toEntity(data, {
             at,
             featureProjection: instance.referenceCrs,

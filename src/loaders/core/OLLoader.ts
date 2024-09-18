@@ -5,23 +5,23 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import Fetcher from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import { LoaderMultiple } from './LoaderCore';
-import {
-    DatasetConfigWithDataProjection,
-    DatasetConfigWithElevation,
-    DatasetConfigWithMultipleUrlOrData,
-    DatasetConfigWithSingleUrlOrData,
+import type {
+    DatasetSourceConfigDataProjection,
+    DatasetSourceConfigElevation,
 } from '@/types/configuration/datasets/core/baseConfig';
-import { DatasetConfig } from '@/types/configuration/datasets';
-
-/** Parameters for creating objects from OpenLayers features */
-export interface OLLoaderDatasetConfig
-    extends DatasetConfigWithMultipleUrlOrData,
-        DatasetConfigWithDataProjection,
-        DatasetConfigWithElevation {}
+import type {
+    DatasetConfig,
+    DatasetSourceConfig,
+    DatasetType,
+} from '@/types/configuration/datasets';
+import {
+    VectorDatasetConfigBase,
+    VectorDatasetSourceConfigBase,
+} from '@/types/configuration/datasets/core/vector';
 
 export interface OLLoaderImplParameters
-    extends DatasetConfigWithDataProjection,
-        DatasetConfigWithElevation {
+    extends DatasetSourceConfigDataProjection,
+        DatasetSourceConfigElevation {
     featureProjection: string;
 }
 
@@ -89,8 +89,9 @@ export const OLLoaderImpl = {
  * Base class for Loaders using OpenLayers formats.
  */
 export abstract class OLLoader<
-    TConfig extends DatasetConfig & OLLoaderDatasetConfig,
-> extends LoaderMultiple<TConfig> {
+    TType extends DatasetType,
+    TConfig extends DatasetConfig & VectorDatasetConfigBase<TType>,
+> extends LoaderMultiple<TType, TConfig> {
     protected _format: FeatureFormat;
 
     constructor(format: FeatureFormat) {
@@ -100,11 +101,14 @@ export abstract class OLLoader<
 
     async loadOne(
         instance: Instance,
-        { url, ...parameters }: TConfig & DatasetConfigWithSingleUrlOrData,
+        source: DatasetSourceConfig & VectorDatasetSourceConfigBase<TType>,
     ): Promise<Group> {
-        const text = await OLLoaderImpl.fetch(url);
-        const implParameters = {
-            ...parameters,
+        const text = await OLLoaderImpl.fetch(source.url);
+        const implParameters: OLLoaderImplParameters = {
+            dataProjection: source.dataProjection,
+            elevation: source.elevation,
+            fetchElevation: source.fetchElevation,
+            fetchElevationFast: source.fetchElevationFast,
             featureProjection: instance.referenceCrs,
         };
 

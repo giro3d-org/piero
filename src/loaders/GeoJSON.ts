@@ -9,16 +9,16 @@ import { LoaderMultiple } from './core/LoaderCore';
 import { OLLoaderImpl, type OLLoaderImplParameters } from './core/OLLoader';
 import type { GeoJSONDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
 import type {
-    DatasetConfigWithDataProjection,
-    DatasetConfigWithElevation,
-    DatasetConfigWithSingleUrlOrData,
+    DatasetSourceConfigDataProjection,
+    DatasetSourceConfigElevation,
 } from '@/types/configuration/datasets/core/baseConfig';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
+import { GeoJSONSourceConfig } from '@/types/configuration/sources/geojson';
 
 /** Dataset configuration usable with {@link getImplParameters} */
 export interface GeoJSONCompatibleDatasetConfig
-    extends DatasetConfigWithDataProjection,
-        DatasetConfigWithElevation {}
+    extends DatasetSourceConfigDataProjection,
+        DatasetSourceConfigElevation {}
 
 /** Parameters for creating GeoJSON entities */
 export interface GeoJSONImplParameters extends OLLoaderImplParameters {}
@@ -119,20 +119,20 @@ export const GeoJSONLoaderImpl = {
 /**
  * GeoJSON loader
  */
-export class GeoJSONLoader extends LoaderMultiple<GeoJSONDatasetConfig> {
+export class GeoJSONLoader extends LoaderMultiple<'geojson', GeoJSONDatasetConfig> {
     async loadOne(
         instance: Instance,
-        config: GeoJSONDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        source: GeoJSONSourceConfig,
         dataset: DatasetBase<GeoJSONDatasetConfig>,
     ): Promise<Group> {
         // First, get the data as GeoJSON
-        const json = await GeoJSONLoaderImpl.fetch(config.url);
+        const json = await GeoJSONLoaderImpl.fetch(source.url);
 
         // Convert them into a list of GeoJSON features
         const features = GeoJSONLoaderImpl.toGeoJSONFeatures(json);
 
         // Convert them into OpenLayers features
-        const implParameters = getImplParameters(instance, config, dataset);
+        const implParameters = getImplParameters(instance, source, dataset);
         const olFeatures = await GeoJSONLoaderImpl.toOlFeatures(features, implParameters);
 
         // And create our ThreeJS Group

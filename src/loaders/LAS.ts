@@ -7,8 +7,7 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
 import { PointCloudLoaderImpl } from './core/PointCloudLoader';
 import { Loader } from './core/LoaderCore';
-import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
-import type { DatasetConfigWithSingleUrlOrData } from '@/types/configuration/datasets/core/baseConfig';
+import type { LASDatasetConfig, LASDatasetSourceConfig } from '@/types/configuration/datasets/LAS';
 import type { DatasetBase } from '@/types/Dataset';
 
 /**
@@ -35,14 +34,14 @@ export const LASLoaderImpl = {
 /**
  * LAS loader
  */
-export class LASLoader extends Loader<LASDatasetConfig, Entity3D> {
+export class LASLoader extends Loader<'las', LASDatasetConfig, Entity3D> {
     async loadOne(
         instance: Instance,
-        config: LASDatasetConfig & DatasetConfigWithSingleUrlOrData,
+        source: LASDatasetSourceConfig,
         dataset: DatasetBase<LASDatasetConfig>,
     ): Promise<Entity3D> {
-        const data = await LASLoaderImpl.fetch(config.url);
-        const implParameters = PointCloudLoaderImpl.getImplParameters(instance, config, dataset);
+        const data = await LASLoaderImpl.fetch(source.url);
+        const implParameters = PointCloudLoaderImpl.getImplParameters(instance, source, dataset);
         const entity = PointCloudLoaderImpl.toEntity(data, implParameters);
         return entity;
     }

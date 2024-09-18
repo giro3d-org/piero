@@ -1,10 +1,14 @@
 import type {
-    DatasetConfigBase,
-    DatasetConfigWithDataProjection,
-    DatasetConfigWithSingleUrlOrData,
+    DatasetSourceConfigDataProjection,
+    DatasetSourceConfigUrlOrData,
+    DatasetSourceConfigBase,
+    DatasetConfigBaseWithSource,
 } from './core/baseConfig';
 
+export interface CityJSONDatasetSourceConfig
+    extends DatasetSourceConfigBase<'cityjson'>,
+        DatasetSourceConfigUrlOrData,
+        DatasetSourceConfigDataProjection {}
+
 export interface CityJSONDatasetConfig
-    extends DatasetConfigBase<'cityjson'>,
-        DatasetConfigWithSingleUrlOrData,
-        DatasetConfigWithDataProjection {}
+    extends DatasetConfigBaseWithSource<'cityjson', CityJSONDatasetSourceConfig> {}

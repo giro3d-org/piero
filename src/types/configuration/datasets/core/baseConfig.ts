@@ -13,6 +13,10 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
  */
 export type OnObjectPreloaded = (dataset: DatasetOrGroup, entity: Entity3D) => void;
 
+export interface DatasetSourceConfigBase<TDatasetType extends string> {
+    type: TDatasetType;
+}
+
 export interface DatasetConfigBase<TDatasetType extends string> {
     type: TDatasetType;
     name: string;
@@ -21,27 +25,34 @@ export interface DatasetConfigBase<TDatasetType extends string> {
     onObjectPreloaded?: OnObjectPreloaded;
 }
 
-export interface DatasetConfigWithSingleUrl {
+export interface DatasetConfigBaseWithSource<
+    TDatasetType extends string,
+    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType>,
+> extends DatasetConfigBase<TDatasetType> {
+    source: TSourceConfigType;
+}
+
+export interface DatasetConfigBaseWithSources<
+    TDatasetType extends string,
+    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType>,
+> extends DatasetConfigBase<TDatasetType> {
+    sources: TSourceConfigType | TSourceConfigType[];
+}
+
+export interface DatasetSourceConfigUrl {
     url: string;
 }
 
-export interface DatasetConfigWithMultipleUrl {
-    url: string | string[];
-}
-
-export interface DatasetConfigWithSingleUrlOrData {
+export interface DatasetSourceConfigUrlOrData {
     url: UrlOrData;
 }
 
-export interface DatasetConfigWithMultipleUrlOrData {
-    url: UrlOrData | UrlOrData[];
-}
-
-export interface DatasetConfigWithDataProjection {
+/** CRS of the source - must be registered first */
+export interface DatasetSourceConfigDataProjection {
     dataProjection?: CRS;
 }
 
-export interface DatasetConfigWithLocation {
+export interface DatasetSourceConfigLocation {
     position?: GeoVec3;
 }
 
@@ -50,7 +61,7 @@ export interface DatasetConfigWithMasking {
     isMaskingBasemap?: boolean;
 }
 
-export interface DatasetConfigWithElevation {
+export interface DatasetSourceConfigElevation {
     /**
      * Elevation of data
      *
@@ -72,6 +83,6 @@ export interface DatasetConfigWithElevation {
 }
 
 export interface DatasetCascadingConfig
-    extends DatasetConfigWithDataProjection,
-        DatasetConfigWithLocation,
-        DatasetConfigWithElevation {}
+    extends DatasetSourceConfigDataProjection,
+        DatasetSourceConfigLocation,
+        DatasetSourceConfigElevation {}

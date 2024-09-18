@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, Vector2, type TypedArray } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
@@ -8,9 +8,9 @@ import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMate
 import config from '@/config';
 import Projections from '@/utils/Projections';
 import { getColorMap } from '@/utils/Configuration';
-import { DatasetConfig } from '@/types/configuration/datasets';
-import { PointCloudDatasetConfig } from '@/types/configuration/datasets/core/pointcloud';
-import { DatasetBase } from '@/types/Dataset';
+import type { DatasetConfig, DatasetSourceConfig } from '@/types/configuration/datasets';
+import type { DatasetSourceConfigDataProjection } from '@/types/configuration/datasets/core/baseConfig';
+import type { DatasetBase } from '@/types/Dataset';
 
 export interface PointCloudLoaderImplParameters {
     dataProjection?: string;
@@ -60,10 +60,10 @@ async function toEntity(
     return entity;
 }
 
-function getImplParameters<TConfig extends DatasetConfig & PointCloudDatasetConfig<string>>(
+function getImplParameters<TConfig extends DatasetSourceConfig & DatasetSourceConfigDataProjection>(
     instance: Instance,
     parameters: TConfig,
-    dataset: DatasetBase<TConfig>,
+    dataset: DatasetBase<DatasetConfig>,
 ): PointCloudLoaderImplParameters {
     return {
         dataProjection: parameters.dataProjection ?? dataset.get('dataProjection'),

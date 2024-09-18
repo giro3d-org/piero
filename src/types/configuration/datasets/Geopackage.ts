@@ -1,6 +1,16 @@
-import type { DatasetConfigWithMultipleUrlOrData } from './core/baseConfig';
-import type { VectorDatasetConfig } from './core/vector';
+import type {
+    DatasetSourceConfigDataProjection,
+    DatasetSourceConfigElevation,
+    DatasetSourceConfigUrlOrData,
+    DatasetSourceConfigBase,
+    DatasetConfigBaseWithSources,
+} from './core/baseConfig';
+
+export interface GeopackageDatasetSourceConfig
+    extends DatasetSourceConfigBase<'gpkg'>,
+        DatasetSourceConfigUrlOrData,
+        DatasetSourceConfigDataProjection,
+        DatasetSourceConfigElevation {}
 
 export interface GeopackageDatasetConfig
-    extends VectorDatasetConfig<'gpkg'>,
-        DatasetConfigWithMultipleUrlOrData {}
+    extends DatasetConfigBaseWithSources<'gpkg', GeopackageDatasetSourceConfig> {}

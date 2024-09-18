@@ -4,28 +4,10 @@ import type { ElevationLayerOptions } from '@giro3d/giro3d/core/layer/ElevationL
 import type { MaskLayerOptions } from '@giro3d/giro3d/core/layer/MaskLayer';
 import type { InterpretationOptions } from '@giro3d/giro3d/core/layer/Interpretation';
 import type { Mode as InterpretationMode } from '@giro3d/giro3d/core/layer/Interpretation';
-import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
 
 import type { GeoExtent } from '@/types/configuration/geographic';
 import type { ColorMapConfig } from '@/types/configuration/color';
-import type { SourceConfig } from '@/types/configuration/layers';
-
-/** Base configuration for layers and overlays sources */
-export interface SourceConfigBase<TSourceType extends string>
-    extends Pick<
-        ImageSourceOptions,
-        // If adding options here, don't forget to update LayerBuilder.getSource for them to be taken into account
-        'flipY' | 'is8bit' | 'colorSpace'
-    > {
-    /** Type of source */
-    type: TSourceType;
-    /**
-     * The relative resolution of the layer.
-     * If greater than 1, the resolution will be greater, at the cost of performance and memory usage.
-     * @defaultValue 1
-     */
-    resolution?: number;
-}
+import type { LayerSourceConfig } from '@/types/configuration/layers';
 
 /** Basemap layer configuration */
 export interface LayerConfigBase<TLayerType extends string>
@@ -43,7 +25,7 @@ export interface LayerConfigBase<TLayerType extends string>
     /** Name of the layer displayed in the UI */
     name: string;
     /** Source configuration */
-    source: SourceConfig;
+    source: LayerSourceConfig;
     extent?: GeoExtent;
     interpretation?: InterpretationOptions & {
         mode: InterpretationMode;

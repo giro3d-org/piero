@@ -1,76 +1,52 @@
 import type {
     ColorLayerConfig,
     ElevationLayerConfig,
-    SourceConfigBase,
     MaskLayerConfig,
 } from '@/types/configuration/layers/core/baseConfig';
-import type { BingMapsSourceConfig } from '@/types/configuration/layers/bingMaps';
-import type { COGSourceConfig } from '@/types/configuration/layers/cog';
-import type { GeoJSONSourceConfig } from '@/types/configuration/layers/geojson';
-import type { GPXSourceConfig } from '@/types/configuration/layers/gpx';
-import type { KMLSourceConfig } from '@/types/configuration/layers/kml';
-import type { MVTSourceConfig } from '@/types/configuration/layers/mvt';
-import type { OSMSourceConfig } from '@/types/configuration/layers/osm';
-import type { StadiaMapsSourceConfig } from '@/types/configuration/layers/stadiaMaps';
-import type {
-    VectorSourceBaseConfig,
-    VectorSourceConfig,
-} from '@/types/configuration/layers/core/vector';
-import type { VectorTileSourceConfig } from '@/types/configuration/layers/core/vectorTile';
-import type { WMSSourceConfig } from '@/types/configuration/layers/wms';
-import type { WMTSSourceConfig } from '@/types/configuration/layers/wmts';
-import type { XYZSourceConfig } from '@/types/configuration/layers/xyz';
+import type { BingMapsSourceConfig } from '@/types/configuration/sources/bingMaps';
+import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
+import type { GeoJSONSourceConfig } from '@/types/configuration/sources/geojson';
+import type { GPXSourceConfig } from '@/types/configuration/sources/gpx';
+import type { KMLSourceConfig } from '@/types/configuration/sources/kml';
+import type { MVTSourceConfig } from '@/types/configuration/sources/mvt';
+import type { OSMSourceConfig } from '@/types/configuration/sources/osm';
+import type { StadiaMapsSourceConfig } from '@/types/configuration/sources/stadiaMaps';
+import type { WMSSourceConfig } from '@/types/configuration/sources/wms';
+import type { WMTSSourceConfig } from '@/types/configuration/sources/wmts';
+import type { XYZSourceConfig } from '@/types/configuration/sources/xyz';
+import { CustomVectorSourceConfig } from './core/vector';
+import { CustomVectorTileSourceConfig } from './core/vectorTile';
 
 /** Supported layer sources */
-export type SourceConfig =
+export type LayerSourceConfig =
     | BingMapsSourceConfig
-    | COGSourceConfig
+    | GeoTIFFSourceConfig
     | GeoJSONSourceConfig
     | GPXSourceConfig
     | KMLSourceConfig
     | MVTSourceConfig
     | OSMSourceConfig
     | StadiaMapsSourceConfig
-    | VectorSourceConfig
-    | VectorTileSourceConfig
+    | CustomVectorSourceConfig
+    | CustomVectorTileSourceConfig
     | WMSSourceConfig
     | WMTSSourceConfig
     | XYZSourceConfig;
 
 /** Supported layer source types */
-export type LayerSourceType = SourceConfig['type'];
+export type LayerSourceType = LayerSourceConfig['type'];
 
 /** Available configuration for layer sources */
-export type BasemapLayerSourceConfig = SourceConfig;
+export type BasemapLayerSourceConfig = LayerSourceConfig;
 
 /** Available configuration for overlay sources */
-export type OverlaySourceConfig = SourceConfig;
+export type OverlaySourceConfig = LayerSourceConfig;
 
 /** Overlay configuration */
 export interface OverlayConfig extends Omit<ColorLayerConfig, 'type'> {
     /** Source configuration */
     source: OverlaySourceConfig;
 }
-
-/**
- * Vector overlay configuration
- *
- * @deprecated Use 'source' field instead. Will be removed in release v24.7.
- */
-export type OverlayVectorConfigDeprecated = Omit<OverlayConfig, 'source'> &
-    VectorSourceBaseConfig<'geojson' | 'gpx' | 'kml'>;
-/**
- * Vector tile overlay configuration
- *
- * @deprecated Use 'source' field instead. Will be removed in release v24.7.
- */
-export type OverlayVectorTileConfigDeprecated = Omit<OverlayConfig, 'source'> & MVTSourceConfig;
-/**
- * Raster overlay configuration
- *
- * @deprecated Use 'source' field instead. Will be removed in release v24.7.
- */
-export type OverlayRasterConfigDeprecated = OverlayConfig & SourceConfigBase<'wms' | 'wmts'>;
 
 export type LayerConfig = ColorLayerConfig | ElevationLayerConfig | MaskLayerConfig;
 export type LayerType = LayerConfig['type'];

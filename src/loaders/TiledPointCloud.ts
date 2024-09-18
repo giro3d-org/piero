@@ -20,7 +20,11 @@ export type TiledPointCloudParameters = {
 /**
  * Tiled point cloud loader
  */
-export class TiledPointCloudLoader extends LoaderCore<TiledPointCloudDatasetConfig, Tiles3D> {
+export class TiledPointCloudLoader extends LoaderCore<
+    'pointcloud',
+    TiledPointCloudDatasetConfig,
+    Tiles3D
+> {
     load(instance: Instance, dataset: DatasetBase<TiledPointCloudDatasetConfig>): Promise<Tiles3D> {
         const material = new PointCloudMaterial({
             size: 2,
@@ -28,11 +32,11 @@ export class TiledPointCloudLoader extends LoaderCore<TiledPointCloudDatasetConf
         });
         material.colorMap = getColorMap(config.pointcloud);
 
-        const pointcloud = new Tiles3D(new Tiles3DSource(dataset.config.url), {
+        const pointcloud = new Tiles3D(new Tiles3DSource(dataset.config.source.url), {
             material,
         });
         pointcloud.name = `pointcloud-${dataset.name}`;
-        this._fillObject3DUserData(pointcloud, { filename: dataset.config.url });
+        this._fillObject3DUserData(pointcloud, { filename: dataset.config.source.url });
         return Promise.resolve(pointcloud);
     }
 }

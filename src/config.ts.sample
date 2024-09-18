@@ -145,15 +145,34 @@ const config: Configuration = {
     },
     datasets: [
         {
-            type: 'ifc',
-            url: 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc',
-            name: '19_rue_Marc_Antoine_Petit',
-            position: {
-                crs: 'EPSG:2154',
-                x: 841913,
-                y: 6517805,
-                z: 170,
+            type: 'kml',
+            name: 'Sytral lines (KML)',
+            visible: false,
+            sources: {
+                type: 'kml',
+                projection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
+                style: {
+                    stroke: {
+                        color: '#FA8C22',
+                        width: 2,
+                    },
+                },
             },
+        },
+        {
+            type: 'ifc',
+            source: {
+                type: 'ifc',
+                url: 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc',
+                position: {
+                    crs: 'EPSG:2154',
+                    x: 841913,
+                    y: 6517805,
+                    z: 170,
+                },
+            },
+            name: '19_rue_Marc_Antoine_Petit',
         },
         {
             type: 'bdtopo',
@@ -166,22 +185,34 @@ const config: Configuration = {
             children: [
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json',
+                    source: {
+                        type: 'cityjson',
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0841_6520_LA93_IGN69',
                 },
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6521_LA93_IGN69.city.json',
+                    source: {
+                        type: 'cityjson',
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6521_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0841_6521_LA93_IGN69',
                 },
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6520_LA93_IGN69.city.json',
+                    source: {
+                        type: 'cityjson',
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6520_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0842_6520_LA93_IGN69',
                 },
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6521_LA93_IGN69.city.json',
+                    source: {
+                        type: 'cityjson',
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6521_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0842_6521_LA93_IGN69',
                 },
             ],
@@ -193,22 +224,38 @@ const config: Configuration = {
             children: [
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6520_LA93_IGN69/tileset.json',
+                    source: {
+                        type: 'pointcloud',
+
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6520_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0841_6520_LA93_IGN69',
                 },
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6521_LA93_IGN69/tileset.json',
+                    source: {
+                        type: 'pointcloud',
+
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6521_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0841_6521_LA93_IGN69',
                 },
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6520_LA93_IGN69/tileset.json',
+                    source: {
+                        type: 'pointcloud',
+
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6520_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0842_6520_LA93_IGN69',
                 },
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6521_LA93_IGN69/tileset.json',
+                    source: {
+                        type: 'pointcloud',
+
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6521_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0842_6521_LA93_IGN69',
                 },
             ],

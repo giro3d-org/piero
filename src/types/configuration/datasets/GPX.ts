@@ -1,10 +1,4 @@
-import type {
-    DatasetConfigWithDataProjection,
-    DatasetConfigWithMultipleUrlOrData,
-} from './core/baseConfig';
-import type { VectorDatasetConfig } from './core/vector';
+import { GPXSourceConfig } from '../sources/gpx';
+import type { DatasetConfigBaseWithSources } from './core/baseConfig';
 
-export interface GPXDatasetConfig
-    extends VectorDatasetConfig<'gpx'>,
-        DatasetConfigWithMultipleUrlOrData,
-        DatasetConfigWithDataProjection {}
+export interface GPXDatasetConfig extends DatasetConfigBaseWithSources<'gpx', GPXSourceConfig> {}

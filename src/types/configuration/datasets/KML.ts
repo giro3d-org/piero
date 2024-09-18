@@ -1,10 +1,4 @@
-import type {
-    DatasetConfigWithDataProjection,
-    DatasetConfigWithMultipleUrlOrData,
-} from './core/baseConfig';
-import type { VectorDatasetConfig } from './core/vector';
+import { KMLSourceConfig } from '../sources/kml';
+import { DatasetConfigBaseWithSources } from './core/baseConfig';
 
-export interface KMLDatasetConfig
-    extends VectorDatasetConfig<'kml'>,
-        DatasetConfigWithMultipleUrlOrData,
-        DatasetConfigWithDataProjection {}
+export interface KMLDatasetConfig extends DatasetConfigBaseWithSources<'kml', KMLSourceConfig> {}

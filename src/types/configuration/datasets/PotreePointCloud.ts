@@ -1,7 +1,14 @@
-import type { DatasetConfigBase, DatasetConfigWithSingleUrl } from './core/baseConfig';
+import type {
+    DatasetSourceConfigUrl,
+    DatasetSourceConfigBase,
+    DatasetConfigBaseWithSource,
+} from './core/baseConfig';
 
-export interface PotreePointcCloudDatasetConfig
-    extends DatasetConfigBase<'potree'>,
-        DatasetConfigWithSingleUrl {
+export interface PotreePointCloudDatasetSourceConfig
+    extends DatasetSourceConfigBase<'potree'>,
+        DatasetSourceConfigUrl {
     filename?: string;
 }
+
+export interface PotreePointCloudDatasetConfig
+    extends DatasetConfigBaseWithSource<'potree', PotreePointCloudDatasetSourceConfig> {}

@@ -1,10 +1,5 @@
-import type {
-    DatasetConfigWithDataProjection,
-    DatasetConfigWithMultipleUrlOrData,
-} from './core/baseConfig';
-import type { VectorDatasetConfig } from './core/vector';
+import { GeoJSONSourceConfig } from '../sources/geojson';
+import type { DatasetConfigBaseWithSources } from './core/baseConfig';
 
 export interface GeoJSONDatasetConfig
-    extends VectorDatasetConfig<'geojson'>,
-        DatasetConfigWithMultipleUrlOrData,
-        DatasetConfigWithDataProjection {}
+    extends DatasetConfigBaseWithSources<'geojson', GeoJSONSourceConfig> {}
