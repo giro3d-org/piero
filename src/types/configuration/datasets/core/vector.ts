@@ -1,24 +1,27 @@
-import { DatasetType } from '..';
-import { VectorSourceAsLayerConfig, VectorSourceAsMeshConfig } from '../../sources/core/vector';
-import {
-    DatasetConfigBase,
-    DatasetConfigBaseWithSource,
-    DatasetConfigBaseWithSources,
+import type { DatasetType } from '@/types/configuration/datasets';
+import type {
+    VectorAsLayerSourceConfigMixin,
+    VectorAsMeshSourceConfigMixin,
+} from '@/types/configuration/sources/core/vector';
+import type {
+    DatasetConfigWithSourceBase,
+    DatasetConfigWithSourcesBase,
     DatasetSourceConfigBase,
 } from './baseConfig';
 
+/** Base configuration for datasets that can be loaded as meshes */
 export interface VectorAsMeshDatasetConfigBase<
     TDatasetType extends DatasetType,
-    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> & VectorSourceAsMeshConfig,
-> extends DatasetConfigBase<TDatasetType>,
-        DatasetConfigBaseWithSources<TDatasetType, TSourceConfigType> {
+    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> & VectorAsMeshSourceConfigMixin,
+> extends DatasetConfigWithSourcesBase<TDatasetType, TSourceConfigType> {
     loadAsOverlay?: never;
 }
 
+/** Base configuration for datasets that can be loaded as Giro3D layers */
 export interface VectorAsLayerDatasetConfigBase<
     TDatasetType extends DatasetType,
-    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> & VectorSourceAsLayerConfig,
-> extends DatasetConfigBase<TDatasetType>,
-        DatasetConfigBaseWithSource<TDatasetType, TSourceConfigType> {
+    TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> &
+        VectorAsLayerSourceConfigMixin,
+> extends DatasetConfigWithSourceBase<TDatasetType, TSourceConfigType> {
     loadAsOverlay: true;
 }

@@ -5,7 +5,7 @@ import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMate
 
 import config from '@/config';
 import LoaderCore from './core/LoaderCore';
-import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
+import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/tiledPointCloud';
 import type { DatasetBase } from '@/types/Dataset';
 import { getColorMap } from '@/utils/Configuration';
 

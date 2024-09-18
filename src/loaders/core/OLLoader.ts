@@ -6,21 +6,21 @@ import Fetcher from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import { LoaderMultiple } from './LoaderCore';
 import type {
-    DatasetSourceConfigBase,
-    DatasetSourceConfigDataProjection,
-    DatasetSourceConfigElevation,
-} from '@/types/configuration/datasets/core/baseConfig';
-import type {
     DatasetConfig,
     DatasetSourceConfig,
     DatasetType,
 } from '@/types/configuration/datasets';
-import { VectorSourceAsMeshConfig } from '@/types/configuration/sources/core/vector';
-import { VectorAsMeshDatasetConfigBase } from '@/types/configuration/datasets/core/vector';
+import type { DatasetSourceConfigBase } from '@/types/configuration/datasets/core/baseConfig';
+import type { VectorAsMeshDatasetConfigBase } from '@/types/configuration/datasets/core/vector';
+import type {
+    SourceConfigElevationMixin,
+    SourceConfigProjectionMixin,
+} from '@/types/configuration/sources/core/baseConfig';
+import type { VectorAsMeshSourceConfigMixin } from '@/types/configuration/sources/core/vector';
 
 export interface OLLoaderImplParameters
-    extends DatasetSourceConfigDataProjection,
-        DatasetSourceConfigElevation {
+    extends SourceConfigProjectionMixin,
+        SourceConfigElevationMixin {
     featureProjection: string;
 }
 
@@ -92,7 +92,7 @@ export abstract class OLLoader<
     TConfig extends DatasetConfig &
         VectorAsMeshDatasetConfigBase<
             TType,
-            DatasetSourceConfigBase<TType> & VectorSourceAsMeshConfig
+            DatasetSourceConfigBase<TType> & VectorAsMeshSourceConfigMixin
         >,
 > extends LoaderMultiple<TType, TConfig> {
     protected _format: FeatureFormat;
@@ -104,7 +104,9 @@ export abstract class OLLoader<
 
     async loadOne(
         instance: Instance,
-        source: DatasetSourceConfig & DatasetSourceConfigBase<TType> & VectorSourceAsMeshConfig,
+        source: DatasetSourceConfig &
+            DatasetSourceConfigBase<TType> &
+            VectorAsMeshSourceConfigMixin,
     ): Promise<Group> {
         const text = await OLLoaderImpl.fetch(source.url);
         const implParameters: OLLoaderImplParameters = {

@@ -10,7 +10,7 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 
 import LoaderCore from './core/LoaderCore';
-import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/BDTopo';
+import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/bdtopo';
 import type { DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating a BDTopo entity */

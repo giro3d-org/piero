@@ -1,5 +1,6 @@
-import type { DatasetConfigBase, DatasetSourceConfigDataProjection } from './baseConfig';
+import type { SourceConfigProjectionMixin } from '@/types/configuration/sources/core/baseConfig';
+import type { DatasetConfigBase } from './baseConfig';
 
 export interface PointCloudDatasetConfig<TType extends string>
     extends DatasetConfigBase<TType>,
-        DatasetSourceConfigDataProjection {}
+        SourceConfigProjectionMixin {}

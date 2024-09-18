@@ -11,7 +11,7 @@ import { Loader } from './core/LoaderCore';
 import type {
     CSVPointCloudDatasetConfig,
     CSVPointCloudDatasetSourceConfig,
-} from '@/types/configuration/datasets/CSVPointCloud';
+} from '@/types/configuration/datasets/csvPointCloud';
 import type { DatasetBase } from '@/types/Dataset';
 
 /**

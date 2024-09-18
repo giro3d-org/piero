@@ -7,7 +7,7 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
 import { PointCloudLoaderImpl } from './core/PointCloudLoader';
 import { Loader } from './core/LoaderCore';
-import type { LASDatasetConfig, LASDatasetSourceConfig } from '@/types/configuration/datasets/LAS';
+import type { LASDatasetConfig, LASDatasetSourceConfig } from '@/types/configuration/datasets/las';
 import type { DatasetBase } from '@/types/Dataset';
 
 /**

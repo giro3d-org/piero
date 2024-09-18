@@ -21,13 +21,14 @@ import GeoTIFFFormat from '@giro3d/giro3d/formats/GeoTIFFFormat';
 import config from '@/config';
 import dynamicStyles from '@/styles';
 import type { BaseLayer, BaseLayerOptions } from '@/types/BaseLayer';
+import type { ColorMapConfig } from '@/types/configuration/color';
 import type { LayerSourceConfig } from '@/types/configuration/layers';
 import type {
     ColorLayerConfig,
     ElevationLayerConfig,
     MaskLayerConfig,
 } from '@/types/configuration/layers/core/baseConfig';
-import type { ColorMapConfig } from '@/types/configuration/color';
+import { DatasetAsLayerSourceConfig } from '@/types/configuration/datasets';
 import type { Overlay, OverlayOptions } from '@/types/Overlay';
 import type {
     FillStyle,
@@ -39,8 +40,7 @@ import type {
 import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
 
 import { LayerOptions } from '@/types/configuration/externals';
-import { TiledImageSourceConfig } from '@/types/configuration/sources/core/tiled';
-import { DatasetAsLayerSourceConfig } from '@/types/configuration/datasets';
+import { TiledImageSourceConfigMixin } from '@/types/configuration/sources/core/tiled';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -63,7 +63,7 @@ async function createWMTSSource(
     return new WMTS(options);
 }
 
-function getImageFormat(imageSourceConfig: TiledImageSourceConfig): ImageFormat | undefined {
+function getImageFormat(imageSourceConfig: TiledImageSourceConfigMixin): ImageFormat | undefined {
     if (imageSourceConfig.imageFormat) {
         switch (imageSourceConfig.imageFormat) {
             case 'Bil':

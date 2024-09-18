@@ -8,7 +8,7 @@ import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
 import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
 
 import { Loader } from './core/LoaderCore';
-import type { PLYDatasetConfig, PLYDatasetSourceConfig } from '@/types/configuration/datasets/PLY';
+import type { PLYDatasetConfig, PLYDatasetSourceConfig } from '@/types/configuration/datasets/ply';
 import type { DatasetBase } from '@/types/Dataset';
 import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';

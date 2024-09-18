@@ -11,7 +11,7 @@ import { OLLoaderImpl } from './core/OLLoader';
 import type {
     GeopackageDatasetConfig,
     GeopackageDatasetSourceConfig,
-} from '@/types/configuration/datasets/Geopackage';
+} from '@/types/configuration/datasets/geopackage';
 import type { DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating Geopackage entities */

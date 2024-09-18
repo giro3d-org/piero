@@ -26,11 +26,15 @@ export interface LayerConfigBase<TLayerType extends string>
     name: string;
     /** Source configuration */
     source: LayerSourceConfig;
+    /** Restrict the extent of the data */
     extent?: GeoExtent;
+    /** Interpretation mode of the data */
     interpretation?: InterpretationOptions & {
         mode: InterpretationMode;
     };
+    /** Color map for displaying the layer */
     colorMap?: ColorMapConfig;
+    /** Background color of the layer */
     backgroundColor?: string;
     /** Indicates if the layer should be loaded by default */
     visible: boolean;

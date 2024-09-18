@@ -1,28 +1,30 @@
 import type { CRS } from '@/types/configuration/geographic';
 import type { VectorStyle } from '@/types/VectorStyle';
-import type { ImageSourceConfig } from '@/types/configuration/sources/core/baseConfig';
-import {
-    DatasetSourceConfigDataProjection,
-    DatasetSourceConfigElevation,
-    DatasetSourceConfigUrlOrData,
-} from '../../datasets/core/baseConfig';
+import type {
+    ImageSourceConfigMixin,
+    SourceConfigElevationMixin,
+    SourceConfigProjectionMixin,
+    SourceConfigUrlMixin,
+    SourceConfigUrlOrDataMixin,
+} from './baseConfig';
 
-/** Configuration for vector sources, common to meshes and map layers */
-export interface VectorSourceConfig extends DatasetSourceConfigDataProjection {
+/** Mixin configuration for vector sources, common to meshes and map layers */
+export interface VectorSourceConfigMixin extends SourceConfigProjectionMixin {
     /** @deprecated Use {@link dataProjection} instead, will be removed in 24.10 */
     projection?: CRS;
 }
 
-/** Configuration for vector sources displayed as meshes */
-export interface VectorSourceAsMeshConfig
-    extends VectorSourceConfig,
-        DatasetSourceConfigUrlOrData,
-        DatasetSourceConfigElevation {}
+/** Mixin configuration for vector sources displayed as meshes */
+export interface VectorAsMeshSourceConfigMixin
+    extends VectorSourceConfigMixin,
+        SourceConfigUrlOrDataMixin,
+        SourceConfigElevationMixin {}
 
-/** Configuration for vector sources displayed as map layers */
-export interface VectorSourceAsLayerConfig extends VectorSourceConfig, ImageSourceConfig {
-    /** URL of the source. */
-    url: string;
+/** Mixin configuration for vector sources displayed as map layers */
+export interface VectorAsLayerSourceConfigMixin
+    extends VectorSourceConfigMixin,
+        SourceConfigUrlMixin,
+        ImageSourceConfigMixin {
     /** Style */
     style: VectorStyle;
 }

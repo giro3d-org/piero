@@ -1,26 +1,29 @@
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Instance from '@giro3d/giro3d/core/Instance';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 
+import LayerBuilder from '@/giro3d/LayerBuilder';
 import type {
     DatasetAsLayerConfig,
     DatasetConfigImportable,
     DatasetTypeImportable,
 } from '@/types/configuration/datasets';
-import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/BDTopo';
-import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/CityJSON';
-import type { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/CSVPointCloud';
-import type { GeoJSONAsMeshDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
-import type { GeopackageDatasetConfig } from '@/types/configuration/datasets/Geopackage';
-import type { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/GPX';
-import type { IFCDatasetConfig } from '@/types/configuration/datasets/IFC';
-import type { KMLAsMeshDatasetConfig } from '@/types/configuration/datasets/KML';
-import type { LASDatasetConfig } from '@/types/configuration/datasets/LAS';
-import type { PLYDatasetConfig } from '@/types/configuration/datasets/PLY';
-import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
-import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/Shapefile';
-import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/TiledPointCloud';
+import type { BDTopoDatasetConfig } from '@/types/configuration/datasets/bdtopo';
+import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
+import type { CSVPointCloudDatasetConfig } from '@/types/configuration/datasets/csvPointCloud';
+import type { GeoJSONAsMeshDatasetConfig } from '@/types/configuration/datasets/geojson';
+import type { GeopackageDatasetConfig } from '@/types/configuration/datasets/geopackage';
+import type { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/gpx';
+import type { IFCDatasetConfig } from '@/types/configuration/datasets/ifc';
+import type { KMLAsMeshDatasetConfig } from '@/types/configuration/datasets/kml';
+import type { LASDatasetConfig } from '@/types/configuration/datasets/las';
+import type { PLYDatasetConfig } from '@/types/configuration/datasets/ply';
+import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/potreePointCloud';
+import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/shapefile';
+import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/tiledPointCloud';
 import { Dataset, type DatasetBase } from '@/types/Dataset';
 import Fetcher, { type FetchContext, type UrlOrFetchedData } from '@/utils/Fetcher';
+import { isObject } from '@/utils/Types';
 import { BDTopoLoader } from './BDTopo';
 import { CityJSONLoader } from './CityJSON';
 import { CSVPointCloudLoader } from './CSVPointCloud';
@@ -34,9 +37,6 @@ import { PLYLoader } from './PLY';
 import { PotreePointCloudLoader } from './PotreePointCloud';
 import { ShapefileLoader } from './Shapefile';
 import { TiledPointCloudLoader } from './TiledPointCloud';
-import LayerBuilder from '@/giro3d/LayerBuilder';
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import { isObject } from '@/utils/Types';
 
 export const datasetSupportsOverlay = (
     obj: unknown,

@@ -9,7 +9,7 @@ import config from '@/config';
 import Projections from '@/utils/Projections';
 import { getColorMap } from '@/utils/Configuration';
 import type { DatasetConfig, DatasetSourceConfig } from '@/types/configuration/datasets';
-import type { DatasetSourceConfigDataProjection } from '@/types/configuration/datasets/core/baseConfig';
+import type { SourceConfigProjectionMixin } from '@/types/configuration/sources/core/baseConfig';
 import type { DatasetBase } from '@/types/Dataset';
 
 export interface PointCloudLoaderImplParameters {
@@ -60,7 +60,7 @@ async function toEntity(
     return entity;
 }
 
-function getImplParameters<TConfig extends DatasetSourceConfig & DatasetSourceConfigDataProjection>(
+function getImplParameters<TConfig extends DatasetSourceConfig & SourceConfigProjectionMixin>(
     instance: Instance,
     parameters: TConfig,
     dataset: DatasetBase<DatasetConfig>,

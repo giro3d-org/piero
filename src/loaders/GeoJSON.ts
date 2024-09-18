@@ -7,18 +7,18 @@ import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
 import { LoaderMultiple } from './core/LoaderCore';
 import { OLLoaderImpl, type OLLoaderImplParameters } from './core/OLLoader';
-import type { GeoJSONAsMeshDatasetConfig } from '@/types/configuration/datasets/GeoJSON';
+import type { GeoJSONAsMeshDatasetConfig } from '@/types/configuration/datasets/geojson';
+import type { GeoJSONAsMeshSourceConfig } from '@/types/configuration/sources/geojson';
 import type {
-    DatasetSourceConfigDataProjection,
-    DatasetSourceConfigElevation,
-} from '@/types/configuration/datasets/core/baseConfig';
+    SourceConfigElevationMixin,
+    SourceConfigProjectionMixin,
+} from '@/types/configuration/sources/core/baseConfig';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
-import { GeoJSONAsMeshSourceConfig } from '@/types/configuration/sources/geojson';
 
 /** Dataset configuration usable with {@link getImplParameters} */
 export interface GeoJSONCompatibleDatasetConfig
-    extends DatasetSourceConfigDataProjection,
-        DatasetSourceConfigElevation {}
+    extends SourceConfigProjectionMixin,
+        SourceConfigElevationMixin {}
 
 /** Parameters for creating GeoJSON entities */
 export interface GeoJSONImplParameters extends OLLoaderImplParameters {}

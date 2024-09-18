@@ -1,10 +1,11 @@
 import type FeatureFormat from 'ol/format/Feature';
-import { VectorSourceAsLayerConfig } from '../../sources/core/vector';
-import { SourceConfigBase } from '../../sources/core/baseConfig';
+
+import type { SourceConfigBase } from '@/types/configuration/sources/core/baseConfig';
+import type { VectorAsLayerSourceConfigMixin } from '@/types/configuration/sources/core/vector';
 
 /** Vector source with custom format */
 export interface CustomVectorSourceConfig
     extends SourceConfigBase<'vector'>,
-        VectorSourceAsLayerConfig {
+        VectorAsLayerSourceConfigMixin {
     format: FeatureFormat;
 }

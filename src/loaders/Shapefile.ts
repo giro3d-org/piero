@@ -10,7 +10,7 @@ import Fetcher, { type UrlOrData } from '@/utils/Fetcher';
 import type {
     ShapefileDatasetConfig,
     ShapefileDatasetSourceConfig,
-} from '@/types/configuration/datasets/Shapefile';
+} from '@/types/configuration/datasets/shapefile';
 import type { DatasetBase } from '@/types/Dataset';
 
 /** Parameters for creating Shapefile entities */

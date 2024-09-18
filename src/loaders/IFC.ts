@@ -14,7 +14,7 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 import IfcEntity from '@/giro3d/IfcEntity';
 import { Loader } from './core/LoaderCore';
-import type { IFCDatasetConfig, IFCDatasetSourceConfig } from '@/types/configuration/datasets/IFC';
+import type { IFCDatasetConfig, IFCDatasetSourceConfig } from '@/types/configuration/datasets/ifc';
 import type { DatasetBase } from '@/types/Dataset';
 import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';

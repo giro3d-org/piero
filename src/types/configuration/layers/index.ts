@@ -1,8 +1,3 @@
-import type {
-    ColorLayerConfig,
-    ElevationLayerConfig,
-    MaskLayerConfig,
-} from '@/types/configuration/layers/core/baseConfig';
 import type { BingMapsSourceConfig } from '@/types/configuration/sources/bingMaps';
 import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
 import type { GeoJSONAsLayerSourceConfig } from '@/types/configuration/sources/geojson';
@@ -14,8 +9,9 @@ import type { StadiaMapsSourceConfig } from '@/types/configuration/sources/stadi
 import type { WMSSourceConfig } from '@/types/configuration/sources/wms';
 import type { WMTSSourceConfig } from '@/types/configuration/sources/wmts';
 import type { XYZSourceConfig } from '@/types/configuration/sources/xyz';
-import { CustomVectorSourceConfig } from './core/vector';
-import { CustomVectorTileSourceConfig } from './core/vectorTile';
+import type { ColorLayerConfig, ElevationLayerConfig, MaskLayerConfig } from './core/baseConfig';
+import type { CustomVectorSourceConfig } from './core/vector';
+import type { CustomVectorTileSourceConfig } from './core/vectorTile';
 
 /** Supported layer sources */
 export type LayerSourceConfig =
@@ -48,5 +44,7 @@ export interface OverlayConfig extends Omit<ColorLayerConfig, 'type'> {
     source: OverlaySourceConfig;
 }
 
+/** Layer configuration */
 export type LayerConfig = ColorLayerConfig | ElevationLayerConfig | MaskLayerConfig;
+/** Supported Giro3D layer types */
 export type LayerType = LayerConfig['type'];

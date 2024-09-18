@@ -12,7 +12,7 @@ import { Loader } from './core/LoaderCore';
 import type {
     CityJSONDatasetConfig,
     CityJSONDatasetSourceConfig,
-} from '@/types/configuration/datasets/CityJSON';
+} from '@/types/configuration/datasets/cityjson';
 
 /** Parameters for creating a CityJSON entity */
 export interface CityJSONImplParameters {

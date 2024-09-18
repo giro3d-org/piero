@@ -1,7 +1,7 @@
 import GPX from 'ol/format/GPX';
 
 import { OLLoader } from './core/OLLoader';
-import { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/GPX';
+import type { GPXAsMeshDatasetConfig } from '@/types/configuration/datasets/gpx';
 
 const GPXFormat = new GPX();
 

@@ -4,12 +4,12 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Fetcher, { type FetchContext } from '@/utils/Fetcher';
 import type {
     DatasetConfigBase,
-    DatasetConfigBaseWithSource,
-    DatasetConfigBaseWithSources,
+    DatasetConfigWithSourceBase,
+    DatasetConfigWithSourcesBase,
     DatasetSourceConfigBase,
-    DatasetSourceConfigUrlOrData,
 } from '@/types/configuration/datasets/core/baseConfig';
 import type { DatasetConfig, DatasetType } from '@/types/configuration/datasets';
+import type { SourceConfigUrlOrDataMixin } from '@/types/configuration/sources/core/baseConfig';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
 
 /** User data to be set on the loaded entities */
@@ -66,7 +66,7 @@ abstract class LoaderCore<
 export abstract class LoaderSingleBase<
     TType extends DatasetType,
     TConfig extends DatasetConfig &
-        DatasetConfigBaseWithSource<TType, DatasetSourceConfigBase<TType>>,
+        DatasetConfigWithSourceBase<TType, DatasetSourceConfigBase<TType>>,
     TOutput extends Entity3D,
 > extends LoaderCore<TType, TConfig, TOutput> {
     async load(instance: Instance, dataset: DatasetBase<TConfig>): Promise<TOutput> {
@@ -113,15 +113,15 @@ export abstract class LoaderSingleBase<
 export abstract class Loader<
     TType extends DatasetType,
     TConfig extends DatasetConfig &
-        DatasetConfigBaseWithSource<
+        DatasetConfigWithSourceBase<
             TType,
-            DatasetSourceConfigBase<TType> & DatasetSourceConfigUrlOrData
+            DatasetSourceConfigBase<TType> & SourceConfigUrlOrDataMixin
         >,
     TOutput extends Entity3D,
 > extends LoaderSingleBase<TType, TConfig, TOutput> {
     getContext(
         instance: Instance,
-        source: DatasetSourceConfigBase<TType> & DatasetSourceConfigUrlOrData,
+        source: DatasetSourceConfigBase<TType> & SourceConfigUrlOrDataMixin,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         dataset: DatasetBase<TConfig>,
     ): FetchContext {
@@ -140,7 +140,7 @@ export abstract class Loader<
 export abstract class LoaderMultipleBase<
     TType extends DatasetType,
     TConfig extends DatasetConfig &
-        DatasetConfigBaseWithSources<TType, DatasetSourceConfigBase<TType>>,
+        DatasetConfigWithSourcesBase<TType, DatasetSourceConfigBase<TType>>,
     TOutput extends Entity3D,
     TOutputSingle extends Object3D,
 > extends LoaderCore<TType, TConfig, TOutput> {
@@ -211,14 +211,14 @@ export abstract class LoaderMultipleBase<
 export abstract class LoaderMultiple<
     TType extends DatasetType,
     TConfig extends DatasetConfig &
-        DatasetConfigBaseWithSources<
+        DatasetConfigWithSourcesBase<
             TType,
-            DatasetSourceConfigBase<TType> & DatasetSourceConfigUrlOrData
+            DatasetSourceConfigBase<TType> & SourceConfigUrlOrDataMixin
         >,
 > extends LoaderMultipleBase<TType, TConfig, Entity3D, Group> {
     getContext(
         instance: Instance,
-        source: DatasetSourceConfigBase<TType> & DatasetSourceConfigUrlOrData,
+        source: DatasetSourceConfigBase<TType> & SourceConfigUrlOrDataMixin,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         dataset: DatasetBase<TConfig>,
     ): FetchContext {

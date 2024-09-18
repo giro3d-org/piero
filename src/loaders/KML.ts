@@ -1,7 +1,7 @@
 import KML from 'ol/format/KML';
 
 import { OLLoader } from './core/OLLoader';
-import { KMLAsMeshDatasetConfig } from '@/types/configuration/datasets/KML';
+import type { KMLAsMeshDatasetConfig } from '@/types/configuration/datasets/kml';
 
 const KMLFormat = new KML();
 

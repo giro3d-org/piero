@@ -1,9 +1,9 @@
 import type { VectorStyle } from '@/types/VectorStyle';
-import { SourceConfigBase } from './core/baseConfig';
-import { VectorTileSourceConfig } from './core/vectorTile';
+import type { SourceConfigBase } from './core/baseConfig';
+import type { VectorTileSourceConfigMixin } from './core/vectorTile';
 
 /** MVT source configuration */
-export interface MVTSourceConfig extends SourceConfigBase<'mvt'>, VectorTileSourceConfig {
+export interface MVTSourceConfig extends SourceConfigBase<'mvt'>, VectorTileSourceConfigMixin {
     /**
      * URL of the source.
      * Should include `{x},{y},{z}` components, e.g. `https://3d.oslandia.com/mysource/{z}/{x}/{y}.pbf`

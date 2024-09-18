@@ -3,7 +3,7 @@ import PotreePointCloud from '@giro3d/giro3d/entities/PotreePointCloud';
 import PotreeSource from '@giro3d/giro3d/sources/PotreeSource';
 
 import LoaderCore from './core/LoaderCore';
-import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/PotreePointCloud';
+import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/potreePointCloud';
 import type { DatasetBase } from '@/types/Dataset';
 
 /**
