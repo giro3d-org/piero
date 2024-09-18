@@ -33,7 +33,7 @@ export default class MeasurementManager {
         this._camera = camera;
 
         this._boundPause = () => (this._paused = true);
-        this._boundRestart = () => (this._paused = true);
+        this._boundRestart = () => (this._paused = false);
         this._camera.addEventListener('interaction-start', this._boundPause);
         this._camera.addEventListener('interaction-end', this._boundRestart);
 
@@ -137,8 +137,7 @@ export default class MeasurementManager {
     }
 
     private deleteMeasure(measure: Measure) {
-        measure.object.removeFromParent();
-        measure.object.dispose();
+        this._instance.remove(measure.object);
         this._instance.notifyChange();
     }
 
@@ -155,8 +154,8 @@ export default class MeasurementManager {
         const to = new Vector3(...feature.geometry.coordinates[1]);
 
         const o = new Measure3D();
-        this._instance.threeObjects.add(o);
-        o.update(from, to);
+        this._instance.add(o);
+        o.setPoints([from, to]);
         this._instance.notifyChange(this._instance.threeObjects);
 
         this.pushNewMeasure(feature.properties?.title, o, feature.properties);

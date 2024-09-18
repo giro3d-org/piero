@@ -3,12 +3,26 @@
     import VisibilityControl from '../VisibilityControl.vue';
     import AttributeItem from '../AttributeItem.vue';
     import EmptyIndicator from './EmptyIndicator.vue';
+    import { onMounted, onUnmounted, ref } from 'vue';
 
-    defineProps<{
+    const props = defineProps<{
         visible: boolean;
         annotation: Annotation;
     }>();
-    defineEmits(['edit', 'delete', 'download', 'update:visible', 'zoom']);
+
+    defineEmits(['edit', 'stop-edit', 'delete', 'download', 'update:visible', 'zoom']);
+
+    const isEditing = ref(props.annotation.isEditing);
+
+    const onIsEditingChanged = () => (isEditing.value = props.annotation.isEditing);
+
+    onMounted(() => {
+        props.annotation.addEventListener('isEditing', onIsEditingChanged);
+    });
+
+    onUnmounted(() => {
+        props.annotation.removeEventListener('isEditing', onIsEditingChanged);
+    });
 </script>
 
 <template>
@@ -35,8 +49,13 @@
                 >
                     <i class="bi bi-card-list"></i>
                 </a>
-                <a href="#" class="icon" title="Edit geometry" @click="$emit('edit')">
-                    <i class="bi bi-pencil"></i>
+                <a
+                    href="#"
+                    class="icon"
+                    title="Edit geometry (right-click to exit edition, or press Escape to cancel modifications)"
+                    @click="isEditing ? $emit('stop-edit') : $emit('edit')"
+                >
+                    <i :class="`bi bi-pencil ${isEditing ? 'text-primary' : ''}`"></i>
                 </a>
                 <a href="#" class="icon" title="Download..." @click="$emit('download')">
                     <i class="bi bi-download"></i>

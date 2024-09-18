@@ -1,16 +1,20 @@
 import { EventDispatcher } from 'three';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import type { ColorLayer, ElevationLayer, Layer, MaskLayer } from '@giro3d/giro3d/core/layer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
-import LayerBuilder from '@/giro3d/LayerBuilder';
 import Grid from '@/giro3d/Grid';
+import LayerBuilder from '@/giro3d/LayerBuilder';
 import Plane from '@/giro3d/Plane';
 import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import { useLayerStore } from '@/stores/layers';
+import { type BaseLayer } from '@/types/BaseLayer';
 import type { Overlay } from '@/types/Overlay';
-import { type BaseLayer, isColorLayer, isElevationLayer } from '@/types/BaseLayer';
+
+import type Instance from '@giro3d/giro3d/core/Instance';
+import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
+import ElevationLayer, { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
+import Layer from '@giro3d/giro3d/core/layer/Layer';
+import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;
@@ -46,11 +50,12 @@ export default class LayerManager extends EventDispatcher {
         const extent = this._giro3dStore.getDefaultBasemapExtent();
         const mapOptions = this._giro3dStore.getDefaultBasemapOptions();
 
-        this._basemap = new Giro3dMap('basemaps', {
+        this._basemap = new Giro3dMap({
             extent,
-            segments: 128,
+            segments: 32,
             ...mapOptions,
         });
+        this._basemap.name = 'basemaps';
         this._instance.add(this._basemap);
 
         this._grid = new Grid(this._instance, extent, GRID_NAME);

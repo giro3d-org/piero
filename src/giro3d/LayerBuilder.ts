@@ -3,27 +3,7 @@ import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
-import { Extent } from '@giro3d/giro3d/core/geographic';
-import {
-    ColorLayer,
-    ElevationLayer,
-    MaskLayer,
-    type LayerOptions,
-} from '@giro3d/giro3d/core/layer';
-import {
-    BilFormat,
-    GeoTIFFFormat,
-    MapboxTerrainFormat,
-    type ImageFormat,
-} from '@giro3d/giro3d/formats';
-import {
-    CogSource,
-    ImageSource,
-    ImageSourceOptions,
-    TiledImageSource,
-    VectorSource,
-    VectorTileSource,
-} from '@giro3d/giro3d/sources';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
 
 import config from '@/config';
@@ -46,6 +26,19 @@ import type {
     VectorStyle,
 } from '@/types/VectorStyle';
 import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
+import ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
+import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
+import { LayerOptions } from '@/types/configuration/externals';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import VectorTileSource from '@giro3d/giro3d/sources/VectorTileSource';
+import VectorSource from '@giro3d/giro3d/sources/VectorSource';
+import ImageSource, { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
+import BilFormat from '@giro3d/giro3d/formats/BilFormat';
+import MapboxTerrainFormat from '@giro3d/giro3d/formats/MapboxTerrainFormat';
+import GeoTIFFFormat from '@giro3d/giro3d/formats/GeoTIFFFormat';
 
 async function createWMTSSource(
     layer: string | string[],
@@ -109,7 +102,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
             });
         }
         case 'cog': {
-            return new CogSource({
+            return new GeoTIFFSource({
                 ...commonOptions,
                 url: getPublicFolderUrl(input.url),
                 crs: input.projection,
@@ -118,8 +111,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
         case 'geojson': {
             return new VectorSource({
                 ...commonOptions,
-                data: getPublicFolderUrl(input.url),
-                format: new GeoJSON(),
+                data: { url: getPublicFolderUrl(input.url), format: new GeoJSON() },
                 dataProjection: input.projection,
                 style: getStyle(input.style),
             });
@@ -127,8 +119,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
         case 'gpx': {
             return new VectorSource({
                 ...commonOptions,
-                data: getPublicFolderUrl(input.url),
-                format: new GPX(),
+                data: { url: getPublicFolderUrl(input.url), format: new GPX() },
                 dataProjection: input.projection,
                 style: getStyle(input.style),
             });
@@ -136,8 +127,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
         case 'kml': {
             return new VectorSource({
                 ...commonOptions,
-                data: getPublicFolderUrl(input.url),
-                format: new KML(),
+                data: { url: getPublicFolderUrl(input.url), format: new KML() },
                 dataProjection: input.projection,
                 style: getStyle(input.style),
             });
@@ -175,8 +165,7 @@ async function getSource(input: SourceConfig): Promise<ImageSource> {
         case 'vector': {
             return new VectorSource({
                 ...commonOptions,
-                data: getPublicFolderUrl(input.url),
-                format: input.format,
+                data: { url: getPublicFolderUrl(input.url), format: input.format },
                 dataProjection: input.projection,
                 style: getStyle(input.style),
             });

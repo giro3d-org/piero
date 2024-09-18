@@ -129,7 +129,7 @@ export abstract class LoaderMultiple<TParams extends object> extends LoaderMulti
     merge(inputs: Group[]): Promise<Entity3D> {
         const root = new Group();
         inputs.forEach(child => root.add(child));
-        const entity = new Entity3D(root.uuid, root);
+        const entity = new Entity3D(root);
         return Promise.resolve(entity);
     }
 }

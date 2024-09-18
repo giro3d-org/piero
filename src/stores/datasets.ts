@@ -1,7 +1,7 @@
 import { ref, computed, Ref } from 'vue';
 import { defineStore } from 'pinia';
 import { Box3 } from 'three';
-import { type Entity3D } from '@giro3d/giro3d/entities';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 import { type Dataset, type DatasetOrGroup, parseDatasetConfig } from '@/types/Dataset';
 import config from '../config';

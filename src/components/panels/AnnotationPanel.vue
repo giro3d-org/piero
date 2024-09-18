@@ -10,6 +10,7 @@
     import AnnotationMode, { annotationModes } from '@/types/AnnotationMode';
     import Named from '@/types/Named';
     import Annotation from '@/types/Annotation';
+    import SwitchToggle from '../SwitchToggle.vue';
 
     const annotations = useAnnotationStore();
     const cameraStore = useCameraStore();
@@ -62,6 +63,7 @@
                     }
                 "
                 v-on:edit="annotations.edit(item)"
+                v-on:stop-edit="annotations.stopEdition()"
                 v-on:delete="annotations.remove(item)"
                 v-on:download="downloadAnnotation(item)"
                 v-on:zoom="goTo(item)"
@@ -74,6 +76,12 @@
             id="annotations-fieldset"
         >
             <hr />
+            <SwitchToggle
+                v-bind:model-value="annotations.showLabels()"
+                v-on:update:model-value="v => annotations.setShowLabels(v)"
+                title="show labels"
+                >Show annotation labels</SwitchToggle
+            >
             <div class="mb-3">
                 <DropdownView
                     label="Mode"

@@ -1,5 +1,5 @@
 import { EventDispatcher, MathUtils } from 'three';
-import { Coordinates } from '@giro3d/giro3d/core/geographic';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 import config from '@/config';
 import type {

@@ -26,14 +26,10 @@ export class TiledPointCloudLoader extends LoaderCore<TiledPointCloudParameters,
         });
         material.colorMap = getColorMap(config.pointcloud);
 
-        const pointcloud = new Tiles3D(
-            `pointcloud-${parameters.name}`,
-            new Tiles3DSource(parameters.url),
-            {
-                material,
-            },
-        );
+        const pointcloud = new Tiles3D(new Tiles3DSource(parameters.url), { material });
+        pointcloud.name = `pointcloud-${parameters.name}`;
         this._fillObject3DUserData(pointcloud, { filename: parameters.url });
+
         return Promise.resolve(pointcloud);
     }
 }

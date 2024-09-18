@@ -1,19 +1,48 @@
-import IfcEntity from '@/giro3d/IfcEntity';
+import IfcEntity, { IFCPickResult } from '@/giro3d/IfcEntity';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import Shape, { isShapePickResult, ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import { Color } from 'three';
+import { PieroShapeUserData } from '@/types/Annotation';
+import { MeasureUserData } from '@/giro3d/Measure3D';
 
 export default class Highlighter {
-    private _highlighted: IfcEntity | null;
-
-    constructor() {
-        this._highlighted = null;
-    }
+    private _clearHighlight: (() => void) | null = null;
 
     dispose() {
         this.clear();
     }
 
     clear() {
-        if (this._highlighted) this._highlighted.clearHighlight();
+        if (this._clearHighlight) {
+            this._clearHighlight();
+            this._clearHighlight = null;
+        }
+    }
+
+    private highlightShape(pick: ShapePickResult) {
+        const shape = pick.entity as Shape<PieroShapeUserData | MeasureUserData>;
+
+        if (shape.userData.highlightable) {
+            const previousColor = new Color(shape.color);
+            shape.color = shape.userData.highlightColor;
+            shape.instance.notifyChange();
+
+            this._clearHighlight = () => {
+                shape.color = previousColor;
+                shape.instance.notifyChange();
+            };
+        }
+    }
+
+    private highlightIFC(pick: IFCPickResult) {
+        const mesh = pick.object;
+        if (mesh.fragment && pick.face && pick.instanceId !== undefined) {
+            const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pick.face.a);
+
+            const itemId = mesh.fragment.getItemID(pick.instanceId, blockId).replace(/\..*/, '');
+            this._clearHighlight = () => pick.entity.clearHighlight();
+            pick.entity.highlight('selection', mesh, itemId);
+        }
     }
 
     highlightFromPick(pick: PickResult) {
@@ -24,16 +53,9 @@ export default class Highlighter {
         }
 
         if (IfcEntity.isIFCPickResult(pick)) {
-            const mesh = pick.object;
-            if (mesh.fragment && pick.face && pick.instanceId !== undefined) {
-                const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pick.face.a);
-
-                const itemId = mesh.fragment
-                    .getItemID(pick.instanceId, blockId)
-                    .replace(/\..*/, '');
-                this._highlighted = pick.entity;
-                pick.entity.highlight('selection', mesh, itemId);
-            }
+            this.highlightIFC(pick);
+        } else if (isShapePickResult(pick)) {
+            this.highlightShape(pick);
         }
     }
 }

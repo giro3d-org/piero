@@ -1,25 +1,40 @@
+import IgnProvider from '@/providers/IgnProvider';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import GeometryConverter, {
+    PolygonOptions,
+} from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
+import { getCenter } from 'ol/extent';
 import type Feature from 'ol/Feature';
 import { type FeatureLike } from 'ol/Feature';
 import type FeatureFormat from 'ol/format/Feature';
-import { getCenter } from 'ol/extent';
 import {
-    type LineString,
+    LineString,
     type MultiLineString,
     type MultiPoint,
     type MultiPolygon,
     type Point,
     type Polygon,
 } from 'ol/geom';
-import { Box3, Group, Vector3 } from 'three';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import OlFeature2Mesh, { type OlFeature2MeshOptions } from '@giro3d/giro3d/utils/OlFeature2Mesh';
-
+import { Group } from 'three';
 import Projections from './Projections';
-import IgnProvider from '@/providers/IgnProvider';
 
-export type SimpleFeature = Feature<
-    Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon
->;
+export type SimpleGeometryType =
+    | 'Point'
+    | 'MultiPoint'
+    | 'LineString'
+    | 'MultiLineString'
+    | 'Polygon'
+    | 'MultiPolygon';
+
+export type SimpleGeometry =
+    | Point
+    | MultiPoint
+    | LineString
+    | MultiLineString
+    | Polygon
+    | MultiPolygon;
+
+export type SimpleFeature = Feature<SimpleGeometry>;
 
 /**
  * Converts data into OpenLayers features
@@ -217,24 +232,43 @@ async function fillZCoordinates(
  * Meshes are automatically translated around their center to avoid weird side-effects.
  *
  * @param olFeatures - Features to convert
- * @param options - Options to pass to `OlFeature2Mesh`
+ * @param polygonOptions - Options to pass to the geometry converter.
  * @returns Group of meshes
  */
-function toMeshes(olFeatures: SimpleFeature[], options?: OlFeature2MeshOptions): Group {
+function toMeshes(olFeatures: SimpleFeature[], polygonOptions?: PolygonOptions): Group {
     const root = new Group();
 
-    const meshes = OlFeature2Mesh.convert(olFeatures, options ?? null);
-    const bbox = new Box3();
-    const center = new Vector3();
-    for (const mesh of meshes) {
-        bbox.setFromObject(mesh);
-        bbox.getCenter(center);
+    const converter = new GeometryConverter();
 
-        mesh.geometry.translate(-center.x, -center.y, -center.z);
-        mesh.position.copy(center);
-        mesh.updateMatrix();
-        mesh.updateMatrixWorld();
-        root.add(mesh);
+    const meshes = olFeatures.map(f => {
+        const geometry = f.getGeometry();
+
+        if (geometry != null) {
+            const type = geometry.getType() as SimpleGeometryType;
+
+            switch (type) {
+                case 'Point':
+                    return converter.build(geometry as Point);
+                case 'LineString':
+                    return converter.build(geometry as LineString);
+                case 'Polygon':
+                    return converter.build(geometry as Polygon, polygonOptions);
+                case 'MultiPoint':
+                    return converter.build(geometry as MultiPoint);
+                case 'MultiLineString':
+                    return converter.build(geometry as MultiLineString);
+                case 'MultiPolygon':
+                    return converter.build(geometry as MultiPolygon, polygonOptions);
+                default:
+                    return null;
+            }
+        }
+    });
+
+    for (const mesh of meshes) {
+        if (mesh != null) {
+            root.add(mesh);
+        }
     }
 
     return root;

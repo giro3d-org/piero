@@ -100,7 +100,7 @@ export default class ClippingBoxManager {
 
             // Now let's add some controls to move the box
             this._transformControls = new TransformControls(
-                this._instance.camera.camera3D,
+                this._instance.view.camera,
                 this._instance.domElement,
             );
             this._transformControls.addEventListener('change', () => {

@@ -19,7 +19,6 @@ import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Drawing from '@giro3d/giro3d/interactions/Drawing';
 import Instance from '@giro3d/giro3d/core/Instance';
 import Inspector from '@giro3d/giro3d/gui/Inspector';
 import { useCameraStore } from '@/stores/camera';
@@ -88,10 +87,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._instance = instance;
         this._picker = picker;
         this._orbitControls = new CameraControls(
-            this._instance.camera.camera3D,
+            this._instance.view.camera,
             this._instance.domElement,
         );
-        this._instance.controls = this._orbitControls;
 
         const orbitHelperElement = document.createElement('div');
         orbitHelperElement.className = 'helper';
@@ -118,7 +116,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this.initializeOrbitControls();
 
         this._pickObjectsAt = (event: MouseEvent) =>
-            this._picker.getFirstFeatureAt(this._instance, event, 1);
+            this._picker.getFirstFeatureAt(this._instance, event, 1)?.at(0) ?? null;
 
         this._clock = new Clock();
 
@@ -167,8 +165,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._disablePositionOnMap();
         this.disposeOrbitControls();
 
-        // @ts-expect-error Giro3D Instance API doesn't support setting it to undefined, but it works and is necessary before disposing
-        this._instance.controls = undefined;
         this._instance.remove(this._positionOnMapHelper);
         this._instance.remove(this._orbitHelper);
     }
@@ -209,13 +205,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         // We need both events to make sure the view is updated from user interactions and from
         // animations
         this._orbitControls.addEventListener('update', () =>
-            this._instance.notifyChange(this._instance.camera.camera3D),
+            this._instance.notifyChange(this._instance.view.camera),
         );
         this._orbitControls.addEventListener('control', () =>
-            this._instance.notifyChange(this._instance.camera.camera3D),
+            this._instance.notifyChange(this._instance.view.camera),
         );
 
-        // Dispatch our our events
+        // Dispatch our events
         this._orbitControls.addEventListener('control', () => {
             if (this._orbitControls.active || this._orbitControls.currentAction !== 0) {
                 this.dispatchEvent({ type: 'interaction-start' });
@@ -447,7 +443,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this._disablePositionOnMap();
 
             const direction = new Vector3();
-            this._instance.camera.camera3D.getWorldDirection(direction);
+            this._instance.view.camera.getWorldDirection(direction);
             direction.normalize().setLength(3);
 
             const newPosition = picked.point.clone();
@@ -488,9 +484,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
                     // Set new target close to the camera position so it feels like we're rotating around the camera position
                     const direction = new Vector3();
-                    const position = this._instance.camera.camera3D.position.clone();
+                    const position = this._instance.view.camera.position.clone();
                     const newTarget = new Vector3();
-                    this._instance.camera.camera3D.getWorldDirection(direction);
+                    this._instance.view.camera.getWorldDirection(direction);
 
                     direction.normalize().setLength(3);
                     newTarget.copy(position).add(direction);
@@ -517,11 +513,11 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
                     // Try to restore a proper target so it doesn't require a right-click to properly truck/dolly
                     const direction = new Vector3();
-                    const position = this._instance.camera.camera3D.position.clone();
-                    this._instance.camera.camera3D.getWorldDirection(direction);
+                    const position = this._instance.view.camera.position.clone();
+                    this._instance.view.camera.getWorldDirection(direction);
 
                     const raycaster = new Raycaster();
-                    raycaster.camera = this._instance.camera.camera3D;
+                    raycaster.camera = this._instance.view.camera;
                     raycaster.set(position, direction);
                     const intersects = raycaster.intersectObject(this._instance.scene).at(0);
 
@@ -551,15 +547,15 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         const delta = this._clock.getDelta();
         const hasControlsUpdated = this._orbitControls.update(delta);
         if (hasControlsUpdated) {
-            this._instance.notifyChange(this._instance.camera.camera3D);
+            this._instance.notifyChange(this._instance.view.camera);
         }
     }
 
     onAfterCameraUpdate() {
-        // this.instance.camera.camera3D.position is *not always* the same as orbitControls.getPosition()
+        // this.instance.view.camera.position is *not always* the same as orbitControls.getPosition()
         this._store.setCurrentPosition(
             this.getCameraPosition(),
-            this._instance.camera.camera3D.position,
+            this._instance.view.camera.position,
         );
     }
 
@@ -594,12 +590,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      */
     setInitialPosition(extent: Extent, altitude = 4000) {
         const cameraPosition = new Coordinates(
-            extent.crs(),
-            extent.west(),
-            extent.south(),
+            extent.crs,
+            extent.west,
+            extent.south,
             altitude,
         ).toVector3();
-        const center = extent.center().toVector3();
+        const center = extent.centerAsVector3();
         this.lookAt(cameraPosition, center, false);
     }
 
@@ -631,6 +627,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             );
         });
         this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
+    }
+
+    get enabled() {
+        return this._orbitControls.enabled;
+    }
+
+    set enabled(v: boolean) {
+        this._orbitControls.enabled = v;
     }
 
     getCameraPosition(target?: CameraPosition): CameraPosition {
@@ -725,33 +729,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             } else if ('extent' in entity3d) {
                 // In case object is hidden
                 bbox = (entity3d.extent as Extent).toBox3(0, 200);
-            }
-        } else if ((obj as Drawing).isDrawing) {
-            const drawing = obj as Drawing;
-            // TODO: this should probably be part of Drawing in Giro3D
-            if (drawing.geometryType === 'Point') {
-                bbox.setFromCenterAndSize(
-                    new Vector3(
-                        drawing.coordinates[0],
-                        drawing.coordinates[1],
-                        drawing.coordinates[2],
-                    ),
-                    new Vector3(10, 10, 10),
-                );
-            } else if (drawing.geometryType === 'MultiPoint') {
-                const pts = [];
-                for (let i = 0; i < drawing.coordinates.length; i += 3) {
-                    pts.push(
-                        new Vector3(
-                            drawing.coordinates[i],
-                            drawing.coordinates[i + 1],
-                            drawing.coordinates[i + 2],
-                        ),
-                    );
-                }
-                bbox.setFromPoints(pts);
-            } else {
-                bbox.setFromObject(drawing);
             }
         } else if ((obj as Object3D).isObject3D) {
             bbox.setFromObject(obj as Object3D);

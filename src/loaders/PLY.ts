@@ -1,12 +1,15 @@
-import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
-import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { type PickResult, type PickableFeatures } from '@giro3d/giro3d/core/picking';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-
 import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
+
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
+import { Color, DoubleSide, Mesh, MeshLambertMaterial } from 'three';
+
+import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import { Loader, type UrlParams } from './core/LoaderCore';
 
 /** Parameters for creating PLY object */
@@ -78,7 +81,7 @@ async function toEntity(data: ArrayBuffer, parameters: PLYImplParameters): Promi
     mesh.position.copy(position);
     mesh.updateWorldMatrix(true, true);
 
-    const entity = new Entity3D(mesh.uuid, mesh);
+    const entity = new Entity3D(mesh);
     return Promise.resolve(entity);
 }
 

@@ -11,9 +11,11 @@ import {
     FragmentClassifier,
     FragmentBoundingBox,
 } from 'openbim-components';
-import { Entity3D } from '@giro3d/giro3d/entities';
-import { PickOptions, PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { isObject } from '@/utils/Types';
+import PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting
@@ -119,8 +121,10 @@ export default class IfcEntity
     extends Entity3D
     implements PickableFeatures<IFCFeature, IFCPickResult>
 {
-    readonly isIfcEntity = true;
-    readonly isPickableFeatures = true;
+    readonly isIfcEntity = true as const;
+    readonly isPickableFeatures = true as const;
+    readonly type = 'IfcEntity' as const;
+
     readonly components: Components;
     readonly fragmentManager: FragmentManager;
     readonly fragmentClassifier: FragmentClassifier;
@@ -139,12 +143,11 @@ export default class IfcEntity
         fragmentManager: FragmentManager,
         fragmentClassifier: FragmentClassifier,
     ) {
-        super(root.uuid, root);
+        super(root);
 
         this.components = components;
         this.fragmentManager = fragmentManager;
         this.fragmentClassifier = fragmentClassifier;
-        this.type = 'IfcEntity';
         this._ifcSelection = { selection: {}, bbox: {} };
         this._indexMap = {};
         this._classificationCache = null;
@@ -324,7 +327,7 @@ export default class IfcEntity
                 selection.mesh.removeFromParent();
             }
         }
-        this._instance.notifyChange(this);
+        this.notifyChange(this);
 
         this._ifcSelection[name] = {};
     }
@@ -400,7 +403,7 @@ export default class IfcEntity
                 this.regenerate(name, fragID);
             }
         }
-        this._instance.notifyChange(this);
+        this.notifyChange(this);
     }
 
     highlightById(ids: FragmentIdMap, name: FragmentTypeName = 'selection') {
@@ -422,7 +425,7 @@ export default class IfcEntity
             this.regenerate(name, fragID);
         }
 
-        this._instance.notifyChange(this);
+        this.notifyChange(this);
     }
 
     getBoundingBoxById(ids: FragmentIdMap) {

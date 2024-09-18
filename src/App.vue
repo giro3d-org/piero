@@ -1,8 +1,9 @@
 <script setup lang="ts">
     import { Vector2, Vector3 } from 'three';
     import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue';
-    import { Instance } from '@giro3d/giro3d/core';
-    import { Coordinates, Extent } from '@giro3d/giro3d/core/geographic';
+    import Instance from '@giro3d/giro3d/core/Instance';
+    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+    import Extent from '@giro3d/giro3d/core/geographic/Extent';
 
     import AlertToast from './components/AlertToast.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';

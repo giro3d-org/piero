@@ -1,5 +1,4 @@
 import type { EventDispatcher } from 'three';
-import type { ColorLayer, ElevationLayer } from '@giro3d/giro3d/core/layer';
 
 import LayerObject from '@/types/LayerObject';
 import type {
@@ -7,12 +6,6 @@ import type {
     LayerConfig,
     LayerType,
 } from '@/types/configuration/layers';
-import { isObject } from '@/utils/Types';
-
-export const isColorLayer = (obj: unknown): obj is ColorLayer =>
-    isObject(obj) && (obj as ColorLayer).isColorLayer;
-export const isElevationLayer = (obj: unknown): obj is ElevationLayer =>
-    isObject(obj) && (obj as ElevationLayer).isElevationLayer;
 
 export type BaseLayerOptions<TLayerType extends LayerConfig> = Omit<
     TLayerType,

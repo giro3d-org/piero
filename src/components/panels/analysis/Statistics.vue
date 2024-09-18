@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref } from 'vue';
-    import { PromiseUtils } from '@giro3d/giro3d/utils';
+    import PromiseUtils from '@giro3d/giro3d/utils/PromiseUtils';
     import DropdownView from '@/components/DropdownView.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import BarChart from '@/components/charts/BarChart.vue';

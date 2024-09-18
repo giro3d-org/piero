@@ -47,7 +47,7 @@ export interface BasemapConfig
             | 'contourLines'
             | 'graticule'
             | 'colorimetry'
-            | 'doubleSided'
+            | 'side'
             | 'terrain'
             | 'backgroundColor'
             | 'backgroundOpacity'

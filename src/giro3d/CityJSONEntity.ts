@@ -1,8 +1,10 @@
 import { Vector2 } from 'three';
 import { CityJSONLoader, CityObjectsMesh } from 'cityjson-threejs-loader';
-import { Entity3D } from '@giro3d/giro3d/entities';
-import { PickOptions, PickResult, PickableFeatures } from '@giro3d/giro3d/core/picking';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { isObject } from '@/utils/Types';
+import PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 
 export interface CityJSONIntersectionInfo {
     vertexId: number;
@@ -38,7 +40,7 @@ export default class CityJSONEntity
     readonly isPickableFeatures = true;
 
     constructor(loader: CityJSONLoader) {
-        super(loader.scene.uuid, loader.scene);
+        super(loader.scene);
 
         this.object3d.traverse(obj => {
             this.onObjectCreated(obj);

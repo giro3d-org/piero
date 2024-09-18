@@ -8,11 +8,10 @@
     const store = useGiro3dStore();
 
     onMounted(() => {
-        instance.value = new Instance(target.value as HTMLDivElement, {
+        instance.value = new Instance({
+            target: target.value as HTMLDivElement,
             crs: 'EPSG:3857',
-            renderer: {
-                clearColor: 0xcccccc,
-            },
+            backgroundColor: 0xcccccc,
         });
         store.setMinimapView(instance.value);
     });
