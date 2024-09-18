@@ -65,10 +65,6 @@ export const useLayerStore = defineStore('layers', () => {
         layer.visible = visible;
     }
 
-    function getElevationColorMap() {
-        return config.basemap.colormap;
-    }
-
     function setBasemapOpacity(layer: BaseLayer, opacity: number) {
         layer.opacity = opacity;
     }
@@ -111,7 +107,6 @@ export const useLayerStore = defineStore('layers', () => {
         setBasemapOpacity,
         setBasemapVisibility,
         overlayCount,
-        getElevationColorMap,
         getOverlays,
         setOverlayOpacity,
         setOverlayVisibility,

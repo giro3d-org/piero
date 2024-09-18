@@ -1,8 +1,7 @@
 import { EventDispatcher } from 'three';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer, { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
-import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
 import Layer from '@giro3d/giro3d/core/layer/Layer';
 import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
@@ -12,7 +11,7 @@ import Plane from '@/giro3d/Plane';
 import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import { useLayerStore } from '@/stores/layers';
-import type { BaseLayer } from '@/types/BaseLayer';
+import type { BaseLayer, BasemapLayer } from '@/types/BaseLayer';
 import type { Overlay } from '@/types/Overlay';
 
 // Hide the grid when above this altitude threshold
@@ -22,8 +21,6 @@ export const PLANE_NAME = 'plane';
 
 // Hide the graticule when above this altitude threshold
 const GRATICULE_ALTITUDE_THRESHOLD = 5000;
-
-export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
 
 export default class LayerManager extends EventDispatcher {
     private readonly _instance: Instance;
@@ -163,7 +160,7 @@ export default class LayerManager extends EventDispatcher {
     }
 
     private async loadBasemap(basemap: BaseLayer) {
-        const layer = await LayerBuilder.getLayer(basemap, this._layerStore.getElevationColorMap());
+        const layer = await LayerBuilder.getLayer(basemap);
 
         this._baseLayers.set(basemap.uuid, layer);
         this._basemap.addLayer(layer);

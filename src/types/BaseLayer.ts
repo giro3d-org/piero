@@ -1,4 +1,7 @@
 import type { EventDispatcher } from 'three';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
 
 import LayerObject from '@/types/LayerObject';
 import type {
@@ -6,6 +9,8 @@ import type {
     LayerConfig,
     LayerType,
 } from '@/types/configuration/layers';
+
+export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
 
 export type BaseLayerOptions<TLayerType extends LayerConfig> = Omit<
     TLayerType,
