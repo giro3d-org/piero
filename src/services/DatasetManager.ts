@@ -12,12 +12,26 @@ import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import Giro3DMap from '@giro3d/giro3d/entities/Map';
 import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 
-import loader, { datasetSupportsOverlay } from '@/loaders/loader';
+import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Datagroup, type DatasetLayer, type DatasetOrGroup } from '@/types/Dataset';
+import type { DatasetAsLayerConfig, DatasetAsMeshesConfig } from '@/types/configuration/datasets';
+import {
+    Datagroup,
+    Dataset,
+    DatasetBase,
+    type DatasetLayer,
+    type DatasetOrGroup,
+} from '@/types/Dataset';
 import Notification from '@/types/Notification';
+import { isObject } from '@/utils/Types';
 import type LayerManager from './LayerManager';
+
+const datasetSupportsOverlay = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsLayerConfig> =>
+    isObject(obj) && 'loadAsOverlay' in obj.config;
+
+const datasetSupportsMeshes = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsMeshesConfig> =>
+    isObject(obj) && !datasetSupportsOverlay(obj);
 
 export default class DatasetManager {
     private readonly _instance: Instance;
@@ -294,7 +308,7 @@ export default class DatasetManager {
 
                     this.onDatasetLoadedAsOverlay(dataset, layer);
                 }
-            } else {
+            } else if (datasetSupportsMeshes(dataset)) {
                 const entity = await loader.loadDataset(this._instance, dataset);
 
                 if (entity) {
@@ -304,6 +318,8 @@ export default class DatasetManager {
 
                     this.onDatasetLoaded(dataset, entity);
                 }
+            } else {
+                throw new Error('Dataset is neither an overlay or 3d mesh');
             }
         } catch (e) {
             console.error('Could not load dataset', dataset, e);

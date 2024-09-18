@@ -1,12 +1,13 @@
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
 
 import config from '@/config';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import type {
     DatasetAsLayerConfig,
-    DatasetConfig,
+    DatasetAsMeshesConfig,
     DatasetConfigImportable,
     DatasetTypeImportable,
 } from '@/types/configuration/datasets';
@@ -25,7 +26,6 @@ import type { ShapefileDatasetConfig } from '@/types/configuration/datasets/shap
 import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/tiledPointCloud';
 import { Dataset, type DatasetBase } from '@/types/Dataset';
 import Fetcher, { type FetchContext, type UrlOrFetchedData } from '@/utils/Fetcher';
-import { isObject } from '@/utils/Types';
 import { BDTopoLoader } from './BDTopo';
 import { CityJSONLoader } from './CityJSON';
 import { CSVPointCloudLoader } from './CSVPointCloud';
@@ -39,11 +39,6 @@ import { PLYLoader } from './PLY';
 import { PotreePointCloudLoader } from './PotreePointCloud';
 import { ShapefileLoader } from './Shapefile';
 import { TiledPointCloudLoader } from './TiledPointCloud';
-
-export const datasetSupportsOverlay = (
-    obj: unknown,
-): obj is Dataset & DatasetBase<DatasetAsLayerConfig> =>
-    isObject(obj) && 'config' in obj && 'loadAsOverlay' in (obj as Dataset).config;
 
 /** Supported file types */
 type FileType = 'gpkg' | 'las' | 'csv' | 'cityjson' | 'geojson' | 'ifc' | 'gpx' | 'kml';
@@ -119,7 +114,7 @@ function getFilename(fileOrUrl: UrlOrFetchedData): FileInfo {
  */
 async function loadDataset(
     instance: Instance,
-    dataset: Dataset & DatasetBase<DatasetConfig>,
+    dataset: Dataset & DatasetBase<DatasetAsMeshesConfig>,
 ): Promise<Entity3D> {
     let entity: Promise<Entity3D>;
 
@@ -213,13 +208,27 @@ async function loadDataset(
 async function loadDatasetAsOverlay(
     instance: Instance,
     dataset: Dataset & DatasetBase<DatasetAsLayerConfig>,
-) {
-    const source = await LayerBuilder.getSource(dataset.config.source);
-    const colorLayer = new ColorLayer({
-        source,
-        name: dataset.name,
-    });
-    return colorLayer;
+): Promise<ColorLayer | MaskLayer> {
+    const commonOptions = await LayerBuilder.getLayerOptions(dataset.config);
+    switch (dataset.config.overlayType) {
+        case 'color': {
+            return new ColorLayer({
+                ...commonOptions,
+                elevationRange: dataset.config.elevationRange,
+            });
+        }
+        case 'mask': {
+            return new MaskLayer({
+                ...commonOptions,
+                maskMode: dataset.config.maskMode,
+            });
+        }
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = dataset.config.overlayType;
+            return _exhaustiveCheck;
+        }
+    }
 }
 
 /**
@@ -264,6 +273,7 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
                     ...commonConfig,
                     type: 'geojson',
                     loadAsOverlay: true,
+                    overlayType: 'color',
                     source: {
                         type: 'geojson',
                         url: file,
@@ -299,6 +309,7 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
                     ...commonConfig,
                     type: 'gpx',
                     loadAsOverlay: true,
+                    overlayType: 'color',
                     source: {
                         type: 'gpx',
                         url: file,
@@ -342,6 +353,7 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
                     ...commonConfig,
                     type: 'kml',
                     loadAsOverlay: true,
+                    overlayType: 'color',
                     source: {
                         type: 'kml',
                         url: file,

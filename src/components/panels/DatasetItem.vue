@@ -32,35 +32,49 @@
     propertyViews.set('ifc', IfcPropertyView);
 
     const icons: Record<DatasetType, string> = {
+        'pointcloud-csv': 'fg-multipoint',
+        'vector-tile': 'fg-contour-map',
         bdtopo: 'bi-buildings',
         cityjson: 'bi-buildings',
+        cog: 'fg-contour-map',
         geojson: 'fg-geojson-file',
         gpkg: 'fg-polygon-pt',
         gpx: 'fg-polyline',
         ifc: 'bi-building',
         kml: 'fg-polygon-pt',
+        las: 'fg-multipoint',
+        mvt: 'fg-contour-map',
         ply: 'bi-file-earmark-binary',
         pointcloud: 'fg-multipoint',
-        'pointcloud-csv': 'fg-multipoint',
-        las: 'fg-multipoint',
         potree: 'fg-multipoint',
         shp: 'fg-shape-file',
+        vector: 'fg-polygon-pt',
+        wms: 'fg-contour-map',
+        wmts: 'fg-contour-map',
+        xyz: 'fg-contour-map',
     };
 
     const iconTitles: Record<DatasetType, string> = {
+        'pointcloud-csv': 'CSV Point Cloud',
+        'vector-tile': 'Vector tile',
         bdtopo: 'BDTopo',
         cityjson: 'CityJSON',
+        cog: 'COG',
         geojson: 'GeoJSON',
         gpkg: 'Geopackage',
         gpx: 'GPX',
         ifc: 'IFC',
         kml: 'KML',
+        las: 'LAS Point Cloud',
+        mvt: 'MVT',
         ply: 'PLY',
         pointcloud: 'Point Cloud',
-        'pointcloud-csv': 'CSV Point Cloud',
-        las: 'LAS Point Cloud',
         potree: 'Potree Point Cloud',
         shp: 'Shapefile',
+        vector: 'Vector',
+        wms: 'WMS',
+        wmts: 'WMTS',
+        xyz: 'XYZ',
     };
 </script>
 

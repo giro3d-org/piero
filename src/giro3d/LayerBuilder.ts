@@ -37,7 +37,10 @@ import type {
 import type { TiledImageSourceConfigMixin } from '@/types/configuration/sources/core/tiled';
 import type { VectorAsLayerSourceConfigMixin } from '@/types/configuration/sources/core/vector';
 import type { VectorTileSourceConfigMixin } from '@/types/configuration/sources/core/vectorTile';
-import type { DatasetAsLayerSourceConfig } from '@/types/configuration/datasets';
+import type {
+    DatasetAsLayerConfig,
+    DatasetAsLayerSourceConfig,
+} from '@/types/configuration/datasets';
 import type { OLGeometry } from '@/types/OLGeometry';
 import type { Overlay } from '@/types/Overlay';
 import type {
@@ -348,30 +351,35 @@ async function getSource(
  * @param layer - Layer configuration
  * @returns Options that should be passed to layer constructor
  */
-async function getLayerOptions(layer: BaseLayer | Overlay): Promise<LayerOptions> {
+async function getLayerOptions(
+    layer: BaseLayer | Overlay | DatasetAsLayerConfig,
+): Promise<LayerOptions> {
     const source = await getSource(layer.source);
-    const extent = getExtent(layer.options.extent);
-    const interpretation = layer.options.interpretation
-        ? new Interpretation(layer.options.interpretation.mode, layer.options.interpretation)
+
+    const options = 'options' in layer ? layer.options : layer;
+
+    const extent = getExtent(options.extent);
+    const interpretation = options.interpretation
+        ? new Interpretation(options.interpretation.mode, options.interpretation)
         : undefined;
     const colorMapConfig =
-        layer.options.colorMap ??
+        options.colorMap ??
         ('type' in layer && layer.type === 'elevation' ? config.basemap.colormap : undefined);
     const colorMap = colorMapConfig ? getColorMap(colorMapConfig) : undefined;
     const resolution = 'resolution' in layer.source ? layer.source.resolution : undefined;
 
     return {
-        name: layer.uuid,
+        name: layer.name,
         source,
         extent,
         interpretation,
-        showTileBorders: layer.options.showTileBorders,
-        showEmptyTextures: layer.options.showEmptyTextures,
+        showTileBorders: options.showTileBorders,
+        showEmptyTextures: options.showEmptyTextures,
         colorMap,
-        preloadImages: layer.options.preloadImages,
-        backgroundColor: layer.options.backgroundColor,
+        preloadImages: options.preloadImages,
+        backgroundColor: options.backgroundColor,
         resolutionFactor: resolution,
-        noDataOptions: layer.options.noDataOptions,
+        noDataOptions: options.noDataOptions,
     };
 }
 
@@ -527,6 +535,7 @@ function getDefaultStyle(geometry?: OLGeometry): Style {
 
 export default {
     getSource,
+    getLayerOptions,
     getLayer,
     getOverlay,
 };

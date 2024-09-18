@@ -2,28 +2,34 @@ import type {
     SourceConfigUrlMixin,
     SourceConfigUrlOrDataMixin,
 } from '@/types/configuration/sources/core/baseConfig';
-import type { VectorAsLayerSourceConfigMixin } from '@/types/configuration/sources/core/vector';
 import type { GeoVec3 } from '@/types/configuration/geographic';
 import type {
     DatasetCascadingConfig,
     DatasetConfigBase,
     DatasetConfigMaskingMixin,
+    DatasetAsLayerConfigMixin,
     OnObjectPreloaded,
 } from './core/baseConfig';
-import type { VectorAsLayerDatasetConfigBase } from './core/vector';
 import type { BDTopoDatasetConfig } from './bdtopo';
 import type { CityJSONDatasetConfig } from './cityjson';
+import type { GeoTIFFDatasetConfig } from './geotiff';
 import type { CSVPointCloudDatasetConfig } from './csvPointCloud';
+import type { CustomVectorDatasetConfig } from './customVector';
+import type { CustomVectorTileDatasetConfig } from './customVectorTile';
 import type { GeoJSONAsLayerDatasetConfig, GeoJSONAsMeshDatasetConfig } from './geojson';
 import type { GeopackageDatasetConfig } from './geopackage';
 import type { GPXAsLayerDatasetConfig, GPXAsMeshDatasetConfig } from './gpx';
 import type { IFCDatasetConfig } from './ifc';
 import type { KMLAsLayerDatasetConfig, KMLAsMeshDatasetConfig } from './kml';
 import type { LASDatasetConfig } from './las';
+import type { MVTDatasetConfig } from './mvt';
 import type { PLYDatasetConfig } from './ply';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
 import type { ShapefileDatasetConfig } from './shapefile';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
+import type { WMSDatasetConfig } from './wms';
+import type { WMTSDatasetConfig } from './wmts';
+import type { XYZDatasetConfig } from './xyz';
 
 /**
  * Deprecated dataset configuration
@@ -45,7 +51,10 @@ export interface DatasetConfigDeprecated<TType extends string> extends DatasetCo
 export type DatasetConfig =
     | BDTopoDatasetConfig
     | CityJSONDatasetConfig
+    | GeoTIFFDatasetConfig
     | CSVPointCloudDatasetConfig
+    | CustomVectorDatasetConfig
+    | CustomVectorTileDatasetConfig
     | GeoJSONAsLayerDatasetConfig
     | GeoJSONAsMeshDatasetConfig
     | GeopackageDatasetConfig
@@ -55,10 +64,14 @@ export type DatasetConfig =
     | KMLAsLayerDatasetConfig
     | KMLAsMeshDatasetConfig
     | LASDatasetConfig
+    | MVTDatasetConfig
     | PLYDatasetConfig
     | PotreePointCloudDatasetConfig
     | ShapefileDatasetConfig
-    | TiledPointCloudDatasetConfig;
+    | TiledPointCloudDatasetConfig
+    | WMSDatasetConfig
+    | WMTSDatasetConfig
+    | XYZDatasetConfig;
 
 /** List of all dataset types */
 export type DatasetType = DatasetConfig['type'];
@@ -135,14 +148,11 @@ export type DatasetConfigImportable = Extract<
 /** List of dataset types that can be imported into the app */
 export type DatasetTypeImportable = DatasetConfigImportable['type'];
 
-/** List of dataset sources that can be loaded as Giro3D layers */
-export type DatasetAsLayerSourceConfig = Extract<
-    DatasetSourceConfig,
-    VectorAsLayerSourceConfigMixin
->;
-
 /** List of datasets that can be loaded as Giro3D layers */
-export type DatasetAsLayerConfig = Extract<
-    DatasetConfig,
-    VectorAsLayerDatasetConfigBase<DatasetType, DatasetAsLayerSourceConfig>
->;
+export type DatasetAsLayerConfig = Extract<DatasetConfig, DatasetAsLayerConfigMixin>;
+
+/** List of dataset sources that can be loaded as Giro3D layers */
+export type DatasetAsLayerSourceConfig = DatasetAsLayerConfig['source'];
+
+/** List of datasets that can be loaded as Giro3D meshes */
+export type DatasetAsMeshesConfig = Exclude<DatasetConfig, DatasetAsLayerConfig>;

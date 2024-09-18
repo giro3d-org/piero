@@ -4,6 +4,7 @@ import type {
     VectorAsMeshSourceConfigMixin,
 } from '@/types/configuration/sources/core/vector';
 import type {
+    DatasetAsLayerConfigMixin,
     DatasetConfigWithSourceBase,
     DatasetConfigWithSourcesBase,
     DatasetSourceConfigBase,
@@ -22,6 +23,5 @@ export interface VectorAsLayerDatasetConfigBase<
     TDatasetType extends DatasetType,
     TSourceConfigType extends DatasetSourceConfigBase<TDatasetType> &
         VectorAsLayerSourceConfigMixin,
-> extends DatasetConfigWithSourceBase<TDatasetType, TSourceConfigType> {
-    loadAsOverlay: true;
-}
+> extends DatasetConfigWithSourceBase<TDatasetType, TSourceConfigType>,
+        DatasetAsLayerConfigMixin {}

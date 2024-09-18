@@ -1,5 +1,7 @@
 import type { BingMapsSourceConfig } from '@/types/configuration/sources/bingMaps';
 import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
+import type { CustomVectorSourceConfig } from '@/types/configuration/sources/customVector';
+import type { CustomVectorTileSourceConfig } from '@/types/configuration/sources/customVectorTile';
 import type { GeoJSONAsLayerSourceConfig } from '@/types/configuration/sources/geojson';
 import type { GPXAsLayerSourceConfig } from '@/types/configuration/sources/gpx';
 import type { KMLAsLayerSourceConfig } from '@/types/configuration/sources/kml';
@@ -10,21 +12,19 @@ import type { WMSSourceConfig } from '@/types/configuration/sources/wms';
 import type { WMTSSourceConfig } from '@/types/configuration/sources/wmts';
 import type { XYZSourceConfig } from '@/types/configuration/sources/xyz';
 import type { ColorLayerConfig, ElevationLayerConfig, MaskLayerConfig } from './core/baseConfig';
-import type { CustomVectorSourceConfig } from './core/vector';
-import type { CustomVectorTileSourceConfig } from './core/vectorTile';
 
 /** Supported layer sources */
 export type LayerSourceConfig =
     | BingMapsSourceConfig
     | GeoTIFFSourceConfig
+    | CustomVectorSourceConfig
+    | CustomVectorTileSourceConfig
     | GeoJSONAsLayerSourceConfig
     | GPXAsLayerSourceConfig
     | KMLAsLayerSourceConfig
     | MVTSourceConfig
     | OSMSourceConfig
     | StadiaMapsSourceConfig
-    | CustomVectorSourceConfig
-    | CustomVectorTileSourceConfig
     | WMSSourceConfig
     | WMTSSourceConfig
     | XYZSourceConfig;
@@ -38,6 +38,7 @@ export type BasemapLayerSourceConfig = LayerSourceConfig;
 /** Available configuration for overlay sources */
 export type OverlaySourceConfig = LayerSourceConfig;
 
+// TODO: add mask overlays?
 /** Overlay configuration */
 export interface OverlayConfig extends Omit<ColorLayerConfig, 'type'> {
     /** Source configuration */

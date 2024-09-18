@@ -144,6 +144,31 @@ const config: Configuration = {
         },
     },
     datasets: [
+        /*{
+            name: "Cours d'eau",
+            visible: false,
+            type: 'mvt',
+            loadAsOverlay: true,
+            overlayType: 'mask',
+            source: {
+                type: 'mvt',
+                url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
+                backgroundColor: '',
+                style: 'river',
+            },
+        },
+        {
+            name: 'COG',
+            visible: false,
+            type: 'cog',
+            loadAsOverlay: true,
+            overlayType: 'color',
+            source: {
+                type: 'cog',
+                url: 'https://3d.oslandia.com/lyon/TS2015.tif',
+                projection: 'EPSG:3946',
+            },
+        },*/
         {
             type: 'ifc',
             name: '19_rue_Marc_Antoine_Petit',
