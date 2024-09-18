@@ -145,23 +145,8 @@ const config: Configuration = {
     },
     datasets: [
         {
-            type: 'kml',
-            name: 'Sytral lines (KML)',
-            visible: false,
-            source: {
-                type: 'kml',
-                projection: 'EPSG:4326',
-                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
-                style: {
-                    stroke: {
-                        color: '#FA8C22',
-                        width: 2,
-                    },
-                },
-            },
-        },
-        {
             type: 'ifc',
+            name: '19_rue_Marc_Antoine_Petit',
             source: {
                 type: 'ifc',
                 url: 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc',
@@ -172,12 +157,10 @@ const config: Configuration = {
                     z: 170,
                 },
             },
-            name: '19_rue_Marc_Antoine_Petit',
         },
         {
             type: 'bdtopo',
             name: 'BD TOPO',
-            url: 'ignored',
         },
         {
             type: 'group',
@@ -226,7 +209,6 @@ const config: Configuration = {
                     type: 'pointcloud',
                     source: {
                         type: 'pointcloud',
-
                         url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6520_LA93_IGN69/tileset.json',
                     },
                     name: 'Semis_2021_0841_6520_LA93_IGN69',
@@ -235,7 +217,6 @@ const config: Configuration = {
                     type: 'pointcloud',
                     source: {
                         type: 'pointcloud',
-
                         url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6521_LA93_IGN69/tileset.json',
                     },
                     name: 'Semis_2021_0841_6521_LA93_IGN69',
@@ -244,7 +225,6 @@ const config: Configuration = {
                     type: 'pointcloud',
                     source: {
                         type: 'pointcloud',
-
                         url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6520_LA93_IGN69/tileset.json',
                     },
                     name: 'Semis_2021_0842_6520_LA93_IGN69',
@@ -253,7 +233,6 @@ const config: Configuration = {
                     type: 'pointcloud',
                     source: {
                         type: 'pointcloud',
-
                         url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6521_LA93_IGN69/tileset.json',
                     },
                     name: 'Semis_2021_0842_6521_LA93_IGN69',
