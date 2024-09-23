@@ -6,13 +6,12 @@ import type Entity from '@giro3d/giro3d/entities/Entity';
 import type Giro3DMap from '@giro3d/giro3d/entities/Map';
 import type FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 
-import { type CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/CityJSONEntity';
-import { type IFCPickResult, isIFCPickResult } from '@/giro3d/IfcEntity';
+import { type CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/entities/CityJSONEntity';
+import { type IFCPickResult, isIFCPickResult } from '@/giro3d/entities/IfcEntity';
 import Measure3D from '@/giro3d/Measure3D';
 import type Annotation from '@/types/Annotation';
 import Feature, { Attribute, AttributesGroups } from '@/types/Feature';
 import type Measure from '@/types/Measure';
-import { PlyFeature, PlyMesh } from '@/loaders/PLY';
 import { useAnalysisStore } from '@/stores/analysis';
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
 import PickResult, { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
@@ -21,6 +20,7 @@ import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
 import { isShapePickResult, ShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { PieroShapeUserData } from '@/types/Annotation';
 import { isMap } from '@giro3d/giro3d/entities/Map';
+import { PlyFeature, PlyMesh } from '@/giro3d/entities/PlyEntity';
 
 function comparePickResults(a: PickResult, b: PickResult): number {
     if (isShapePickResult(a)) {
@@ -152,6 +152,17 @@ export default class Picker {
         const { object } = pickResult;
         if (object?.userData) {
             this.getAttributesFromUserData(object.userData, attributes);
+        }
+    }
+
+    getAttributesFromEntity(entity: Entity, attributesGroups: AttributesGroups) {
+        if (!attributesGroups.has('Feature')) {
+            attributesGroups.set('Feature', []);
+        }
+        const attributes = attributesGroups.get('Feature') as Attribute[];
+
+        if (entity?.userData) {
+            this.getAttributesFromUserData(entity.userData, attributes);
         }
     }
 
@@ -438,10 +449,13 @@ export default class Picker {
                     name = annotation?.title ?? name;
                     this.getAttributesFromAnnotation(pickedObject, attributesGroups);
                 }
-            } else if (object?.userData) {
-                this.getAttributesFromObject3D(pickedObject, attributesGroups);
             }
-        } else if (object?.userData) {
+        }
+
+        if (entity?.userData) {
+            this.getAttributesFromEntity(entity, attributesGroups);
+        }
+        if (object?.userData) {
             this.getAttributesFromObject3D(pickedObject, attributesGroups);
         }
 

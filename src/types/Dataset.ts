@@ -13,9 +13,10 @@ import type {
     DatasetCascadingConfig,
     OnObjectPreloaded,
 } from './configuration/datasets/core/baseConfig';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 
 export type DatasetOrGroupType = DatasetType | 'group';
-export type DatasetLayer = ColorLayer | MaskLayer;
+export type DatasetLayer = ColorLayer | MaskLayer | ElevationLayer;
 
 export type DatasetEventMap = {
     visible: {
@@ -202,41 +203,7 @@ export function parseDatasetConfig(
         if (childconf.type === 'group') {
             child = new Datagroup(childconf);
         } else {
-            let conf: DatasetConfig;
-            if (!('source' in childconf) && childconf.type !== 'bdtopo') {
-                console.warn(
-                    `Configuration for ${childconf.name} is deprecated. This will be removed in release v24.10.`,
-                );
-
-                // Deprecated configuration
-                conf = {
-                    name: childconf.name,
-                    type: childconf.type,
-                    canMaskBasemap: childconf.canMaskBasemap,
-                    isMaskingBasemap: childconf.isMaskingBasemap,
-                    onObjectPreloaded: childconf.onObjectPreloaded,
-                    source: {
-                        // @ts-expect-error Ignore
-                        type: childconf.type,
-                        // @ts-expect-error Ignore
-                        url: childconf.url,
-                        position: childconf.position,
-                        elevation: childconf.elevation,
-                        fetchElevation: childconf.fetchElevation,
-                        fetchElevationFast: childconf.fetchElevationFast,
-                    },
-                };
-            } else if (childconf.type === 'bdtopo') {
-                if ('url' in childconf) {
-                    console.warn(
-                        `Configuration for ${childconf.name} is deprecated. This will be removed in release v24.10.`,
-                    );
-                }
-                conf = childconf;
-            } else {
-                conf = childconf;
-            }
-            child = new Dataset(conf);
+            child = new Dataset(childconf);
         }
         if (parent) {
             child.parent = parent;

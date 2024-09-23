@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { ref } from 'vue';
     import { MathUtils } from 'three';
-    import IfcEntity, { ClassificationItem } from '@/giro3d/IfcEntity';
+    import IfcEntity, { ClassificationItem } from '@/giro3d/entities/IfcEntity';
     import { useCameraStore } from '@/stores/camera';
     import { useAnalysisStore } from '@/stores/analysis';
     import IconList from '@/components/atoms/IconList.vue';

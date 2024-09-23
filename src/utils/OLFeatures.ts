@@ -245,23 +245,39 @@ function toMeshes(olFeatures: SimpleFeature[], polygonOptions?: PolygonOptions):
 
         if (geometry != null) {
             const type = geometry.getType() as SimpleGeometryType;
+            let mesh;
 
             switch (type) {
                 case 'Point':
-                    return converter.build(geometry as Point);
+                    mesh = converter.build(geometry as Point);
+                    break;
                 case 'LineString':
-                    return converter.build(geometry as LineString);
+                    mesh = converter.build(geometry as LineString);
+                    break;
                 case 'Polygon':
-                    return converter.build(geometry as Polygon, polygonOptions);
+                    mesh = converter.build(geometry as Polygon, polygonOptions);
+                    break;
                 case 'MultiPoint':
-                    return converter.build(geometry as MultiPoint);
+                    mesh = converter.build(geometry as MultiPoint);
+                    break;
                 case 'MultiLineString':
-                    return converter.build(geometry as MultiLineString);
+                    mesh = converter.build(geometry as MultiLineString);
+                    break;
                 case 'MultiPolygon':
-                    return converter.build(geometry as MultiPolygon, polygonOptions);
+                    mesh = converter.build(geometry as MultiPolygon, polygonOptions);
+                    break;
                 default:
-                    return null;
+                    mesh = null;
             }
+
+            if (mesh) {
+                for (const [name, value] of Object.entries(f.getProperties())) {
+                    if (name !== 'geometry') {
+                        mesh.userData[name] = value;
+                    }
+                }
+            }
+            return mesh;
         }
     });
 

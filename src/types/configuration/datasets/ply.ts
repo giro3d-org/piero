@@ -1,15 +1,13 @@
-import type {
-    SourceConfigLocationMixin,
-    SourceConfigUrlOrDataMixin,
-} from '@/types/configuration/sources/core/baseConfig';
-import type { DatasetConfigWithSourceBase, DatasetSourceConfigBase } from './core/baseConfig';
+import type { SourceConfigLocationMixin } from '@/types/configuration/sources/core/baseConfig';
+import type { DatasetConfigBase } from './core/baseConfig';
+import { PLYSource } from '@/giro3d/entities/PlyEntity';
 
 /** PLY source configuration */
 export interface PLYDatasetSourceConfig
-    extends DatasetSourceConfigBase<'ply'>,
-        SourceConfigUrlOrDataMixin,
+    extends Omit<PLYSource, 'at'>,
         Required<SourceConfigLocationMixin> {}
 
 /** PLY dataset configuration */
-export interface PLYDatasetConfig
-    extends DatasetConfigWithSourceBase<'ply', PLYDatasetSourceConfig> {}
+export interface PLYDatasetConfig extends DatasetConfigBase<'ply'> {
+    source: PLYDatasetSourceConfig;
+}

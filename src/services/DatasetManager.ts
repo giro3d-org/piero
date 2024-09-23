@@ -15,7 +15,7 @@ import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import type { DatasetAsLayerConfig, DatasetAsMeshesConfig } from '@/types/configuration/datasets';
+import type { DatasetAsLayerConfig, DatasetAsMeshConfig } from '@/types/configuration/datasets';
 import {
     Datagroup,
     Dataset,
@@ -26,11 +26,14 @@ import {
 import Notification from '@/types/Notification';
 import { isObject } from '@/utils/Types';
 import type LayerManager from './LayerManager';
+import LayerBuilder from '@/giro3d/LayerBuilder';
+import EntityBuilder from '@/giro3d/EntityBuilder';
 
 const datasetSupportsOverlay = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsLayerConfig> =>
-    isObject(obj) && 'loadAsOverlay' in obj.config;
+    isObject(obj) &&
+    (obj.type === 'colorLayer' || obj.type === 'maskLayer' || obj.type === 'elevationLayer');
 
-const datasetSupportsMeshes = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsMeshesConfig> =>
+const datasetSupportsMeshes = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsMeshConfig> =>
     isObject(obj) && !datasetSupportsOverlay(obj);
 
 export default class DatasetManager {
@@ -71,7 +74,7 @@ export default class DatasetManager {
 
         for (const dataset of this._store.getDatasets()) {
             if (dataset.visible) {
-                this.loadDataset(dataset);
+                this.preloadDataset(dataset);
             }
         }
     }
@@ -193,7 +196,7 @@ export default class DatasetManager {
         try {
             dataset.visible = newVisibility;
             if (!dataset.isPreloaded && newVisibility) {
-                await this.loadDataset(dataset);
+                await this.preloadDataset(dataset);
             }
             this.updateDataset(dataset);
             if (Datagroup.isGroup(dataset)) {
@@ -221,7 +224,7 @@ export default class DatasetManager {
 
         try {
             dataset.isPreloading = true;
-            await this.loadDataset(dataset);
+            await this.preloadDataset(dataset);
             this._notifications.push(
                 new Notification(dataset.name, 'Import successful.', 'success'),
             );
@@ -269,7 +272,7 @@ export default class DatasetManager {
         }
     }
 
-    private onDatasetLoaded(dataset: DatasetOrGroup, entity: Entity3D) {
+    private onDatasetPreloaded(dataset: DatasetOrGroup, entity: Entity3D) {
         dataset.isPreloaded = true;
         dataset.isPreloading = false;
 
@@ -280,14 +283,14 @@ export default class DatasetManager {
         this._store.attachEntity(dataset, entity);
     }
 
-    private onDatasetLoadedAsOverlay(dataset: DatasetOrGroup, layer: DatasetLayer) {
+    private onDatasetPreloadedAsLayer(dataset: DatasetOrGroup, layer: DatasetLayer) {
         dataset.isPreloaded = true;
         dataset.isPreloading = false;
 
         this._store.attachLayer(dataset, layer);
     }
 
-    private async loadDataset(dataset: DatasetOrGroup) {
+    private async preloadDataset(dataset: DatasetOrGroup) {
         if (dataset.isPreloaded) return dataset;
 
         if (Datagroup.isGroup(dataset)) {
@@ -299,24 +302,24 @@ export default class DatasetManager {
 
         try {
             if (datasetSupportsOverlay(dataset)) {
-                const layer = await loader.loadDatasetAsOverlay(this._instance, dataset);
+                const layer = await LayerBuilder.getDatasetLayer(this._instance, dataset);
                 if (layer) {
                     layer.visible = dataset.visible;
                     this._overlays.set(dataset.uuid, layer);
 
                     await this._layerManager.addDatasetLayer(layer);
 
-                    this.onDatasetLoadedAsOverlay(dataset, layer);
+                    this.onDatasetPreloadedAsLayer(dataset, layer);
                 }
             } else if (datasetSupportsMeshes(dataset)) {
-                const entity = await loader.loadDataset(this._instance, dataset);
+                const entity = await EntityBuilder.getEntity(this._instance, dataset);
 
                 if (entity) {
                     entity.visible = dataset.visible;
                     this._entities.set(dataset.uuid, entity);
-                    this._instance.add(entity);
+                    await this._instance.add(entity);
 
-                    this.onDatasetLoaded(dataset, entity);
+                    this.onDatasetPreloaded(dataset, entity);
                 }
             } else {
                 throw new Error('Dataset is neither an overlay or 3d mesh');

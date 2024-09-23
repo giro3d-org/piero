@@ -1,15 +1,10 @@
-import type {
-    SourceConfigProjectionMixin,
-    SourceConfigUrlOrDataMixin,
-} from '@/types/configuration/sources/core/baseConfig';
-import type { DatasetSourceConfigBase, DatasetConfigWithSourceBase } from './core/baseConfig';
+import type { DatasetConfigBase } from './core/baseConfig';
+import { CityJSONSource } from '@/giro3d/entities/CityJSONEntity';
 
 /** CityJSON source configuration */
-export interface CityJSONDatasetSourceConfig
-    extends DatasetSourceConfigBase<'cityjson'>,
-        SourceConfigUrlOrDataMixin,
-        SourceConfigProjectionMixin {}
+export interface CityJSONDatasetSourceConfig extends Omit<CityJSONSource, 'featureProjection'> {}
 
 /** CityJSON dataset configuration */
-export interface CityJSONDatasetConfig
-    extends DatasetConfigWithSourceBase<'cityjson', CityJSONDatasetSourceConfig> {}
+export interface CityJSONDatasetConfig extends DatasetConfigBase<'cityjson'> {
+    source: CityJSONDatasetSourceConfig;
+}

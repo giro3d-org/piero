@@ -4,6 +4,7 @@ import { BingMaps, OSM, StadiaMaps, TileWMS, UrlTile, WMTS, XYZ } from 'ol/sourc
 import { optionsFromCapabilities } from 'ol/source/WMTS';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
 import ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
@@ -53,6 +54,12 @@ import type {
 import { getColorMap, getExtent, getPublicFolderUrl } from '@/utils/Configuration';
 import { FeatureFormat, LayerOptions } from '@/types/configuration/externals';
 import Fetcher from '@/utils/Fetcher';
+import { Dataset, DatasetBase } from '@/types/Dataset';
+import {
+    ColorLayerDatasetConfig,
+    ElevationLayerDatasetConfig,
+    MaskLayerDatasetConfig,
+} from '@/types/configuration/datasets/layer';
 
 /**
  * Creates a WMTS source for Giro3D based on the GetCapabilities response
@@ -439,6 +446,41 @@ async function getLayer(basemap: BaseLayer): Promise<BasemapLayer> {
     }
 }
 
+async function getDatasetLayer(
+    instance: Instance,
+    dataset: Dataset & DatasetBase<DatasetAsLayerConfig>,
+): Promise<ColorLayer | MaskLayer | ElevationLayer> {
+    const commonOptions = await getLayerOptions(dataset.config);
+    switch (dataset.type) {
+        case 'colorLayer': {
+            const cfg = dataset.config as ColorLayerDatasetConfig;
+            return new ColorLayer({
+                ...commonOptions,
+                elevationRange: cfg.elevationRange,
+            });
+        }
+        case 'maskLayer': {
+            const cfg = dataset.config as MaskLayerDatasetConfig;
+            return new MaskLayer({
+                ...commonOptions,
+                maskMode: cfg.maskMode,
+            });
+        }
+        case 'elevationLayer': {
+            const cfg = dataset.config as ElevationLayerDatasetConfig;
+            return new ElevationLayer({
+                ...commonOptions,
+                minmax: cfg.minmax,
+            });
+        }
+        default: {
+            // Exhaustiveness checking
+            const _exhaustiveCheck: never = dataset.type;
+            return _exhaustiveCheck;
+        }
+    }
+}
+
 function parseStaticStyle(style: StaticVectorStyle): Style {
     function parseStroke(stroke?: StrokeStyle) {
         if (stroke) {
@@ -538,4 +580,5 @@ export default {
     getLayerOptions,
     getLayer,
     getOverlay,
+    getDatasetLayer,
 };

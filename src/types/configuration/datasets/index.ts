@@ -1,77 +1,50 @@
 import type {
-    SourceConfigUrlMixin,
-    SourceConfigUrlOrDataMixin,
-} from '@/types/configuration/sources/core/baseConfig';
-import type { GeoVec3 } from '@/types/configuration/geographic';
-import type {
     DatasetCascadingConfig,
     DatasetConfigBase,
     DatasetConfigMaskingMixin,
-    DatasetAsLayerConfigMixin,
-    OnObjectPreloaded,
 } from './core/baseConfig';
-import type { BDTopoDatasetConfig } from './bdtopo';
+import type { BuildingsDatasetConfig } from './buildings';
 import type { CityJSONDatasetConfig } from './cityjson';
-import type { GeoTIFFDatasetConfig } from './geotiff';
-import type { CSVPointCloudDatasetConfig } from './csvPointCloud';
-import type { CustomVectorDatasetConfig } from './customVector';
-import type { CustomVectorTileDatasetConfig } from './customVectorTile';
-import type { GeoJSONAsLayerDatasetConfig, GeoJSONAsMeshDatasetConfig } from './geojson';
-import type { GeopackageDatasetConfig } from './geopackage';
-import type { GPXAsLayerDatasetConfig, GPXAsMeshDatasetConfig } from './gpx';
-import type { IFCDatasetConfig } from './ifc';
-import type { KMLAsLayerDatasetConfig, KMLAsMeshDatasetConfig } from './kml';
-import type { LASDatasetConfig } from './las';
-import type { MVTDatasetConfig } from './mvt';
+import type { PointCloudDatasetConfig } from './pointCloud';
+import type { BuildingDatasetConfig } from './ifc';
 import type { PLYDatasetConfig } from './ply';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
-import type { ShapefileDatasetConfig } from './shapefile';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
-import type { WMSDatasetConfig } from './wms';
-import type { WMTSDatasetConfig } from './wmts';
-import type { XYZDatasetConfig } from './xyz';
+import type { VectorMeshDatasetConfig, VectorShapeDatasetConfig } from './vectorMesh';
+import type {
+    ColorLayerDatasetConfig,
+    ElevationLayerDatasetConfig,
+    MaskLayerDatasetConfig,
+} from './layer';
 
-/**
- * Deprecated dataset configuration
- *
- * @deprecated Use new configurations from {@link DatasetConfig}.
- */
-export interface DatasetConfigDeprecated<TType extends string> extends DatasetConfigBase<TType> {
-    url?: string | string[];
-    position?: GeoVec3;
-    elevation?: number;
-    fetchElevation?: boolean;
-    fetchElevationFast?: boolean;
-    canMaskBasemap?: boolean;
-    isMaskingBasemap?: boolean;
-    onObjectPreloaded?: OnObjectPreloaded;
-}
-
-/** All supported datasets */
-export type DatasetConfig =
-    | BDTopoDatasetConfig
+export type DatasetAsMeshConfig =
+    | BuildingsDatasetConfig
     | CityJSONDatasetConfig
-    | GeoTIFFDatasetConfig
-    | CSVPointCloudDatasetConfig
-    | CustomVectorDatasetConfig
-    | CustomVectorTileDatasetConfig
-    | GeoJSONAsLayerDatasetConfig
-    | GeoJSONAsMeshDatasetConfig
-    | GeopackageDatasetConfig
-    | GPXAsLayerDatasetConfig
-    | GPXAsMeshDatasetConfig
-    | IFCDatasetConfig
-    | KMLAsLayerDatasetConfig
-    | KMLAsMeshDatasetConfig
-    | LASDatasetConfig
-    | MVTDatasetConfig
+    | PointCloudDatasetConfig
+    | BuildingDatasetConfig
     | PLYDatasetConfig
     | PotreePointCloudDatasetConfig
-    | ShapefileDatasetConfig
     | TiledPointCloudDatasetConfig
-    | WMSDatasetConfig
-    | WMTSDatasetConfig
-    | XYZDatasetConfig;
+    | VectorMeshDatasetConfig
+    | VectorShapeDatasetConfig;
+
+export type DatasetAsLayerConfig =
+    | ColorLayerDatasetConfig
+    | ElevationLayerDatasetConfig
+    | MaskLayerDatasetConfig;
+
+/** All supported datasets */
+export type DatasetConfig = DatasetAsMeshConfig | DatasetAsLayerConfig;
+
+export type DatasetConfigImportable = Extract<
+    DatasetConfig,
+    | CityJSONDatasetConfig
+    | PointCloudDatasetConfig
+    | BuildingDatasetConfig
+    | VectorMeshDatasetConfig
+    | VectorShapeDatasetConfig
+    | ColorLayerDatasetConfig
+>;
 
 /** List of all dataset types */
 export type DatasetType = DatasetConfig['type'];
@@ -85,19 +58,7 @@ export interface DatagroupConfig
     children: DatasetOrGroupConfig[];
 }
 /** Configuration for dataset hierarchy */
-export type DatasetOrGroupConfig =
-    | DatasetConfig
-    | DatagroupConfig
-    | DatasetConfigDeprecated<'bdtopo'>
-    | DatasetConfigDeprecated<'cityjson'>
-    | DatasetConfigDeprecated<'geojson'>
-    | DatasetConfigDeprecated<'gpkg'>
-    | DatasetConfigDeprecated<'gpx'>
-    | DatasetConfigDeprecated<'ifc'>
-    | DatasetConfigDeprecated<'kml'>
-    | DatasetConfigDeprecated<'ply'>
-    | DatasetConfigDeprecated<'pointcloud'>
-    | DatasetConfigDeprecated<'shp'>;
+export type DatasetOrGroupConfig = DatasetConfig | DatagroupConfig;
 
 // Now let's define some utility types to help typing in the rest of the app:
 // - which datasets needs a source
@@ -110,49 +71,8 @@ type DatasetConfigWithSource = Extract<DatasetConfig, { source: unknown }>;
 /** All supported dataset source configuration */
 export type DatasetSourceConfig = DatasetConfigWithSource['source'];
 
-/** All datasets sources that can take a Blob (pre-requisite for being imported) */
-type DatasetSourceConfigWithBlob = Exclude<
-    Extract<DatasetSourceConfig, SourceConfigUrlOrDataMixin>,
-    SourceConfigUrlMixin
->;
-
-// For a dataset to be importable, the configuration should not have any required fields.
-// TypeScript lets us filter on that with some black magic
-
-type HasNoRequiredFields<T> = T extends { type: unknown; url: unknown }
-    ? Partial<T> extends Omit<T, 'type' | 'url'>
-        ? T
-        : never
-    : never;
-
-type ExtractNoRequiredFields<T> = T extends HasNoRequiredFields<T> ? T : never;
-
-/** All datasets sources that don't have any required fields */
-type DatasetSourceConfigWithNoRequiredFields = ExtractNoRequiredFields<DatasetSourceConfig>;
-/** All dataset sources that can be imported */
-export type DatasetSourceConfigImportable = DatasetSourceConfigWithBlob &
-    DatasetSourceConfigWithNoRequiredFields;
-
-/**
- * All supported datasets that can be imported.
- *
- * Supporting import requires:
- * 1. The source to extend {@link SourceConfigUrlOrDataMixin}
- * 2. The source configuration to have only optional fields
- */
-export type DatasetConfigImportable = Extract<
-    DatasetConfigWithSource,
-    { source: DatasetSourceConfigImportable | DatasetSourceConfigImportable[] }
->;
-
 /** List of dataset types that can be imported into the app */
 export type DatasetTypeImportable = DatasetConfigImportable['type'];
 
-/** List of datasets that can be loaded as Giro3D layers */
-export type DatasetAsLayerConfig = Extract<DatasetConfig, DatasetAsLayerConfigMixin>;
-
 /** List of dataset sources that can be loaded as Giro3D layers */
 export type DatasetAsLayerSourceConfig = DatasetAsLayerConfig['source'];
-
-/** List of datasets that can be loaded as Giro3D meshes */
-export type DatasetAsMeshesConfig = Exclude<DatasetConfig, DatasetAsLayerConfig>;
