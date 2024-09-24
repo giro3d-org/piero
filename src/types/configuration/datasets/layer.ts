@@ -7,7 +7,7 @@ import type { Mode as InterpretationMode } from '@giro3d/giro3d/core/layer/Inter
 
 import type { GeoExtent } from '@/types/configuration/geographic';
 import type { ColorMapConfig } from '@/types/configuration/color';
-import type { DatasetConfigBase } from './core/baseConfig';
+import type { DatasetConfigBase } from './core';
 import { LayerSourceConfig } from '../layers';
 
 /** Mixin configuration for layer options */

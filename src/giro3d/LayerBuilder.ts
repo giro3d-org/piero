@@ -28,7 +28,7 @@ import type {
     ColorLayerConfig,
     ElevationLayerConfig,
     MaskLayerConfig,
-} from '@/types/configuration/layers/core/baseConfig';
+} from '@/types/configuration/layers/core';
 import type {
     ImageSourceConfigMixin,
     SourceConfigProjectionMixin,
@@ -38,10 +38,7 @@ import type {
 import type { TiledImageSourceConfigMixin } from '@/types/configuration/sources/core/tiled';
 import type { VectorAsLayerSourceConfigMixin } from '@/types/configuration/sources/core/vector';
 import type { VectorTileSourceConfigMixin } from '@/types/configuration/sources/core/vectorTile';
-import type {
-    DatasetAsLayerConfig,
-    DatasetAsLayerSourceConfig,
-} from '@/types/configuration/datasets';
+import type { DatasetAsLayerConfig } from '@/types/configuration/datasets';
 import type { OLGeometry } from '@/types/OLGeometry';
 import type { Overlay } from '@/types/Overlay';
 import type {
@@ -244,9 +241,7 @@ async function getSourceDataUrl(
  * @param config - Source configuration
  * @returns Source
  */
-async function getSource(
-    config: LayerSourceConfig | DatasetAsLayerSourceConfig,
-): Promise<ImageSource> {
+async function getSource(config: LayerSourceConfig): Promise<ImageSource> {
     const commonOptions = getImageSourceOptions(config);
     switch (config.type) {
         case 'bingmaps': {

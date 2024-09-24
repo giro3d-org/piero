@@ -11,7 +11,7 @@ import type { StadiaMapsSourceConfig } from '@/types/configuration/sources/stadi
 import type { WMSSourceConfig } from '@/types/configuration/sources/wms';
 import type { WMTSSourceConfig } from '@/types/configuration/sources/wmts';
 import type { XYZSourceConfig } from '@/types/configuration/sources/xyz';
-import type { ColorLayerConfig, ElevationLayerConfig, MaskLayerConfig } from './core/baseConfig';
+import type { ColorLayerConfig, ElevationLayerConfig, MaskLayerConfig } from './core';
 
 /** Supported layer sources */
 export type LayerSourceConfig =

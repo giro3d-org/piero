@@ -11,8 +11,8 @@ import { Color } from 'three';
 import { fillObject3DUserData } from '@/loaders/userData';
 import type { FeatureProjectionMixin } from '../sources/mixins';
 
-/** Source options for {@link BuildingsEntity} */
-export interface BuildingsSource extends Required<FeatureProjectionMixin> {
+/** Source options for {@link FeatureCollectionEntity} */
+export interface FeatureCollectionSource extends Required<FeatureProjectionMixin> {
     /** Source to use */
     source: 'bdtopo';
 }
@@ -20,8 +20,8 @@ export interface BuildingsSource extends Required<FeatureProjectionMixin> {
 /**
  * Entity for displaying 3D buildings
  */
-export class BuildingsEntity extends FeatureCollection {
-    constructor(options: BuildingsSource) {
+export class FeatureCollectionEntity extends FeatureCollection {
+    constructor(options: FeatureCollectionSource) {
         const crs = options.featureProjection;
         let filename: string;
         switch (options.source) {

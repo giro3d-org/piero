@@ -1,9 +1,5 @@
-import type {
-    DatasetCascadingConfig,
-    DatasetConfigBase,
-    DatasetConfigMaskingMixin,
-} from './core/baseConfig';
-import type { BuildingsDatasetConfig } from './buildings';
+import type { DatasetCascadingConfig, DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
+import type { FeatureCollectionDatasetConfig } from './featureCollection';
 import type { CityJSONDatasetConfig } from './cityjson';
 import type { PointCloudDatasetConfig } from './pointCloud';
 import type { BuildingDatasetConfig } from './ifc';
@@ -22,16 +18,16 @@ import type {
 } from './layer';
 
 export type DatasetAsMeshConfig =
-    | BuildingsDatasetConfig
     | CityJSONDatasetConfig
     | PointCloudDatasetConfig
-    | BuildingDatasetConfig
+    | FeatureCollectionDatasetConfig
     | PLYDatasetConfig
+    | PointCloudDatasetConfig
     | PotreePointCloudDatasetConfig
     | TiledPointCloudDatasetConfig
+    | VectorLabelsDatasetConfig
     | VectorMeshDatasetConfig
-    | VectorShapeDatasetConfig
-    | VectorLabelsDatasetConfig;
+    | VectorShapeDatasetConfig;
 
 export type DatasetAsLayerConfig =
     | ColorLayerDatasetConfig
@@ -66,19 +62,5 @@ export interface DatagroupConfig
 /** Configuration for dataset hierarchy */
 export type DatasetOrGroupConfig = DatasetConfig | DatagroupConfig;
 
-// Now let's define some utility types to help typing in the rest of the app:
-// - which datasets needs a source
-// - which datasets can be imported
-// - which datasets can be displayed as Giro3D layers on the map
-
-/** All datasets that have a source */
-type DatasetConfigWithSource = Extract<DatasetConfig, { source: unknown }>;
-
-/** All supported dataset source configuration */
-export type DatasetSourceConfig = DatasetConfigWithSource['source'];
-
 /** List of dataset types that can be imported into the app */
 export type DatasetTypeImportable = DatasetConfigImportable['type'];
-
-/** List of dataset sources that can be loaded as Giro3D layers */
-export type DatasetAsLayerSourceConfig = DatasetAsLayerConfig['source'];

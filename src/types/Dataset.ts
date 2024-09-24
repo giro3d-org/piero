@@ -9,10 +9,7 @@ import type {
     DatasetOrGroupConfig,
     DatasetType,
 } from './configuration/datasets';
-import type {
-    DatasetCascadingConfig,
-    OnObjectPreloaded,
-} from './configuration/datasets/core/baseConfig';
+import type { DatasetCascadingConfig, OnObjectPreloaded } from './configuration/datasets/core';
 import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 
 export type DatasetOrGroupType = DatasetType | 'group';

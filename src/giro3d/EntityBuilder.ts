@@ -3,10 +3,10 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import PotreePointCloud from '@giro3d/giro3d/entities/PotreePointCloud';
 import PotreeSource from '@giro3d/giro3d/sources/PotreeSource';
 
-import type { BuildingsDatasetConfig } from '@/types/configuration/datasets/buildings';
+import type { FeatureCollectionDatasetConfig } from '@/types/configuration/datasets/featureCollection';
 import type { DatasetAsMeshConfig } from '@/types/configuration/datasets';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
-import { BuildingsEntity } from './entities/BuildingsEntity';
+import { FeatureCollectionEntity } from './entities/FeatureCollectionEntity';
 import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
 import CityJSONEntity from './entities/CityJSONEntity';
 import type {
@@ -53,9 +53,9 @@ async function getEntity(
     let entity: Entity3D;
 
     switch (dataset.type) {
-        case 'buildings': {
-            const cfg = dataset.config as BuildingsDatasetConfig;
-            entity = new BuildingsEntity({
+        case 'featureCollection': {
+            const cfg = dataset.config as FeatureCollectionDatasetConfig;
+            entity = new FeatureCollectionEntity({
                 ...cfg,
                 featureProjection: instance.referenceCrs,
             });

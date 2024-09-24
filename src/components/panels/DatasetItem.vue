@@ -32,7 +32,7 @@
     propertyViews.set('ifc', IfcPropertyView);
 
     const icons: Record<DatasetType, string> = {
-        buildings: 'bi-buildings',
+        featureCollection: 'bi-buildings',
         cityjson: 'bi-buildings',
         colorLayer: 'fg-landcover-map',
         elevationLayer: 'fg-contour-map',
@@ -46,7 +46,7 @@
     };
 
     const iconTitles: Record<DatasetType, string> = {
-        buildings: 'Buildings',
+        featureCollection: 'Feature Collection',
         cityjson: 'CityJSON',
         colorLayer: 'Color Layer',
         elevationLayer: 'Elevation layer',

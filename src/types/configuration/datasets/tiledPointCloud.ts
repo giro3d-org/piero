@@ -1,4 +1,4 @@
-import type { DatasetConfigBase } from './core/baseConfig';
+import type { DatasetConfigBase } from './core';
 import type { TiledPointCloudSource } from '@/giro3d/entities/TiledPointCloudEntity';
 
 /** 3D-Tiles PointCloud source configuration */

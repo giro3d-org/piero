@@ -255,7 +255,7 @@ const config: Configuration = {
             },
         },
         {
-            type: 'buildings',
+            type: 'featureCollection',
             name: 'BD TOPO',
             source: 'bdtopo',
         },

@@ -1,5 +1,5 @@
 import type { SourceConfigUrlMixin } from '@/types/configuration/sources/core/baseConfig';
-import type { DatasetConfigWithSourceBase, DatasetSourceConfigBase } from './core/baseConfig';
+import type { DatasetConfigBase, DatasetSourceConfigBase } from './core';
 
 /** Potree PointCloud source configuration */
 export interface PotreePointCloudDatasetSourceConfig
@@ -9,5 +9,6 @@ export interface PotreePointCloudDatasetSourceConfig
 }
 
 /** Potree PointCloud dataset configuration */
-export interface PotreePointCloudDatasetConfig
-    extends DatasetConfigWithSourceBase<'potree', PotreePointCloudDatasetSourceConfig> {}
+export interface PotreePointCloudDatasetConfig extends DatasetConfigBase<'potree'> {
+    source: PotreePointCloudDatasetSourceConfig;
+}

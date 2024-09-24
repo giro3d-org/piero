@@ -1,6 +1,6 @@
 import FeatureFormat from 'ol/format/Feature';
 
-import { DatasetConfigBase, DatasetSourceConfigBase } from './core/baseConfig';
+import { DatasetConfigBase, DatasetSourceConfigBase } from './core';
 import { VectorMeshSourceOptions } from '@/giro3d/entities/VectorMeshEntity';
 import { GeopackageSourceParameters } from '@/giro3d/sources/GeopackageSource';
 import { ShapefileSourceParameters } from '@/giro3d/sources/ShapefileSource';
