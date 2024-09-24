@@ -13,6 +13,7 @@ import type {
     OverlayVectorConfigDeprecated,
     OverlayVectorTileConfigDeprecated,
 } from '@/types/configuration/layers';
+import { VectorDatasetRendering } from './configuration/datasets/vector';
 
 // For configuration, please use interfaces instead of types, it enables inheritance in the API documentation.
 // Also, please prefer JSON-serializable fields, so that one day if we want to fetch the configuration from
@@ -104,10 +105,10 @@ export interface Configuration {
      */
     datasets: DatasetOrGroupConfig[];
     /**
-     * When importing vector datasets, imports them as map overlays instead of 3D meshes.
-     * @defaultValue false
+     * When importing vector datasets, pick how to render them.
+     * @defaultValue mesh
      */
-    import_dataset_as_overlay?: boolean;
+    importedVectorDatasetRendering?: VectorDatasetRendering | 'overlay';
     /**
      * Array of overlays to display on the 2.5D map - can be empty
      *

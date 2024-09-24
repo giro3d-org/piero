@@ -42,8 +42,7 @@
         ply: 'bi-file-earmark-binary',
         pointcloud: 'fg-multipoint',
         potree: 'fg-multipoint',
-        vectorMesh: 'fg-polygon-pt',
-        vectorShape: 'fg-polygon-pt',
+        vector: 'fg-polygon-pt',
     };
 
     const iconTitles: Record<DatasetType, string> = {
@@ -57,8 +56,7 @@
         ply: 'PLY',
         pointcloud: 'Point Cloud',
         potree: 'Potree Point Cloud',
-        vectorMesh: 'Vector',
-        vectorShape: 'Vector',
+        vector: 'Vector',
     };
 </script>
 

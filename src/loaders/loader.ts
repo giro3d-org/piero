@@ -8,19 +8,20 @@ import type {
 import type { PointCloudSourceConfig } from '@/types/configuration/datasets/pointCloud';
 import { Dataset } from '@/types/Dataset';
 import Fetcher, { type FetchContext, type UrlOrFetchedData } from '@/utils/Fetcher';
-import { VectorMeshDatasetSourceConfig } from '@/types/configuration/datasets/vectorMesh';
+import { VectorMeshDatasetSourceConfig } from '@/types/configuration/datasets/vector';
 import { LayerSourceConfig } from '@/types/configuration/layers';
+import config from '@/config';
 
 /** Mapping between file extensions and the dataset types */
 const datasetTypePerExtension: Record<string, DatasetTypeImportable> = {
     csv: 'flatPointcloud',
     dsv: 'flatPointcloud',
-    geojson: 'vectorMesh',
-    gpkg: 'vectorMesh',
-    gpx: 'vectorMesh',
+    geojson: 'vector',
+    gpkg: 'vector',
+    gpx: 'vector',
     ifc: 'ifc',
     json: 'cityjson',
-    kml: 'vectorMesh',
+    kml: 'vector',
     las: 'flatPointcloud',
     laz: 'flatPointcloud',
     tsv: 'flatPointcloud',
@@ -123,35 +124,66 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
             };
             break;
         }
-        case 'vectorMesh':
-        case 'vectorShape': {
-            let fileType: VectorMeshDatasetSourceConfig['type'];
-            switch (fileinfo.fileext) {
-                case 'json':
-                case 'geojson':
-                    fileType = 'geojson';
+        case 'vector': {
+            switch (config.importedVectorDatasetRendering) {
+                case 'overlay': {
+                    let fileType: LayerSourceConfig['type'];
+                    switch (fileinfo.fileext) {
+                        case 'json':
+                        case 'geojson':
+                            fileType = 'geojson';
+                            break;
+                        case 'gpx':
+                            fileType = 'gpx';
+                            break;
+                        case 'kml':
+                            fileType = 'kml';
+                            break;
+                        default:
+                            throw new Error(`File ${fileinfo.fileext} not supported`);
+                    }
+                    datasetConfig = {
+                        ...commonConfig,
+                        type: 'colorLayer',
+                        source: {
+                            type: fileType,
+                            url: file,
+                            style: 'default',
+                        },
+                    };
                     break;
-                case 'gpx':
-                    fileType = 'gpx';
-                    break;
-                case 'kml':
-                    fileType = 'kml';
-                    break;
-                case 'gpkg':
-                    fileType = 'geopackage';
-                    break;
-                default:
-                    throw new Error(`File ${fileinfo.fileext} not supported`);
+                }
+                default: {
+                    let fileType: VectorMeshDatasetSourceConfig['type'];
+                    switch (fileinfo.fileext) {
+                        case 'json':
+                        case 'geojson':
+                            fileType = 'geojson';
+                            break;
+                        case 'gpx':
+                            fileType = 'gpx';
+                            break;
+                        case 'kml':
+                            fileType = 'kml';
+                            break;
+                        case 'gpkg':
+                            fileType = 'geopackage';
+                            break;
+                        default:
+                            throw new Error(`File ${fileinfo.fileext} not supported`);
+                    }
+                    datasetConfig = {
+                        ...commonConfig,
+                        type: fileinfo.datasetType,
+                        rendering: config.importedVectorDatasetRendering,
+                        source: {
+                            type: fileType,
+                            url: file,
+                            fetchElevation: true,
+                        },
+                    };
+                }
             }
-            datasetConfig = {
-                ...commonConfig,
-                type: fileinfo.datasetType,
-                source: {
-                    type: fileType,
-                    url: file,
-                    fetchElevation: true,
-                },
-            };
             break;
         }
         case 'colorLayer': {

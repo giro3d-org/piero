@@ -145,6 +145,103 @@ const config: Configuration = {
     },
     datasets: [
         {
+            name: 'Fountains (GML)',
+            type: 'vector',
+            rendering: 'label',
+            text: feature => {
+                return feature.get('gid');
+            },
+            source: {
+                type: 'ol',
+                format: new GML32(),
+                dataProjection: 'EPSG:4171',
+                url: 'https://3d.oslandia.com/lyon/adr_voie_lieu.adrbornefontaine_latest.gml',
+                fetchElevation: true,
+            },
+        },
+        {
+            name: 'Footpath (GPX)',
+            type: 'vector',
+            rendering: 'shape',
+            source: {
+                dataProjection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/track.gpx',
+                type: 'gpx',
+            },
+        },
+        {
+            name: "Cours d'eau",
+            visible: false,
+            type: 'maskLayer',
+            source: {
+                type: 'mvt',
+                url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
+                backgroundColor: '',
+                style: 'river',
+            },
+        },
+        {
+            name: 'Réseau fibre',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                type: 'wms',
+                projection: 'EPSG:2154',
+                layer: 'tel_telecom.telfibreripthd_1',
+                format: 'image/png',
+                url: 'https://download.data.grandlyon.com/wms/rdata',
+            },
+        },
+        {
+            name: 'Sytral lines (KML) as layer',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                type: 'kml',
+                projection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
+                style: {
+                    stroke: {
+                        color: '#FA8C22',
+                        width: 2,
+                    },
+                },
+            },
+        },
+        {
+            name: 'Sytral lines (KML) as mesh',
+            type: 'vector',
+            rendering: 'mesh',
+            source: {
+                type: 'kml',
+                dataProjection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
+                fetchElevation: true,
+                fetchElevationFast: false,
+            },
+        },
+        {
+            name: 'Canopée (GeoJSON)',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                projection: 'EPSG:4171',
+                url: 'https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson',
+                type: 'geojson',
+                style: 'canopee',
+            },
+        },
+        {
+            name: 'COG',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                type: 'cog',
+                url: 'https://3d.oslandia.com/lyon/TS2015.tif',
+                projection: 'EPSG:3946',
+            },
+        },
+        {
             type: 'ifc',
             name: '19_rue_Marc_Antoine_Petit',
             source: {
@@ -232,7 +329,7 @@ const config: Configuration = {
             ],
         },
     ],
-    import_dataset_as_overlay: true,
+    importedVectorDatasetRendering: 'overlay',
     overlays: [
         {
             name: "Cours d'eau",

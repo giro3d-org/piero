@@ -126,7 +126,8 @@ export default class Picker {
                 key === 'metadata' ||
                 key === 'entity' ||
                 key === 'dataset' ||
-                key === 'bbox'
+                key === 'bbox' ||
+                key === 'hover'
             )
                 continue;
             if (key === 'properties') {
@@ -143,16 +144,23 @@ export default class Picker {
         }
     }
 
-    getAttributesFromObject3D(pickResult: PickResult, attributesGroups: AttributesGroups) {
+    getAttributesFromObject3D(object: Object3D, attributes: Attribute[]) {
+        if (object?.userData) {
+            this.getAttributesFromUserData(object.userData, attributes);
+        }
+
+        if (object?.parent) {
+            this.getAttributesFromObject3D(object.parent, attributes);
+        }
+    }
+
+    getAttributesFromPickedObject3D(pickResult: PickResult, attributesGroups: AttributesGroups) {
         if (!attributesGroups.has('Feature')) {
             attributesGroups.set('Feature', []);
         }
         const attributes = attributesGroups.get('Feature') as Attribute[];
 
-        const { object } = pickResult;
-        if (object?.userData) {
-            this.getAttributesFromUserData(object.userData, attributes);
-        }
+        this.getAttributesFromObject3D(pickResult.object, attributes);
     }
 
     getAttributesFromEntity(entity: Entity, attributesGroups: AttributesGroups) {
@@ -434,7 +442,7 @@ export default class Picker {
             } else if (isPointsPickResult(pickedObject)) {
                 this.getAttributesFromPointCloud(pickedObject, attributesGroups);
             } else if ((entity as FeatureCollection).isFeatureCollection) {
-                this.getAttributesFromObject3D(pickedObject, attributesGroups);
+                this.getAttributesFromPickedObject3D(pickedObject, attributesGroups);
             } else if (PlyMesh.isPlyPickResult(pickedObject)) {
                 this.getAttributesFromPlyObject(pickedObject, attributesGroups);
             } else if (isShapePickResult(pickedObject)) {
@@ -456,7 +464,7 @@ export default class Picker {
             this.getAttributesFromEntity(entity, attributesGroups);
         }
         if (object?.userData) {
-            this.getAttributesFromObject3D(pickedObject, attributesGroups);
+            this.getAttributesFromPickedObject3D(pickedObject, attributesGroups);
         }
 
         if (object) {

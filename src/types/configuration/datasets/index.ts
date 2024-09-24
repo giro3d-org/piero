@@ -10,7 +10,11 @@ import type { BuildingDatasetConfig } from './ifc';
 import type { PLYDatasetConfig } from './ply';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
-import type { VectorMeshDatasetConfig, VectorShapeDatasetConfig } from './vectorMesh';
+import type {
+    VectorLabelsDatasetConfig,
+    VectorMeshDatasetConfig,
+    VectorShapeDatasetConfig,
+} from './vector';
 import type {
     ColorLayerDatasetConfig,
     ElevationLayerDatasetConfig,
@@ -26,7 +30,8 @@ export type DatasetAsMeshConfig =
     | PotreePointCloudDatasetConfig
     | TiledPointCloudDatasetConfig
     | VectorMeshDatasetConfig
-    | VectorShapeDatasetConfig;
+    | VectorShapeDatasetConfig
+    | VectorLabelsDatasetConfig;
 
 export type DatasetAsLayerConfig =
     | ColorLayerDatasetConfig
@@ -43,6 +48,7 @@ export type DatasetConfigImportable = Extract<
     | BuildingDatasetConfig
     | VectorMeshDatasetConfig
     | VectorShapeDatasetConfig
+    | VectorLabelsDatasetConfig
     | ColorLayerDatasetConfig
 >;
 

@@ -155,13 +155,14 @@ export interface VectorMeshSource {
 }
 
 /** OpenLayers-based source */
-export abstract class OlMeshSource implements VectorMeshSource {
+export class OlMeshSource implements VectorMeshSource {
     elevation?: number;
     /** OL Feature format */
-    abstract format: FeatureFormat;
+    readonly format: FeatureFormat;
     readonly options: VectorMeshSourceOptions;
 
-    constructor(options: VectorMeshSourceOptions) {
+    constructor(format: FeatureFormat, options: VectorMeshSourceOptions) {
+        this.format = format;
         this.options = options;
         this.elevation = options.elevation;
     }
@@ -179,12 +180,16 @@ export abstract class OlMeshSource implements VectorMeshSource {
 
 /** GPX source */
 export class GpxMeshSource extends OlMeshSource {
-    format: FeatureFormat = gpxFormat;
+    constructor(options: VectorMeshSourceOptions) {
+        super(gpxFormat, options);
+    }
 }
 
 /** KML source */
 export class KmlMeshSource extends OlMeshSource {
-    format: FeatureFormat = kmlFormat;
+    constructor(options: VectorMeshSourceOptions) {
+        super(kmlFormat, options);
+    }
 }
 
 /** GeoJSON source */

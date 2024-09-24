@@ -10,13 +10,14 @@ import { BuildingsEntity } from './entities/BuildingsEntity';
 import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
 import CityJSONEntity from './entities/CityJSONEntity';
 import type {
-    VectorMeshDatasetConfig,
-    VectorShapeDatasetConfig,
-} from '@/types/configuration/datasets/vectorMesh';
+    VectorDatasetConfig,
+    VectorLabelsDatasetConfig,
+} from '@/types/configuration/datasets/vector';
 import VectorMeshEntity, {
     GeoJsonMeshSource,
     GpxMeshSource,
     KmlMeshSource,
+    OlMeshSource,
     type VectorMeshSource,
 } from './entities/VectorMeshEntity';
 import GeopackageSource from './sources/GeopackageSource';
@@ -37,6 +38,7 @@ import TiledPointCloudEntity from './entities/TiledPointCloudEntity';
 import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/potreePointCloud';
 import { fillObject3DUserData } from '@/loaders/userData';
 import VectorShapeEntity from './entities/VectorShapeEntity';
+import VectorLabelsEntity from './entities/VectorLabelsEntity';
 
 /**
  * Gets the Giro3D entity for a dataset
@@ -67,10 +69,11 @@ async function getEntity(
             });
             break;
         }
-        case 'vectorMesh': {
-            const config = dataset.config as VectorMeshDatasetConfig;
-            const sourcesConfig = Array.isArray(config.source) ? config.source : [config.source];
+        case 'vector': {
+            const cfg = dataset.config as VectorDatasetConfig;
+            const sourcesConfig = Array.isArray(cfg.source) ? cfg.source : [cfg.source];
             const sources: VectorMeshSource[] = [];
+            const rendering = cfg.rendering ?? 'mesh';
 
             for (const sourceConfig of sourcesConfig) {
                 switch (sourceConfig.type) {
@@ -93,6 +96,14 @@ async function getEntity(
                     case 'kml':
                         sources.push(
                             new KmlMeshSource({
+                                ...sourceConfig,
+                                featureProjection: instance.referenceCrs,
+                            }),
+                        );
+                        break;
+                    case 'ol':
+                        sources.push(
+                            new OlMeshSource(sourceConfig.format, {
                                 ...sourceConfig,
                                 featureProjection: instance.referenceCrs,
                             }),
@@ -122,52 +133,22 @@ async function getEntity(
                 }
             }
 
-            entity = new VectorMeshEntity(sources);
-            break;
-        }
-        case 'vectorShape': {
-            const cfg = dataset.config as VectorShapeDatasetConfig;
-            let source: VectorMeshSource;
-
-            switch (cfg.source.type) {
-                case 'geojson':
-                    source = new GeoJsonMeshSource({
-                        ...cfg.source,
-                        featureProjection: instance.referenceCrs,
-                    });
+            switch (rendering) {
+                case 'mesh':
+                    entity = new VectorMeshEntity(sources);
                     break;
-                case 'gpx':
-                    source = new GpxMeshSource({
-                        ...cfg.source,
-                        featureProjection: instance.referenceCrs,
-                    });
+                case 'shape':
+                    entity = new VectorShapeEntity(sources[0]);
                     break;
-                case 'kml':
-                    source = new KmlMeshSource({
-                        ...cfg.source,
-                        featureProjection: instance.referenceCrs,
-                    });
-                    break;
-                case 'geopackage':
-                    source = new GeopackageSource({
-                        ...cfg.source,
-                        featureProjection: instance.referenceCrs,
-                    });
-                    break;
-                case 'shapefile':
-                    source = new ShapefileSource({
-                        ...cfg.source,
-                        featureProjection: instance.referenceCrs,
-                    });
+                case 'label':
+                    entity = new VectorLabelsEntity(sources, cfg as VectorLabelsDatasetConfig);
                     break;
                 default: {
                     // Exhaustiveness checking
-                    const _exhaustiveCheck: never = cfg.source;
+                    const _exhaustiveCheck: never = rendering;
                     return _exhaustiveCheck;
                 }
             }
-
-            entity = new VectorShapeEntity(source);
             break;
         }
         case 'ifc': {
