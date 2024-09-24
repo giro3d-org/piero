@@ -42,6 +42,7 @@
         ply: 'bi-file-earmark-binary',
         pointcloud: 'fg-multipoint',
         potree: 'fg-multipoint',
+        tiledIfc: 'bi-building',
         vector: 'fg-polygon-pt',
     };
 
@@ -56,6 +57,7 @@
         ply: 'PLY',
         pointcloud: 'Point Cloud',
         potree: 'Potree Point Cloud',
+        tiledIfc: 'IFC',
         vector: 'Vector',
     };
 </script>

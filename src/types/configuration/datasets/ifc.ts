@@ -8,6 +8,6 @@ export interface IFCDatasetSourceConfig
         SourceConfigLocationMixin {}
 
 /** IFC dataset configuration */
-export interface BuildingDatasetConfig extends DatasetConfigBase<'ifc'>, DatasetConfigMaskingMixin {
+export interface IFCDatasetConfig extends DatasetConfigBase<'ifc'>, DatasetConfigMaskingMixin {
     source: IFCDatasetSourceConfig;
 }

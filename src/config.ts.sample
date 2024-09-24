@@ -243,7 +243,7 @@ const config: Configuration = {
         },
         {
             type: 'ifc',
-            name: '19_rue_Marc_Antoine_Petit',
+            name: '19_rue_Marc_Antoine_Petit (IFC)',
             source: {
                 url: 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc',
                 position: {
@@ -252,6 +252,13 @@ const config: Configuration = {
                     y: 6517805,
                     z: 170,
                 },
+            },
+        },
+        {
+            type: 'tiledIfc',
+            name: '19_rue_Marc_Antoine_Petit (3D Tiles)',
+            source: {
+                url: 'https://3d.oslandia.com/3dtiles/19_rue_Marc_Antoine_Petit_ifc/tileset.json',
             },
         },
         {

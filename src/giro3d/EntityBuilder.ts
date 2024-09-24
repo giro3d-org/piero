@@ -22,7 +22,7 @@ import VectorMeshEntity, {
 } from './entities/VectorMeshEntity';
 import GeopackageSource from './sources/GeopackageSource';
 import ShapefileSource from './sources/ShapefileSource';
-import type { BuildingDatasetConfig } from '@/types/configuration/datasets/ifc';
+import type { IFCDatasetConfig } from '@/types/configuration/datasets/ifc';
 import { getCoordinates } from '@/utils/Configuration';
 import IfcEntity from './entities/IfcEntity';
 import type { PointCloudDatasetConfig } from '@/types/configuration/datasets/pointCloud';
@@ -39,6 +39,8 @@ import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datase
 import { fillObject3DUserData } from '@/loaders/userData';
 import VectorShapeEntity from './entities/VectorShapeEntity';
 import VectorLabelsEntity from './entities/VectorLabelsEntity';
+import { TiledIfcDatasetConfig } from '@/types/configuration/datasets/tiledIfc';
+import TiledIfcEntity from './entities/TiledIfcEntity';
 
 /**
  * Gets the Giro3D entity for a dataset
@@ -152,7 +154,7 @@ async function getEntity(
             break;
         }
         case 'ifc': {
-            const cfg = dataset.config as BuildingDatasetConfig;
+            const cfg = dataset.config as IFCDatasetConfig;
             const at = getCoordinates(cfg.source.position ?? dataset.get('position'));
             entity = new IfcEntity({
                 ...cfg.source,
@@ -209,6 +211,13 @@ async function getEntity(
             entity = new PotreePointCloud(new PotreeSource(cfg.source.url, cfg.source.filename));
             fillObject3DUserData(entity, {
                 filename: cfg.source.url,
+            });
+            break;
+        }
+        case 'tiledIfc': {
+            const cfg = dataset.config as TiledIfcDatasetConfig;
+            entity = new TiledIfcEntity({
+                ...cfg.source,
             });
             break;
         }

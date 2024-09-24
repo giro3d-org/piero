@@ -2,7 +2,7 @@ import type { DatasetCascadingConfig, DatasetConfigBase, DatasetConfigMaskingMix
 import type { FeatureCollectionDatasetConfig } from './featureCollection';
 import type { CityJSONDatasetConfig } from './cityjson';
 import type { PointCloudDatasetConfig } from './pointCloud';
-import type { BuildingDatasetConfig } from './ifc';
+import type { IFCDatasetConfig } from './ifc';
 import type { PLYDatasetConfig } from './ply';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
@@ -16,14 +16,17 @@ import type {
     ElevationLayerDatasetConfig,
     MaskLayerDatasetConfig,
 } from './layer';
+import type { TiledIfcDatasetConfig } from './tiledIfc';
 
 export type DatasetAsMeshConfig =
     | CityJSONDatasetConfig
     | PointCloudDatasetConfig
     | FeatureCollectionDatasetConfig
+    | IFCDatasetConfig
     | PLYDatasetConfig
     | PointCloudDatasetConfig
     | PotreePointCloudDatasetConfig
+    | TiledIfcDatasetConfig
     | TiledPointCloudDatasetConfig
     | VectorLabelsDatasetConfig
     | VectorMeshDatasetConfig
@@ -41,7 +44,7 @@ export type DatasetConfigImportable = Extract<
     DatasetConfig,
     | CityJSONDatasetConfig
     | PointCloudDatasetConfig
-    | BuildingDatasetConfig
+    | IFCDatasetConfig
     | VectorMeshDatasetConfig
     | VectorShapeDatasetConfig
     | VectorLabelsDatasetConfig
