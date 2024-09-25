@@ -4,9 +4,11 @@ import GPXFormat from 'ol/format/GPX';
 import KMLFormat from 'ol/format/KML';
 import { Group } from 'three';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
+import { DEFAULT_LINE_COLOR, DEFAULT_SURFACE_COLOR } from '@giro3d/giro3d/core/FeatureTypes';
 
-import Fetcher, { FetchContext } from '@/utils/Fetcher';
-import OLFeatures, { SimpleFeature } from '@/utils/OLFeatures';
+import Fetcher, { type FetchContext } from '@/utils/Fetcher';
+import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
 import { fillObject3DUserData } from '@/loaders/userData';
 import type {
@@ -82,7 +84,7 @@ export async function geojsonToOlFeatures(
     const simpleFeatures = OLFeatures.toSimpleFeatures(olFeatures);
 
     if (parameters.fetchElevation ?? false) {
-        await OLFeatures.fillZCoordinates(
+        await OLFeatures.fetchZCoordinates(
             simpleFeatures,
             parameters.featureProjection,
             0.1,
@@ -116,7 +118,7 @@ export async function toOlFeatures(
     );
 
     if (parameters.fetchElevation ?? false) {
-        await OLFeatures.fillZCoordinates(
+        await OLFeatures.fetchZCoordinates(
             olFeatures,
             parameters.featureProjection,
             0.1,
@@ -137,11 +139,12 @@ export async function toOlFeatures(
  */
 export async function olFeaturestoGroup(
     features: SimpleFeature[],
-    elevation?: number,
+    options?: PolygonOptions,
 ): Promise<Group> {
-    return OLFeatures.toMeshes(features, {
-        elevation: elevation ?? 0,
-    });
+    const elevation =
+        (Array.isArray(options?.elevation) ? options.elevation[0] : options?.elevation) ?? 0;
+    OLFeatures.fillZCoordinates(features, elevation);
+    return OLFeatures.toMeshes(features, options);
 }
 
 /** Interface to implement for a new source for {@link VectorMeshEntity} */
@@ -231,7 +234,11 @@ export default class VectorMeshEntity extends Entity3D {
     protected async preprocess(): Promise<void> {
         for (const source of this.sources) {
             const olFeatures = await source.load();
-            const group = await olFeaturestoGroup(olFeatures, source.elevation);
+            const group = await olFeaturestoGroup(olFeatures, {
+                elevation: source.elevation,
+                fill: { color: DEFAULT_SURFACE_COLOR },
+                stroke: { color: DEFAULT_LINE_COLOR },
+            });
 
             this.object3d.add(group);
             this.onObjectCreated(group);

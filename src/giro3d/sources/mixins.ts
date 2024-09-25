@@ -21,7 +21,7 @@ export interface DataProjectionMixin {
 
 /** Mixin configuration for sources that may have a feature projection */
 export interface FeatureProjectionMixin {
-    /** CRS of the source */
+    /** CRS of the target, should be the instance's CRS */
     featureProjection?: string;
 }
 

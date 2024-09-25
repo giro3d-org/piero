@@ -1,5 +1,5 @@
-import { PointCloudSourceOptions } from '@/giro3d/entities/PointCloudEntity';
-import { DatasetConfigBase, DatasetSourceConfigBase } from './core';
+import type { PointCloudSourceOptions } from '@/giro3d/entities/PointCloudEntity';
+import type { DatasetConfigBase, DatasetConfigMaskingMixin, DatasetSourceConfigBase } from './core';
 
 export interface CSVPointCloudSourceConfig
     extends DatasetSourceConfigBase<'csv'>,
@@ -11,6 +11,8 @@ export interface LASPointCloudSourceConfig
 
 export type PointCloudSourceConfig = CSVPointCloudSourceConfig | LASPointCloudSourceConfig;
 
-export interface PointCloudDatasetConfig extends DatasetConfigBase<'flatPointcloud'> {
+export interface PointCloudDatasetConfig
+    extends DatasetConfigBase<'flatPointcloud'>,
+        DatasetConfigMaskingMixin {
     source: PointCloudSourceConfig;
 }

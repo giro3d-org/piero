@@ -18,6 +18,7 @@ import VectorMeshEntity, {
     GpxMeshSource,
     KmlMeshSource,
     OlMeshSource,
+    VectorMeshSourceOptions,
     type VectorMeshSource,
 } from './entities/VectorMeshEntity';
 import GeopackageSource from './sources/GeopackageSource';
@@ -78,52 +79,56 @@ async function getEntity(
             const rendering = cfg.rendering ?? 'mesh';
 
             for (const sourceConfig of sourcesConfig) {
+                const commonOptions: VectorMeshSourceOptions = {
+                    url: sourceConfig.url,
+                    dataProjection: sourceConfig.dataProjection ?? dataset.get('dataProjection'),
+                    featureProjection: instance.referenceCrs,
+                    elevation: sourceConfig.elevation ?? dataset.get('elevation'),
+                    fetchElevation: sourceConfig.fetchElevation ?? dataset.get('fetchElevation'),
+                    fetchElevationFast:
+                        sourceConfig.fetchElevationFast ?? dataset.get('fetchElevationFast'),
+                };
+
                 switch (sourceConfig.type) {
                     case 'geojson':
                         sources.push(
                             new GeoJsonMeshSource({
-                                ...sourceConfig,
-                                featureProjection: instance.referenceCrs,
+                                ...commonOptions,
                             }),
                         );
                         break;
                     case 'gpx':
                         sources.push(
                             new GpxMeshSource({
-                                ...sourceConfig,
-                                featureProjection: instance.referenceCrs,
+                                ...commonOptions,
                             }),
                         );
                         break;
                     case 'kml':
                         sources.push(
                             new KmlMeshSource({
-                                ...sourceConfig,
-                                featureProjection: instance.referenceCrs,
+                                ...commonOptions,
                             }),
                         );
                         break;
                     case 'ol':
                         sources.push(
                             new OlMeshSource(sourceConfig.format, {
-                                ...sourceConfig,
-                                featureProjection: instance.referenceCrs,
+                                ...commonOptions,
                             }),
                         );
                         break;
                     case 'geopackage':
                         sources.push(
                             new GeopackageSource({
-                                ...sourceConfig,
-                                featureProjection: instance.referenceCrs,
+                                ...commonOptions,
                             }),
                         );
                         break;
                     case 'shapefile':
                         sources.push(
                             new ShapefileSource({
-                                ...sourceConfig,
-                                featureProjection: instance.referenceCrs,
+                                ...commonOptions,
                             }),
                         );
                         break;

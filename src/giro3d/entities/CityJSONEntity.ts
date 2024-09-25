@@ -116,7 +116,10 @@ export default class CityJSONEntity
                 }
 
                 const m = loader.matrix.toArray();
-                const projection = json?.metadata?.referenceSystem ?? this.source.dataProjection;
+                const projection =
+                    json?.metadata?.referenceSystem ??
+                    this.source.dataProjection ??
+                    this.source.featureProjection;
 
                 const proj = await Projections.loadProjCrsIfNeeded(projection);
                 if (proj) {

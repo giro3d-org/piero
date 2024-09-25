@@ -123,7 +123,8 @@ function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
     } else if (urlOrFetchedData instanceof Blob) {
         baseUrl = '';
     } else if (typeof urlOrFetchedData === 'string') {
-        const url = new URL(urlOrFetchedData);
+        const absoluteUrl = getPublicFolderUrl(urlOrFetchedData);
+        const url = new URL(absoluteUrl);
         baseUrl = `${url.origin}${url.pathname}`;
         queryString = url.search;
     } else {

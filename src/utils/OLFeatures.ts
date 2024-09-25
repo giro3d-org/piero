@@ -114,7 +114,68 @@ async function readSimpleFeatures(
     );
 }
 
-async function fillZCoordinates(
+function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataValue = 0): void {
+    for (const feature of features) {
+        const geom = feature.getGeometry();
+        if (geom == null) continue;
+
+        const stride = geom.getStride();
+        const coordinates = geom.getFlatCoordinates();
+        if (stride >= 3 && coordinates[2] != null && coordinates[2] !== noDataValue) {
+            // Feature already has altitude, skip
+            continue;
+        }
+
+        switch (geom.getType()) {
+            case 'Point': {
+                const g = geom as Point;
+                const c = g.getCoordinates();
+                c[2] = altitude;
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiPoint':
+            case 'LineString': {
+                const g = geom as MultiPoint | LineString;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    c[i][2] = altitude;
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiLineString':
+            case 'Polygon': {
+                const g = geom as MultiLineString | Polygon;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    for (let j = 0; j < c[i].length; j += 1) {
+                        c[i][j][2] = altitude;
+                    }
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiPolygon': {
+                const g = geom as MultiPolygon;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    for (let j = 0; j < c[i].length; j += 1) {
+                        for (let m = 0; m < c[i][j].length; m += 1) {
+                            c[i][j][m][2] = altitude;
+                        }
+                    }
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            default:
+            // do nothing
+        }
+    }
+}
+
+async function fetchZCoordinates(
     features: SimpleFeature[],
     featureProjection: string,
     offset = 0.0,
@@ -267,6 +328,7 @@ function toMeshes(olFeatures: SimpleFeature[], polygonOptions?: PolygonOptions):
                     mesh = converter.build(geometry as MultiPolygon, polygonOptions);
                     break;
                 default:
+                    console.warn(`Unsupported type ${type}`);
                     mesh = null;
             }
 
@@ -290,4 +352,11 @@ function toMeshes(olFeatures: SimpleFeature[], polygonOptions?: PolygonOptions):
     return root;
 }
 
-export default { readFeatures, readSimpleFeatures, toSimpleFeatures, fillZCoordinates, toMeshes };
+export default {
+    readFeatures,
+    readSimpleFeatures,
+    toSimpleFeatures,
+    fetchZCoordinates,
+    fillZCoordinates,
+    toMeshes,
+};

@@ -61,7 +61,10 @@ export default class ShapefileSource implements VectorMeshSource {
         // First, get the data as a list of GeoJSON features
         const features = await fetchShapefile(this.options.url, this.options.featureProjection);
         // Convert them into OpenLayers features
-        const olFeatures = await geojsonToOlFeatures(features, this.options);
+        const olFeatures = await geojsonToOlFeatures(features, {
+            ...this.options,
+            dataProjection: this.options.featureProjection, // Already re-projected
+        });
         return olFeatures;
     }
 
