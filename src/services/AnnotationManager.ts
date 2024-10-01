@@ -1,5 +1,4 @@
 import { MathUtils, Vector3 } from 'three';
-
 import DrawTool, {
     afterRemovePointOfRing,
     afterUpdatePointOfRing,
@@ -7,7 +6,18 @@ import DrawTool, {
     inhibitHook,
     limitRemovePointHook,
 } from '@giro3d/giro3d/interactions/DrawTool';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import View from '@giro3d/giro3d/renderer/View';
+import Shape, {
+    isShapePickResult,
+    SegmentLabelFormatter,
+    SurfaceLabelFormatter,
+    VertexLabelFormatter,
+} from '@giro3d/giro3d/entities/Shape';
+import type { GeoJsonProperties, Position } from 'geojson';
 
 import CameraController from '@/services/CameraController';
 import Picker from '@/services/Picker';
@@ -16,21 +26,14 @@ import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/utils/Measure';
 import Annotation, { PieroShapeUserData } from '@/types/Annotation';
 import Notification from '@/types/Notification';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Shape, {
-    isShapePickResult,
-    SegmentLabelFormatter,
-    SurfaceLabelFormatter,
-    VertexLabelFormatter,
-} from '@giro3d/giro3d/entities/Shape';
 import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
-import View from '@giro3d/giro3d/renderer/View';
-import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { Position } from 'geojson';
 
 function promptTitle(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
+}
+
+function promptContent(defaultValue: string) {
+    return window.prompt('Annotation content', defaultValue);
 }
 
 const numberFormat = new Intl.NumberFormat(undefined, {
@@ -218,6 +221,7 @@ export default class AnnotationManager {
                 this._editedShapePreviousPoints = null;
             }
             this._editedShape.userData.annotation.isEditing = false;
+            this._editedShape.userData.annotation.properties.updated = new Date().toISOString();
             this._editedShape.color = DEFAULT_SHAPE_COLOR;
             this._editedShape.userData.highlightable = true;
             this._editedShape = null;
@@ -387,8 +391,15 @@ export default class AnnotationManager {
             }
             const name = promptTitle(title);
             if (name) {
+                const content = promptContent(name);
+                const now = new Date().toISOString();
+
                 this.computeMeasurements(shape);
-                const annotation = this.pushNewAnnotation(name, shape);
+                const annotation = this.pushNewAnnotation(name, shape, {
+                    content,
+                    created: now,
+                    updated: now,
+                });
 
                 this._shapes.set(annotation.uuid, shape);
             } else {
@@ -447,7 +458,7 @@ export default class AnnotationManager {
     pushNewAnnotation(
         title: string,
         shape: Shape<PieroShapeUserData>,
-        properties: object = {},
+        properties: NonNullable<GeoJsonProperties> = {},
     ): Annotation {
         const annotation = new Annotation(title, () => shape, properties);
         shape.userData.annotation = annotation;

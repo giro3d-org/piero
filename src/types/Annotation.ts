@@ -1,5 +1,6 @@
 import Download from '@/utils/Download';
-import Shape from '@giro3d/giro3d/entities/Shape';
+import type Shape from '@giro3d/giro3d/entities/Shape';
+import type { GeoJsonProperties } from 'geojson';
 import { ColorRepresentation, EventDispatcher, MathUtils } from 'three';
 
 type EmptyEvent = {
@@ -29,9 +30,13 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     private _visible: boolean;
     private _isEditing: boolean;
     private _object: () => Shape<PieroShapeUserData>;
-    properties: object;
+    properties: NonNullable<GeoJsonProperties>;
 
-    constructor(title: string, object: () => Shape<PieroShapeUserData>, properties: object = {}) {
+    constructor(
+        title: string,
+        object: () => Shape<PieroShapeUserData>,
+        properties: NonNullable<GeoJsonProperties> = {},
+    ) {
         super();
 
         this.title = title;
@@ -65,15 +70,18 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     }
 
     toGeoJSON() {
+        const now = new Date();
         const geojson = this.object.toGeoJSON({
             includeAltitudes: true,
         });
 
         geojson.id = `${Download.getBaseUrl()}#${this.uuid}`;
         geojson.properties = {
-            ...geojson.properties,
+            updated: now.toISOString(), // Let dates be overriden by properties
+            created: now.toISOString(),
+            ...geojson.properties, // empty for now
+            ...this.properties,
             title: this.title,
-            updated: new Date().toISOString(),
         };
 
         return geojson;
@@ -81,6 +89,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
 
     static toCollection(annotations: Annotation[]): GeoJSON.FeatureCollection {
         const features = annotations.map(annotation => annotation.toGeoJSON());
+        const now = new Date();
 
         return {
             type: 'FeatureCollection',
@@ -91,7 +100,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
             properties: {
                 lang: 'en',
                 title: 'Giro3D annotations',
-                updated: new Date().toISOString(),
+                updated: now.toISOString(),
                 creator: 'Giro3D',
                 generator: {
                     title: 'Giro3D',
