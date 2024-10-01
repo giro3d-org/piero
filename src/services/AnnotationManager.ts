@@ -393,10 +393,12 @@ export default class AnnotationManager {
             if (name) {
                 const content = promptContent(name);
                 const now = new Date().toISOString();
+                const zone = Math.floor(Math.random() * 100);
 
                 this.computeMeasurements(shape);
                 const annotation = this.pushNewAnnotation(name, shape, {
                     content,
+                    zone,
                     created: now,
                     updated: now,
                 });
