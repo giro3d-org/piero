@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { isLink, isColor, isVector3 } from '@/utils/Types';
+    import { isLink, isColor, isVector3, isDate } from '@/utils/Types';
     import ColorFragment from './ColorFragment.vue';
     import CoordinateFragment from './CoordinateFragment.vue';
     import LinkFragment from './LinkFragment.vue';
@@ -61,6 +61,11 @@
                             suffix="m"
                         />
                     </div>
+                </template>
+                <template v-else-if="isDate(props.attrValue)">
+                    <span :title="props.attrValue.toLocaleString()">{{
+                        props.attrValue.toLocaleString()
+                    }}</span>
                 </template>
                 <template v-else><span class="text-secondary">Object</span></template>
             </template>
