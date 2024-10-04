@@ -2,7 +2,7 @@ import { VectorMeshSource } from './VectorMeshEntity';
 import { DEFAULT_SHAPE_COLOR } from '@/constants';
 import { fillObject3DUserData } from '@/loaders/userData';
 import { Coordinate } from 'ol/coordinate';
-import { Color, Group, Intersection, MathUtils, Raycaster, Vector2, Vector3 } from 'three';
+import { Box3, Color, Group, Intersection, MathUtils, Raycaster, Vector2, Vector3 } from 'three';
 import { SimpleFeature, SimpleGeometryType } from '@/utils/OLFeatures';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { getContrastColor } from '@giro3d/giro3d/utils/ColorUtils';
@@ -223,5 +223,11 @@ export default class VectorLabelsEntity extends Entity3D {
         }
 
         return [];
+    }
+
+    getBoundingBox(): Box3 | null {
+        const pts = this._labels.map(l => l.position);
+        const box = new Box3().setFromPoints(pts);
+        return box;
     }
 }
