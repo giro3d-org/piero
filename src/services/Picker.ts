@@ -118,7 +118,12 @@ export default class Picker {
         plyAttributes.push({ key: 'Color', value: feature.color });
     }
 
-    getAttributesFromUserData(userData: object, attributes: Attribute[]) {
+    getAttributesFromUserData(
+        userData: object,
+        attributes: Attribute[],
+        path: string = '',
+        depth: number = 0,
+    ) {
         for (const [key, value] of Object.entries(userData)) {
             if (
                 key === 'geometry' ||
@@ -127,20 +132,29 @@ export default class Picker {
                 key === 'entity' ||
                 key === 'dataset' ||
                 key === 'bbox' ||
-                key === 'hover'
+                key === 'hover' ||
+                key === 'highlightable' ||
+                key === 'parentEntity' ||
+                key === 'measurements' ||
+                key === 'annotation'
             )
                 continue;
             if (key === 'properties') {
-                this.getAttributesFromUserData(value, attributes);
+                if (depth > 5) continue;
+                this.getAttributesFromUserData(value, attributes, '', depth + 1);
                 continue;
             }
-            if (typeof value === 'object') continue;
+            if (typeof value === 'object' && value != null) {
+                if (depth > 5) continue;
+                this.getAttributesFromUserData(value, attributes, `${path}${key}.`, depth + 1);
+                continue;
+            }
 
             if (key === 'id') {
                 attributes.push({ key: 'fid', value });
                 continue;
             }
-            attributes.push({ key, value });
+            attributes.push({ key: `${path}${key}`, value });
         }
     }
 
