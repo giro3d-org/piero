@@ -19,6 +19,9 @@ const DEFAULT_FONT_SIZE = 12; // pixels
 const DEFAULT_FONT_WEIGHT = 'bold';
 const tmpIntersectList: Intersection[] = [];
 
+/**
+ * Pick result on {@link VectorLabelsEntity}
+ */
 export type LabelPickResult = PickResult & {
     isLabelPickResult: true;
     // eslint-disable-next-line no-use-before-define
@@ -42,7 +45,9 @@ export interface VectorLabelOptions {
     style?: (span: HTMLSpanElement, feature: SimpleFeature) => void;
 }
 
-/** Entity for displaying vector data as labels */
+/**
+ * Entity for displaying vector data as labels
+ */
 export default class VectorLabelsEntity extends Entity3D {
     readonly sources: VectorMeshSource[];
     private _labels: CSS2DObject[];
@@ -66,11 +71,13 @@ export default class VectorLabelsEntity extends Entity3D {
     }
 
     updateOpacity(): void {
+        // Opacity is driven by CSS, not by Threejs rendering
         const cssOpacity = `${this.opacity * 100}%`;
         this._labels.forEach(label => (label.element.style.opacity = cssOpacity));
     }
 
     private updateStyle(span: HTMLSpanElement, feature: SimpleFeature) {
+        // Taken from Giro3D's Shape entity
         span.style.backgroundColor = `rgb(${sRgb.r * 255} ${sRgb.g * 255} ${sRgb.b * 255})`;
         span.style.borderWidth = '1px';
         span.style.borderStyle = 'solid';
@@ -87,6 +94,7 @@ export default class VectorLabelsEntity extends Entity3D {
     }
 
     private createLabel(at: Vector3, feature: SimpleFeature): CSS2DObject {
+        // Taken from Giro3D's Shape entity
         const container = document.createElement('div');
         const span = document.createElement('span');
 
@@ -112,6 +120,7 @@ export default class VectorLabelsEntity extends Entity3D {
 
     protected async preprocess(): Promise<void> {
         for (const source of this.sources) {
+            // TODO: avoid await in the loop
             const olFeatures = await source.load();
             const root = new Group();
 
@@ -209,6 +218,7 @@ export default class VectorLabelsEntity extends Entity3D {
         const raycaster = new Raycaster();
         raycaster.setFromCamera(normalized, this.instance.view.camera);
 
+        // TODO: pickLabels should honor _options.filter
         const pickedLabel = this.pickLabels(raycaster);
         if (pickedLabel) {
             const pickResult: LabelPickResult = {
@@ -226,6 +236,8 @@ export default class VectorLabelsEntity extends Entity3D {
     }
 
     getBoundingBox(): Box3 | null {
+        // For some reason (because of nested groups?), Three.js does not
+        // compute correctly the bounding box of this.object3d
         const pts = this._labels.map(l => l.position);
         const box = new Box3().setFromPoints(pts);
         return box;

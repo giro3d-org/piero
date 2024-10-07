@@ -11,15 +11,21 @@ import { fillObject3DUserData } from '@/loaders/userData';
 import type { CoordinatesMixin, FeatureProjectionMixin, UrlOrDataMixin } from '../sources/mixins';
 
 /** Parameters for creating {@link PlyEntity} */
-export interface PLYSource
+export interface PlySource
     extends UrlOrDataMixin,
         Required<CoordinatesMixin>,
         Required<FeatureProjectionMixin> {}
 
+/**
+ * Feature returned when picking on Ply objects
+ */
 export interface PlyFeature {
     color: Color;
 }
 
+/**
+ * PLY 3D object implementing our picking
+ */
 export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
     public readonly isPickableFeatures = true;
     public readonly isPlyMesh = true;
@@ -48,11 +54,14 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
         isObject(obj) && PlyMesh.isPlyMesh((obj as PickResult<unknown>)?.object);
 }
 
+/**
+ * Entity for displaying a PLY file
+ */
 export default class PlyEntity extends Entity3D {
     readonly isPlyEntity = true;
-    readonly source: PLYSource;
+    readonly source: PlySource;
 
-    constructor(source: PLYSource) {
+    constructor(source: PlySource) {
         super(new Group());
         this.source = source;
     }

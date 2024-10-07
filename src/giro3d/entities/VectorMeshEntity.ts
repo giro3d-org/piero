@@ -18,6 +18,7 @@ import type {
     UrlOrDataMixin,
 } from '../sources/mixins';
 
+/** Source for {@link VectorMeshEntity} */
 export interface VectorMeshSourceOptions
     extends UrlOrDataMixin,
         DataProjectionMixin,
@@ -132,9 +133,11 @@ export async function toOlFeatures(
 /**
  * Converts {@link SimpleFeature}s into a Three.js `Group`.
  * Assumes features are already in the correct CRS.
+ * If Z-coordinates are missing in the features, they are filled at
+ * `options?.elevation` (or at 0 if not specified).
  *
  * @param features - Features to convert
- * @param parameters - Loader parameters
+ * @param options - GeometryConverter options
  * @returns Group containing all meshes for all features
  */
 export async function olFeaturestoGroup(
@@ -206,6 +209,11 @@ export class GeoJsonMeshSource implements VectorMeshSource {
     }
 
     async load(): Promise<SimpleFeature[]> {
+        // TODO: For some historical (?) reason we are not using bare OL
+        // parsing, and we are using toGeoJSONFeatures instead. Not sure
+        // why we were doing this in the first place, maybe we can remove
+        // this now.
+
         // First, get the data as GeoJSON
         const json = await Fetcher.fetchJson<GeoJSON.GeoJSON>(this.options.url);
 
@@ -233,6 +241,7 @@ export default class VectorMeshEntity extends Entity3D {
 
     protected async preprocess(): Promise<void> {
         for (const source of this.sources) {
+            // TODO: avoid await in the loop
             const olFeatures = await source.load();
             const group = await olFeaturestoGroup(olFeatures, {
                 elevation: source.elevation,

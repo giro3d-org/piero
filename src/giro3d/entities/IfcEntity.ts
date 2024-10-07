@@ -132,6 +132,9 @@ export interface IfcSource extends UrlOrDataMixin, CoordinatesMixin {
     name: string;
 }
 
+/**
+ * Entity for displaying an IFC file
+ */
 export default class IfcEntity
     extends Entity3D
     implements PickableFeatures<IFCFeature, IFCPickResult>

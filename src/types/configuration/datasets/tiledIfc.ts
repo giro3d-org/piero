@@ -1,8 +1,8 @@
 import type { DatasetConfigBase } from './core';
-import type { TiledIfcSource } from '@/giro3d/entities/TiledIfcEntity';
+import type { Tiles3dSource } from '@/giro3d/entities/Tiles3dEntity';
 
 /** 3DTiles IFC source configuration */
-export interface TiledIfcDatasetSourceConfig extends TiledIfcSource {}
+export interface TiledIfcDatasetSourceConfig extends Tiles3dSource {}
 
 /** 3DTiles IFC dataset configuration */
 export interface TiledIfcDatasetConfig extends DatasetConfigBase<'tiledIfc'> {

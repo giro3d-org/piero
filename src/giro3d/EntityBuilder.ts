@@ -41,7 +41,7 @@ import { fillObject3DUserData } from '@/loaders/userData';
 import VectorShapeEntity from './entities/VectorShapeEntity';
 import VectorLabelsEntity from './entities/VectorLabelsEntity';
 import { TiledIfcDatasetConfig } from '@/types/configuration/datasets/tiledIfc';
-import TiledIfcEntity from './entities/TiledIfcEntity';
+import Tiles3dEntity from './entities/Tiles3dEntity';
 
 /**
  * Gets the Giro3D entity for a dataset
@@ -221,7 +221,7 @@ async function getEntity(
         }
         case 'tiledIfc': {
             const cfg = dataset.config as TiledIfcDatasetConfig;
-            entity = new TiledIfcEntity({
+            entity = new Tiles3dEntity({
                 ...cfg.source,
             });
             break;

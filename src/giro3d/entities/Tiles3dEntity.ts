@@ -5,17 +5,20 @@ import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
 import { fillObject3DUserData } from '@/loaders/userData';
 import type { UrlMixin } from '../sources/mixins';
 
-/** Parameters for creating {@link TiledIfcEntity} */
-export interface TiledIfcSource extends UrlMixin {}
+/** Parameters for creating {@link Tiles3dEntity} */
+export interface Tiles3dSource extends UrlMixin {}
 
-export default class TiledIfcEntity extends Tiles3D {
-    constructor(parameters: TiledIfcSource) {
+/**
+ * Entity for displaying 3D-Tiles files
+ */
+export default class Tiles3dEntity extends Tiles3D {
+    constructor(parameters: Tiles3dSource) {
         super(new Tiles3DSource(parameters.url));
         fillObject3DUserData(this, { filename: parameters.url });
     }
 
     getBoundingBox(): Box3 | null {
-        // For some reason, this.object3d's bounding box is infinite
+        // For some reason, on IFC 3D tiles, this.object3d's bounding box is infinite
         if (this.root) {
             const boundingVolume = this.root.boundingVolume;
             if (boundingVolume.box) {

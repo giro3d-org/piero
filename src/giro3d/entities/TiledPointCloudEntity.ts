@@ -12,6 +12,9 @@ export interface TiledPointCloudSource extends UrlMixin {
     name: string;
 }
 
+/**
+ * Entity for displaying 3D-Tiles point clouds
+ */
 export default class TiledPointCloudEntity extends Tiles3D {
     constructor(parameters: TiledPointCloudSource) {
         const material = new PointCloudMaterial({
