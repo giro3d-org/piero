@@ -1,4 +1,9 @@
 import { EventDispatcher } from 'three';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
+import { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
+import Layer from '@giro3d/giro3d/core/layer/Layer';
+import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
 import Grid from '@/giro3d/Grid';
 import LayerBuilder from '@/giro3d/LayerBuilder';
@@ -6,15 +11,8 @@ import Plane from '@/giro3d/Plane';
 import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import { useLayerStore } from '@/stores/layers';
-import { type BaseLayer } from '@/types/BaseLayer';
+import type { BaseLayer, BasemapLayer } from '@/types/BaseLayer';
 import type { Overlay } from '@/types/Overlay';
-
-import type Instance from '@giro3d/giro3d/core/Instance';
-import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer, { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
-import Layer from '@giro3d/giro3d/core/layer/Layer';
-import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;
@@ -23,8 +21,6 @@ export const PLANE_NAME = 'plane';
 
 // Hide the graticule when above this altitude threshold
 const GRATICULE_ALTITUDE_THRESHOLD = 5000;
-
-export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
 
 export default class LayerManager extends EventDispatcher {
     private readonly _instance: Instance;
@@ -37,6 +33,7 @@ export default class LayerManager extends EventDispatcher {
 
     private readonly _baseLayers: Map<string, BasemapLayer>;
     private readonly _overlays: Map<string, ColorLayer>;
+    private readonly _datasetLayers: Set<string>;
 
     private readonly _boundOnAfterCameraUpdate: () => void;
 
@@ -46,6 +43,7 @@ export default class LayerManager extends EventDispatcher {
         this._instance = instance;
         this._baseLayers = new Map();
         this._overlays = new Map();
+        this._datasetLayers = new Set();
 
         const extent = this._giro3dStore.getDefaultBasemapExtent();
         const mapOptions = this._giro3dStore.getDefaultBasemapOptions();
@@ -140,9 +138,16 @@ export default class LayerManager extends EventDispatcher {
         this._instance.notifyChange(layer);
     }
 
-    private removeBasemapLayer(layer: BasemapLayer) {
+    removeBasemapLayer(layer: BasemapLayer) {
+        this._datasetLayers.delete(layer.id);
         this._basemap.removeLayer(layer, { disposeLayer: true });
         this._instance.notifyChange(this._basemap);
+    }
+
+    async addDatasetLayer(layer: BasemapLayer) {
+        this._datasetLayers.add(layer.id);
+        await this._basemap.addLayer(layer);
+        this.updateLayerOrdering();
     }
 
     get extent() {
@@ -155,7 +160,7 @@ export default class LayerManager extends EventDispatcher {
     }
 
     private async loadBasemap(basemap: BaseLayer) {
-        const layer = await LayerBuilder.getLayer(basemap, this._layerStore.getElevationColorMap());
+        const layer = await LayerBuilder.getLayer(basemap);
 
         this._baseLayers.set(basemap.uuid, layer);
         this._basemap.addLayer(layer);
@@ -302,6 +307,8 @@ export default class LayerManager extends EventDispatcher {
                 .getOverlays()
                 .map(layer => this._overlays.get(layer.uuid)?.id)
                 .reverse(),
+            // And finally add layers coming from datasets
+            ...[...this._datasetLayers.values()].reverse(),
         ];
 
         this._basemap.sortColorLayers((a: Layer, b: Layer) => {

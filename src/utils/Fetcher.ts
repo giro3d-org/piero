@@ -54,6 +54,19 @@ function fetchInternal(urlOrData: UrlOrData, fetchOptions?: RequestInit): Promis
     return fetchFile(urlOrData, fetchOptions);
 }
 
+async function toDataURL(url: UrlOrData): Promise<string> {
+    return new Promise((resolve, reject) => {
+        if (typeof url === 'string') {
+            return getPublicFolderUrl(url);
+        } else {
+            const reader = new FileReader();
+            reader.addEventListener('load', () => resolve(reader.result as string), false);
+            reader.addEventListener('error', () => reject(reader.error));
+            reader.readAsDataURL(url);
+        }
+    });
+}
+
 /**
  * Fetches a url, Blob-like object and returns an ArrayBuffer object
  * @param url - URL or Blob-like object
@@ -110,7 +123,8 @@ function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
     } else if (urlOrFetchedData instanceof Blob) {
         baseUrl = '';
     } else if (typeof urlOrFetchedData === 'string') {
-        const url = new URL(urlOrFetchedData);
+        const absoluteUrl = getPublicFolderUrl(urlOrFetchedData);
+        const url = new URL(absoluteUrl);
         baseUrl = `${url.origin}${url.pathname}`;
         queryString = url.search;
     } else {
@@ -139,4 +153,5 @@ export default {
     fetchText,
     fetchJson,
     getContext,
+    toDataURL,
 };

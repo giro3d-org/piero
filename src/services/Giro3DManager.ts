@@ -109,7 +109,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.camera.lookAt(position.toVector3(), lookAt.toVector3());
 
         this.layerManager = new LayerManager(this.mainInstance);
-        this.datasetManager = new DatasetManager(this.mainInstance);
+        this.datasetManager = new DatasetManager(this.mainInstance, this.layerManager);
         this.annotationManager = new AnnotationManager(this.mainInstance, this.camera, this.picker);
         this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter();

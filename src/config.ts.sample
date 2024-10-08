@@ -145,20 +145,126 @@ const config: Configuration = {
     },
     datasets: [
         {
-            type: 'ifc',
-            url: 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc',
-            name: '19_rue_Marc_Antoine_Petit',
-            position: {
-                crs: 'EPSG:2154',
-                x: 841913,
-                y: 6517805,
-                z: 170,
+            name: 'Fountains (GML)',
+            type: 'vector',
+            rendering: 'label',
+            text: feature => {
+                return feature.get('gid');
+            },
+            source: {
+                type: 'ol',
+                format: new GML32(),
+                dataProjection: 'EPSG:4171',
+                url: 'https://3d.oslandia.com/lyon/adr_voie_lieu.adrbornefontaine_latest.gml',
+                fetchElevation: true,
             },
         },
         {
-            type: 'bdtopo',
+            name: 'Footpath (GPX)',
+            type: 'vector',
+            rendering: 'shape',
+            source: {
+                dataProjection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/track.gpx',
+                type: 'gpx',
+            },
+        },
+        {
+            name: "Cours d'eau",
+            visible: false,
+            type: 'maskLayer',
+            source: {
+                type: 'mvt',
+                url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
+                backgroundColor: '',
+                style: 'river',
+            },
+        },
+        {
+            name: 'Réseau fibre',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                type: 'wms',
+                projection: 'EPSG:2154',
+                layer: 'tel_telecom.telfibreripthd_1',
+                format: 'image/png',
+                url: 'https://download.data.grandlyon.com/wms/rdata',
+            },
+        },
+        {
+            name: 'Sytral lines (KML) as layer',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                type: 'kml',
+                projection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
+                style: {
+                    stroke: {
+                        color: '#FA8C22',
+                        width: 2,
+                    },
+                },
+            },
+        },
+        {
+            name: 'Sytral lines (KML) as mesh',
+            type: 'vector',
+            rendering: 'mesh',
+            source: {
+                type: 'kml',
+                dataProjection: 'EPSG:4326',
+                url: 'https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml',
+                fetchElevation: true,
+                fetchElevationFast: false,
+            },
+        },
+        {
+            name: 'Canopée (GeoJSON)',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                projection: 'EPSG:4171',
+                url: 'https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson',
+                type: 'geojson',
+                style: 'canopee',
+            },
+        },
+        {
+            name: 'COG',
+            visible: false,
+            type: 'colorLayer',
+            source: {
+                type: 'cog',
+                url: 'https://3d.oslandia.com/lyon/TS2015.tif',
+                projection: 'EPSG:3946',
+            },
+        },
+        {
+            type: 'ifc',
+            name: '19_rue_Marc_Antoine_Petit (IFC)',
+            source: {
+                url: 'https://3d.oslandia.com/lyon/19_rue_Marc_Antoine_Petit.ifc',
+                position: {
+                    crs: 'EPSG:2154',
+                    x: 841913,
+                    y: 6517805,
+                    z: 170,
+                },
+            },
+        },
+        {
+            type: 'tiledIfc',
+            name: '19_rue_Marc_Antoine_Petit (3D Tiles)',
+            source: {
+                url: 'https://3d.oslandia.com/3dtiles/19_rue_Marc_Antoine_Petit_ifc/tileset.json',
+            },
+        },
+        {
+            type: 'featureCollection',
             name: 'BD TOPO',
-            url: 'ignored',
+            source: 'bdtopo',
         },
         {
             type: 'group',
@@ -166,22 +272,30 @@ const config: Configuration = {
             children: [
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6520_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0841_6520_LA93_IGN69',
                 },
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6521_LA93_IGN69.city.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0841_6521_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0841_6521_LA93_IGN69',
                 },
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6520_LA93_IGN69.city.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6520_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0842_6520_LA93_IGN69',
                 },
                 {
                     type: 'cityjson',
-                    url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6521_LA93_IGN69.city.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/Semis_2021_0842_6521_LA93_IGN69.city.json',
+                    },
                     name: 'Semis_2021_0842_6521_LA93_IGN69',
                 },
             ],
@@ -193,27 +307,36 @@ const config: Configuration = {
             children: [
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6520_LA93_IGN69/tileset.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6520_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0841_6520_LA93_IGN69',
                 },
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6521_LA93_IGN69/tileset.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0841_6521_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0841_6521_LA93_IGN69',
                 },
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6520_LA93_IGN69/tileset.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6520_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0842_6520_LA93_IGN69',
                 },
                 {
                     type: 'pointcloud',
-                    url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6521_LA93_IGN69/tileset.json',
+                    source: {
+                        url: 'https://3d.oslandia.com/lyon/3dtiles/Semis_2021_0842_6521_LA93_IGN69/tileset.json',
+                    },
                     name: 'Semis_2021_0842_6521_LA93_IGN69',
                 },
             ],
         },
     ],
+    importedVectorDatasetRendering: 'overlay',
     overlays: [
         {
             name: "Cours d'eau",

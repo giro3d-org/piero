@@ -18,7 +18,7 @@ export type DynamicVectorStyle = DynamicStyleId;
  *
  * Either an entry of the [Style configuration](../style.ts), or a static configuration
  */
-export type VectorStyle = StaticVectorStyle | DynamicVectorStyle;
+export type VectorStyle = StaticVectorStyle | DynamicVectorStyle | 'default';
 
 export interface FillStyle {
     color: string;

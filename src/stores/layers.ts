@@ -3,9 +3,9 @@ import { computed, shallowReactive } from 'vue';
 
 import config from '@/config.ts';
 import { GraticuleLayer } from '@/giro3d/Graticule';
+import type { OverlayConfig } from '@/types/configuration/layers';
 import { type BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
 import { type Overlay, OverlayObject } from '@/types/Overlay';
-import type { OverlayConfig } from '@/types/configuration/layers';
 
 function buildBaseLayers() {
     const result: BaseLayer[] = [];
@@ -34,13 +34,12 @@ function buildGraticuleLayer() {
 function buildOverlays() {
     const result: Overlay[] = [];
     for (const item of config.overlays) {
-        let overlayConfig: OverlayConfig;
-
+        let conf: OverlayConfig;
         if (!('source' in item)) {
             console.warn(
-                `Configuration is not using the "source" field for overlay ${item.name}, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/49 for more information. This will be removed in release v24.7.`,
+                `Configuration for ${item.name} is deprecated. This will be removed in release v24.7.`,
             );
-            overlayConfig = {
+            conf = {
                 name: item.name,
                 visible: item.visible,
                 source: {
@@ -48,9 +47,9 @@ function buildOverlays() {
                 },
             };
         } else {
-            overlayConfig = item;
+            conf = item;
         }
-        const overlay = new OverlayObject(overlayConfig);
+        const overlay = new OverlayObject(conf);
         overlay.visible = item.visible;
         result.push(overlay);
     }
@@ -80,10 +79,6 @@ export const useLayerStore = defineStore('layers', () => {
 
     function setBasemapVisibility(layer: BaseLayer, visible: boolean) {
         layer.visible = visible;
-    }
-
-    function getElevationColorMap() {
-        return config.basemap.colormap;
     }
 
     function setBasemapOpacity(layer: BaseLayer, opacity: number) {
@@ -128,7 +123,6 @@ export const useLayerStore = defineStore('layers', () => {
         setBasemapOpacity,
         setBasemapVisibility,
         overlayCount,
-        getElevationColorMap,
         getOverlays,
         setOverlayOpacity,
         setOverlayVisibility,

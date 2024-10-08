@@ -1,7 +1,8 @@
 <script setup lang="ts">
     import { type Component } from 'vue';
     import { useDatasetStore } from '@/stores/datasets';
-    import type { Dataset, DatasetType } from '@/types/Dataset';
+    import type { DatasetType } from '@/types/configuration/datasets';
+    import type { Dataset } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
@@ -31,29 +32,33 @@
     propertyViews.set('ifc', IfcPropertyView);
 
     const icons: Record<DatasetType, string> = {
-        bdtopo: 'bi-buildings',
+        featureCollection: 'bi-buildings',
         cityjson: 'bi-buildings',
-        geojson: 'fg-geojson-file',
-        gpkg: 'fg-polygon-pt',
-        gpx: 'fg-polyline',
+        colorLayer: 'fg-landcover-map',
+        elevationLayer: 'fg-contour-map',
+        flatPointcloud: 'fg-multipoint',
         ifc: 'bi-building',
-        kml: 'fg-polygon-pt',
+        maskLayer: 'fg-hex-map',
         ply: 'bi-file-earmark-binary',
         pointcloud: 'fg-multipoint',
-        shp: 'fg-shape-file',
+        potree: 'fg-multipoint',
+        tiledIfc: 'bi-building',
+        vector: 'fg-polygon-pt',
     };
 
     const iconTitles: Record<DatasetType, string> = {
-        bdtopo: 'BDTopo',
+        featureCollection: 'Feature Collection',
         cityjson: 'CityJSON',
-        geojson: 'GeoJSON',
-        gpkg: 'Geopackage',
-        gpx: 'GPX',
+        colorLayer: 'Color Layer',
+        elevationLayer: 'Elevation layer',
+        flatPointcloud: 'Point Cloud',
         ifc: 'IFC',
-        kml: 'KML',
+        maskLayer: 'Mask Layer',
         ply: 'PLY',
         pointcloud: 'Point Cloud',
-        shp: 'Shapefile',
+        potree: 'Potree Point Cloud',
+        tiledIfc: 'IFC',
+        vector: 'Vector',
     };
 </script>
 
@@ -92,7 +97,8 @@
             <IconListButton
                 v-if="
                     isPreloaded &&
-                    (dataset.get('canMaskBasemap') || dataset.get('isMaskingBasemap'))
+                    (('canMaskBasemap' in dataset.config && dataset.config.canMaskBasemap) ||
+                        ('isMaskingBasemap' in dataset.config && dataset.config.isMaskingBasemap))
                 "
                 title="Toggle basemap masking"
                 icon="bi-mask"

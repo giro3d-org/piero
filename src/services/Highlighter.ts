@@ -1,4 +1,4 @@
-import IfcEntity, { IFCPickResult } from '@/giro3d/IfcEntity';
+import IfcEntity, { type IFCPickResult } from '@/giro3d/entities/IfcEntity';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import Shape, { isShapePickResult, ShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { Color } from 'three';

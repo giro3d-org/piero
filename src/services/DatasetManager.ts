@@ -15,18 +15,40 @@ import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import { Datagroup, DatasetOrGroup } from '@/types/Dataset';
+import type { DatasetAsLayerConfig, DatasetAsMeshConfig } from '@/types/configuration/datasets';
+import {
+    Datagroup,
+    Dataset,
+    DatasetBase,
+    type DatasetLayer,
+    type DatasetOrGroup,
+} from '@/types/Dataset';
 import Notification from '@/types/Notification';
+import { isObject } from '@/utils/Types';
+import type LayerManager from './LayerManager';
+import LayerBuilder from '@/giro3d/LayerBuilder';
+import EntityBuilder from '@/giro3d/EntityBuilder';
+
+const datasetSupportsOverlay = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsLayerConfig> =>
+    isObject(obj) &&
+    (obj.type === 'colorLayer' || obj.type === 'maskLayer' || obj.type === 'elevationLayer');
+
+const datasetSupportsMeshes = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsMeshConfig> =>
+    isObject(obj) && !datasetSupportsOverlay(obj);
 
 export default class DatasetManager {
     private readonly _instance: Instance;
+    private readonly _layerManager: LayerManager;
     private readonly _entities: Map<string, Entity3D> = new Map();
+    private readonly _overlays: Map<string, DatasetLayer> = new Map();
     private readonly _axisGrids: Map<string, AxisGrid> = new Map();
     private readonly _masks: Map<string, MaskLayer> = new Map();
     private readonly _store = useDatasetStore();
+    private readonly _notifications = useNotificationStore();
 
-    constructor(instance: Instance) {
+    constructor(instance: Instance, layerManager: LayerManager) {
         this._instance = instance;
+        this._layerManager = layerManager;
 
         this._store.$onAction(({ name, args, after }) => {
             after(() => {
@@ -52,7 +74,7 @@ export default class DatasetManager {
 
         for (const dataset of this._store.getDatasets()) {
             if (dataset.visible) {
-                this.loadDataset(dataset);
+                this.preloadDataset(dataset);
             }
         }
     }
@@ -171,35 +193,43 @@ export default class DatasetManager {
     }
 
     private async onVisibilityChanged(dataset: DatasetOrGroup, newVisibility: boolean) {
-        dataset.visible = newVisibility;
-        if (!dataset.isPreloaded && newVisibility) {
-            await this.loadDataset(dataset);
-        }
-        this.updateDataset(dataset);
-        if (Datagroup.isGroup(dataset)) {
-            dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
+        try {
+            dataset.visible = newVisibility;
+            if (!dataset.isPreloaded && newVisibility) {
+                await this.preloadDataset(dataset);
+            }
+            this.updateDataset(dataset);
+            if (Datagroup.isGroup(dataset)) {
+                dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
+            }
+        } catch (e) {
+            dataset.visible = false;
         }
     }
 
     private async importFromFile(file: File) {
-        const notifications = useNotificationStore();
+        let dataset: DatasetOrGroup;
         try {
-            notifications.push(new Notification(file.name, 'Importing file...'));
-            const { dataset, entity } = await loader.importFile(this._instance, file);
-
-            this._entities.set(dataset.uuid, entity);
-            this._instance.add(entity);
-            this._instance.notifyChange(entity);
-
-            this._store.add(dataset);
-
-            this.onDatasetLoaded(dataset, entity);
-
-            notifications.push(new Notification(dataset.name, 'Import successful.', 'success'));
+            this._notifications.push(new Notification(file.name, 'Importing file...'));
+            const _dataset = await loader.importFile(this._instance, file);
+            dataset = this._store.add(_dataset); // We need to keep track of the reactive dataset!
+            this._notifications.push(
+                new Notification(dataset.name, 'Import done, parsing data...', 'success'),
+            );
         } catch (e) {
             console.error(e);
-            const error = e as Error;
-            notifications.push(new Notification(file.name, error.message, 'error'));
+            this._notifications.push(new Notification(file.name, (e as Error).message, 'error'));
+            return;
+        }
+
+        try {
+            dataset.isPreloading = true;
+            await this.preloadDataset(dataset);
+            this._notifications.push(
+                new Notification(dataset.name, 'Import successful.', 'success'),
+            );
+        } catch (e) {
+            // Already logged, ignore
         }
     }
 
@@ -207,12 +237,22 @@ export default class DatasetManager {
         const entity = this._entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
-            if (dataset.visible && dataset.isMaskingBasemap) {
+            if (
+                dataset.visible &&
+                'isMaskingBasemap' in dataset.config &&
+                dataset.config.isMaskingBasemap
+            ) {
                 this.createMask(dataset);
             } else if (!dataset.visible && this._masks.has(dataset.uuid)) {
                 this.deleteMask(dataset);
             }
             this._instance.notifyChange(entity);
+        }
+
+        const layer = this._overlays.get(dataset.uuid);
+        if (layer) {
+            layer.visible = dataset.visible;
+            this._layerManager.notify(layer);
         }
     }
 
@@ -223,11 +263,16 @@ export default class DatasetManager {
         const entity = this._entities.get(dataset.uuid);
         if (entity) {
             this._instance.remove(entity);
+            this._instance.notifyChange();
         }
-        this._instance.notifyChange();
+
+        const layer = this._overlays.get(dataset.uuid);
+        if (layer) {
+            this._layerManager.removeBasemapLayer(layer);
+        }
     }
 
-    private onDatasetLoaded(dataset: DatasetOrGroup, entity: Entity3D) {
+    private onDatasetPreloaded(dataset: DatasetOrGroup, entity: Entity3D) {
         dataset.isPreloaded = true;
         dataset.isPreloading = false;
 
@@ -238,7 +283,14 @@ export default class DatasetManager {
         this._store.attachEntity(dataset, entity);
     }
 
-    private async loadDataset(dataset: DatasetOrGroup) {
+    private onDatasetPreloadedAsLayer(dataset: DatasetOrGroup, layer: DatasetLayer) {
+        dataset.isPreloaded = true;
+        dataset.isPreloading = false;
+
+        this._store.attachLayer(dataset, layer);
+    }
+
+    private async preloadDataset(dataset: DatasetOrGroup) {
         if (dataset.isPreloaded) return dataset;
 
         if (Datagroup.isGroup(dataset)) {
@@ -248,14 +300,41 @@ export default class DatasetManager {
 
         dataset.isPreloading = true;
 
-        const entity = await loader.loadDataset(this._instance, dataset);
+        try {
+            if (datasetSupportsOverlay(dataset)) {
+                const layer = await LayerBuilder.getDatasetLayer(this._instance, dataset);
+                if (layer) {
+                    layer.visible = dataset.visible;
+                    this._overlays.set(dataset.uuid, layer);
 
-        if (entity) {
-            entity.visible = dataset.visible;
-            this._entities.set(dataset.uuid, entity);
-            this._instance.add(entity);
+                    await this._layerManager.addDatasetLayer(layer);
 
-            this.onDatasetLoaded(dataset, entity);
+                    this.onDatasetPreloadedAsLayer(dataset, layer);
+                }
+            } else if (datasetSupportsMeshes(dataset)) {
+                const entity = await EntityBuilder.getEntity(this._instance, dataset);
+
+                if (entity) {
+                    entity.visible = dataset.visible;
+                    this._entities.set(dataset.uuid, entity);
+                    await this._instance.add(entity);
+
+                    this.onDatasetPreloaded(dataset, entity);
+                }
+            } else {
+                throw new Error('Dataset is neither an overlay or 3d mesh');
+            }
+        } catch (e) {
+            console.error('Could not load dataset', dataset, e);
+            dataset.isPreloading = false;
+            this._notifications.push(
+                new Notification(
+                    dataset.name,
+                    `Could not load dataset : ${(e as Error).message}`,
+                    'error',
+                ),
+            );
+            throw e;
         }
 
         return dataset;

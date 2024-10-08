@@ -3,7 +3,7 @@ import type { AnalysisConfig } from '@/types/configuration/analysis';
 import type { BookmarkConfig } from '@/types/configuration/bookmark';
 import type { CameraConfig, CameraConfigDeprecated } from '@/types/configuration/camera';
 import type { ColorMapConfig } from '@/types/configuration/color';
-import type { DatasetOrGroupConfig } from '@/types/configuration/dataset';
+import type { DatasetOrGroupConfig } from './configuration/datasets';
 import type { ExperimentalFeatures } from '@/types/configuration/features';
 import type { CRS, GeoExtent, GeoVec2 } from '@/types/configuration/geographic';
 import type {
@@ -13,6 +13,7 @@ import type {
     OverlayVectorConfigDeprecated,
     OverlayVectorTileConfigDeprecated,
 } from '@/types/configuration/layers';
+import { VectorDatasetRendering } from './configuration/datasets/vector';
 
 // For configuration, please use interfaces instead of types, it enables inheritance in the API documentation.
 // Also, please prefer JSON-serializable fields, so that one day if we want to fetch the configuration from
@@ -103,6 +104,11 @@ export interface Configuration {
      * Some dataset types support loading multiple URLs into one dataset. For these types, you can set an array of URLs for the `url` field.
      */
     datasets: DatasetOrGroupConfig[];
+    /**
+     * When importing vector datasets, pick how to render them.
+     * @defaultValue mesh
+     */
+    importedVectorDatasetRendering?: VectorDatasetRendering | 'overlay';
     /**
      * Array of overlays to display on the 2.5D map - can be empty
      *

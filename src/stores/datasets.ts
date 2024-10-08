@@ -1,21 +1,41 @@
-import { ref, computed, Ref } from 'vue';
+import { computed, shallowReactive } from 'vue';
 import { defineStore } from 'pinia';
 import { Box3 } from 'three';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
-import { type Dataset, type DatasetOrGroup, parseDatasetConfig } from '@/types/Dataset';
+import {
+    type Dataset,
+    type DatasetOrGroup,
+    parseDatasetConfig,
+    type DatasetLayer,
+} from '@/types/Dataset';
 import config from '../config';
 
+function buildDatasets(root: DatasetOrGroup) {
+    // We have multiple levels or shallowReactive-ness because we want to react to:
+    // 1. Changes in the root properties (visible, isPreloading, etc.)
+    const ds = shallowReactive(root);
+    if (ds.type === 'group') {
+        // 2. To the list of children (in case we add/delete datasets)
+        // 3. To the children themselves (see 1.)
+        ds.children = shallowReactive(ds.children.map(c => buildDatasets(c)));
+    }
+    return ds;
+}
+
 export const useDatasetStore = defineStore('datasets', () => {
-    const datasets = ref(parseDatasetConfig(config.datasets)) as Ref<DatasetOrGroup[]>;
-    const leafs = computed(() => datasets.value.map(c => c.leafs()).flat());
+    const datasets = shallowReactive(
+        parseDatasetConfig(config.datasets).map(ds => buildDatasets(ds)),
+    );
+    const leafs = computed(() => datasets.map(c => c.leafs()).flat());
     const count = computed(() => leafs.value.length);
 
     const entities: Map<string, Entity3D> = new Map();
+    const layers: Map<string, DatasetLayer> = new Map();
 
     /** Get hierarchy of datasets & groups */
     function getTree(): DatasetOrGroup[] {
-        return datasets.value;
+        return datasets;
     }
 
     /** Get leaf datasets */
@@ -24,8 +44,10 @@ export const useDatasetStore = defineStore('datasets', () => {
     }
 
     /** Adds a dataset at the end of the tree */
-    function add(ds: DatasetOrGroup): void {
-        datasets.value.push(ds);
+    function add(ds: DatasetOrGroup): DatasetOrGroup {
+        const dataset = shallowReactive(ds);
+        datasets.push(dataset);
+        return dataset;
     }
 
     /** Binds an entity to a dataset */
@@ -33,9 +55,14 @@ export const useDatasetStore = defineStore('datasets', () => {
         entities.set(ds.uuid, entity);
     }
 
+    /** Binds a layer to a dataset */
+    function attachLayer(ds: DatasetOrGroup, layer: DatasetLayer): void {
+        layers.set(ds.uuid, layer);
+    }
+
     /** Removes a dataset from the hierarchy */
     function remove(ds: DatasetOrGroup): void {
-        const list = ds.parent ? ds.parent.children : datasets.value;
+        const list = ds.parent ? ds.parent.children : datasets;
         list.splice(list.indexOf(ds), 1);
     }
 
@@ -50,12 +77,19 @@ export const useDatasetStore = defineStore('datasets', () => {
         const box = new Box3();
         dataset.traverse(ds => {
             const entity = entities.get(ds.uuid);
-            if (!entity) return;
+            const localBox = entity?.getBoundingBox();
+            if (localBox && !localBox.isEmpty()) {
+                box.union(localBox);
+                return;
+            }
 
-            const localBox = entity.getBoundingBox();
-            if (!localBox || localBox.isEmpty()) return;
-
-            box.union(localBox);
+            const layer = layers.get(ds.uuid);
+            const layerExtent = layer?.getExtent()?.as(config.default_crs);
+            if (layerExtent && layerExtent.isValid()) {
+                const localBox = layerExtent.toBox3(0, 0);
+                box.union(localBox);
+                return;
+            }
         });
         return box;
     }
@@ -63,6 +97,11 @@ export const useDatasetStore = defineStore('datasets', () => {
     /** Gets the entity attached to a dataset (if bound) */
     function getEntity(ds: DatasetOrGroup): Entity3D | undefined {
         return entities.get(ds.uuid);
+    }
+
+    /** Gets the layer attached to a dataset (if bound) */
+    function getLayer(ds: DatasetOrGroup): DatasetLayer | undefined {
+        return layers.get(ds.uuid);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -95,7 +134,9 @@ export const useDatasetStore = defineStore('datasets', () => {
         setVisible,
         getBoundingBox,
         getEntity,
+        getLayer,
         attachEntity,
+        attachLayer,
         toggleGrid,
         toggleMask,
     };

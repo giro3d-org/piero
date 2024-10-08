@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import { shallowRef } from 'vue';
+import { FrontSide } from 'three';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
 import config from '../config';
 import type { CameraConfigDeprecated } from '@/types/configuration/camera';
-import { FrontSide } from 'three';
+import { getExtent } from '@/utils/Configuration';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
@@ -100,11 +101,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
 
     function getDefaultBasemapExtent() {
         if (config.basemap.extent) {
-            const extent = new Extent(
-                config.basemap.extent.crs ?? config.default_crs,
-                config.basemap.extent,
-            );
-            return extent.as(config.default_crs);
+            return getExtent(config.basemap.extent);
         }
 
         console.warn(
