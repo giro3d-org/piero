@@ -29,18 +29,20 @@ Piero is powered by **[Giro3D](https://giro3d.org/)** and supports a variety of 
 
 ### Imagery
 
--   [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/)
+-   GeoTIFF and [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/)
 -   [MVT](https://docs.mapbox.com/data/tilesets/guides/vector-tiles-standards/)
 -   [WMS](https://www.ogc.org/standard/wms/)
 -   [WMTS](https://www.ogc.org/standard/wmts/)
+-   ... or any source supported by OpenLayers: BingMaps, OpenStreetMap, StadiaMaps, etc.
 
-### 2D assets
+### 2D and 2.5D assets
 
 -   [GeoJSON](https://geojson.org/)
 -   [GeoPackage](https://www.geopackage.org/)
--   [GPX](https://www.topografix.com/gpx.asp) - not yet supported via drag and drop
--   [KML](https://www.ogc.org/standard/kml/) - not yet supported via drag and drop
--   [Shapefile](https://doc.arcgis.com/en/arcgis-online/reference/shapefiles.htm) - not supported via drag and drop
+-   [GPX](https://www.topografix.com/gpx.asp)
+-   [KML](https://www.ogc.org/standard/kml/)
+-   [Shapefile](https://doc.arcgis.com/en/arcgis-online/reference/shapefiles.htm) - not yet supported via drag and drop
+-   [WFS](https://www.ogc.org/standard/wfs/)
 
 ### 3D assets
 
@@ -50,6 +52,7 @@ Piero is powered by **[Giro3D](https://giro3d.org/)** and supports a variety of 
 -   [IFC](https://www.buildingsmart.org/standards/bsi-standards/industry-foundation-classes/)
 -   [LAS/LAZ pointcloud](https://github.com/ASPRSorg/LAS)
 -   [PLY](https://paulbourke.net/dataformats/ply/) - not supported via drag and drop
+-   [Potree pointcloud](https://github.com/potree/potree/)
 
 ### Extend
 
