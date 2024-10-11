@@ -4,6 +4,8 @@
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import MeasurementItem from '@/components/panels/MeasurementItem.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
+    import ImportButton from '@/components/atoms/ImportButton.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useMeasurementStore } from '@/stores/measurement';
     import Download from '@/utils/Download';
@@ -18,8 +20,6 @@
     watch(measurementMode, newMode => {
         measures.setMeasurementMode(newMode);
     });
-
-    const hiddenInput = ref<HTMLInputElement | null>(null);
 
     function setCurrentMode(src: Named | null) {
         measurementMode.value = src?.value as MeasurementMode;
@@ -39,9 +39,8 @@
         Download.downloadAsJson(geojson, 'measures.json');
     }
 
-    async function importMeasureFile(e: Event) {
-        const files = (e.target as HTMLInputElement).files;
-        if (files) measures.importMeasureFiles(files);
+    function importMeasureFile(files: File[]) {
+        measures.importMeasureFiles(files);
     }
 </script>
 
@@ -71,33 +70,31 @@
             />
         </ul>
 
-        <fieldset class="button-area" id="measures-fieldset">
-            <hr />
-            <div class="mb-3">
-                <DropdownView
-                    label="Mode"
-                    description-position="top"
-                    :current="measurementModes[0]"
-                    :items="measurementModes"
-                    @updated:current="src => setCurrentMode(src)"
-                />
-            </div>
-            <button
+        <ButtonArea id="measures-fieldset">
+            <DropdownView
+                label="Mode"
+                description-position="top"
+                :current="measurementModes[0]"
+                :items="measurementModes"
+                @updated:current="src => setCurrentMode(src)"
+                class="mb-2"
+            />
+            <ButtonWithIcon
                 v-if="measures.isUserMeasuring()"
                 title="Stop measuring"
-                class="btn btn-primary"
+                text="Stop measuring"
+                icon="bi-stop-circle"
+                class="btn-primary"
                 @click="measures.end()"
-            >
-                <i class="bi-stop-circle" /> Stop measuring
-            </button>
-            <button
+            />
+            <ButtonWithIcon
                 v-else
                 title="Start measuring"
-                class="btn btn-primary"
+                text="Start measuring"
+                icon="bi-rulers"
+                class="btn-primary"
                 @click="measures.start()"
-            >
-                <i class="bi-rulers" /> Start measuring
-            </button>
+            />
             <ButtonWithIcon
                 title="Export measures to GeoJSON"
                 class="btn-outline-secondary"
@@ -105,33 +102,11 @@
                 icon="bi-box-arrow-right"
                 text="Export measures"
             />
-            <ButtonWithIcon
+            <ImportButton
                 title="Import measures from GeoJSON"
-                class="btn-outline-secondary"
-                @click="(hiddenInput as HTMLInputElement).click()"
-                icon="bi-box-arrow-left"
                 text="Import measures"
+                @import="importMeasureFile"
             />
-            <input
-                ref="hiddenInput"
-                class="btn btn-outline-secondary d-none"
-                type="file"
-                id="measureFormFile"
-                @input="e => importMeasureFile(e)"
-                multiple="true"
-            />
-        </fieldset>
+        </ButtonArea>
     </div>
 </template>
-
-<style scoped>
-    .import {
-        height: 30rem;
-        width: 100%;
-    }
-
-    button {
-        margin: 0.2rem;
-        width: 100%;
-    }
-</style>

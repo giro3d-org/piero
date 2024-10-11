@@ -47,7 +47,7 @@ export const useMeasurementStore = defineStore('measurement', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importMeasureFiles(files: FileList) {
+    function importMeasureFiles(files: File[]) {
         // Nothing to do
     }
 

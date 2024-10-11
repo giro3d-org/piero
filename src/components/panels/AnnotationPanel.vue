@@ -1,7 +1,10 @@
 <script setup lang="ts">
     import { ref, watch } from 'vue';
     import DropdownView from '@/components/DropdownView.vue';
+    import SwitchToggle from '@/components/SwitchToggle.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
+    import ImportButton from '@/components/atoms/ImportButton.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import AnnotationItem from '@/components/panels/AnnotationItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import { useAnnotationStore } from '@/stores/annotations';
@@ -10,7 +13,6 @@
     import AnnotationMode, { annotationModes } from '@/types/AnnotationMode';
     import Named from '@/types/Named';
     import Annotation from '@/types/Annotation';
-    import SwitchToggle from '../SwitchToggle.vue';
 
     const annotations = useAnnotationStore();
     const cameraStore = useCameraStore();
@@ -19,7 +21,6 @@
     watch(annotationMode, newMode => {
         annotations.setAnnotationMode(newMode);
     });
-    const hiddenInput = ref<HTMLInputElement | null>(null);
 
     function setCurrentMode(src: Named | null) {
         annotationMode.value = src?.value as AnnotationMode;
@@ -39,10 +40,8 @@
         Download.downloadAsJson(geojson, 'annotations.json');
     }
 
-    async function importAnnotationFile(e: Event) {
-        const files = (e.target as HTMLInputElement).files;
-
-        if (files) annotations.importAnnotationsFiles(files);
+    async function importAnnotationFile(files: File[]) {
+        annotations.importAnnotationsFiles(files);
     }
 </script>
 
@@ -70,83 +69,54 @@
             />
         </ul>
 
-        <fieldset
-            class="button-area"
-            :disabled="annotations.isUserDrawing()"
-            id="annotations-fieldset"
-        >
-            <hr />
+        <ButtonArea :disabled="annotations.isUserDrawing()" id="annotations-fieldset">
             <SwitchToggle
                 v-bind:model-value="annotations.showLabels()"
                 v-on:update:model-value="v => annotations.setShowLabels(v)"
                 title="show labels"
                 >Show annotation labels</SwitchToggle
             >
-            <div class="mb-3">
-                <DropdownView
-                    label="Mode"
-                    description-position="top"
-                    :current="annotationModes[0]"
-                    :items="annotationModes"
-                    @updated:current="src => setCurrentMode(src)"
-                />
-            </div>
-            <button
+            <DropdownView
+                label="Picking mode"
+                description-position="top"
+                :current="annotationModes[0]"
+                :items="annotationModes"
+                @updated:current="src => setCurrentMode(src)"
+                class="mb-2"
+            />
+            <ButtonWithIcon
                 title="Add point annotation"
-                class="btn btn-primary"
+                text="New points"
+                icon="bi-pin"
+                class="btn-primary"
                 @click="annotations.createPoint()"
-            >
-                <i class="bi-pin" /> New points
-            </button>
-            <button
+            />
+            <ButtonWithIcon
                 title="Add line annotation"
-                class="btn btn-primary"
+                text="New line"
+                icon="bi-bezier2"
+                class="btn-primary"
                 @click="annotations.createLine()"
-            >
-                <i class="bi bi-bezier2" /> New line
-            </button>
-            <button
+            />
+            <ButtonWithIcon
                 title="Add polygon annotation"
-                class="btn btn-primary"
+                text="New polygon"
+                icon="bi-heptagon"
+                class="btn-primary"
                 @click="annotations.createPolygon()"
-            >
-                <i class="bi-heptagon" /> New polygon
-            </button>
-
+            />
             <ButtonWithIcon
                 title="Export annotations to GeoJSON"
+                text="Export annotations"
+                icon="bi-box-arrow-right"
                 class="btn-outline-secondary"
                 @click="exportAnnotations"
-                icon="bi-box-arrow-right"
-                text="Export annotations"
             />
-            <ButtonWithIcon
+            <ImportButton
                 title="Import annotation from GeoJSON"
-                class="btn-outline-secondary"
-                @click="(hiddenInput as HTMLInputElement).click()"
-                icon="bi-box-arrow-left"
                 text="Import annotations"
+                @import="importAnnotationFile"
             />
-            <input
-                ref="hiddenInput"
-                class="btn btn-outline-secondary d-none"
-                type="file"
-                id="annotationFormFile"
-                @input="e => importAnnotationFile(e)"
-                multiple="true"
-            />
-        </fieldset>
+        </ButtonArea>
     </div>
 </template>
-
-<style scoped>
-    .import {
-        height: 30rem;
-        width: 100%;
-    }
-
-    button {
-        margin: 0.2rem;
-        width: 100%;
-    }
-</style>

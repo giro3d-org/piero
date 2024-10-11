@@ -77,7 +77,7 @@ export const useAnnotationStore = defineStore('annotations', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importAnnotationsFiles(files: FileList) {
+    function importAnnotationsFiles(files: File[]) {
         // Nothing to do
     }
 

@@ -7,9 +7,10 @@
     import BasemapItem from '@/components/panels/BasemapItem.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import DropZone from '@/components/DropZone.vue';
     import OverlayItem from '@/components/panels/OverlayItem.vue';
     import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
+    import ImportButton from '@/components/atoms/ImportButton.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
@@ -29,32 +30,15 @@
         }
     }
 
-    async function importDatasetFromDrop(e: DragEvent) {
-        const files = e.dataTransfer?.files;
-        if (files) {
-            for (const file of files) {
-                datasets.importFromFile(file);
-            }
+    async function importDataset(files: File[]) {
+        for (const file of files) {
+            datasets.importFromFile(file);
         }
     }
-
-    // async function importDatasetFromFile(e: Event) {
-    //     const files = (e.target as HTMLInputElement).files;
-    //     if (files) {
-    //         for (const file of files) {
-    //             datasets.importFromFile(file);
-    //         }
-    //     }
-    // }
-
-    // const hiddenInput = ref(null);
-
-    defineEmits(['import']);
 </script>
 
 <template>
     <div class="d-flex flex-column h-100 overflow-auto">
-        <DropZone id="datasets-drop-zone" @drop="importDatasetFromDrop" label="Import file..." />
         <SectionCollapsible
             title="Basemaps"
             icon-position="left"
@@ -126,11 +110,9 @@
                 />
             </CompactList>
         </SectionCollapsible>
+
+        <ButtonArea>
+            <ImportButton title="Import file" text="Import file" @import="importDataset" />
+        </ButtonArea>
     </div>
-    <!-- <div class="button-area">
-    <ButtonWithIcon text="Add dataset..." @click="hiddenInput.click()" icon="bi-plus-lg" title="Add dataset from a local file"
-      class="btn-primary" />
-    <input ref="hiddenInput" class="btn btn-outline-secondary d-none" type="file" id="formFile"
-      @input="importDatasetFromFile">
-  </div> -->
 </template>
