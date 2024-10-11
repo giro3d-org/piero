@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import CityJSONEntityInspector from '@/giro3d/CityJSONEntityInspector';
     import IfcEntityInspector from '@/giro3d/IfcEntityInspector';
     import { useGiro3dStore } from '@/stores/giro3d';
     import Instance from '@giro3d/giro3d/core/Instance';
@@ -21,6 +22,7 @@
         store.setMainView(instance.value);
 
         if (!import.meta.env.PROD) {
+            EntityPanel.registerInspector('CityJSONEntity', CityJSONEntityInspector);
             EntityPanel.registerInspector('IfcEntity', IfcEntityInspector);
 
             const inspector = Inspector.attach(
