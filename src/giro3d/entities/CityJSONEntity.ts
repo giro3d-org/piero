@@ -14,7 +14,7 @@ import {
     type CityObjectsMesh,
 } from 'cityjson-threejs-loader';
 import type { Material, Vector2 } from 'three';
-import { Group } from 'three';
+import { DoubleSide, FrontSide, Group } from 'three';
 import type {
     DataProjectionMixin,
     FeatureProjectionMixin,
@@ -88,6 +88,17 @@ export default class CityJSONEntity
         this._availableLods = null;
         this._displayedLodIdx = -1;
         this._showSemantics = true;
+
+        this.addEventListener('clippingPlanes-property-changed', () => {
+            const isClipped =
+                (this.clippingPlanes != null && this.clippingPlanes.length > 0) ||
+                (this.instance?.renderer?.clippingPlanes != null &&
+                    this.instance.renderer.clippingPlanes.length > 0);
+            this.traverseCityMaterials(m => {
+                m.clipping = isClipped;
+                m.side = isClipped ? DoubleSide : FrontSide;
+            });
+        });
     }
 
     /** Array of the available Levels Of Details in this CityJSON model */
@@ -201,10 +212,14 @@ export default class CityJSONEntity
                     sortedAvailableLods.sort();
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     const bestLod = sortedAvailableLods.pop()!;
-                    this.displayedLodIdx = this._availableLods.indexOf(bestLod);
+                    this._displayedLodIdx = this._availableLods.indexOf(bestLod);
                 } else {
-                    this.displayedLodIdx = -1;
+                    this._displayedLodIdx = -1;
                 }
+
+                this.traverseCityMaterials(m => {
+                    m.showLod = this._displayedLodIdx;
+                });
 
                 this.onObjectCreated(loader.scene);
 
