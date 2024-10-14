@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import { useAnalysisStore } from '@/stores/analysis';
-    import FloodingPlane from './analysis/FloodingPlane.vue';
-    import ToolWrapper from './analysis/ToolWrapper.vue';
-    import CrossSection from './analysis/CrossSection.vue';
     import ClippingBox from './analysis/ClippingBox.vue';
+    import CrossSection from './analysis/CrossSection.vue';
+    import FloodingPlane from './analysis/FloodingPlane.vue';
     import Statistics from './analysis/Statistics.vue';
+    import ToolWrapper from './analysis/ToolWrapper.vue';
 
     const analysis = useAnalysisStore();
 </script>

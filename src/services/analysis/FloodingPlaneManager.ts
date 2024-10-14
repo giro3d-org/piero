@@ -1,7 +1,7 @@
-import Instance from '@giro3d/giro3d/core/Instance';
-import FloodingPlane from '@/types/FloodingPlane';
-import LayerManager from '@/services/LayerManager';
+import type LayerManager from '@/services/LayerManager';
 import { useAnalysisStore } from '@/stores/analysis';
+import FloodingPlane from '@/types/FloodingPlane';
+import type Instance from '@giro3d/giro3d/core/Instance';
 
 export default class FloodingPlaneManager {
     private readonly _instance: Instance;

@@ -1,8 +1,9 @@
-import { Box3, Material, Sphere } from 'three';
-import Tiles3D, { Tiles3DOptions } from '@giro3d/giro3d/entities/Tiles3D';
-import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
-
 import { fillObject3DUserData } from '@/loaders/userData';
+import type { Tiles3DOptions } from '@giro3d/giro3d/entities/Tiles3D';
+import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
+import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
+import type { Material } from 'three';
+import { Box3, Sphere } from 'three';
 import type { UrlMixin } from '../sources/mixins';
 
 /** Parameters for creating {@link Tiles3dEntity} */
@@ -19,20 +20,18 @@ export default class Tiles3dEntity extends Tiles3D {
 
     getBoundingBox(): Box3 | null {
         // Workaround for https://gitlab.com/giro3d/giro3d/-/issues/527
-        if (this.root) {
-            const boundingVolume = this.root.boundingVolume;
-            if (boundingVolume.box) {
-                const box = new Box3().copy(boundingVolume.box).applyMatrix4(this.root.matrixWorld);
-                return box;
-            }
-            if (boundingVolume.sphere) {
-                const sphere = new Sphere()
-                    .copy(boundingVolume.sphere)
-                    .applyMatrix4(this.root.matrixWorld);
-                const box = new Box3();
-                sphere.getBoundingBox(box);
-                return box;
-            }
+        const boundingVolume = this.root.boundingVolume;
+        if (boundingVolume.box) {
+            const box = new Box3().copy(boundingVolume.box).applyMatrix4(this.root.matrixWorld);
+            return box;
+        }
+        if (boundingVolume.sphere) {
+            const sphere = new Sphere()
+                .copy(boundingVolume.sphere)
+                .applyMatrix4(this.root.matrixWorld);
+            const box = new Box3();
+            sphere.getBoundingBox(box);
+            return box;
         }
 
         return super.getBoundingBox();

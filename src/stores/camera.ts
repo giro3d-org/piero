@@ -1,8 +1,9 @@
-import CameraPosition from '@/types/CameraPosition';
-import NavigationMode from '@/types/NavigationMode';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type CameraPosition from '@/types/CameraPosition';
+import type NavigationMode from '@/types/NavigationMode';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { defineStore } from 'pinia';
-import { Box3, Object3D, Vector3 } from 'three';
+import type { Box3, Object3D } from 'three';
+import { Vector3 } from 'three';
 import { ref } from 'vue';
 
 export const useCameraStore = defineStore('camera', () => {
@@ -14,7 +15,9 @@ export const useCameraStore = defineStore('camera', () => {
 
     /** Gets the current camera position and parameters */
     function getCameraPosition(): CameraPosition {
-        if (cameraPosition.value === undefined) throw new Error('Cannot get cameraPosition');
+        if (cameraPosition.value === undefined) {
+            throw new Error('Cannot get cameraPosition');
+        }
         return cameraPosition.value;
     }
 

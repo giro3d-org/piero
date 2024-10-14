@@ -1,12 +1,13 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import { MathUtils } from 'three';
-    import IfcEntity, { ClassificationItem } from '@/giro3d/entities/IfcEntity';
-    import { useCameraStore } from '@/stores/camera';
-    import { useAnalysisStore } from '@/stores/analysis';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import type IfcEntity from '@/giro3d/entities/IfcEntity';
+    import type { ClassificationItem } from '@/giro3d/entities/IfcEntity';
+    import { useAnalysisStore } from '@/stores/analysis';
+    import { useCameraStore } from '@/stores/camera';
+    import { MathUtils } from 'three';
+    import { ref } from 'vue';
 
     const props = defineProps<{
         ifcEntity: IfcEntity;
@@ -30,7 +31,9 @@
 
     function zoomTo() {
         const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
-        if (bbox && !bbox.isEmpty()) cameraStore.lookTopDownAt(bbox);
+        if (bbox && !bbox.isEmpty()) {
+            cameraStore.lookTopDownAt(bbox);
+        }
     }
 
     function clipTo() {

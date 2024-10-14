@@ -1,5 +1,5 @@
+import type { CityJSONSource } from '@/giro3d/entities/CityJSONEntity';
 import type { DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
-import { CityJSONSource } from '@/giro3d/entities/CityJSONEntity';
 
 /** CityJSON source configuration */
 export interface CityJSONDatasetSourceConfig extends Omit<CityJSONSource, 'featureProjection'> {}

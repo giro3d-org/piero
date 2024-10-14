@@ -3,7 +3,7 @@ require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
     root: true,
-    plugins: ['@typescript-eslint', 'eslint-plugin-tsdoc'],
+    plugins: ['@typescript-eslint', 'eslint-plugin-tsdoc', 'eslint-plugin-prettier'],
     parser: 'vue-eslint-parser',
     extends: [
         'plugin:vue/vue3-essential',
@@ -13,13 +13,15 @@ module.exports = {
         '@vue/eslint-config-prettier/skip-formatting',
     ],
     parserOptions: {
-        parser: '@typescript-eslint/parser',
+        project: './tsconfig.eslint.json',
         ecmaVersion: 'latest',
+        parser: '@typescript-eslint/parser',
     },
     rules: {
         'vue/multi-word-component-names': 'off',
 
         // Use the same config as Giro3D, minor some unnecessary/unwanted that are commented-out
+        curly: 'error',
         'tsdoc/syntax': 'warn',
         'no-console': 'off', // let's log cleverly!
         eqeqeq: ['error', 'smart'],
@@ -103,5 +105,18 @@ module.exports = {
         'prefer-destructuring': 'off',
         'no-bitwise': 'off', // we DO manipulate bits often enough, making this irrelevant
         'max-classes-per-file': 'off', // for me, if we export only one, I don't see the wrong here
+
+        // Also apply TS rules from Giro3D
+        '@typescript-eslint/no-non-null-assertion': 'error',
+        '@typescript-eslint/consistent-type-imports': 'error',
+        '@typescript-eslint/strict-boolean-expressions': 'error',
+        '@typescript-eslint/no-unused-vars': [
+            'error', // or "error"
+            {
+                argsIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_',
+            },
+        ],
     },
 };

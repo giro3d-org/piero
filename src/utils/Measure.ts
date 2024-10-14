@@ -1,5 +1,5 @@
-import Shape from '@giro3d/giro3d/entities/Shape';
-import { Vector3 } from 'three';
+import type Shape from '@giro3d/giro3d/entities/Shape';
+import type { Vector3 } from 'three';
 
 function getMinMaxAltitudes(coordsOrDrawing: Shape | Vector3[]): [number, number] {
     let min = +Infinity;

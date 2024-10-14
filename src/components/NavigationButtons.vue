@@ -1,10 +1,11 @@
 <script setup lang="ts">
-    import { Ref, ref, watch } from 'vue';
-    import NavigationMode from '@/types/NavigationMode';
-    import Notification from '@/types/Notification';
-    import SwitchToggle from './SwitchToggle.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
+    import type NavigationMode from '@/types/NavigationMode';
+    import Notification from '@/types/Notification';
+    import type { Ref } from 'vue';
+    import { ref, watch } from 'vue';
+    import SwitchToggle from './SwitchToggle.vue';
 
     const camera = useCameraStore();
     const notificationStore = useNotificationStore();
@@ -60,8 +61,11 @@
     });
 
     function onPositionOnMapToggle() {
-        if (navigationMode.value !== 'position-on-map') navigationMode.value = 'position-on-map';
-        else navigationMode.value = 'orbit';
+        if (navigationMode.value !== 'position-on-map') {
+            navigationMode.value = 'position-on-map';
+        } else {
+            navigationMode.value = 'orbit';
+        }
     }
 </script>
 

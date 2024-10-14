@@ -1,14 +1,15 @@
-import { VectorMeshSource } from './VectorMeshEntity';
 import { DEFAULT_SHAPE_COLOR } from '@/constants';
 import { fillObject3DUserData } from '@/loaders/userData';
-import { Coordinate } from 'ol/coordinate';
-import { Box3, Color, Group, Intersection, MathUtils, Raycaster, Vector2, Vector3 } from 'three';
-import { SimpleFeature, SimpleGeometryType } from '@/utils/OLFeatures';
+import type { SimpleFeature, SimpleGeometryType } from '@/utils/OLFeatures';
+import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { getContrastColor } from '@giro3d/giro3d/utils/ColorUtils';
+import type { Coordinate } from 'ol/coordinate';
+import type { Intersection } from 'three';
+import { Box3, Color, Group, MathUtils, Raycaster, Vector2, Vector3 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type { VectorMeshSource } from './VectorMeshEntity';
 
 const tmpNDC = new Vector2();
 const thisColor = new Color(DEFAULT_SHAPE_COLOR);
@@ -90,7 +91,9 @@ export default class VectorLabelsEntity extends Entity3D {
         span.style.fontWeight = DEFAULT_FONT_WEIGHT;
         span.style.pointerEvents = 'auto';
 
-        if (this._styleCallback) this._styleCallback(span, feature);
+        if (this._styleCallback) {
+            this._styleCallback(span, feature);
+        }
     }
 
     private createLabel(at: Vector3, feature: SimpleFeature): CSS2DObject {
@@ -203,7 +206,7 @@ export default class VectorLabelsEntity extends Entity3D {
     }
 
     private raycastLabel(label: CSS2DObject, raycaster: Raycaster, intersects: Intersection[]) {
-        if (label.userData.hover) {
+        if (label.userData.hover === true) {
             intersects.push({
                 object: label,
                 point: label.position,

@@ -1,5 +1,5 @@
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { GeocodingResult } from './Geocoding';
+import type { GeocodingResult } from './Geocoding';
 import IgnProvider from './IgnProvider';
 
 export default {

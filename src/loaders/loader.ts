@@ -1,16 +1,15 @@
-import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import type Instance from '@giro3d/giro3d/core/Instance';
-
+import config from '@/config';
+import { Dataset } from '@/types/Dataset';
 import type {
     DatasetConfigImportable,
     DatasetTypeImportable,
 } from '@/types/configuration/datasets';
 import type { PointCloudSourceConfig } from '@/types/configuration/datasets/pointCloud';
-import { Dataset } from '@/types/Dataset';
+import type { VectorMeshDatasetSourceConfig } from '@/types/configuration/datasets/vector';
+import type { LayerSourceConfig } from '@/types/configuration/layers';
 import Fetcher, { type FetchContext, type UrlOrFetchedData } from '@/utils/Fetcher';
-import { VectorMeshDatasetSourceConfig } from '@/types/configuration/datasets/vector';
-import { LayerSourceConfig } from '@/types/configuration/layers';
-import config from '@/config';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 /** Mapping between file extensions and the dataset types */
 const datasetTypePerExtension: Record<string, DatasetTypeImportable> = {
@@ -49,7 +48,8 @@ export type ImportFileResult = {
  */
 function getFilename(fileOrUrl: UrlOrFetchedData): FileInfo {
     const context = Fetcher.getContext(fileOrUrl);
-    const datasetType = context.fileext ? datasetTypePerExtension[context.fileext] : undefined;
+    const datasetType =
+        context.fileext != null ? datasetTypePerExtension[context.fileext] : undefined;
 
     return {
         ...context,

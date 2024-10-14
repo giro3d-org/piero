@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia';
-import { shallowRef } from 'vue';
-import { FrontSide } from 'three';
+import config from '@/config';
+import type { CameraConfigDeprecated } from '@/types/configuration/camera';
+import { getExtent } from '@/utils/Configuration';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
-import config from '../config';
-import type { CameraConfigDeprecated } from '@/types/configuration/camera';
-import { getExtent } from '@/utils/Configuration';
+import { defineStore } from 'pinia';
+import { FrontSide } from 'three';
+import { shallowRef } from 'vue';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);

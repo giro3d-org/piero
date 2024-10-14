@@ -1,13 +1,13 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import PromiseUtils from '@giro3d/giro3d/utils/PromiseUtils';
     import DropdownView from '@/components/DropdownView.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import BarChart from '@/components/charts/BarChart.vue';
     import DoughnutChart from '@/components/charts/DoughnutChart.vue';
     import LoadingIndicator from '@/components/panels/LoadingIndicator.vue';
     import { useStatisticsStore } from '@/stores/statistics';
-    import { Dataset } from '@/types/Dataset';
+    import type { Dataset } from '@/types/Dataset';
+    import PromiseUtils from '@giro3d/giro3d/utils/PromiseUtils';
+    import { ref } from 'vue';
 
     const store = useStatisticsStore();
 

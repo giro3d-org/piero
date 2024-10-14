@@ -1,6 +1,6 @@
 <script setup lang="ts">
-    import { onMounted, ref } from 'vue';
     import { MathUtils } from 'three';
+    import { onMounted, ref } from 'vue';
 
     const props = defineProps<{
         title: string;

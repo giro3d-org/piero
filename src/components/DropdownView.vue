@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import Named from '@/types/Named';
+    import type Named from '@/types/Named';
     import { MathUtils } from 'three';
     import { ref } from 'vue';
 

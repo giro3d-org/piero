@@ -1,10 +1,10 @@
-import Shape from '@giro3d/giro3d/entities/Shape';
-import { VectorMeshSource } from './VectorMeshEntity';
 import { DEFAULT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
 import { fillObject3DUserData } from '@/loaders/userData';
-import { Coordinate } from 'ol/coordinate';
+import type { SimpleGeometryType } from '@/utils/OLFeatures';
+import Shape from '@giro3d/giro3d/entities/Shape';
+import type { Coordinate } from 'ol/coordinate';
 import { Vector3 } from 'three';
-import { SimpleGeometryType } from '@/utils/OLFeatures';
+import type { VectorMeshSource } from './VectorMeshEntity';
 
 /** Entity for displaying vector data as meshes */
 export default class VectorShapeEntity extends Shape {

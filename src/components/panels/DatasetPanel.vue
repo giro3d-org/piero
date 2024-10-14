@@ -1,16 +1,16 @@
 <script setup lang="ts">
-    import { DatasetOrGroup } from '@/types/Dataset';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
+    import CompactList from '@/components/atoms/CompactList.vue';
+    import ImportButton from '@/components/atoms/ImportButton.vue';
+    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
+    import BasemapItem from '@/components/panels/BasemapItem.vue';
+    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
+    import OverlayItem from '@/components/panels/OverlayItem.vue';
     import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
     import { useLayerStore } from '@/stores/layers';
-    import BasemapItem from '@/components/panels/BasemapItem.vue';
-    import CompactList from '@/components/atoms/CompactList.vue';
-    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import OverlayItem from '@/components/panels/OverlayItem.vue';
-    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
-    import ImportButton from '@/components/atoms/ImportButton.vue';
-    import ButtonArea from '@/components/atoms/ButtonArea.vue';
+    import type { DatasetOrGroup } from '@/types/Dataset';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
@@ -19,7 +19,9 @@
 
     function zoomOnDataset(dataset: DatasetOrGroup) {
         const box = datasets.getBoundingBox(dataset);
-        if (!box?.isEmpty()) camera.lookTopDownAt(box);
+        if (!box?.isEmpty()) {
+            camera.lookTopDownAt(box);
+        }
     }
 
     function clipToDataset(dataset: DatasetOrGroup) {

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
-    import Inspector from '@giro3d/giro3d/gui/Inspector';
-    import Instance from '@giro3d/giro3d/core/Instance';
-    import { useGiro3dStore } from '@/stores/giro3d';
-    import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
     import IfcEntityInspector from '@/giro3d/IfcEntityInspector';
+    import { useGiro3dStore } from '@/stores/giro3d';
+    import Instance from '@giro3d/giro3d/core/Instance';
+    import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+    import Inspector from '@giro3d/giro3d/gui/Inspector';
+    import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
     const mainView = ref<HTMLDivElement | null>(null);
     const inspectorView = ref<HTMLDivElement | null>(null);

@@ -1,4 +1,5 @@
-import { Ref, ref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { ref, watch } from 'vue';
 
 /**
  * Stores reference and watches for changes on a property of an object

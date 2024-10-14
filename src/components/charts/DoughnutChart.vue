@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import { Chart, ChartConfiguration, DoughnutController, ArcElement } from 'chart.js';
+    import type { ChartConfiguration } from 'chart.js';
+    import { ArcElement, Chart, DoughnutController } from 'chart.js';
     import { onMounted, ref } from 'vue';
 
     Chart.register(DoughnutController, ArcElement);

@@ -1,9 +1,9 @@
+import type CameraController from '@/services/CameraController';
+import CameraPosition from '@/types/CameraPosition';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import Panel from '@giro3d/giro3d/gui/Panel';
 import type GUI from 'lil-gui';
 import { Vector3 } from 'three';
-import Panel from '@giro3d/giro3d/gui/Panel';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import CameraController from '@/services/CameraController';
-import CameraPosition from '@/types/CameraPosition';
 
 class CameraControlsInspector extends Panel {
     camera: CameraController;

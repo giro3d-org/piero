@@ -1,19 +1,19 @@
-import { Group, Vector2 } from 'three';
-import {
-    CityJSONLoader as CityJSONThreeLoader,
-    CityJSONWorkerParser,
-    CityObjectsMesh,
-} from 'cityjson-threejs-loader';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
-import PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
-
+import { fillObject3DUserData } from '@/loaders/userData';
 import Fetcher from '@/utils/Fetcher';
 import Projections from '@/utils/Projections';
 import { isObject } from '@/utils/Types';
-import { fillObject3DUserData } from '@/loaders/userData';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { CityObjectsMesh } from 'cityjson-threejs-loader';
+import {
+    CityJSONLoader as CityJSONThreeLoader,
+    CityJSONWorkerParser,
+} from 'cityjson-threejs-loader';
+import type { Vector2 } from 'three';
+import { Group } from 'three';
 import type {
     DataProjectionMixin,
     FeatureProjectionMixin,
@@ -174,5 +174,5 @@ export default class CityJSONEntity
     }
 
     static isCityJSONEntity = (obj: object): obj is CityJSONEntity =>
-        obj && (obj as CityJSONEntity).isCityJSONEntity;
+        isObject(obj) && (obj as CityJSONEntity).isCityJSONEntity;
 }

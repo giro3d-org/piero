@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import type { Vector3 } from 'three';
 
 export interface Attribute {
     key: string;

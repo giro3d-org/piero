@@ -1,9 +1,10 @@
+import type { FetchContext, UrlOrData } from '@/utils/Fetcher';
+import Fetcher from '@/utils/Fetcher';
+import type { SimpleFeature } from '@/utils/OLFeatures';
 import { load } from '@loaders.gl/core';
 import { ShapefileLoader as ShapefileGLLoader } from '@loaders.gl/shapefile';
-
-import Fetcher, { FetchContext, UrlOrData } from '@/utils/Fetcher';
-import { SimpleFeature } from '@/utils/OLFeatures';
-import { geojsonToOlFeatures, VectorMeshSource } from '../entities/VectorMeshEntity';
+import type { VectorMeshSource } from '../entities/VectorMeshEntity';
+import { geojsonToOlFeatures } from '../entities/VectorMeshEntity';
 import type {
     DataProjectionMixin,
     ElevationMixin,

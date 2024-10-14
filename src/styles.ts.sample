@@ -1,4 +1,4 @@
-import { FeatureLike } from 'ol/Feature';
+import type { FeatureLike } from 'ol/Feature';
 import { Fill, RegularShape, Stroke, Style, Text } from 'ol/style';
 
 const styles = {
@@ -15,7 +15,10 @@ const styles = {
             }),
         }),
     river: (feature: FeatureLike, resolution: number): Style[] => {
-        const widthFromClass = feature.get('classe') ? 10 - parseInt(feature.get('classe'), 10) : 3;
+        const widthFromClass =
+            (feature.get('classe') as string | undefined) != null
+                ? 10 - parseInt(feature.get('classe'), 10)
+                : 3;
         return [
             new Style({
                 stroke: new Stroke({

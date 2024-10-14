@@ -1,6 +1,5 @@
-import { fetchFile } from '@loaders.gl/core';
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
-
+import { fetchFile } from '@loaders.gl/core';
 import { getPublicFolderUrl } from './Configuration';
 
 /** URL to load or Blob (drag-and-drop) */
@@ -134,6 +133,7 @@ function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
     }
 
     const parts = baseUrl.split('/');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const filename = parts.pop()!;
     const dirname = parts.join('/');
 

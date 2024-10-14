@@ -1,5 +1,5 @@
-import proj4 from 'proj4';
 import Instance from '@giro3d/giro3d/core/Instance';
+import proj4 from 'proj4';
 
 /**
  * Loads a Projection info and registers it in Giro3D if needed
@@ -22,7 +22,7 @@ async function loadProjCrsIfNeeded(projection: string) {
         }
     }
 
-    if (epsgCode) {
+    if (epsgCode != null) {
         const epsgString = `EPSG:${epsgCode}`;
         if (proj4.defs(epsgString) === undefined) {
             await fetch(`https://epsg.io/${epsgCode}.proj4`)

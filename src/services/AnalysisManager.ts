@@ -1,8 +1,8 @@
-import Instance from '@giro3d/giro3d/core/Instance';
 import FloodingPlaneManager from '@/services/analysis/FloodingPlaneManager';
-import LayerManager from './LayerManager';
-import CrossSectionManager from './analysis/CrossSectionManager';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type LayerManager from './LayerManager';
 import ClippingBoxManager from './analysis/ClippingBoxManager';
+import CrossSectionManager from './analysis/CrossSectionManager';
 
 export default class AnalysisManager {
     private readonly _instance: Instance;

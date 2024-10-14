@@ -1,6 +1,6 @@
+import type { PlySource } from '@/giro3d/entities/PlyEntity';
 import type { SourceConfigLocationMixin } from '@/types/configuration/sources/core/baseConfig';
 import type { DatasetConfigBase } from './core';
-import type { PlySource } from '@/giro3d/entities/PlyEntity';
 
 /** PLY source configuration */
 export interface PLYDatasetSourceConfig

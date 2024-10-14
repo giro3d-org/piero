@@ -1,32 +1,32 @@
+import CameraControlsInspector from '@/giro3d/CameraControlsInspector';
+import { useCameraStore } from '@/stores/camera';
+import { useGiro3dStore } from '@/stores/giro3d';
+import CameraPosition from '@/types/CameraPosition';
+import type NavigationMode from '@/types/NavigationMode';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type Extent from '@giro3d/giro3d/core/geographic/Extent';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type Inspector from '@giro3d/giro3d/gui/Inspector';
+import CameraControls from 'camera-controls';
+import type { Object3D } from 'three';
 import {
     Box3,
     Clock,
-    Vector3,
-    Vector2,
-    Vector4,
-    Quaternion,
-    Matrix4,
-    Spherical,
-    Sphere,
-    Raycaster,
-    MathUtils,
     EventDispatcher,
-    Object3D,
+    MathUtils,
+    Matrix4,
+    Quaternion,
+    Raycaster,
+    Sphere,
+    Spherical,
+    Vector2,
+    Vector3,
+    Vector4,
 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import CameraControls from 'camera-controls';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Instance from '@giro3d/giro3d/core/Instance';
-import Inspector from '@giro3d/giro3d/gui/Inspector';
-import { useCameraStore } from '@/stores/camera';
-import { useGiro3dStore } from '@/stores/giro3d';
-import CameraControlsInspector from '@/giro3d/CameraControlsInspector';
-import CameraPosition from '@/types/CameraPosition';
-import NavigationMode from '@/types/NavigationMode';
-import Picker from './Picker';
+import type Picker from './Picker';
 
 CameraControls.install({
     THREE: {
@@ -146,7 +146,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         });
 
         const inspector = this._giro3dStore.getInspector();
-        if (inspector != null) this.initializeInspector(inspector);
+        if (inspector != null) {
+            this.initializeInspector(inspector);
+        }
         this._giro3dStore.$onAction(({ name, after, args }) => {
             after(() => {
                 switch (name) {
@@ -170,7 +172,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     }
 
     private initializeInspector(inspector: Inspector | null) {
-        if (this._cameraControlsInspector) this._cameraControlsInspector.dispose();
+        if (this._cameraControlsInspector) {
+            this._cameraControlsInspector.dispose();
+        }
 
         if (inspector) {
             this._cameraControlsInspector = new CameraControlsInspector(
@@ -244,7 +248,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     }
 
     private orbitControlsOnContextMenu(e: MouseEvent) {
-        if (this._store.getNavigationMode() !== 'orbit') return;
+        if (this._store.getNavigationMode() !== 'orbit') {
+            return;
+        }
 
         const picked = this._pickObjectsAt(e);
         if (picked) {
@@ -260,7 +266,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
     }
     private orbitControlsOnMouseUp() {
-        if (this._store.getNavigationMode() !== 'orbit') return;
+        if (this._store.getNavigationMode() !== 'orbit') {
+            return;
+        }
 
         this._orbitHelper.visible = false;
         this._instance.notifyChange();
@@ -281,7 +289,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             return;
         }
 
-        if (navigationMode !== 'orbit' && navigationMode !== 'first-person') return;
+        if (navigationMode !== 'orbit' && navigationMode !== 'first-person') {
+            return;
+        }
 
         const keys = {
             ARROW_LEFT: 'ArrowLeft',
@@ -301,7 +311,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         let factor = e.ctrlKey || e.metaKey || e.shiftKey ? 200 : 20;
 
         // Reduce the factor in FPV as we should be close to our data
-        if (navigationMode === 'first-person') factor /= 10;
+        if (navigationMode === 'first-person') {
+            factor /= 10;
+        }
 
         switch (e.code) {
             case keys.KEY_UP:
@@ -313,13 +325,19 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 break;
 
             case keys.ARROW_UP:
-                if (navigationMode === 'first-person') dollyDirection = 1;
-                else forwardDirection = 1;
+                if (navigationMode === 'first-person') {
+                    dollyDirection = 1;
+                } else {
+                    forwardDirection = 1;
+                }
                 break;
 
             case keys.ARROW_BOTTOM:
-                if (navigationMode === 'first-person') dollyDirection = -1;
-                else forwardDirection = -1;
+                if (navigationMode === 'first-person') {
+                    dollyDirection = -1;
+                } else {
+                    forwardDirection = -1;
+                }
                 break;
 
             case keys.ARROW_LEFT:
@@ -393,25 +411,28 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this._boundPositionOnMapOnMouseMove ||
             this._boundPositionOnMapOnContextMenu
         ) {
-            if (this._boundPositionOnMapOnClick)
+            if (this._boundPositionOnMapOnClick) {
                 this._instance.domElement.removeEventListener(
                     'click',
                     this._boundPositionOnMapOnClick,
                 );
+            }
             this._boundPositionOnMapOnClick = null;
 
-            if (this._boundPositionOnMapOnMouseMove)
+            if (this._boundPositionOnMapOnMouseMove) {
                 this._instance.domElement.removeEventListener(
                     'mousemove',
                     this._boundPositionOnMapOnMouseMove,
                 );
+            }
             this._boundPositionOnMapOnMouseMove = null;
 
-            if (this._boundPositionOnMapOnContextMenu)
+            if (this._boundPositionOnMapOnContextMenu) {
                 this._instance.domElement.removeEventListener(
                     'contextmenu',
                     this._boundPositionOnMapOnContextMenu,
                 );
+            }
             this._boundPositionOnMapOnContextMenu = null;
 
             this._positionOnMapHelper.visible = false;
@@ -735,7 +756,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         } else {
             throw new Error('obj should be instanceof Box3, Object3D or Entity3D');
         }
-        if (bbox.isEmpty()) throw new Error('Could not find bounding box of object');
+        if (bbox.isEmpty()) {
+            throw new Error('Could not find bounding box of object');
+        }
 
         bbox.min.z = Math.max(bbox.min.z, 0);
         bbox.max.z = Math.min(bbox.max.z, 2000);

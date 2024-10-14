@@ -1,8 +1,8 @@
-import { Raycaster } from 'three';
-import Instance from '@giro3d/giro3d/core/Instance';
 import Measure3D from '@/giro3d/Measure3D';
-import Picker from '@/services/Picker';
+import type Picker from '@/services/Picker';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import { isShape } from '@giro3d/giro3d/entities/Shape';
+import { Raycaster } from 'three';
 
 export default class MeasureTool {
     private readonly _picker: Picker;

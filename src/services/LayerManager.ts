@@ -1,10 +1,3 @@
-import { EventDispatcher } from 'three';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import ColorLayer, { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
-import { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
-import Layer from '@giro3d/giro3d/core/layer/Layer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
-
 import Grid from '@/giro3d/Grid';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import Plane from '@/giro3d/Plane';
@@ -13,6 +6,13 @@ import { useGiro3dStore } from '@/stores/giro3d';
 import { useLayerStore } from '@/stores/layers';
 import type { BaseLayer, BasemapLayer } from '@/types/BaseLayer';
 import type { Overlay } from '@/types/Overlay';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
+import { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type Layer from '@giro3d/giro3d/core/layer/Layer';
+import Giro3dMap from '@giro3d/giro3d/entities/Map';
+import { EventDispatcher } from 'three';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;
@@ -251,7 +251,9 @@ export default class LayerManager extends EventDispatcher {
             // First make sure we don't have any other elevation layer enabled
             const keys = [...this._baseLayers.keys()];
             keys.forEach(uuid => {
-                if (uuid === basemap.uuid) return;
+                if (uuid === basemap.uuid) {
+                    return;
+                }
 
                 const elevationLayer = this._baseLayers.get(uuid);
                 if (elevationLayer && isElevationLayer(elevationLayer)) {
@@ -261,7 +263,9 @@ export default class LayerManager extends EventDispatcher {
 
                     // And update the store
                     const storeLayer = this._layerStore.getBasemaps().find(l => l.uuid === uuid);
-                    if (storeLayer) this._layerStore.setBasemapVisibility(storeLayer, false);
+                    if (storeLayer) {
+                        this._layerStore.setBasemapVisibility(storeLayer, false);
+                    }
                 }
             });
         }
@@ -314,7 +318,9 @@ export default class LayerManager extends EventDispatcher {
         this._basemap.sortColorLayers((a: Layer, b: Layer) => {
             const orderA = order.indexOf(a.id);
             const orderB = order.indexOf(b.id);
-            if (orderA >= 0 && orderB >= 0) return orderA - orderB;
+            if (orderA >= 0 && orderB >= 0) {
+                return orderA - orderB;
+            }
             return 0;
         });
     }

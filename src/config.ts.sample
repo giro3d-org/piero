@@ -1,6 +1,6 @@
 import GML32 from 'ol/format/GML32.js';
 import { Color } from 'three';
-import { Configuration } from './types/Configuration';
+import type { Configuration } from './types/Configuration';
 
 const config: Configuration = {
     default_crs: 'EPSG:2154',
@@ -334,6 +334,13 @@ const config: Configuration = {
                     name: 'Semis_2021_0842_6521_LA93_IGN69',
                 },
             ],
+        },
+        {
+            type: 'pointcloud',
+            source: {
+                url: 'https://3d.oslandia.com/giro3d/3d-tiles/LHD_FXX_0227_6877_PTS_C_LAMB93_IGN69/tileset.json',
+            },
+            name: 'LHD_FXX_0227_6877_PTS_C_LAMB93_IGN69',
         },
     ],
     importedVectorDatasetRendering: 'overlay',

@@ -1,13 +1,11 @@
-import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-
-import { Color, DoubleSide, Group, Mesh, MeshLambertMaterial } from 'three';
-import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
-
+import { fillObject3DUserData } from '@/loaders/userData';
 import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
-import { fillObject3DUserData } from '@/loaders/userData';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { Color, DoubleSide, Group, Mesh, MeshLambertMaterial } from 'three';
+import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import type { CoordinatesMixin, FeatureProjectionMixin, UrlOrDataMixin } from '../sources/mixins';
 
 /** Parameters for creating {@link PlyEntity} */

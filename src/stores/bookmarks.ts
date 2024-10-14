@@ -1,9 +1,9 @@
-import { Vector3 } from 'three';
-import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import config from '@/config';
 import Bookmark from '@/types/Bookmark';
 import CameraPosition from '@/types/CameraPosition';
-import config from '@/config';
+import { defineStore } from 'pinia';
+import { Vector3 } from 'three';
+import { computed, ref } from 'vue';
 
 function buildInitialList() {
     const result: Bookmark[] = [];

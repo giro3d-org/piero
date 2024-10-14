@@ -1,12 +1,10 @@
+import vue from '@vitejs/plugin-vue';
+import child_process from 'child_process';
+import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
-import fs from 'fs';
-import child_process from 'child_process';
-
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import vue from '@vitejs/plugin-vue';
-
 import pkgConfig from './package.json';
 
 type PackageJson = {
@@ -40,9 +38,13 @@ const homepages = {
 };
 
 function getHomepage(packageJson: PackageJson): string | undefined {
-    if (homepages[packageJson.name]) return homepages[packageJson.name];
-    if (packageJson.homepage) return packageJson.homepage;
-    if (packageJson.repository) {
+    if (homepages[packageJson.name] != null) {
+        return homepages[packageJson.name];
+    }
+    if (packageJson.homepage != null) {
+        return packageJson.homepage;
+    }
+    if (packageJson.repository != null) {
         if (typeof packageJson.repository === 'string') {
             if (packageJson.repository.startsWith('github')) {
                 return 'https://github.com/' + packageJson.repository.split(':')[1];
@@ -117,8 +119,9 @@ export default defineConfig(({ mode }) => {
                                 if (openbim_path === 'node_modules') {
                                     // And go a step further...
                                     const openbim_modules_path = paths.at(i + 3);
-                                    if (openbim_modules_path in openbimComponentsChunks)
+                                    if (openbim_modules_path in openbimComponentsChunks) {
                                         return `${npm_module}-${openbimComponentsChunks[openbim_modules_path]}`;
+                                    }
                                 }
                                 return npm_module;
                             }

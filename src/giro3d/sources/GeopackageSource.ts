@@ -1,9 +1,8 @@
+import Fetcher, { type FetchContext, type UrlOrData } from '@/utils/Fetcher';
+import type { SimpleFeature } from '@/utils/OLFeatures';
 import { load } from '@loaders.gl/core';
 import { GeoPackageLoader as GeoPackageGLLoader } from '@loaders.gl/geopackage';
 import { type GeoJSONTable, type Tables } from '@loaders.gl/schema';
-
-import Fetcher, { type FetchContext, type UrlOrData } from '@/utils/Fetcher';
-import type { SimpleFeature } from '@/utils/OLFeatures';
 import { geojsonToOlFeatures, type VectorMeshSource } from '../entities/VectorMeshEntity';
 import type {
     DataProjectionMixin,
@@ -43,7 +42,9 @@ async function fetchGeopackage(
     const features: GeoJSON.Feature[] = [];
     for (const [table, array] of Object.entries(raw.tables)) {
         for (const feature of array.table.features) {
-            if (!feature.properties) feature.properties = {};
+            if (!feature.properties) {
+                feature.properties = {};
+            }
             feature.properties['table'] = table;
             features.push(feature);
         }

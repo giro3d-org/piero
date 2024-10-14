@@ -1,13 +1,13 @@
-import { Color } from 'three';
-import chroma from 'chroma-js';
-import ColorMap from '@giro3d/giro3d/core/layer/ColorMap';
+import config from '@/config';
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { ExperimentalFeatures } from '@/types/configuration/features';
+import type { GeoExtent, GeoVec3 } from '@/types/configuration/geographic';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
-
-import config from '@/config';
+import ColorMap from '@giro3d/giro3d/core/layer/ColorMap';
+import chroma from 'chroma-js';
+import { Color } from 'three';
 import Download from './Download';
-import type { ColorMapConfig } from '@/types/configuration/color';
-import type { GeoExtent, GeoVec3 } from '@/types/configuration/geographic';
 
 export function getPublicFolderUrl(url: string): string {
     if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -16,6 +16,10 @@ export function getPublicFolderUrl(url: string): string {
     }
 
     return new URL(url, Download.getBaseUrl()).toString();
+}
+
+export function hasExperimentalFeature(feature: ExperimentalFeatures): boolean {
+    return config.enabled_features?.includes(feature) ?? false;
 }
 
 export function getColorMap(config: ColorMapConfig): ColorMap {

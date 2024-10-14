@@ -1,4 +1,4 @@
-import config from '../config';
+import { hasExperimentalFeature } from '@/utils/Configuration';
 
 type PanelDef = {
     key: string;
@@ -14,7 +14,7 @@ const panels: PanelDef[] = [
         key: 'measures',
         title: 'Measurements',
         icon: 'bi-rulers',
-        enabled: config.enabled_features?.includes('measurements') ?? false,
+        enabled: hasExperimentalFeature('measurements'),
     },
     { key: 'analysis', title: 'Analysis', icon: 'bi-graph-up', enabled: true },
     { key: 'bookmarks', title: 'Bookmarks', icon: 'bi-bookmarks', enabled: true },

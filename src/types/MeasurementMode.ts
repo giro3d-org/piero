@@ -1,4 +1,4 @@
-import Named from './Named';
+import type Named from './Named';
 
 type MeasurementMode = 'laser';
 

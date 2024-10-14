@@ -1,8 +1,8 @@
 import type { BingMapsSourceConfig } from '@/types/configuration/sources/bingMaps';
-import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
 import type { CustomVectorSourceConfig } from '@/types/configuration/sources/customVector';
 import type { CustomVectorTileSourceConfig } from '@/types/configuration/sources/customVectorTile';
 import type { GeoJSONAsLayerSourceConfig } from '@/types/configuration/sources/geojson';
+import type { GeoTIFFSourceConfig } from '@/types/configuration/sources/geotiff';
 import type { GPXAsLayerSourceConfig } from '@/types/configuration/sources/gpx';
 import type { KMLAsLayerSourceConfig } from '@/types/configuration/sources/kml';
 import type { MVTSourceConfig } from '@/types/configuration/sources/mvt';

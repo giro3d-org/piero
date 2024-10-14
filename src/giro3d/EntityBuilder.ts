@@ -1,47 +1,46 @@
-import type Instance from '@giro3d/giro3d/core/Instance';
-import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import PotreePointCloud from '@giro3d/giro3d/entities/PotreePointCloud';
-import PotreeSource from '@giro3d/giro3d/sources/PotreeSource';
-
-import type { FeatureCollectionDatasetConfig } from '@/types/configuration/datasets/featureCollection';
-import type { DatasetAsMeshConfig } from '@/types/configuration/datasets';
+import { fillObject3DUserData } from '@/loaders/userData';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
-import { FeatureCollectionEntity } from './entities/FeatureCollectionEntity';
+import type { DatasetAsMeshConfig } from '@/types/configuration/datasets';
 import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
-import CityJSONEntity from './entities/CityJSONEntity';
+import type { FeatureCollectionDatasetConfig } from '@/types/configuration/datasets/featureCollection';
+import type { IFCDatasetConfig } from '@/types/configuration/datasets/ifc';
+import type { PLYDatasetConfig } from '@/types/configuration/datasets/ply';
+import type { PointCloudDatasetConfig } from '@/types/configuration/datasets/pointCloud';
+import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/potreePointCloud';
+import type { TiledIfcDatasetConfig } from '@/types/configuration/datasets/tiledIfc';
+import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/tiledPointCloud';
 import type {
     VectorDatasetConfig,
     VectorLabelsDatasetConfig,
 } from '@/types/configuration/datasets/vector';
-import VectorMeshEntity, {
-    GeoJsonMeshSource,
-    GpxMeshSource,
-    KmlMeshSource,
-    OlMeshSource,
-    VectorMeshSourceOptions,
-    type VectorMeshSource,
-} from './entities/VectorMeshEntity';
-import GeopackageSource from './sources/GeopackageSource';
-import ShapefileSource from './sources/ShapefileSource';
-import type { IFCDatasetConfig } from '@/types/configuration/datasets/ifc';
 import { getCoordinates } from '@/utils/Configuration';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import PotreePointCloud from '@giro3d/giro3d/entities/PotreePointCloud';
+import PotreeSource from '@giro3d/giro3d/sources/PotreeSource';
+import CityJSONEntity from './entities/CityJSONEntity';
+import { FeatureCollectionEntity } from './entities/FeatureCollectionEntity';
 import IfcEntity from './entities/IfcEntity';
-import type { PointCloudDatasetConfig } from '@/types/configuration/datasets/pointCloud';
+import PlyEntity from './entities/PlyEntity';
 import PointCloudEntity, {
     CSVPointCloudSource,
     LASPointCloudSource,
     type PointCloudSource,
 } from './entities/PointCloudEntity';
-import type { PLYDatasetConfig } from '@/types/configuration/datasets/ply';
-import PlyEntity from './entities/PlyEntity';
-import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/tiledPointCloud';
 import TiledPointCloudEntity from './entities/TiledPointCloudEntity';
-import type { PotreePointCloudDatasetConfig } from '@/types/configuration/datasets/potreePointCloud';
-import { fillObject3DUserData } from '@/loaders/userData';
-import VectorShapeEntity from './entities/VectorShapeEntity';
-import VectorLabelsEntity from './entities/VectorLabelsEntity';
-import { TiledIfcDatasetConfig } from '@/types/configuration/datasets/tiledIfc';
 import Tiles3dEntity from './entities/Tiles3dEntity';
+import VectorLabelsEntity from './entities/VectorLabelsEntity';
+import type { VectorMeshSourceOptions } from './entities/VectorMeshEntity';
+import VectorMeshEntity, {
+    GeoJsonMeshSource,
+    GpxMeshSource,
+    KmlMeshSource,
+    OlMeshSource,
+    type VectorMeshSource,
+} from './entities/VectorMeshEntity';
+import VectorShapeEntity from './entities/VectorShapeEntity';
+import GeopackageSource from './sources/GeopackageSource';
+import ShapefileSource from './sources/ShapefileSource';
 
 /**
  * Gets the Giro3D entity for a dataset
@@ -233,7 +232,9 @@ async function getEntity(
         }
     }
 
-    if (!('dataset' in entity.object3d.userData)) entity.object3d.userData.dataset = {};
+    if (!('dataset' in entity.object3d.userData)) {
+        entity.object3d.userData.dataset = {};
+    }
     entity.object3d.userData.dataset.name = dataset.name;
 
     return entity;

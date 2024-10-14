@@ -1,7 +1,8 @@
-import Measure from '@/types/Measure';
-import { isObject } from '@/utils/Types';
-import Shape, { LineLabelFormatter } from '@giro3d/giro3d/entities/Shape';
 import { DEFAULT_MEASURE_COLOR, HIGHLIGHT_MEASURE_COLOR } from '@/constants';
+import type Measure from '@/types/Measure';
+import { isObject } from '@/utils/Types';
+import type { LineLabelFormatter } from '@giro3d/giro3d/entities/Shape';
+import Shape from '@giro3d/giro3d/entities/Shape';
 
 const lengthFormat = new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 2,
@@ -30,6 +31,7 @@ class Measure3D extends Shape<MeasureUserData> {
         return this.points[1];
     }
     get length() {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.getLength()!;
     }
 

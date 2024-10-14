@@ -1,18 +1,18 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import BookmarkItem from '@/components/panels/BookmarkItem.vue';
-    import ShareBookmarkModal from '@/components/panels/ShareBookmarkModal.vue';
-    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import ModalOverlay from '@/components/ModalOverlay.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
-    import ButtonArea from '@/components/atoms/ButtonArea.vue';
+    import BookmarkItem from '@/components/panels/BookmarkItem.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import ShareBookmarkModal from '@/components/panels/ShareBookmarkModal.vue';
     import { useBookmarkStore } from '@/stores/bookmarks';
-    import { useNotificationStore } from '@/stores/notifications';
     import { useCameraStore } from '@/stores/camera';
-    import Download from '@/utils/Download';
-    import Notification from '@/types/Notification';
+    import { useNotificationStore } from '@/stores/notifications';
     import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
+    import Notification from '@/types/Notification';
+    import Download from '@/utils/Download';
+    import { ref } from 'vue';
 
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);
@@ -30,7 +30,7 @@
 
     function addBookmark() {
         const name = window.prompt('Bookmark name', 'New bookmark');
-        if (name) {
+        if (name != null) {
             const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
             bookmarkStore.add(bookmark);
         }
@@ -82,13 +82,13 @@
     }
 
     async function importBookmarkFile(files: File[]) {
-        for (const file of files) importBookmarks(file);
+        for (const file of files) {
+            importBookmarks(file);
+        }
     }
 
     function goTo(bookmark: Bookmark) {
-        if (bookmark.camera) {
-            cameraStore.setCameraPosition(bookmark.camera);
-        }
+        cameraStore.setCameraPosition(bookmark.camera);
     }
 </script>
 

@@ -1,22 +1,22 @@
+import type { CityJSONDatasetConfig } from './cityjson';
 import type { DatasetCascadingConfig, DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
 import type { FeatureCollectionDatasetConfig } from './featureCollection';
-import type { CityJSONDatasetConfig } from './cityjson';
-import type { PointCloudDatasetConfig } from './pointCloud';
 import type { IFCDatasetConfig } from './ifc';
+import type {
+    ColorLayerDatasetConfig,
+    ElevationLayerDatasetConfig,
+    MaskLayerDatasetConfig,
+} from './layer';
 import type { PLYDatasetConfig } from './ply';
+import type { PointCloudDatasetConfig } from './pointCloud';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
+import type { TiledIfcDatasetConfig } from './tiledIfc';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
 import type {
     VectorLabelsDatasetConfig,
     VectorMeshDatasetConfig,
     VectorShapeDatasetConfig,
 } from './vector';
-import type {
-    ColorLayerDatasetConfig,
-    ElevationLayerDatasetConfig,
-    MaskLayerDatasetConfig,
-} from './layer';
-import type { TiledIfcDatasetConfig } from './tiledIfc';
 
 export type DatasetAsMeshConfig =
     | CityJSONDatasetConfig

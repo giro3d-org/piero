@@ -1,18 +1,19 @@
 <script setup lang="ts">
-    import { ref, watch } from 'vue';
     import DropdownView from '@/components/DropdownView.vue';
     import SwitchToggle from '@/components/SwitchToggle.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
-    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import AnnotationItem from '@/components/panels/AnnotationItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import { useAnnotationStore } from '@/stores/annotations';
     import { useCameraStore } from '@/stores/camera';
-    import Download from '@/utils/Download';
-    import AnnotationMode, { annotationModes } from '@/types/AnnotationMode';
-    import Named from '@/types/Named';
     import Annotation from '@/types/Annotation';
+    import type AnnotationMode from '@/types/AnnotationMode';
+    import { annotationModes } from '@/types/AnnotationMode';
+    import type Named from '@/types/Named';
+    import Download from '@/utils/Download';
+    import { ref, watch } from 'vue';
 
     const annotations = useAnnotationStore();
     const cameraStore = useCameraStore();

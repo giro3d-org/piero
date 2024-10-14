@@ -1,10 +1,9 @@
-import FeatureFormat from 'ol/format/Feature';
-
-import { DatasetConfigBase, DatasetSourceConfigBase } from './core';
-import { VectorMeshSourceOptions } from '@/giro3d/entities/VectorMeshEntity';
-import { GeopackageSourceParameters } from '@/giro3d/sources/GeopackageSource';
-import { ShapefileSourceParameters } from '@/giro3d/sources/ShapefileSource';
-import { VectorLabelOptions } from '@/giro3d/entities/VectorLabelsEntity';
+import type { VectorLabelOptions } from '@/giro3d/entities/VectorLabelsEntity';
+import type { VectorMeshSourceOptions } from '@/giro3d/entities/VectorMeshEntity';
+import type { GeopackageSourceParameters } from '@/giro3d/sources/GeopackageSource';
+import type { ShapefileSourceParameters } from '@/giro3d/sources/ShapefileSource';
+import type FeatureFormat from 'ol/format/Feature';
+import type { DatasetConfigBase, DatasetSourceConfigBase } from './core';
 
 export interface OlMeshSourceConfig
     extends DatasetSourceConfigBase<'ol'>,

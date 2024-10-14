@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { defineAsyncComponent } from 'vue';
-    import Configuration, { PanelType } from './Configuration';
+    import type { PanelType } from './Configuration';
+    import Configuration from './Configuration';
 
     const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
     const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
