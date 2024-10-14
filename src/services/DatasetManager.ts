@@ -14,6 +14,7 @@ import MaskLayer, { MaskMode } from '@giro3d/giro3d/core/layer/MaskLayer';
 import AxisGrid from '@giro3d/giro3d/entities/AxisGrid';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type Giro3DMap from '@giro3d/giro3d/entities/Map';
+import { isMap } from '@giro3d/giro3d/entities/Map';
 import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
 import Feature from 'ol/Feature';
 import Polygon from 'ol/geom/Polygon';
@@ -77,7 +78,7 @@ export default class DatasetManager {
 
     private createGrid(dataset: DatasetOrGroup) {
         const box = this._store.getBoundingBox(dataset);
-        if (!box || box.isEmpty()) {
+        if (box == null || box.isEmpty()) {
             return;
         }
 
@@ -124,7 +125,7 @@ export default class DatasetManager {
         // (in particular, that it is oriented the same way)
         // which will most likely not be the case...
         const box = this._store.getBoundingBox(dataset);
-        if (!box || box.isEmpty()) {
+        if (box == null || box.isEmpty()) {
             return;
         }
 
@@ -156,7 +157,7 @@ export default class DatasetManager {
         mask.maskMode = MaskMode.Inverted;
 
         // Apply the mask to the map
-        const maps = this._instance.getObjects(obj => 'isMap' in obj && !!obj.isMap) as Giro3DMap[];
+        const maps = this._instance.getObjects(obj => isMap(obj)) as Giro3DMap[];
         maps.forEach(map => {
             map.addLayer(mask);
             this._instance.notifyChange(map);
@@ -167,9 +168,7 @@ export default class DatasetManager {
     private deleteMask(dataset: DatasetOrGroup) {
         const mask = this._masks.get(dataset.uuid);
         if (mask) {
-            const maps = this._instance.getObjects(
-                obj => 'isMap' in obj && !!obj.isMap,
-            ) as Giro3DMap[];
+            const maps = this._instance.getObjects(obj => isMap(obj)) as Giro3DMap[];
             maps.forEach(map => {
                 map.removeLayer(mask);
                 this._instance.notifyChange(map);
@@ -234,7 +233,7 @@ export default class DatasetManager {
             if (
                 dataset.visible &&
                 'isMaskingBasemap' in dataset.config &&
-                dataset.config.isMaskingBasemap
+                dataset.config.isMaskingBasemap === true
             ) {
                 this.createMask(dataset);
             } else if (!dataset.visible && this._masks.has(dataset.uuid)) {
@@ -299,24 +298,20 @@ export default class DatasetManager {
         try {
             if (datasetSupportsOverlay(dataset)) {
                 const layer = await LayerBuilder.getDatasetLayer(this._instance, dataset);
-                if (layer) {
-                    layer.visible = dataset.visible;
-                    this._overlays.set(dataset.uuid, layer);
 
-                    await this._layerManager.addDatasetLayer(layer);
+                layer.visible = dataset.visible;
+                this._overlays.set(dataset.uuid, layer);
 
-                    this.onDatasetPreloadedAsLayer(dataset, layer);
-                }
+                await this._layerManager.addDatasetLayer(layer);
+                this.onDatasetPreloadedAsLayer(dataset, layer);
             } else if (datasetSupportsMeshes(dataset)) {
                 const entity = await EntityBuilder.getEntity(this._instance, dataset);
 
-                if (entity) {
-                    entity.visible = dataset.visible;
-                    this._entities.set(dataset.uuid, entity);
-                    await this._instance.add(entity);
+                entity.visible = dataset.visible;
+                this._entities.set(dataset.uuid, entity);
 
-                    this.onDatasetPreloaded(dataset, entity);
-                }
+                await this._instance.add(entity);
+                this.onDatasetPreloaded(dataset, entity);
             } else {
                 throw new Error('Dataset is neither an overlay or 3d mesh');
             }

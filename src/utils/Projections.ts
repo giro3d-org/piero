@@ -22,7 +22,7 @@ async function loadProjCrsIfNeeded(projection: string) {
         }
     }
 
-    if (epsgCode) {
+    if (epsgCode != null) {
         const epsgString = `EPSG:${epsgCode}`;
         if (proj4.defs(epsgString) === undefined) {
             await fetch(`https://epsg.io/${epsgCode}.proj4`)

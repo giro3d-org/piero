@@ -109,11 +109,11 @@ export default class Picker {
         cityjsonAttributes.push({ key: 'Type', value: citymodel.type });
 
         const geometry = citymodel.geometry?.[cityjsonInfo.geometryIndex];
-        if (geometry) {
+        if (geometry != null) {
             cityjsonAttributes.push({ key: 'LoD', value: geometry.lod });
 
             const surface = geometry.semantics?.surfaces?.[cityjsonInfo.surfaceTypeIndex];
-            if (surface) {
+            if (surface != null) {
                 cityjsonAttributes.push({ key: 'Surface type', value: surface.type });
             }
         }
@@ -163,7 +163,7 @@ export default class Picker {
     }
 
     getAttributesFromObject3D(object: Object3D, attributes: Attribute[]) {
-        if (object?.userData) {
+        if (object?.userData != null) {
             this.getAttributesFromUserData(object.userData, attributes);
         }
 
@@ -187,16 +187,16 @@ export default class Picker {
         }
         const attributes = attributesGroups.get('Feature') as Attribute[];
 
-        if (entity?.userData) {
+        if (entity?.userData != null) {
             this.getAttributesFromUserData(entity.userData, attributes);
         }
     }
 
     getDatasetAttributes(object: Object3D, datasetAttributes: Attribute[]) {
-        if (object?.userData?.dataset?.name) {
+        if (object?.userData?.dataset?.name != null) {
             datasetAttributes.push({ key: 'Dataset', value: object.userData.dataset.name });
         }
-        if (object?.userData?.dataset?.filename) {
+        if (object?.userData?.dataset?.filename != null) {
             datasetAttributes.push({ key: 'File', value: object.userData.dataset.filename });
         }
         if (object.parent) {
@@ -231,13 +231,13 @@ export default class Picker {
         attributes.push({ key: 'Name', value: name });
         attributes.push({ key: 'ID', value: itemProperties.expressID });
         attributes.push({ key: 'GlobalId', value: itemProperties.GlobalId?.value ?? nullValue });
-        if (itemProperties.Description?.value) {
+        if (itemProperties.Description?.value != null) {
             attributes.push({ key: 'Description', value: itemProperties.Description.value });
         }
-        if (itemProperties.PredefinedType?.value) {
+        if (itemProperties.PredefinedType?.value != null) {
             attributes.push({ key: 'PredefinedType', value: itemProperties.PredefinedType.value });
         }
-        if (itemProperties.ObjectType?.value) {
+        if (itemProperties.ObjectType?.value != null) {
             attributes.push({ key: 'ObjectType', value: itemProperties.ObjectType.value });
         }
 
@@ -266,7 +266,7 @@ export default class Picker {
     ): PickResult[] | null {
         let where = instance.getObjects(
             o =>
-                !isMap(o) &&
+                isMap(o) !== true &&
                 (o as Object3D).name !== PLANE_NAME &&
                 (o as Object3D).name !== GRID_NAME,
         );
@@ -359,10 +359,10 @@ export default class Picker {
 
         const shape = pickResult.entity;
         const userData = shape.userData as PieroShapeUserData;
-        const annotation = userData.annotation;
+        const { annotation, type, measurements } = userData;
 
-        if (annotation) {
-            for (const [key, value] of Object.entries(userData.annotation.properties)) {
+        if (annotation != null) {
+            for (const [key, value] of Object.entries(annotation.properties)) {
                 if (
                     key === 'geometry' ||
                     key === 'geometryProperty' ||
@@ -375,38 +375,34 @@ export default class Picker {
             }
         }
 
-        const { type, measurements } = userData;
+        if (!attributesGroups.has('Measurement')) {
+            attributesGroups.set('Measurement', []);
+        }
+        const attributes = attributesGroups.get('Measurement') as Attribute[];
 
-        if (measurements) {
-            if (!attributesGroups.has('Measurement')) {
-                attributesGroups.set('Measurement', []);
-            }
-            const attributes = attributesGroups.get('Measurement') as Attribute[];
+        if (type === 'MultiPoint') {
+            attributes.push({ key: 'Number of points', value: shape.points.length });
+        }
 
-            if (type === 'MultiPoint') {
-                attributes.push({ key: 'Number of points', value: shape.points.length });
-            }
-
-            const unit = 'm';
-            if (measurements.area) {
-                attributes.push({ key: 'Area', value: `${measurements.area.toFixed(2)}${unit}²` });
-            }
-            if (measurements.perimeter) {
-                attributes.push({
-                    key: type === 'Polygon' ? 'Perimeter' : 'Length',
-                    value: `${measurements.perimeter.toFixed(2)}${unit}`,
-                });
-            }
-            if (measurements.minmax) {
-                attributes.push({
-                    key: 'Min altitude',
-                    value: `${measurements.minmax[0].toFixed(2)}${unit}`,
-                });
-                attributes.push({
-                    key: 'Max altitude',
-                    value: `${measurements.minmax[1].toFixed(2)}${unit}`,
-                });
-            }
+        const unit = 'm';
+        if (measurements.area != null) {
+            attributes.push({ key: 'Area', value: `${measurements.area.toFixed(2)}${unit}²` });
+        }
+        if (measurements.perimeter != null) {
+            attributes.push({
+                key: type === 'Polygon' ? 'Perimeter' : 'Length',
+                value: `${measurements.perimeter.toFixed(2)}${unit}`,
+            });
+        }
+        if (measurements.minmax != null) {
+            attributes.push({
+                key: 'Min altitude',
+                value: `${measurements.minmax[0].toFixed(2)}${unit}`,
+            });
+            attributes.push({
+                key: 'Max altitude',
+                value: `${measurements.minmax[1].toFixed(2)}${unit}`,
+            });
         }
     }
 
@@ -490,11 +486,11 @@ export default class Picker {
         if (entity?.userData) {
             this.getAttributesFromEntity(entity, attributesGroups);
         }
-        if (object?.userData) {
+        if (object?.userData != null) {
             this.getAttributesFromPickedObject3D(pickedObject, attributesGroups);
         }
 
-        if (object) {
+        if (object != null) {
             this.getDatasetAttributes(object, datasetAttributes);
         }
 

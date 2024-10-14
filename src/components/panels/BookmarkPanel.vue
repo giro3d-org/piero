@@ -30,7 +30,7 @@
 
     function addBookmark() {
         const name = window.prompt('Bookmark name', 'New bookmark');
-        if (name) {
+        if (name != null) {
             const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
             bookmarkStore.add(bookmark);
         }
@@ -88,9 +88,7 @@
     }
 
     function goTo(bookmark: Bookmark) {
-        if (bookmark.camera) {
-            cameraStore.setCameraPosition(bookmark.camera);
-        }
+        cameraStore.setCameraPosition(bookmark.camera);
     }
 </script>
 

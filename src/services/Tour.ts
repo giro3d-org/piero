@@ -1,9 +1,17 @@
+import { hasExperimentalFeature } from '@/utils/Configuration';
 import Shepherd from 'shepherd.js';
-import config from '../config';
 import type CameraController from './CameraController';
 
 let camera: CameraController;
 let cameraCallback: (() => void) | null;
+
+interface TourEvent {
+    previous?: Shepherd.Step;
+    step: Shepherd.Step;
+    tour: Shepherd.Tour & {
+        id: string;
+    };
+}
 
 const mainTour = new Shepherd.Tour({
     useModalOverlay: true,
@@ -274,7 +282,7 @@ analyzingTour.addStep({
     },
 });
 
-if (config.enabled_features?.includes('measurements')) {
+if (hasExperimentalFeature('measurements')) {
     analyzingTour.addStep({
         id: 'measurements',
         text: 'You can add <strong>measurements</strong> to easily get distances betwween objects.<br>Once started, moving the mouse will display the measure. <strong>Click</strong> to save the measurement. <strong>Right-click</strong> to end.',
@@ -311,8 +319,7 @@ const markSkiptour = () => {
     window.history.replaceState({}, '', url.toString());
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const markTour = (current: any) => {
+const markTour = (current: TourEvent) => {
     const url = new URL(document.URL);
     console.log(current);
     let tourName = 'main';

@@ -97,7 +97,7 @@
     });
 
     onUnmounted(() => {
-        if (debounce.value) {
+        if (debounce.value != null) {
             clearInterval(debounce.value);
             debounce.value = undefined;
         }
@@ -153,7 +153,7 @@
     }
 
     function pick(event: MouseEvent, clicked?: boolean) {
-        if (!giro3d.value || !giro3d.value.mainInstance) {
+        if (giro3d.value == null || giro3d.value.mainInstance == null) {
             return;
         }
 
@@ -168,26 +168,26 @@
 
         const picked = giro3d.value.picker.pick(giro3d.value.mainInstance, event);
 
-        if (picked?.point) {
+        if (picked?.point != null) {
             const point = picked.point;
             coordinates.value.x = point.x;
             coordinates.value.y = point.y;
             coordinates.value.z = point.z;
         }
 
-        if (picked?.feature) {
+        if (picked?.feature != null) {
             tooltip.value = picked.feature.name;
-            if (clicked) {
+            if (clicked != null) {
                 pickedFeature.value = picked.feature;
             }
         } else {
             tooltip.value = null;
-            if (clicked) {
+            if (clicked != null) {
                 pickedFeature.value = null;
             }
         }
 
-        if (picked?.pickResult) {
+        if (picked?.pickResult != null) {
             giro3d.value.highlighter.highlightFromPick(picked.pickResult);
         } else {
             giro3d.value.highlighter.clear();
@@ -195,7 +195,7 @@
     }
 
     function updateCoordinates(mouse: Vector2) {
-        if (giro3d.value) {
+        if (giro3d.value != null) {
             const point = giro3d.value.picker.getMouseCoordinate(giro3d.value.mainInstance, mouse);
 
             if (point) {

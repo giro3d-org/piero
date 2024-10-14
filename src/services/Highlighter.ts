@@ -38,7 +38,7 @@ export default class Highlighter {
 
     private highlightIFC(pick: IFCPickResult) {
         const mesh = pick.object;
-        if (mesh.fragment && pick.face && pick.instanceId !== undefined) {
+        if (mesh.fragment != null && pick.face && pick.instanceId != null) {
             const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pick.face.a);
 
             const itemId = mesh.fragment.getItemID(pick.instanceId, blockId).replace(/\..*/, '');

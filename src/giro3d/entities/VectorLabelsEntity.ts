@@ -206,7 +206,7 @@ export default class VectorLabelsEntity extends Entity3D {
     }
 
     private raycastLabel(label: CSS2DObject, raycaster: Raycaster, intersects: Intersection[]) {
-        if (label.userData.hover) {
+        if (label.userData.hover === true) {
             intersects.push({
                 object: label,
                 point: label.position,

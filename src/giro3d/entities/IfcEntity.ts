@@ -257,7 +257,7 @@ export default class IfcEntity
     }
 
     private setEntityIndex(expressID: number) {
-        if (!this._indexMap[expressID]) {
+        if (!(expressID in this._indexMap)) {
             this._indexMap[expressID] = new Set();
         }
         return this._indexMap[expressID];
@@ -287,7 +287,7 @@ export default class IfcEntity
 
         for (const id of this._indexMap[expressID]) {
             const entity = objectRawProperties[id];
-            if (!entity) {
+            if (entity == null) {
                 continue;
             }
             const { name } = IfcPropertiesUtils.getEntityName(objectRawProperties, id);
@@ -300,7 +300,7 @@ export default class IfcEntity
                 if (psetPropsIds !== null) {
                     for (const psetPropId of psetPropsIds) {
                         const psetProp = objectRawProperties[psetPropId];
-                        if (!psetProp) {
+                        if (psetProp == null) {
                             continue;
                         }
                         const psetProperties = this.getProperty(psetPropId);
@@ -352,7 +352,7 @@ export default class IfcEntity
         const currentSystemName = groupSystemNames[0]; // storeys
         const systemGroups = systems[currentSystemName];
 
-        if (!currentSystemName || !systemGroups) {
+        if (currentSystemName == null || systemGroups == null) {
             return groups;
         }
         for (const name of Object.keys(systemGroups)) {
@@ -398,7 +398,7 @@ export default class IfcEntity
     }
 
     private addHighlightToFragment(name: FragmentTypeName, fragment: Fragment) {
-        if (!fragment.fragments[name]) {
+        if (!(name in fragment.fragments)) {
             const subFragment = fragment.addFragment(name, [materials[name]]);
             if (fragment.blocks.count > 1) {
                 subFragment.setInstance(0, {
@@ -420,11 +420,8 @@ export default class IfcEntity
     clearHighlight(name: FragmentTypeName = 'selection') {
         for (const fragID of Object.keys(this._ifcSelection[name])) {
             const fragment = this._fragmentManager.list[fragID];
-            if (!fragment) {
-                continue;
-            }
-            const selection = fragment.fragments[name];
-            if (selection) {
+            const selection = fragment?.fragments[name];
+            if (selection != null) {
                 selection.mesh.removeFromParent();
             }
         }
@@ -451,16 +448,16 @@ export default class IfcEntity
     private updateFragmentFill(name: FragmentTypeName, fragmentID: string) {
         const ids = this._ifcSelection[name][fragmentID];
         const fragment = this._fragmentManager.list[fragmentID];
-        if (!fragment) {
+        if (fragment == null) {
             return;
         }
         const selection = fragment.fragments[name];
-        if (!selection) {
+        if (selection == null) {
             return;
         }
 
         const fragmentParent = fragment.mesh.parent;
-        if (!fragmentParent) {
+        if (fragmentParent == null) {
             return;
         }
         fragmentParent.add(selection.mesh);
@@ -502,7 +499,7 @@ export default class IfcEntity
                 const fragID = group.keyFragments[fragKey];
                 const fragment = this._fragmentManager.list[fragID];
 
-                if (!this._ifcSelection[name][fragID]) {
+                if (!(fragID in this._ifcSelection[name])) {
                     this._ifcSelection[name][fragID] = new Set<string>();
                 }
                 this._ifcSelection[name][fragID].add(itemId);
@@ -515,7 +512,7 @@ export default class IfcEntity
 
     highlightById(ids: FragmentIdMap, name: FragmentTypeName = 'selection') {
         for (const fragID of Object.keys(ids)) {
-            if (!this._ifcSelection[name][fragID]) {
+            if (!(fragID in this._ifcSelection[name])) {
                 this._ifcSelection[name][fragID] = new Set<string>();
             }
 
@@ -587,7 +584,7 @@ export default class IfcEntity
 
     pickFeaturesFrom(pickedResult: IFCPickResult) {
         const mesh = pickedResult.object;
-        if (mesh.fragment && pickedResult.instanceId != null && pickedResult.face) {
+        if (mesh.fragment != null && pickedResult.instanceId != null && pickedResult.face) {
             const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pickedResult.face.a);
 
             const itemId = mesh.fragment
@@ -595,7 +592,7 @@ export default class IfcEntity
                 ?.replace(/\..*/, '');
 
             // @ts-expect-error IfcProperties defines indexes as numbers, but actually are strings
-            if (itemId && mesh.fragment.group?.properties?.[itemId]) {
+            if (itemId && mesh.fragment.group?.properties?.[itemId] != null) {
                 const properties = mesh.fragment.group.properties;
                 // @ts-expect-error IfcProperties defines indexes as numbers, but actually are strings
                 const itemProperties = properties[itemId];

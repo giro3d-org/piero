@@ -335,6 +335,13 @@ const config: Configuration = {
                 },
             ],
         },
+        {
+            type: 'pointcloud',
+            source: {
+                url: 'https://3d.oslandia.com/giro3d/3d-tiles/LHD_FXX_0227_6877_PTS_C_LAMB93_IGN69/tileset.json',
+            },
+            name: 'LHD_FXX_0227_6877_PTS_C_LAMB93_IGN69',
+        },
     ],
     importedVectorDatasetRendering: 'overlay',
     overlays: [

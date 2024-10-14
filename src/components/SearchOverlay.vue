@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    // @ts-expect-error autocomplete does not provide typing
     import BanProvider from '@/providers/BanProvider';
     import { type GeocodingResult } from '@/providers/Geocoding';
+    // @ts-expect-error autocomplete does not provide typing
     import autoComplete from '@tarekraafat/autocomplete.js';
     import { onMounted, ref } from 'vue';
 

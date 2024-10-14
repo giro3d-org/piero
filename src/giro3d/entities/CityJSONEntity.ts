@@ -174,5 +174,5 @@ export default class CityJSONEntity
     }
 
     static isCityJSONEntity = (obj: object): obj is CityJSONEntity =>
-        obj && (obj as CityJSONEntity).isCityJSONEntity;
+        isObject(obj) && (obj as CityJSONEntity).isCityJSONEntity;
 }

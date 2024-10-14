@@ -84,7 +84,6 @@ const lengthFormatter: (view: View) => SegmentLabelFormatter = (view: View) => v
 
 const pointFormatter: VertexLabelFormatter = values => {
     const shape = values.shape as Shape<PieroShapeUserData>;
-
     if (shape.userData.annotation) {
         return shape.userData.annotation.title;
     }
@@ -216,7 +215,9 @@ export default class AnnotationManager {
                 this._editedShape.setPoints(this._editedShapePreviousPoints);
                 this._editedShapePreviousPoints = null;
             }
-            this._editedShape.userData.annotation.isEditing = false;
+            if (this._editedShape.userData.annotation != null) {
+                this._editedShape.userData.annotation.isEditing = false;
+            }
             this._editedShape.color = DEFAULT_SHAPE_COLOR;
             this._editedShape.userData.highlightable = true;
             this._editedShape = null;
@@ -388,7 +389,7 @@ export default class AnnotationManager {
                 }
             }
             const name = promptTitle(title);
-            if (name) {
+            if (name != null) {
                 this.computeMeasurements(shape);
                 const annotation = this.pushNewAnnotation(name, shape);
 
@@ -460,10 +461,10 @@ export default class AnnotationManager {
     }
 
     private importAnnotation(feature: GeoJSON.Feature, skipNames: Set<string>) {
-        if (!feature.properties) {
+        if (feature.properties == null || typeof feature.properties !== 'object') {
             feature.properties = {};
         }
-        if (!feature.properties.title) {
+        if (feature.properties.title == null) {
             feature.properties.title = MathUtils.generateUUID();
         }
 

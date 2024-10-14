@@ -25,7 +25,7 @@
     });
 
     function getStyle() {
-        if (!notification.value) {
+        if (notification.value == null) {
             return 'text-bg-success';
         }
 
@@ -44,7 +44,7 @@
     }
 
     function getIcon() {
-        if (!notification.value) {
+        if (notification.value == null) {
             return 'text-bg-success';
         }
 

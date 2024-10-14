@@ -95,7 +95,7 @@ export default class PointCloudEntity extends Entity3D {
         const data = await this.source.load();
 
         if (
-            this.source.dataProjection &&
+            this.source.dataProjection != null &&
             this.source.dataProjection !== this.source.featureProjection
         ) {
             const dataProjection = await Projections.loadProjCrsIfNeeded(

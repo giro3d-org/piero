@@ -14,7 +14,7 @@ type AnnotationEventMap = {
 
 export type PieroShapeUserData = {
     type: 'Point' | 'Polygon' | 'LineString' | 'MultiPoint';
-    annotation: Annotation;
+    annotation?: Annotation;
     highlightable: boolean;
     highlightColor: ColorRepresentation;
     measurements: {

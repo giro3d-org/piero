@@ -49,7 +49,10 @@ if (import.meta.env.VITE_HEADERS) {
     }
 }
 
-if (import.meta.env.VITE_AUTHORIZATION_DOMAIN && import.meta.env.VITE_AUTHORIZATION_VALUE) {
+if (
+    import.meta.env.VITE_AUTHORIZATION_DOMAIN != null &&
+    import.meta.env.VITE_AUTHORIZATION_VALUE != null
+) {
     if (!Fetcher.checkAbsoluteHost(import.meta.env.VITE_AUTHORIZATION_DOMAIN)) {
         console.warn(
             `Invalid host in VITE_AUTHORIZATION_DOMAIN: ${import.meta.env.VITE_AUTHORIZATION_DOMAIN}`,

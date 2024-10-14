@@ -38,9 +38,13 @@ const homepages = {
 };
 
 function getHomepage(packageJson: PackageJson): string | undefined {
-    if (homepages[packageJson.name]) {return homepages[packageJson.name];}
-    if (packageJson.homepage) {return packageJson.homepage;}
-    if (packageJson.repository) {
+    if (homepages[packageJson.name] != null) {
+        return homepages[packageJson.name];
+    }
+    if (packageJson.homepage != null) {
+        return packageJson.homepage;
+    }
+    if (packageJson.repository != null) {
         if (typeof packageJson.repository === 'string') {
             if (packageJson.repository.startsWith('github')) {
                 return 'https://github.com/' + packageJson.repository.split(':')[1];

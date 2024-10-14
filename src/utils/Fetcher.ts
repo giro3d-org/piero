@@ -133,6 +133,7 @@ function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
     }
 
     const parts = baseUrl.split('/');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const filename = parts.pop()!;
     const dirname = parts.join('/');
 

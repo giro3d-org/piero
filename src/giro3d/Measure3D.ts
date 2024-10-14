@@ -31,6 +31,7 @@ class Measure3D extends Shape<MeasureUserData> {
         return this.points[1];
     }
     get length() {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.getLength()!;
     }
 

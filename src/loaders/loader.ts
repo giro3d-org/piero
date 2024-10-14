@@ -48,7 +48,8 @@ export type ImportFileResult = {
  */
 function getFilename(fileOrUrl: UrlOrFetchedData): FileInfo {
     const context = Fetcher.getContext(fileOrUrl);
-    const datasetType = context.fileext ? datasetTypePerExtension[context.fileext] : undefined;
+    const datasetType =
+        context.fileext != null ? datasetTypePerExtension[context.fileext] : undefined;
 
     return {
         ...context,

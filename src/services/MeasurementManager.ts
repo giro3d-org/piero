@@ -118,7 +118,7 @@ export default class MeasurementManager {
                     }
                 }
                 const name = promptTitle(title);
-                if (name) {
+                if (name != null) {
                     this.pushNewMeasure(name, measurement);
                 }
             }
@@ -150,10 +150,10 @@ export default class MeasurementManager {
             throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
         }
 
-        if (!feature.properties) {
+        if (feature.properties == null || typeof feature.properties !== 'object') {
             feature.properties = {};
         }
-        if (!feature.properties.title) {
+        if (feature.properties.title == null) {
             feature.properties.title = MathUtils.generateUUID();
         }
 

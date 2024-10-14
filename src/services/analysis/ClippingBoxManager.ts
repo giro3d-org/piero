@@ -115,7 +115,7 @@ export default class ClippingBoxManager {
                 this.moveClippingBox();
             });
             this._transformControls.addEventListener('dragging-changed', event => {
-                if (event.value) {
+                if (event.value != null) {
                     // Disable controls while we are playing with the transform controls
                     this._previousTransformControls = this._cameraStore.getNavigationMode();
                     this._cameraStore.setNavigationMode('disabled');
