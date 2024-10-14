@@ -5,6 +5,8 @@
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import ModalOverlay from '@/components/ModalOverlay.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
+    import ImportButton from '@/components/atoms/ImportButton.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import { useBookmarkStore } from '@/stores/bookmarks';
     import { useNotificationStore } from '@/stores/notifications';
     import { useCameraStore } from '@/stores/camera';
@@ -15,7 +17,6 @@
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);
     const modalTitle = ref<string | null>(null);
-    const hiddenInput = ref<HTMLInputElement | null>(null);
 
     const notificationStore = useNotificationStore();
     const bookmarkStore = useBookmarkStore();
@@ -80,12 +81,8 @@
         );
     }
 
-    async function importBookmarkFile(e: Event) {
-        const files = (e.target as HTMLInputElement).files;
-
-        if (files) {
-            for (const file of files) importBookmarks(file);
-        }
+    async function importBookmarkFile(files: File[]) {
+        for (const file of files) importBookmarks(file);
     }
 
     function goTo(bookmark: Bookmark) {
@@ -110,8 +107,7 @@
             />
         </ul>
 
-        <div class="button-area">
-            <hr />
+        <ButtonArea>
             <ButtonWithIcon
                 text="New bookmark"
                 icon="bi-plus-lg"
@@ -138,23 +134,12 @@
                 icon="bi-box-arrow-right"
                 text="Export bookmarks"
             />
-
-            <!-- Import from GeoJSON -->
-            <ButtonWithIcon
+            <ImportButton
                 title="Import bookmarks from GeoJSON"
-                class="btn-outline-secondary"
-                @click="(hiddenInput as HTMLInputElement).click()"
-                icon="bi-box-arrow-left"
                 text="Import bookmarks"
+                @import="importBookmarkFile"
             />
-            <input
-                ref="hiddenInput"
-                class="btn btn-outline-secondary d-none"
-                type="file"
-                id="formFile"
-                @input="e => importBookmarkFile(e)"
-            />
-        </div>
+        </ButtonArea>
     </div>
 
     <!-- FIXME the modal popup background does not take the entire screen -->
@@ -167,18 +152,3 @@
         <ShareBookmarkModal :url="shareUrl as string" />
     </ModalOverlay>
 </template>
-
-<style scoped>
-    .import {
-        height: 30rem;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-
-    button {
-        margin-top: 0.2rem;
-        width: 100%;
-    }
-</style>

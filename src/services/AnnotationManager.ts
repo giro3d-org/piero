@@ -500,7 +500,7 @@ export default class AnnotationManager {
         }
     }
 
-    private async importAnnotationFiles(files: FileList) {
+    private async importAnnotationFiles(files: File[]) {
         const promises = [];
         let nbTotalImported = 0;
         let nbTotalSkipped = 0;

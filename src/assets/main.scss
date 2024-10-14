@@ -31,17 +31,8 @@ body {
     @extend .list-group-flush;
 }
 
-.button-area {
-    padding: 0.5rem;
-}
-
 .disabled {
     opacity: 0.5;
-}
-
-.dropzone {
-    @extend .text-center;
-    border: var(--bs-border-width) dashed var(--bs-border-color) !important;
 }
 
 // For light collapsible sections, e.g. DatasetGroup component

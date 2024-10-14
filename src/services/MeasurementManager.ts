@@ -154,10 +154,7 @@ export default class MeasurementManager {
         const to = new Vector3(...feature.geometry.coordinates[1]);
 
         const o = new Measure3D();
-        this._instance.add(o);
         o.setPoints([from, to]);
-        this._instance.notifyChange(this._instance.threeObjects);
-
         this.pushNewMeasure(feature.properties?.title, o, feature.properties);
 
         return true;
@@ -195,7 +192,7 @@ export default class MeasurementManager {
         }
     }
 
-    private async importMeasureFiles(files: FileList) {
+    private async importMeasureFiles(files: File[]) {
         const promises = [];
         let nbTotalImported = 0;
         let nbTotalSkipped = 0;
