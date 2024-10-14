@@ -1,17 +1,18 @@
 <script setup lang="ts">
-    import { ref, watch } from 'vue';
     import DropdownView from '@/components/DropdownView.vue';
-    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
-    import MeasurementItem from '@/components/panels/MeasurementItem.vue';
+    import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
-    import ButtonArea from '@/components/atoms/ButtonArea.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import MeasurementItem from '@/components/panels/MeasurementItem.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useMeasurementStore } from '@/stores/measurement';
-    import Download from '@/utils/Download';
-    import MeasurementMode, { measurementModes } from '@/types/MeasurementMode';
     import Measure from '@/types/Measure';
-    import Named from '@/types/Named';
+    import type MeasurementMode from '@/types/MeasurementMode';
+    import { measurementModes } from '@/types/MeasurementMode';
+    import type Named from '@/types/Named';
+    import Download from '@/utils/Download';
+    import { ref, watch } from 'vue';
 
     const measures = useMeasurementStore();
     const cameraStore = useCameraStore();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+    import Notification from '@/types/Notification';
     import * as bootstrap from 'bootstrap';
     import { ref } from 'vue';
-    import Notification from '@/types/Notification';
     import { useNotificationStore } from '../stores/notifications';
 
     const alertToast = ref<HTMLDivElement | null>(null);

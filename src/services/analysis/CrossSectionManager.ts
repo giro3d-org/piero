@@ -1,5 +1,5 @@
-import Instance from '@giro3d/giro3d/core/Instance';
 import { useAnalysisStore } from '@/stores/analysis';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import { MathUtils, Plane, Vector3 } from 'three';
 
 export default class CrossSectionManager {

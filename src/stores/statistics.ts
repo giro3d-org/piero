@@ -1,4 +1,4 @@
-import { Dataset } from '@/types/Dataset';
+import type { Dataset } from '@/types/Dataset';
 import { defineStore } from 'pinia';
 import { useDatasetStore } from './datasets';
 

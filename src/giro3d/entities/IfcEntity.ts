@@ -1,29 +1,29 @@
-import { Group, Material, Matrix4, MeshBasicMaterial, Vector2, Vector3 } from 'three';
-import { Fragment } from 'bim-fragment/fragment';
-import { FragmentsGroup } from 'bim-fragment/fragments-group';
-import { FragmentMesh } from 'bim-fragment/fragment-mesh';
+import { fillObject3DUserData } from '@/loaders/userData';
+import Fetcher from '@/utils/Fetcher';
+import { isObject } from '@/utils/Types';
+import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { Fragment } from 'bim-fragment/fragment';
+import type { FragmentMesh } from 'bim-fragment/fragment-mesh';
+import type { FragmentsGroup } from 'bim-fragment/fragments-group';
+import type { FragmentIdMap } from 'openbim-components';
 import {
     Components,
-    FragmentManager,
-    FragmentIdMap,
-    toCompositeID,
-    IfcPropertiesUtils,
-    FragmentClassifier,
     FragmentBoundingBox,
-    SimpleScene,
-    SimpleRenderer,
+    FragmentClassifier,
+    FragmentIfcLoader,
+    FragmentManager,
+    IfcPropertiesUtils,
     SimpleCamera,
     SimpleRaycaster,
-    FragmentIfcLoader,
+    SimpleRenderer,
+    SimpleScene,
+    toCompositeID,
 } from 'openbim-components';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
-import PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
-
-import { isObject } from '@/utils/Types';
-import Fetcher from '@/utils/Fetcher';
-import { fillObject3DUserData } from '@/loaders/userData';
+import type { Material, Vector2 } from 'three';
+import { Group, Matrix4, MeshBasicMaterial, Vector3 } from 'three';
 import type { CoordinatesMixin, UrlOrDataMixin } from '../sources/mixins';
 
 // Copied/extract quite a lot from openbim-components library:
@@ -239,12 +239,16 @@ export default class IfcEntity
     private initializeEntityIndexes() {
         this._indexMap = {};
         const properties = this._model.properties;
-        if (properties === undefined) return;
+        if (properties === undefined) {
+            return;
+        }
 
         for (const relation of relationsToProcess) {
             IfcPropertiesUtils.getRelationMap(properties, relation, (relationID, relatedIDs) => {
                 const relationEntity = properties[relationID];
-                if (!setEntities.includes(relationEntity.type)) this.setEntityIndex(relationID);
+                if (!setEntities.includes(relationEntity.type)) {
+                    this.setEntityIndex(relationID);
+                }
                 for (const expressID of relatedIDs) {
                     this.setEntityIndex(expressID).add(relationID);
                 }
@@ -253,16 +257,22 @@ export default class IfcEntity
     }
 
     private setEntityIndex(expressID: number) {
-        if (!this._indexMap[expressID]) this._indexMap[expressID] = new Set();
+        if (!this._indexMap[expressID]) {
+            this._indexMap[expressID] = new Set();
+        }
         return this._indexMap[expressID];
     }
 
     getProperty(expressID: number): { name: string; value: number | null } | null {
         const properties = this._model.properties;
-        if (properties === undefined) return null;
+        if (properties === undefined) {
+            return null;
+        }
 
         const { name } = IfcPropertiesUtils.getEntityName(properties, expressID);
-        if (name === null) return null;
+        if (name === null) {
+            return null;
+        }
 
         const { value } = IfcPropertiesUtils.getQuantityValue(properties, expressID);
         return { name, value };
@@ -271,22 +281,32 @@ export default class IfcEntity
     getProperties(expressID: string): IFCProperty[] {
         const properties = [];
         const objectRawProperties = this._model.properties;
-        if (!objectRawProperties) return [];
+        if (!objectRawProperties) {
+            return [];
+        }
 
         for (const id of this._indexMap[expressID]) {
             const entity = objectRawProperties[id];
-            if (!entity) continue;
+            if (!entity) {
+                continue;
+            }
             const { name } = IfcPropertiesUtils.getEntityName(objectRawProperties, id);
-            if (name === null) continue;
+            if (name === null) {
+                continue;
+            }
 
             if (entity.type === IFCPROPERTYSET) {
                 const psetPropsIds = IfcPropertiesUtils.getPsetProps(objectRawProperties, id);
                 if (psetPropsIds !== null) {
                     for (const psetPropId of psetPropsIds) {
                         const psetProp = objectRawProperties[psetPropId];
-                        if (!psetProp) continue;
+                        if (!psetProp) {
+                            continue;
+                        }
                         const psetProperties = this.getProperty(psetPropId);
-                        if (psetProperties === null) continue;
+                        if (psetProperties === null) {
+                            continue;
+                        }
                         properties.push({
                             parentName: name,
                             ...psetProperties,
@@ -304,9 +324,13 @@ export default class IfcEntity
                             objectRawProperties,
                             quantityId,
                         );
-                        if (key === null) continue;
+                        if (key === null) {
+                            continue;
+                        }
                         const qsetProperties = this.getProperty(quantityId);
-                        if (qsetProperties === null) continue;
+                        if (qsetProperties === null) {
+                            continue;
+                        }
                         properties.push({
                             parentName: name,
                             ...qsetProperties,
@@ -367,8 +391,9 @@ export default class IfcEntity
     }
 
     getClassification(): ClassificationItem[] {
-        if (this._classificationCache === null)
+        if (this._classificationCache === null) {
             throw new Error('Must call initClassification before getClassification');
+        }
         return this._classificationCache;
     }
 
@@ -395,7 +420,9 @@ export default class IfcEntity
     clearHighlight(name: FragmentTypeName = 'selection') {
         for (const fragID of Object.keys(this._ifcSelection[name])) {
             const fragment = this._fragmentManager.list[fragID];
-            if (!fragment) continue;
+            if (!fragment) {
+                continue;
+            }
             const selection = fragment.fragments[name];
             if (selection) {
                 selection.mesh.removeFromParent();
@@ -424,12 +451,18 @@ export default class IfcEntity
     private updateFragmentFill(name: FragmentTypeName, fragmentID: string) {
         const ids = this._ifcSelection[name][fragmentID];
         const fragment = this._fragmentManager.list[fragmentID];
-        if (!fragment) return;
+        if (!fragment) {
+            return;
+        }
         const selection = fragment.fragments[name];
-        if (!selection) return;
+        if (!selection) {
+            return;
+        }
 
         const fragmentParent = fragment.mesh.parent;
-        if (!fragmentParent) return;
+        if (!fragmentParent) {
+            return;
+        }
         fragmentParent.add(selection.mesh);
 
         const isBlockFragment = selection.blocks.count > 1;
@@ -507,8 +540,9 @@ export default class IfcEntity
         this.highlightById(ids, 'bbox');
 
         const bbox = this._fragmentBoundingBox;
-        if (bbox === null)
+        if (bbox === null) {
             throw new Error('Must call initClassification before getBoundingBoxById');
+        }
 
         const fragments = this._fragmentManager;
         bbox.reset();

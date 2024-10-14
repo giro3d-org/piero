@@ -1,26 +1,31 @@
-import { Box3, type Object3D, Vector3, Vector2 } from 'three';
+import Measure3D from '@/giro3d/Measure3D';
+import { isCityJSONPickResult, type CityJSONPickResult } from '@/giro3d/entities/CityJSONEntity';
+import { isIFCPickResult, type IFCPickResult } from '@/giro3d/entities/IfcEntity';
+import type { PlyFeature } from '@/giro3d/entities/PlyEntity';
+import { PlyMesh } from '@/giro3d/entities/PlyEntity';
+import { useAnalysisStore } from '@/stores/analysis';
+import type Annotation from '@/types/Annotation';
+import type { PieroShapeUserData } from '@/types/Annotation';
+import type { Attribute, AttributesGroups } from '@/types/Feature';
+import Feature from '@/types/Feature';
+import type Measure from '@/types/Measure';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type { PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
+import { isPointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import type Entity from '@giro3d/giro3d/entities/Entity';
+import type FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
+import type Giro3DMap from '@giro3d/giro3d/entities/Map';
+import { isMap } from '@giro3d/giro3d/entities/Map';
+import type { ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { type Feature as OLFeature } from 'ol';
 import { IfcCategoryMap } from 'openbim-components';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import type Entity from '@giro3d/giro3d/entities/Entity';
-import type Giro3DMap from '@giro3d/giro3d/entities/Map';
-import type FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-
-import { type CityJSONPickResult, isCityJSONPickResult } from '@/giro3d/entities/CityJSONEntity';
-import { type IFCPickResult, isIFCPickResult } from '@/giro3d/entities/IfcEntity';
-import Measure3D from '@/giro3d/Measure3D';
-import type Annotation from '@/types/Annotation';
-import Feature, { Attribute, AttributesGroups } from '@/types/Feature';
-import type Measure from '@/types/Measure';
-import { useAnalysisStore } from '@/stores/analysis';
+import type { Vector2 } from 'three';
+import { Box3, Vector3, type Object3D } from 'three';
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
-import PickResult, { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
-import { isPointsPickResult, PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
-import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
-import { isShapePickResult, ShapePickResult } from '@giro3d/giro3d/entities/Shape';
-import { PieroShapeUserData } from '@/types/Annotation';
-import { isMap } from '@giro3d/giro3d/entities/Map';
-import { PlyFeature, PlyMesh } from '@/giro3d/entities/PlyEntity';
 
 function comparePickResults(a: PickResult, b: PickResult): number {
     if (isShapePickResult(a)) {
@@ -40,9 +45,13 @@ export default class Picker {
         if (this._analysisStore.isClippingBoxEnabled()) {
             const containsPoint = this._analysisStore.getClippingBox().containsPoint(result.point);
             if (this._analysisStore.isClippingBoxInverted()) {
-                if (containsPoint) return false;
+                if (containsPoint) {
+                    return false;
+                }
             } else {
-                if (!containsPoint) return false;
+                if (!containsPoint) {
+                    return false;
+                }
             }
         }
         if (
@@ -69,7 +78,9 @@ export default class Picker {
             attributes.push({ key: 'fid', value: feature.getId() });
         }
         for (const [key, value] of Object.entries(feature.getProperties())) {
-            if (key === 'geometry' || key === 'geometryProperty') continue;
+            if (key === 'geometry' || key === 'geometryProperty') {
+                continue;
+            }
             attributes.push({ key, value });
         }
     }
@@ -83,7 +94,9 @@ export default class Picker {
         attributesGroups: AttributesGroups,
     ) {
         const feature = pickResult.features?.at(0);
-        if (!feature) return;
+        if (!feature) {
+            return;
+        }
 
         if (!attributesGroups.has('CityJSON')) {
             attributesGroups.set('CityJSON', []);
@@ -108,7 +121,9 @@ export default class Picker {
 
     getAttributesFromPlyObject(pickResult: PickResult, attributesGroups: AttributesGroups) {
         const feature = pickResult.features?.at(0) as PlyFeature | undefined;
-        if (!feature) return;
+        if (!feature) {
+            return;
+        }
 
         if (!attributesGroups.has('PLY')) {
             attributesGroups.set('PLY', []);
@@ -128,13 +143,16 @@ export default class Picker {
                 key === 'dataset' ||
                 key === 'bbox' ||
                 key === 'hover'
-            )
+            ) {
                 continue;
+            }
             if (key === 'properties') {
                 this.getAttributesFromUserData(value, attributes);
                 continue;
             }
-            if (typeof value === 'object') continue;
+            if (typeof value === 'object') {
+                continue;
+            }
 
             if (key === 'id') {
                 attributes.push({ key: 'fid', value });
@@ -188,7 +206,9 @@ export default class Picker {
 
     getAttributesFromIfc(pickResult: IFCPickResult, attributesGroups: AttributesGroups) {
         const feature = pickResult.features?.at(0);
-        if (!feature) return;
+        if (!feature) {
+            return;
+        }
 
         if (!attributesGroups.has('IFC')) {
             attributesGroups.set('IFC', []);
@@ -211,12 +231,15 @@ export default class Picker {
         attributes.push({ key: 'Name', value: name });
         attributes.push({ key: 'ID', value: itemProperties.expressID });
         attributes.push({ key: 'GlobalId', value: itemProperties.GlobalId?.value ?? nullValue });
-        if (itemProperties.Description?.value)
+        if (itemProperties.Description?.value) {
             attributes.push({ key: 'Description', value: itemProperties.Description.value });
-        if (itemProperties.PredefinedType?.value)
+        }
+        if (itemProperties.PredefinedType?.value) {
             attributes.push({ key: 'PredefinedType', value: itemProperties.PredefinedType.value });
-        if (itemProperties.ObjectType?.value)
+        }
+        if (itemProperties.ObjectType?.value) {
             attributes.push({ key: 'ObjectType', value: itemProperties.ObjectType.value });
+        }
 
         for (const { parentName, name, value } of ifcProperties) {
             if (!attributesGroups.has(parentName)) {
@@ -247,7 +270,9 @@ export default class Picker {
                 (o as Object3D).name !== PLANE_NAME &&
                 (o as Object3D).name !== GRID_NAME,
         );
-        if (filterOnObjects) where = where.filter(filterOnObjects);
+        if (filterOnObjects) {
+            where = where.filter(filterOnObjects);
+        }
 
         const picked = instance.pickObjectsAt(e, {
             radius,
@@ -343,8 +368,9 @@ export default class Picker {
                     key === 'geometryProperty' ||
                     key === 'metadata' ||
                     key === 'entity'
-                )
+                ) {
                     continue;
+                }
                 attributesGeoJSON.push({ key, value });
             }
         }
@@ -398,8 +424,9 @@ export default class Picker {
                 key === 'geometryProperty' ||
                 key === 'metadata' ||
                 key === 'entity'
-            )
+            ) {
                 continue;
+            }
             attributesGeoJSON.push({ key, value });
         }
 

@@ -1,16 +1,15 @@
-import FeatureFormat from 'ol/format/Feature';
-import GeoJSONFormat from 'ol/format/GeoJSON';
-import GPXFormat from 'ol/format/GPX';
-import KMLFormat from 'ol/format/KML';
-import { Group } from 'three';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
-import { DEFAULT_LINE_COLOR, DEFAULT_SURFACE_COLOR } from '@giro3d/giro3d/core/FeatureTypes';
-
+import { fillObject3DUserData } from '@/loaders/userData';
 import Fetcher, { type FetchContext } from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
-import { fillObject3DUserData } from '@/loaders/userData';
+import { DEFAULT_LINE_COLOR, DEFAULT_SURFACE_COLOR } from '@giro3d/giro3d/core/FeatureTypes';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
+import type FeatureFormat from 'ol/format/Feature';
+import GPXFormat from 'ol/format/GPX';
+import GeoJSONFormat from 'ol/format/GeoJSON';
+import KMLFormat from 'ol/format/KML';
+import { Group } from 'three';
 import type {
     DataProjectionMixin,
     ElevationMixin,

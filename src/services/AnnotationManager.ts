@@ -1,33 +1,32 @@
-import { MathUtils, Vector3 } from 'three';
-
-import DrawTool, {
-    afterRemovePointOfRing,
-    afterUpdatePointOfRing,
-    CreationOptions,
-    inhibitHook,
-    limitRemovePointHook,
-} from '@giro3d/giro3d/interactions/DrawTool';
-import Instance from '@giro3d/giro3d/core/Instance';
-
-import CameraController from '@/services/CameraController';
-import Picker from '@/services/Picker';
+import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
+import type CameraController from '@/services/CameraController';
+import type Picker from '@/services/Picker';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
-import Measure from '@/utils/Measure';
-import Annotation, { PieroShapeUserData } from '@/types/Annotation';
+import type { PieroShapeUserData } from '@/types/Annotation';
+import Annotation from '@/types/Annotation';
 import Notification from '@/types/Notification';
-import PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Shape, {
-    isShapePickResult,
+import Measure from '@/utils/Measure';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import type {
     SegmentLabelFormatter,
     SurfaceLabelFormatter,
     VertexLabelFormatter,
 } from '@giro3d/giro3d/entities/Shape';
-import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
-import View from '@giro3d/giro3d/renderer/View';
-import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import { Position } from 'geojson';
+import Shape, { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import type { CreationOptions } from '@giro3d/giro3d/interactions/DrawTool';
+import DrawTool, {
+    afterRemovePointOfRing,
+    afterUpdatePointOfRing,
+    inhibitHook,
+    limitRemovePointHook,
+} from '@giro3d/giro3d/interactions/DrawTool';
+import type View from '@giro3d/giro3d/renderer/View';
+import type { Position } from 'geojson';
+import { MathUtils, Vector3 } from 'three';
 
 function promptTitle(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
@@ -380,10 +379,13 @@ export default class AnnotationManager {
             if (this._store.hasAnnotation(title)) {
                 for (let i = 1; i < 1000; i += 1) {
                     title = `${defaultName} (${i})`;
-                    if (!this._store.hasAnnotation(title)) break;
+                    if (!this._store.hasAnnotation(title)) {
+                        break;
+                    }
                 }
-                if (this._store.hasAnnotation(title))
+                if (this._store.hasAnnotation(title)) {
                     title = 'Achievement unlocked: 1000 annotations with default name';
+                }
             }
             const name = promptTitle(title);
             if (name) {
@@ -458,10 +460,16 @@ export default class AnnotationManager {
     }
 
     private importAnnotation(feature: GeoJSON.Feature, skipNames: Set<string>) {
-        if (!feature.properties) feature.properties = {};
-        if (!feature.properties.title) feature.properties.title = MathUtils.generateUUID();
+        if (!feature.properties) {
+            feature.properties = {};
+        }
+        if (!feature.properties.title) {
+            feature.properties.title = MathUtils.generateUUID();
+        }
 
-        if (skipNames.has(feature.properties.title)) return false;
+        if (skipNames.has(feature.properties.title)) {
+            return false;
+        }
 
         const shape = this.importShapeFromGeoJSON(feature);
         this.pushNewAnnotation(feature.properties.title, shape, feature.properties);
@@ -478,8 +486,11 @@ export default class AnnotationManager {
         let nbSkipped = 0;
 
         for (const feature of features) {
-            if (this.importAnnotation(feature, skipNames)) nbImported++;
-            else nbSkipped++;
+            if (this.importAnnotation(feature, skipNames)) {
+                nbImported++;
+            } else {
+                nbSkipped++;
+            }
         }
         return { nbImported, nbSkipped };
     }

@@ -1,6 +1,6 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type Extent from '@giro3d/giro3d/core/geographic/Extent';
 import { Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
-import Instance from '@giro3d/giro3d/core/Instance';
 
 class Plane {
     private readonly _instance: Instance;

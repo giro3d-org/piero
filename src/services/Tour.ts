@@ -1,6 +1,6 @@
 import Shepherd from 'shepherd.js';
-import type CameraController from './CameraController';
 import config from '../config';
+import type CameraController from './CameraController';
 
 let camera: CameraController;
 let cameraCallback: (() => void) | null;
@@ -29,8 +29,9 @@ const displayProgress = () => {
     const content = currentStepElement?.querySelector('.shepherd-text');
     const steps = Shepherd.activeTour?.steps;
 
-    if (currentStep == null || currentStepElement == null || content == null || steps == null)
+    if (currentStep == null || currentStepElement == null || content == null || steps == null) {
         return;
+    }
 
     const progress = document.createElement('div');
     progress.className = 'progress mt-3';
@@ -132,7 +133,9 @@ navigatingTour.addStep({
             displayProgress();
         },
         hide: () => {
-            if (cameraCallback) camera.removeEventListener('interaction-end', cameraCallback);
+            if (cameraCallback) {
+                camera.removeEventListener('interaction-end', cameraCallback);
+            }
             cameraCallback = null;
         },
     },

@@ -1,8 +1,8 @@
-import { EventDispatcher, MathUtils } from 'three';
-import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-
 import { isObject } from '@/utils/Types';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import { EventDispatcher, MathUtils } from 'three';
 import type {
     DatagroupConfig,
     DatasetConfig,
@@ -10,7 +10,6 @@ import type {
     DatasetType,
 } from './configuration/datasets';
 import type { DatasetCascadingConfig, OnObjectPreloaded } from './configuration/datasets/core';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 
 export type DatasetOrGroupType = DatasetType | 'group';
 export type DatasetLayer = ColorLayer | MaskLayer | ElevationLayer;
@@ -130,8 +129,9 @@ export abstract class DatasetBase<
         if (
             propertyName in this.config &&
             (this.config as DatasetCascadingConfig)[propertyName] != null
-        )
+        ) {
             return (this.config as DatasetCascadingConfig)[propertyName];
+        }
 
         return this.parent?.get(propertyName);
     }

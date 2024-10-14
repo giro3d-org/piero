@@ -1,14 +1,13 @@
-import { MathUtils, Vector3 } from 'three';
-import Instance from '@giro3d/giro3d/core/Instance';
-
 import Measure3D from '@/giro3d/Measure3D';
+import type CameraController from '@/services/CameraController';
 import MeasureTool from '@/services/MeasureTool';
-import CameraController from '@/services/CameraController';
-import Picker from '@/services/Picker';
+import type Picker from '@/services/Picker';
 import { useMeasurementStore } from '@/stores/measurement';
 import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/types/Measure';
 import Notification from '@/types/Notification';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import { MathUtils, Vector3 } from 'three';
 
 function promptTitle(defaultValue: string) {
     return window.prompt('Measure name', defaultValue);
@@ -110,13 +109,18 @@ export default class MeasurementManager {
                 if (this._store.hasMeasure(title)) {
                     for (let i = 1; i < 1000; i += 1) {
                         title = `New measurement (${i})`;
-                        if (!this._store.hasMeasure(title)) break;
+                        if (!this._store.hasMeasure(title)) {
+                            break;
+                        }
                     }
-                    if (this._store.hasMeasure(title))
+                    if (this._store.hasMeasure(title)) {
                         title = 'Achieved unlocked: 1000 measurements with default name';
+                    }
                 }
                 const name = promptTitle(title);
-                if (name) this.pushNewMeasure(name, measurement);
+                if (name) {
+                    this.pushNewMeasure(name, measurement);
+                }
             }
         }
     }
@@ -142,13 +146,20 @@ export default class MeasurementManager {
     }
 
     private importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
-        if (feature.geometry.type !== 'LineString')
+        if (feature.geometry.type !== 'LineString') {
             throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
+        }
 
-        if (!feature.properties) feature.properties = {};
-        if (!feature.properties.title) feature.properties.title = MathUtils.generateUUID();
+        if (!feature.properties) {
+            feature.properties = {};
+        }
+        if (!feature.properties.title) {
+            feature.properties.title = MathUtils.generateUUID();
+        }
 
-        if (skipNames.has(feature.properties.title)) return false;
+        if (skipNames.has(feature.properties.title)) {
+            return false;
+        }
 
         const from = new Vector3(...feature.geometry.coordinates[0]);
         const to = new Vector3(...feature.geometry.coordinates[1]);
@@ -170,8 +181,11 @@ export default class MeasurementManager {
         let nbSkipped = 0;
 
         for (const feature of features) {
-            if (this.importMeasure(feature, skipNames)) nbImported++;
-            else nbSkipped++;
+            if (this.importMeasure(feature, skipNames)) {
+                nbImported++;
+            } else {
+                nbSkipped++;
+            }
         }
         return { nbImported, nbSkipped };
     }

@@ -1,6 +1,6 @@
+import Download from '@/utils/Download';
 import { EventDispatcher, Vector3 } from 'three';
 import CameraPosition from './CameraPosition';
-import Download from '@/utils/Download';
 
 type BookmarkJson = {
     camera: [number, number, number];
@@ -61,7 +61,9 @@ export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
     static new(name: string, urlString: string): Bookmark {
         const url = new URL(urlString);
         const view = url.searchParams.get('view');
-        if (view === null) throw new Error('Could not deserialize bookmark');
+        if (view === null) {
+            throw new Error('Could not deserialize bookmark');
+        }
         const json: BookmarkJson = JSON.parse(view);
 
         const camera = new Vector3(json.camera[0], json.camera[1], json.camera[2]);

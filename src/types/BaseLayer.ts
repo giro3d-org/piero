@@ -1,14 +1,13 @@
-import type { EventDispatcher } from 'three';
-import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
-import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-
 import LayerObject from '@/types/LayerObject';
 import type {
     BasemapLayerSourceConfig,
     LayerConfig,
     LayerType,
 } from '@/types/configuration/layers';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import type { EventDispatcher } from 'three';
 
 export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
 

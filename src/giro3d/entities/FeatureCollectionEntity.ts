@@ -1,3 +1,4 @@
+import { fillObject3DUserData } from '@/loaders/userData';
 import type {
     FeatureElevationCallback,
     FeatureExtrusionOffsetCallback,
@@ -7,14 +8,12 @@ import type {
 } from '@giro3d/giro3d/core/FeatureTypes';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
+import type Feature from 'ol/Feature';
 import { GeoJSON } from 'ol/format';
 import { tile } from 'ol/loadingstrategy.js';
-import { createXYZ } from 'ol/tilegrid.js';
-import type Feature from 'ol/Feature';
 import VectorSource from 'ol/source/Vector';
+import { createXYZ } from 'ol/tilegrid.js';
 import { Color } from 'three';
-
-import { fillObject3DUserData } from '@/loaders/userData';
 import type { FeatureProjectionMixin } from '../sources/mixins';
 
 /** Options for the Giro3D FeatureCollection */

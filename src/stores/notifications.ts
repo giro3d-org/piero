@@ -1,5 +1,5 @@
+import type Notification from '@/types/Notification';
 import { defineStore } from 'pinia';
-import Notification from '@/types/Notification';
 
 export const useNotificationStore = defineStore('notifications', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

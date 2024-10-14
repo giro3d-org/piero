@@ -1,14 +1,15 @@
-import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { GeoExtent } from '@/types/configuration/geographic';
 import type { ColorLayerOptions } from '@giro3d/giro3d/core/layer/ColorLayer';
 import type { ElevationLayerOptions } from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type {
+    Mode as InterpretationMode,
+    InterpretationOptions,
+} from '@giro3d/giro3d/core/layer/Interpretation';
+import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
 import type { MaskLayerOptions } from '@giro3d/giro3d/core/layer/MaskLayer';
-import type { InterpretationOptions } from '@giro3d/giro3d/core/layer/Interpretation';
-import type { Mode as InterpretationMode } from '@giro3d/giro3d/core/layer/Interpretation';
-
-import type { GeoExtent } from '@/types/configuration/geographic';
-import type { ColorMapConfig } from '@/types/configuration/color';
+import type { LayerSourceConfig } from '../layers';
 import type { DatasetConfigBase } from './core';
-import { LayerSourceConfig } from '../layers';
 
 /** Mixin configuration for layer options */
 export interface LayerConfigMixin

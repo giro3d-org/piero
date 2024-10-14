@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { Vector3 } from 'three';
-    import { ref } from 'vue';
+    import config from '@/config';
     import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
-    import config from '@/config';
+    import { Vector3 } from 'three';
+    import { ref } from 'vue';
 
     const analysis = useAnalysisStore();
     const camera = useCameraStore();

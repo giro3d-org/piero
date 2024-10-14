@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { Color } from 'three';
+    import type { Color } from 'three';
 
     const props = defineProps<{
         color: Color;

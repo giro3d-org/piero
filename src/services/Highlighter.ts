@@ -1,9 +1,11 @@
+import type { MeasureUserData } from '@/giro3d/Measure3D';
 import IfcEntity, { type IFCPickResult } from '@/giro3d/entities/IfcEntity';
+import type { PieroShapeUserData } from '@/types/Annotation';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Shape, { isShapePickResult, ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import type Shape from '@giro3d/giro3d/entities/Shape';
+import type { ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { Color } from 'three';
-import { PieroShapeUserData } from '@/types/Annotation';
-import { MeasureUserData } from '@/giro3d/Measure3D';
 
 export default class Highlighter {
     private _clearHighlight: (() => void) | null = null;

@@ -1,18 +1,19 @@
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import config from '@/config';
+import { fillObject3DUserData } from '@/loaders/userData';
+import { getColorMap } from '@/utils/Configuration';
+import type { UrlOrData } from '@/utils/Fetcher';
+import Fetcher from '@/utils/Fetcher';
+import Projections from '@/utils/Projections';
 import PointCloud from '@giro3d/giro3d/core/PointCloud';
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
 import { load } from '@loaders.gl/core';
 import { CSVLoader } from '@loaders.gl/csv';
-import { type ArrayRowTable } from '@loaders.gl/schema';
 import { LASLoader as LASGLLoader } from '@loaders.gl/las';
-import { BufferAttribute, BufferGeometry, Group, TypedArray, Vector2 } from 'three';
-
-import { getColorMap } from '@/utils/Configuration';
-import Fetcher, { UrlOrData } from '@/utils/Fetcher';
-import Projections from '@/utils/Projections';
-import config from '@/config';
-import { fillObject3DUserData } from '@/loaders/userData';
+import { type ArrayRowTable } from '@loaders.gl/schema';
+import type { TypedArray } from 'three';
+import { BufferAttribute, BufferGeometry, Group, Vector2 } from 'three';
 import type {
     DataProjectionMixin,
     FeatureProjectionMixin,

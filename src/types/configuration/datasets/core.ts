@@ -1,12 +1,11 @@
-import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
-
+import type { DatasetOrGroup } from '@/types/Dataset';
 import type { LayerType } from '@/types/configuration/layers';
 import type {
     SourceConfigElevationMixin,
     SourceConfigLocationMixin,
     SourceConfigProjectionMixin,
 } from '@/types/configuration/sources/core/baseConfig';
-import type { DatasetOrGroup } from '@/types/Dataset';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 /**
  * Callback which is called when the dataset is preloaded into the app.

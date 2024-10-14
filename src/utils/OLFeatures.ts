@@ -1,14 +1,13 @@
 import IgnProvider from '@/providers/IgnProvider';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import GeometryConverter, {
-    PolygonOptions,
-} from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
-import { getCenter } from 'ol/extent';
+import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
+import GeometryConverter from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
 import type Feature from 'ol/Feature';
 import { type FeatureLike } from 'ol/Feature';
+import { getCenter } from 'ol/extent';
 import type FeatureFormat from 'ol/format/Feature';
+import type { LineString } from 'ol/geom';
 import {
-    LineString,
     type MultiLineString,
     type MultiPoint,
     type MultiPolygon,
@@ -117,7 +116,9 @@ async function readSimpleFeatures(
 function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataValue = 0): void {
     for (const feature of features) {
         const geom = feature.getGeometry();
-        if (geom == null) continue;
+        if (geom == null) {
+            continue;
+        }
 
         const stride = geom.getStride();
         const coordinates = geom.getFlatCoordinates();
@@ -226,7 +227,9 @@ async function fetchZCoordinates(
         // @ts-expect-error ol_uid is hidden
         const giroCoordinates = altitudes.get(feature.ol_uid);
         const geom = feature.getGeometry();
-        if (geom == null || giroCoordinates == null) continue;
+        if (geom == null || giroCoordinates == null) {
+            continue;
+        }
 
         switch (geom.getType()) {
             case 'Point': {

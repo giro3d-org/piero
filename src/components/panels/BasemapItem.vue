@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import type { LayerType } from '@/types/configuration/layers';
+    import OpacitySlider from '@/components/OpacitySlider.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import ListLabel from '@/components/atoms/ListLabel.vue';
-    import OpacitySlider from '@/components/OpacitySlider.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
+    import type { LayerType } from '@/types/configuration/layers';
 
     defineProps<{
         type: LayerType | 'graticule';

@@ -1,33 +1,25 @@
-import Feature from 'ol/Feature';
-import { Fill, Style } from 'ol/style';
-import Polygon from 'ol/geom/Polygon';
-
-import { Color, Vector3 } from 'three';
-
-import Instance from '@giro3d/giro3d/core/Instance';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
-import MaskLayer, { MaskMode } from '@giro3d/giro3d/core/layer/MaskLayer';
-import AxisGrid from '@giro3d/giro3d/entities/AxisGrid';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import Giro3DMap from '@giro3d/giro3d/entities/Map';
-import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
-
+import EntityBuilder from '@/giro3d/EntityBuilder';
+import LayerBuilder from '@/giro3d/LayerBuilder';
 import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
-import type { DatasetAsLayerConfig, DatasetAsMeshConfig } from '@/types/configuration/datasets';
-import {
-    Datagroup,
-    Dataset,
-    DatasetBase,
-    type DatasetLayer,
-    type DatasetOrGroup,
-} from '@/types/Dataset';
+import type { Dataset, DatasetBase } from '@/types/Dataset';
+import { Datagroup, type DatasetLayer, type DatasetOrGroup } from '@/types/Dataset';
 import Notification from '@/types/Notification';
+import type { DatasetAsLayerConfig, DatasetAsMeshConfig } from '@/types/configuration/datasets';
 import { isObject } from '@/utils/Types';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import MaskLayer, { MaskMode } from '@giro3d/giro3d/core/layer/MaskLayer';
+import AxisGrid from '@giro3d/giro3d/entities/AxisGrid';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type Giro3DMap from '@giro3d/giro3d/entities/Map';
+import Giro3dVectorSource from '@giro3d/giro3d/sources/VectorSource';
+import Feature from 'ol/Feature';
+import Polygon from 'ol/geom/Polygon';
+import { Fill, Style } from 'ol/style';
+import { Color, Vector3 } from 'three';
 import type LayerManager from './LayerManager';
-import LayerBuilder from '@/giro3d/LayerBuilder';
-import EntityBuilder from '@/giro3d/EntityBuilder';
 
 const datasetSupportsOverlay = (obj: Dataset): obj is Dataset & DatasetBase<DatasetAsLayerConfig> =>
     isObject(obj) &&
@@ -113,7 +105,9 @@ export default class DatasetManager {
 
     private deleteGrid(dataset: DatasetOrGroup) {
         const grid = this._axisGrids.get(dataset.uuid);
-        if (grid) this._instance.remove(grid);
+        if (grid) {
+            this._instance.remove(grid);
+        }
         this._axisGrids.delete(dataset.uuid);
     }
 
@@ -291,7 +285,9 @@ export default class DatasetManager {
     }
 
     private async preloadDataset(dataset: DatasetOrGroup) {
-        if (dataset.isPreloaded) return dataset;
+        if (dataset.isPreloaded) {
+            return dataset;
+        }
 
         if (Datagroup.isGroup(dataset)) {
             dataset.isPreloaded = true;

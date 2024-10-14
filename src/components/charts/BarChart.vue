@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { Chart, BarController, BarElement, CategoryScale, LinearScale } from 'chart.js';
+    import { BarController, BarElement, CategoryScale, Chart, LinearScale } from 'chart.js';
     import { onMounted, ref } from 'vue';
 
     Chart.register(BarController, BarElement, CategoryScale, LinearScale);

@@ -1,6 +1,6 @@
+import type { IfcSource } from '@/giro3d/entities/IfcEntity';
 import type { SourceConfigLocationMixin } from '@/types/configuration/sources/core/baseConfig';
 import type { DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
-import type { IfcSource } from '@/giro3d/entities/IfcEntity';
 
 /** IFC source configuration */
 export interface IFCDatasetSourceConfig

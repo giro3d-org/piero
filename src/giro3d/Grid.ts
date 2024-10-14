@@ -1,6 +1,7 @@
-import { GridHelper, Material, Vector3 } from 'three';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type Extent from '@giro3d/giro3d/core/geographic/Extent';
+import type { Material } from 'three';
+import { GridHelper, Vector3 } from 'three';
 
 class Grid {
     private readonly _instance: Instance;

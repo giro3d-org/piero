@@ -1,6 +1,6 @@
 import GML32 from 'ol/format/GML32.js';
 import { Color } from 'three';
-import { Configuration } from './types/Configuration';
+import type { Configuration } from './types/Configuration';
 
 const config: Configuration = {
     default_crs: 'EPSG:2154',

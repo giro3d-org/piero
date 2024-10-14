@@ -1,6 +1,6 @@
 <script setup lang="ts">
-    import ToolbarButton from './ToolbarButton.vue';
     import Configuration from '../Configuration';
+    import ToolbarButton from './ToolbarButton.vue';
 
     defineProps<{
         active: string | null;

@@ -1,18 +1,17 @@
-import { EventDispatcher, Box3, AmbientLight, DirectionalLight, Object3D } from 'three';
-
-import Instance from '@giro3d/giro3d/core/Instance';
-import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
-
-import LayerManager from '@/services/LayerManager';
+import AnalysisManager from '@/services/AnalysisManager';
+import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
 import DatasetManager from '@/services/DatasetManager';
-import AnnotationManager from '@/services/AnnotationManager';
-import AnalysisManager from '@/services/AnalysisManager';
 import Highlighter from '@/services/Highlighter';
-import Picker from '@/services/Picker';
+import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
+import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
 import Fetcher from '@/utils/Fetcher';
+import Instance from '@giro3d/giro3d/core/Instance';
+import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
+import type { Object3D } from 'three';
+import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
 Instance.registerCRS(
     'EPSG:2154',

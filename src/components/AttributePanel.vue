@@ -1,9 +1,9 @@
 <script setup lang="ts">
+    import type { AttributesGroups } from '@/types/Feature';
+    import type { Vector3 } from 'three';
     import { ref } from 'vue';
-    import { Vector3 } from 'three';
     import AttributeGroup from './AttributeGroup.vue';
     import CoordinateFragment from './CoordinateFragment.vue';
-    import { AttributesGroups } from '@/types/Feature';
 
     const props = defineProps<{
         name?: string;

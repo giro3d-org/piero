@@ -1,8 +1,8 @@
 <script setup lang="ts">
     import IfcSubtree from '@/components/panels/ifc/IfcSubtree.vue';
-    import IfcEntity from '@/giro3d/entities/IfcEntity';
-    import { Dataset } from '@/types/Dataset';
+    import type IfcEntity from '@/giro3d/entities/IfcEntity';
     import { useDatasetStore } from '@/stores/datasets';
+    import type { Dataset } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
 
     const datasets = useDatasetStore();

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { Attribute } from '@/types/Feature';
+    import type { Attribute } from '@/types/Feature';
     import AttributeItem from './AttributeItem.vue';
 
     defineProps<{

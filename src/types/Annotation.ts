@@ -1,6 +1,7 @@
 import Download from '@/utils/Download';
-import Shape from '@giro3d/giro3d/entities/Shape';
-import { ColorRepresentation, EventDispatcher, MathUtils } from 'three';
+import type Shape from '@giro3d/giro3d/entities/Shape';
+import type { ColorRepresentation } from 'three';
+import { EventDispatcher, MathUtils } from 'three';
 
 type EmptyEvent = {
     /** empty */

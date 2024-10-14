@@ -1,6 +1,6 @@
 <script setup lang="ts">
+    import type Measure from '@/types/Measure';
     import VisibilityControl from '../VisibilityControl.vue';
-    import Measure from '@/types/Measure';
 
     defineProps<{
         visible: boolean;

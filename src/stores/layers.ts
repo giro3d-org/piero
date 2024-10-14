@@ -1,11 +1,10 @@
+import config from '@/config';
+import { GraticuleLayer } from '@/giro3d/Graticule';
+import { BaseLayerObject, type BaseLayer } from '@/types/BaseLayer';
+import { OverlayObject, type Overlay } from '@/types/Overlay';
+import type { OverlayConfig } from '@/types/configuration/layers';
 import { defineStore } from 'pinia';
 import { computed, shallowReactive } from 'vue';
-
-import config from '@/config.ts';
-import { GraticuleLayer } from '@/giro3d/Graticule';
-import type { OverlayConfig } from '@/types/configuration/layers';
-import { type BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
-import { type Overlay, OverlayObject } from '@/types/Overlay';
 
 function buildBaseLayers() {
     const result: BaseLayer[] = [];
@@ -24,8 +23,11 @@ function buildGraticuleLayer() {
     if ('graticule' in config.basemap && config.basemap.graticule !== undefined) {
         // Build only if needed
         const layer = new GraticuleLayer();
-        if (typeof config.basemap.graticule === 'boolean') layer.visible = config.basemap.graticule;
-        else layer.visible = config.basemap.graticule.enabled ?? true;
+        if (typeof config.basemap.graticule === 'boolean') {
+            layer.visible = config.basemap.graticule;
+        } else {
+            layer.visible = config.basemap.graticule.enabled ?? true;
+        }
         return shallowReactive(layer);
     }
     return undefined;

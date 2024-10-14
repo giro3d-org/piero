@@ -1,3 +1,8 @@
+import { useAnalysisStore } from '@/stores/analysis';
+import { useCameraStore } from '@/stores/camera';
+import { useDatasetStore } from '@/stores/datasets';
+import type NavigationMode from '@/types/NavigationMode';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import {
     Box3,
     Box3Helper,
@@ -10,11 +15,6 @@ import {
     Vector3,
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import Instance from '@giro3d/giro3d/core/Instance';
-import { useAnalysisStore } from '@/stores/analysis';
-import { useDatasetStore } from '@/stores/datasets';
-import { useCameraStore } from '@/stores/camera';
-import NavigationMode from '@/types/NavigationMode';
 
 const helperMaterial = new MeshBasicMaterial({ color: 'yellow', opacity: 0.1, transparent: true });
 
@@ -107,8 +107,9 @@ export default class ClippingBoxManager {
                 if (
                     this._cameraStore.getNavigationMode() !== 'disabled' ||
                     this._clippingBoxMesh === null
-                )
+                ) {
                     return;
+                }
                 // If the change came from the control, let's move the box
                 this._store.clippingBoxCenter.copy(this._clippingBoxMesh.position);
                 this.moveClippingBox();
@@ -136,7 +137,9 @@ export default class ClippingBoxManager {
     }
 
     private getPlanesFromBoxSides(): Plane[] {
-        if (this._clippingBox === null) throw new Error('No clippingBox defined');
+        if (this._clippingBox === null) {
+            throw new Error('No clippingBox defined');
+        }
 
         const result: Plane[] = [];
 

@@ -1,8 +1,8 @@
-import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
-
-import { getColorMap } from '@/utils/Configuration';
 import config from '@/config';
-import Tiles3dEntity, { Tiles3dSource } from './Tiles3dEntity';
+import { getColorMap } from '@/utils/Configuration';
+import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
+import type { Tiles3dSource } from './Tiles3dEntity';
+import Tiles3dEntity from './Tiles3dEntity';
 
 /** Parameters for creating {@link TiledPointCloudEntity} */
 export interface TiledPointCloudSource extends Tiles3dSource {

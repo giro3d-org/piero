@@ -1,29 +1,27 @@
 <script setup lang="ts">
-    import { Vector2, Vector3 } from 'three';
-    import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue';
-    import Instance from '@giro3d/giro3d/core/Instance';
-    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-    import Extent from '@giro3d/giro3d/core/geographic/Extent';
-
-    import AlertToast from './components/AlertToast.vue';
-    import ToolBar from './components/toolbar/ToolBar.vue';
-    import MinimapView from './components/MinimapView.vue';
-    import MainView from './components/MainView.vue';
-    import ProgressBar from './components/ProgressBar.vue';
-    import SearchOverlay from './components/SearchOverlay.vue';
-    import NavigationButtons from './components/NavigationButtons.vue';
-    import StatusBar from './components/StatusBar.vue';
-    import { PanelType } from './components/Configuration';
-
+    import { type GeocodingResult } from '@/providers/Geocoding';
     import Giro3DManager from '@/services/Giro3DManager';
     import MinimapController from '@/services/MinimapController';
     import Tour from '@/services/Tour';
-    import { type GeocodingResult } from '@/providers/Geocoding';
-    import { useGiro3dStore } from '@/stores/giro3d';
-    import { useCameraStore } from '@/stores/camera';
     import { useAnnotationStore } from '@/stores/annotations';
+    import { useCameraStore } from '@/stores/camera';
+    import { useGiro3dStore } from '@/stores/giro3d';
     import { useMeasurementStore } from '@/stores/measurement';
-    import Feature from '@/types/Feature';
+    import type Feature from '@/types/Feature';
+    import type Instance from '@giro3d/giro3d/core/Instance';
+    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+    import Extent from '@giro3d/giro3d/core/geographic/Extent';
+    import { Vector2, Vector3 } from 'three';
+    import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue';
+    import AlertToast from './components/AlertToast.vue';
+    import type { PanelType } from './components/Configuration';
+    import MainView from './components/MainView.vue';
+    import MinimapView from './components/MinimapView.vue';
+    import NavigationButtons from './components/NavigationButtons.vue';
+    import ProgressBar from './components/ProgressBar.vue';
+    import SearchOverlay from './components/SearchOverlay.vue';
+    import StatusBar from './components/StatusBar.vue';
+    import ToolBar from './components/toolbar/ToolBar.vue';
 
     const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
     const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
@@ -49,19 +47,29 @@
     onMounted(() => {
         const mainview = giro3dStore.getMainView();
         const minimapView = giro3dStore.getMinimapView();
-        if (mainview) initializeGiro3DManager(mainview);
-        if (minimapView) initializeMinimap(minimapView);
+        if (mainview) {
+            initializeGiro3DManager(mainview);
+        }
+        if (minimapView) {
+            initializeMinimap(minimapView);
+        }
 
         giro3dStore.$onAction(({ name, after, args }) => {
             after(() => {
                 switch (name) {
                     case 'setMainView':
-                        if (args[0] === null) disposeGiro3DManager();
-                        else initializeGiro3DManager(args[0]);
+                        if (args[0] === null) {
+                            disposeGiro3DManager();
+                        } else {
+                            initializeGiro3DManager(args[0]);
+                        }
                         break;
                     case 'setMinimapView':
-                        if (args[0] === null) disposeMinimap();
-                        else initializeMinimap(args[0]);
+                        if (args[0] === null) {
+                            disposeMinimap();
+                        } else {
+                            initializeMinimap(args[0]);
+                        }
                         break;
                 }
             });
@@ -99,7 +107,9 @@
 
     function initializeGiro3DManager(instance: Instance) {
         const mainview = giro3dStore.getMainView();
-        if (mainview === null) throw new Error('mainview is null');
+        if (mainview === null) {
+            throw new Error('mainview is null');
+        }
         giro3d.value = new Giro3DManager(mainview);
         giro3d.value.addEventListener('update', () => {
             if (giro3d.value) {

@@ -1,8 +1,9 @@
-import { Box3, Material, Sphere } from 'three';
-import Tiles3D, { Tiles3DOptions } from '@giro3d/giro3d/entities/Tiles3D';
-import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
-
 import { fillObject3DUserData } from '@/loaders/userData';
+import type { Tiles3DOptions } from '@giro3d/giro3d/entities/Tiles3D';
+import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
+import Tiles3DSource from '@giro3d/giro3d/sources/Tiles3DSource';
+import type { Material } from 'three';
+import { Box3, Sphere } from 'three';
 import type { UrlMixin } from '../sources/mixins';
 
 /** Parameters for creating {@link Tiles3dEntity} */

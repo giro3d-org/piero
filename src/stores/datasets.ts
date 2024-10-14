@@ -1,15 +1,14 @@
-import { computed, shallowReactive } from 'vue';
+import config from '@/config';
+import {
+    parseDatasetConfig,
+    type Dataset,
+    type DatasetLayer,
+    type DatasetOrGroup,
+} from '@/types/Dataset';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { defineStore } from 'pinia';
 import { Box3 } from 'three';
-import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
-
-import {
-    type Dataset,
-    type DatasetOrGroup,
-    parseDatasetConfig,
-    type DatasetLayer,
-} from '@/types/Dataset';
-import config from '../config';
+import { computed, shallowReactive } from 'vue';
 
 function buildDatasets(root: DatasetOrGroup) {
     // We have multiple levels or shallowReactive-ness because we want to react to:

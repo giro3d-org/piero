@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import Annotation from '@/types/Annotation';
-    import VisibilityControl from '../VisibilityControl.vue';
-    import AttributeItem from '../AttributeItem.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
+    import type Annotation from '@/types/Annotation';
     import { onMounted, onUnmounted, ref } from 'vue';
+    import AttributeItem from '../AttributeItem.vue';
+    import VisibilityControl from '../VisibilityControl.vue';
+    import EmptyIndicator from './EmptyIndicator.vue';
 
     const props = defineProps<{
         visible: boolean;

@@ -1,4 +1,5 @@
-import { BufferGeometry, LineBasicMaterial, LineSegments, Vector3 } from 'three';
+import type { Vector3 } from 'three';
+import { BufferGeometry, LineBasicMaterial, LineSegments } from 'three';
 
 export default class Viewbox {
     geometry: BufferGeometry;
