@@ -7,12 +7,13 @@ import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import type { CityObjectsMesh } from 'cityjson-threejs-loader';
 import {
     CityJSONLoader as CityJSONThreeLoader,
     CityJSONWorkerParser,
+    type CityObjectsMaterial,
+    type CityObjectsMesh,
 } from 'cityjson-threejs-loader';
-import type { Vector2 } from 'three';
+import type { Material, Vector2 } from 'three';
 import { Group } from 'three';
 import type {
     DataProjectionMixin,
@@ -74,11 +75,63 @@ export default class CityJSONEntity
 {
     readonly isCityJSONEntity = true;
     readonly isPickableFeatures = true;
+    readonly type = 'CityJSONEntity';
+
     readonly source: CityJSONSource;
+    private _availableLods: string[] | null;
+    private _displayedLodIdx: number;
+    private _showSemantics: boolean;
 
     constructor(source: CityJSONSource) {
         super(new Group());
         this.source = source;
+        this._availableLods = null;
+        this._displayedLodIdx = -1;
+        this._showSemantics = true;
+    }
+
+    /** Array of the available Levels Of Details in this CityJSON model */
+    get availableLods(): string[] | null {
+        return this._availableLods ? [...this._availableLods] : null;
+    }
+    /**
+     * Gets the displayed index of Level Of Details, from {@link availableLods}.
+     * If `-1` or out of bounds, displays all levels.
+     */
+    get displayedLodIdx(): number {
+        return this._displayedLodIdx;
+    }
+    /**
+     * Sets the displayed index of Level Of Details, from {@link availableLods}.
+     * If `-1` or out of bounds, displays all levels.
+     * @param lodIdx - Index from {@link availableLods}
+     */
+    set displayedLodIdx(lodIdx: number) {
+        this._displayedLodIdx = lodIdx;
+        this.traverseCityMaterials(m => (m.showLod = lodIdx));
+        this.notifyChange(this.object3d);
+    }
+
+    /** Gets whether the theme uses semantics or not */
+    get showSemantics(): boolean {
+        return this._showSemantics;
+    }
+    /** Sets whether the theme uses semantics or not */
+    set showSemantics(v: boolean) {
+        this._showSemantics = v;
+        this.traverseCityMaterials(m => (m.showSemantics = v));
+        this.notifyChange(this.object3d);
+    }
+
+    private traverseCityMaterials(callback: (m: CityObjectsMaterial) => void): void {
+        this.object3d.traverse(obj => {
+            if ('material' in obj && obj.material != null) {
+                const m = obj.material as Material;
+                if ('isCityObjectsMaterial' in m && m.isCityObjectsMaterial === true) {
+                    callback(m as unknown as CityObjectsMaterial);
+                }
+            }
+        });
     }
 
     async preprocess(): Promise<void> {
@@ -137,6 +190,22 @@ export default class CityJSONEntity
                 loader.scene.updateMatrixWorld(true);
 
                 this.object3d.add(loader.scene);
+
+                // @ts-expect-error I think CityJSON incorrectly uses Number instead of string
+                // PR submitted: https://github.com/cityjson/cityjson-threejs-loader/pull/13
+                this._availableLods = parser.lods;
+
+                // Find the "best" LoD
+                if (this._availableLods != null && this._availableLods.length > 0) {
+                    const sortedAvailableLods = Array.from(this._availableLods);
+                    sortedAvailableLods.sort();
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    const bestLod = sortedAvailableLods.pop()!;
+                    this.displayedLodIdx = this._availableLods.indexOf(bestLod);
+                } else {
+                    this.displayedLodIdx = -1;
+                }
+
                 this.onObjectCreated(loader.scene);
 
                 const context = Fetcher.getContext(this.source.url);
