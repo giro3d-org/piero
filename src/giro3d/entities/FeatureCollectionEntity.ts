@@ -75,9 +75,9 @@ export class FeatureCollectionEntity extends FeatureCollection {
 
         const vectorSource = new VectorSource({
             format: new GeoJSON(),
-            url: function url(e) {
+            url: function url(bbox) {
                 return `${
-                    'https://wxs.ign.fr/topographie/geoportail/wfs' +
+                    'https://data.geopf.fr/wfs/ows' +
                     '?SERVICE=WFS' +
                     '&VERSION=2.0.0' +
                     '&request=GetFeature' +
@@ -86,7 +86,7 @@ export class FeatureCollectionEntity extends FeatureCollection {
                     `&SRSNAME=${crs}` +
                     '&startIndex=0' +
                     '&bbox='
-                }${e.join(',')},${crs}`;
+                }${bbox.join(',')},${crs}`;
             },
             strategy: tile(createXYZ({ tileSize: 512 })),
         });
@@ -96,22 +96,41 @@ export class FeatureCollectionEntity extends FeatureCollection {
         const extrusionOffset =
             options.extrusionOffset ??
             ((feature: Feature) => {
-                const hauteur = -feature.getProperties().hauteur;
-                if (Number.isNaN(hauteur)) {
+                const properties = feature.getProperties();
+                const buildingHeight = properties['hauteur'];
+                const extrusionOffset = -buildingHeight;
+
+                if (Number.isNaN(extrusionOffset)) {
                     return 0;
                 }
-                return hauteur;
+                return extrusionOffset;
             });
         const style =
             options.style ??
             ((feature: Feature) => {
                 const properties = feature.getProperties();
-                let color = '#FFFFFF';
+                let fillColor = '#FFFFFF';
                 let visible = true;
-                if (properties.usage_1 === 'Résidentiel') {
-                    color = '#9d9484';
-                } else if (properties.usage_1 === 'Commercial et services') {
-                    color = '#b0ffa7';
+
+                switch (properties.usage_1) {
+                    case 'Industriel':
+                        fillColor = '#f0bb41';
+                        break;
+                    case 'Agricole':
+                        fillColor = '#96ff0d';
+                        break;
+                    case 'Religieux':
+                        fillColor = '#41b5f0';
+                        break;
+                    case 'Sportif':
+                        fillColor = '#ff0d45';
+                        break;
+                    case 'Résidentiel':
+                        fillColor = '#cec8be';
+                        break;
+                    case 'Commercial et services':
+                        fillColor = '#d8ffd4';
+                        break;
                 }
 
                 if (
@@ -123,11 +142,15 @@ export class FeatureCollectionEntity extends FeatureCollection {
                 }
 
                 const fill: FillStyle = {
-                    color: new Color(color),
+                    color: new Color(fillColor),
                 };
 
                 return {
                     fill: visible ? fill : undefined,
+                    stroke: {
+                        color: 'black',
+                        lineWidth: undefined,
+                    },
                 };
             });
 

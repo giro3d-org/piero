@@ -146,6 +146,13 @@ export default class Picker {
             ) {
                 continue;
             }
+
+            if (key === 'feature' && typeof value === 'object' && 'ol_uid' in value) {
+                // OpenLayers feature
+                this.getAttributesFromUserData(value.getProperties(), attributes);
+                continue;
+            }
+
             if (key === 'properties') {
                 this.getAttributesFromUserData(value, attributes);
                 continue;
@@ -168,6 +175,10 @@ export default class Picker {
         }
 
         if (object?.parent) {
+            if ('isFeatureTile' in object.parent && object.parent.isFeatureTile === true) {
+                // Don't go too far with FeatureCollections
+                return;
+            }
             this.getAttributesFromObject3D(object.parent, attributes);
         }
     }
@@ -465,7 +476,7 @@ export default class Picker {
             } else if (isPointsPickResult(pickedObject)) {
                 this.getAttributesFromPointCloud(pickedObject, attributesGroups);
             } else if ((entity as FeatureCollection).isFeatureCollection) {
-                this.getAttributesFromPickedObject3D(pickedObject, attributesGroups);
+                // do nothing, already covered by object?.userData
             } else if (PlyMesh.isPlyPickResult(pickedObject)) {
                 this.getAttributesFromPlyObject(pickedObject, attributesGroups);
             } else if (isShapePickResult(pickedObject)) {
