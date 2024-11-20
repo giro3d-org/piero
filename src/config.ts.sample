@@ -176,7 +176,6 @@ const config: Configuration = {
             source: {
                 type: 'mvt',
                 url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
-                backgroundColor: '',
                 style: 'river',
             },
         },
@@ -344,7 +343,6 @@ const config: Configuration = {
             source: {
                 type: 'mvt',
                 url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
-                backgroundColor: '',
                 style: 'river',
             },
         },
