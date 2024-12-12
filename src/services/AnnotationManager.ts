@@ -27,6 +27,11 @@ import Measure from '@/utils/Measure';
 import Annotation, { PieroShapeUserData } from '@/types/Annotation';
 import Notification from '@/types/Notification';
 import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
+import Fetcher from '@/utils/Fetcher';
+import Download from '@/utils/Download';
+
+const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoicHVibGljX3VzZXIifQ.aXLdY4v8E1sq9V8Sqy3Qe-c6yDXR1LiDRQPDR8sN-Cg';
 
 function promptTitle(defaultValue: string) {
     return window.prompt('Annotation name', defaultValue);
@@ -171,6 +176,25 @@ export default class AnnotationManager {
                 }
             });
         });
+
+        this._notificationStore.push(new Notification('Annotations', `Fetching annotations...`));
+
+        Fetcher.fetchText(
+            `${Download.getBaseUrl()}pg_featureserv/collections/public.annotation/items.json`,
+        )
+            .then(text => {
+                const blob = new Blob([text], { type: 'application/geo+json' });
+                this.importAnnotationFile(blob);
+            })
+            .catch(e => {
+                this._notificationStore.push(
+                    new Notification(
+                        'Annotations',
+                        `Could not fetch existing annotations: ${e}`,
+                        'warning',
+                    ),
+                );
+            });
     }
 
     private udpateLabelVisibility(show: boolean) {
@@ -404,6 +428,39 @@ export default class AnnotationManager {
                 });
 
                 this._shapes.set(annotation.uuid, shape);
+
+                // Publish comment
+                const geojson = annotation.toGeoJSON();
+
+                const headers = new Headers();
+                headers.append('Content-Type', 'application/json');
+                headers.append('Authorization', `Bearer ${token}`);
+
+                try {
+                    fetch(`${Download.getBaseUrl()}postgrest/annotation`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: annotation.uuid,
+                            geom: geojson.geometry,
+                            created_at: now,
+                            updated_at: now,
+                            content,
+                            zone,
+                            title: name,
+                        }),
+                        headers,
+                    });
+
+                    this._notificationStore.push(
+                        new Notification('Annotations', `Annotation successfully saved`, 'success'),
+                    );
+                } catch (e) {
+                    new Notification(
+                        'Annotations',
+                        `Could not save the annotation: ${e}`,
+                        'warning',
+                    );
+                }
             } else {
                 this._instance.remove(shape);
             }
