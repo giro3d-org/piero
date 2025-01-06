@@ -26,6 +26,7 @@ import DrawTool, {
 } from '@giro3d/giro3d/interactions/DrawTool';
 import type View from '@giro3d/giro3d/renderer/View';
 import type { Position } from 'geojson';
+import type { Vector2 } from 'three';
 import { MathUtils, Vector3 } from 'three';
 
 function promptTitle(defaultValue: string) {
@@ -321,13 +322,13 @@ export default class AnnotationManager {
         return results;
     }
 
-    private pickDefault(event: MouseEvent): PickResult[] {
+    private pickDefault(event: MouseEvent | Vector2): PickResult[] {
         const results = this._instance.pickObjectsAt(event, { sortByDistance: true });
 
         return this.filterPickResults(results, this._isEditing);
     }
 
-    private pickMap(event: MouseEvent): PickResult[] {
+    private pickMap(event: MouseEvent | Vector2): PickResult[] {
         const results = this._instance.pickObjectsAt(event, {
             sortByDistance: true,
             filter: res => isShapePickResult(res) || isMapPickResult(res),
@@ -336,13 +337,13 @@ export default class AnnotationManager {
         return this.filterPickResults(results, this._isEditing);
     }
 
-    private pickFeatures(event: MouseEvent): PickResult[] {
+    private pickFeatures(event: MouseEvent | Vector2): PickResult[] {
         const results = this._picker.getObjectsAt(this._instance, event, 0) ?? [];
 
         return this.filterPickResults(results, this._isEditing);
     }
 
-    private pick(event: MouseEvent): PickResult[] {
+    private pick(event: MouseEvent | Vector2): PickResult[] {
         let results: PickResult[];
 
         switch (this._store.getAnnotationMode()) {
