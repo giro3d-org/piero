@@ -13,20 +13,20 @@ import type {
     VectorDatasetConfig,
     VectorLabelsDatasetConfig,
 } from '@/types/configuration/datasets/vector';
-import { getCoordinates } from '@/utils/Configuration';
+import { getCoordinates, getPublicFolderUrl } from '@/utils/Configuration';
+import Fetcher from '@/utils/Fetcher';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import PotreePointCloud from '@giro3d/giro3d/entities/PotreePointCloud';
+import PointCloud from '@giro3d/giro3d/entities/PointCloud';
+import COPCSource from '@giro3d/giro3d/sources/COPCSource';
+import LASSource from '@giro3d/giro3d/sources/LASSource';
+import type { PointCloudSource } from '@giro3d/giro3d/sources/PointCloudSource';
 import PotreeSource from '@giro3d/giro3d/sources/PotreeSource';
 import CityJSONEntity from './entities/CityJSONEntity';
 import { FeatureCollectionEntity } from './entities/FeatureCollectionEntity';
 import IfcEntity from './entities/IfcEntity';
 import PlyEntity from './entities/PlyEntity';
-import PointCloudEntity, {
-    CSVPointCloudSource,
-    LASPointCloudSource,
-    type PointCloudSource,
-} from './entities/PointCloudEntity';
+import PointCloudEntity, { CSVPointCloudSource } from './entities/PointCloudEntity';
 import TiledPointCloudEntity from './entities/TiledPointCloudEntity';
 import Tiles3dEntity from './entities/Tiles3dEntity';
 import VectorLabelsEntity from './entities/VectorLabelsEntity';
@@ -177,13 +177,30 @@ async function getEntity(
                 case 'csv':
                     source = new CSVPointCloudSource({
                         ...cfg.source,
-                        featureProjection: instance.referenceCrs,
+                    });
+                    break;
+                case 'copc':
+                    source = new COPCSource({
+                        url:
+                            typeof cfg.source.url === 'string'
+                                ? getPublicFolderUrl(cfg.source.url)
+                                : async (begin: number, end: number) => {
+                                      const blob = cfg.source.url as Blob;
+                                      const slice = blob.slice(begin, end);
+                                      const buf = await slice.arrayBuffer();
+                                      return new Uint8Array(buf);
+                                  },
                     });
                     break;
                 case 'las':
-                    source = new LASPointCloudSource({
-                        ...cfg.source,
-                        featureProjection: instance.referenceCrs,
+                    source = new LASSource({
+                        url:
+                            typeof cfg.source.url === 'string'
+                                ? getPublicFolderUrl(cfg.source.url)
+                                : async () => {
+                                      const d = await Fetcher.fetchArrayBuffer(cfg.source.url);
+                                      return new Uint8Array(d.slice(0));
+                                  },
                     });
                     break;
                 default: {
@@ -192,7 +209,7 @@ async function getEntity(
                     return _exhaustiveCheck;
                 }
             }
-            entity = new PointCloudEntity(source);
+            entity = new PointCloudEntity({ source });
             break;
         }
         case 'ply': {
@@ -215,7 +232,9 @@ async function getEntity(
         }
         case 'potree': {
             const cfg = dataset.config as PotreePointCloudDatasetConfig;
-            entity = new PotreePointCloud(new PotreeSource(cfg.source.url, cfg.source.filename));
+            entity = new PointCloud({
+                source: new PotreeSource({ url: `${cfg.source.url}/${cfg.source.filename}` }),
+            });
             fillObject3DUserData(entity, {
                 filename: cfg.source.url,
             });

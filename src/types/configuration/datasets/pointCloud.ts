@@ -3,13 +3,20 @@ import type { DatasetConfigBase, DatasetConfigMaskingMixin, DatasetSourceConfigB
 
 export interface CSVPointCloudSourceConfig
     extends DatasetSourceConfigBase<'csv'>,
-        Omit<PointCloudSourceOptions, 'featureProjection'> {}
+        PointCloudSourceOptions {}
+
+export interface COPCPointCloudSourceConfig
+    extends DatasetSourceConfigBase<'copc'>,
+        PointCloudSourceOptions {}
 
 export interface LASPointCloudSourceConfig
     extends DatasetSourceConfigBase<'las'>,
-        Omit<PointCloudSourceOptions, 'featureProjection'> {}
+        PointCloudSourceOptions {}
 
-export type PointCloudSourceConfig = CSVPointCloudSourceConfig | LASPointCloudSourceConfig;
+export type PointCloudSourceConfig =
+    | CSVPointCloudSourceConfig
+    | LASPointCloudSourceConfig
+    | COPCPointCloudSourceConfig;
 
 export interface PointCloudDatasetConfig
     extends DatasetConfigBase<'flatPointcloud'>,

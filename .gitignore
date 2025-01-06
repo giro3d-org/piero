@@ -16,6 +16,9 @@ apidoc/
 # IFC
 public/web-ifc.wasm
 
+# LazPerf
+public/laz-perf.wasm
+
 # We should stop putting data in there
 public/cityjson
 public/geojson

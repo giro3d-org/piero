@@ -7,8 +7,10 @@ import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
 import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
+import Download from '@/utils/Download';
 import Fetcher from '@/utils/Fetcher';
 import Instance from '@giro3d/giro3d/core/Instance';
+import { setLazPerfPath } from '@giro3d/giro3d/sources/las/config';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import type { Object3D } from 'three';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
@@ -147,9 +149,15 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
 
         this.mainInstance.notifyChange();
 
+        const publicPath = Download.getBaseUrl().slice(0, -1);
+        setLazPerfPath(publicPath);
+
         // Preload web-ifc.wasm
         Fetcher.fetch('web-ifc.wasm').catch(e => {
             console.warn('Could not load web-ifc.wasm', e);
+        });
+        Fetcher.fetch('laz-perf.wasm').catch(e => {
+            console.warn('Could not load laz-perf.wasm', e);
         });
     }
 
