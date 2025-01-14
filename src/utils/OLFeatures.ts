@@ -1,10 +1,9 @@
-import IgnProvider from '@/providers/IgnProvider';
+import type { Alticoder } from '@/providers/Alticoding';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
 import GeometryConverter from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
 import type Feature from 'ol/Feature';
 import { type FeatureLike } from 'ol/Feature';
-import { getCenter } from 'ol/extent';
 import type FeatureFormat from 'ol/format/Feature';
 import type { LineString } from 'ol/geom';
 import {
@@ -113,7 +112,7 @@ async function readSimpleFeatures(
     );
 }
 
-function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataValue = 0): void {
+function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataValue: number): void {
     for (const feature of features) {
         const geom = feature.getGeometry();
         if (geom == null) {
@@ -179,9 +178,9 @@ function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataVal
 async function fetchZCoordinates(
     features: SimpleFeature[],
     featureProjection: string,
-    offset = 0.0,
-    noDataValue = 0,
-    fast = true,
+    alticoder: Alticoder,
+    offset: number,
+    noDataValue: number,
 ): Promise<void> {
     const clock = new Clock();
     clock.start();
@@ -204,23 +203,15 @@ async function fetchZCoordinates(
             continue;
         }
 
-        if (fast) {
-            const extent = geom.getExtent();
-            const center = getCenter(extent);
-            const c = new Coordinates(featureProjection, center[0], center[1], noDataValue);
+        for (let i = 0; i < coordinates.length; i += stride) {
+            const c = new Coordinates(
+                featureProjection,
+                coordinates[i + 0],
+                coordinates[i + 1],
+                stride >= 3 ? coordinates[i + 2] : noDataValue,
+            );
             featureCoordinates.push(c);
             giroCoordinates.push(c);
-        } else {
-            for (let i = 0; i < coordinates.length; i += stride) {
-                const c = new Coordinates(
-                    featureProjection,
-                    coordinates[i + 0],
-                    coordinates[i + 1],
-                    stride >= 3 ? coordinates[i + 2] : noDataValue,
-                );
-                featureCoordinates.push(c);
-                giroCoordinates.push(c);
-            }
         }
         // @ts-expect-error ol_uid is hidden
         giroCoordinatesByFeature.set(feature.ol_uid, featureCoordinates);
@@ -230,7 +221,7 @@ async function fetchZCoordinates(
         `Fetching altitudes for ${giroCoordinates.length} coordinates from ${features.length} features...`,
     );
 
-    await IgnProvider.alticode(giroCoordinates);
+    await alticoder(giroCoordinates);
 
     for (const feature of features) {
         // @ts-expect-error ol_uid is hidden
@@ -253,9 +244,7 @@ async function fetchZCoordinates(
                 const g = geom as MultiPoint | LineString;
                 const c = g.getCoordinates();
                 for (let i = 0; i < c.length; i += 1) {
-                    c[i][2] =
-                        (fast ? featureCoordinates[0].values[2] : featureCoordinates[i].values[2]) +
-                        offset;
+                    c[i][2] = featureCoordinates[i].values[2] + offset;
                 }
                 g.setCoordinates(c);
                 break;
@@ -267,10 +256,7 @@ async function fetchZCoordinates(
                 let k = 0;
                 for (let i = 0; i < c.length; i += 1) {
                     for (let j = 0; j < c[i].length; j += 1) {
-                        c[i][j][2] =
-                            (fast
-                                ? featureCoordinates[0].values[2]
-                                : featureCoordinates[k].values[2]) + offset;
+                        c[i][j][2] = featureCoordinates[k].values[2] + offset;
                         k += 1;
                     }
                 }
@@ -284,10 +270,7 @@ async function fetchZCoordinates(
                 for (let i = 0; i < c.length; i += 1) {
                     for (let j = 0; j < c[i].length; j += 1) {
                         for (let m = 0; m < c[i][j].length; m += 1) {
-                            c[i][j][m][2] =
-                                (fast
-                                    ? featureCoordinates[0].values[2]
-                                    : featureCoordinates[k].values[2]) + offset;
+                            c[i][j][m][2] = featureCoordinates[k].values[2] + offset;
                             k += 1;
                         }
                     }

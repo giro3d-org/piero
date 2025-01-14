@@ -1,6 +1,7 @@
 import type { FetchContext, UrlOrData } from '@/utils/Fetcher';
 import Fetcher from '@/utils/Fetcher';
 import type { SimpleFeature } from '@/utils/OLFeatures';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import { load } from '@loaders.gl/core';
 import { ShapefileLoader as ShapefileGLLoader } from '@loaders.gl/shapefile';
 import type { VectorMeshSource } from '../entities/VectorMeshEntity';
@@ -58,11 +59,11 @@ export default class ShapefileSource implements VectorMeshSource {
         this.elevation = options.elevation;
     }
 
-    async load(): Promise<SimpleFeature[]> {
+    async load(instance: Instance): Promise<SimpleFeature[]> {
         // First, get the data as a list of GeoJSON features
         const features = await fetchShapefile(this.options.url, this.options.featureProjection);
         // Convert them into OpenLayers features
-        const olFeatures = await geojsonToOlFeatures(features, {
+        const olFeatures = await geojsonToOlFeatures(instance, features, {
             ...this.options,
             dataProjection: this.options.featureProjection, // Already re-projected
         });

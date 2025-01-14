@@ -46,9 +46,21 @@ export interface ElevationMixin {
      */
     fetchElevation?: boolean;
     /**
-     * Fetch elevation only for centroids of features
+     * Fetch elevation from map instead of API
      *
      * @defaultValue true
      */
     fetchElevationFast?: boolean;
+    /**
+     * When fetching elevation, add this offset
+     *
+     * @defaultValue 0.1
+     */
+    fetchElevationOffset?: number;
+    /**
+     * When fetching or setting elevation, consider this value as no data
+     *
+     * @defaultValue 0
+     */
+    noDataValue?: number;
 }
