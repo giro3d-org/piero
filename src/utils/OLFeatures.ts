@@ -14,7 +14,7 @@ import {
     type Point,
     type Polygon,
 } from 'ol/geom';
-import { Group } from 'three';
+import { Clock, Group } from 'three';
 import Projections from './Projections';
 
 export type SimpleGeometryType =
@@ -183,8 +183,12 @@ async function fetchZCoordinates(
     noDataValue = 0,
     fast = true,
 ): Promise<void> {
-    const promises = [];
-    const altitudes = new Map<number, Coordinates[]>();
+    const clock = new Clock();
+    clock.start();
+
+    const giroCoordinates: Coordinates[] = [];
+    const giroCoordinatesByFeature = new Map<number, Coordinates[]>();
+
     for (const feature of features) {
         const geom = feature.getGeometry();
         const geomType = geom?.getType();
@@ -192,8 +196,8 @@ async function fetchZCoordinates(
             continue;
         }
 
+        const featureCoordinates: Coordinates[] = [];
         const coordinates = geom.getFlatCoordinates();
-        const giroCoordinates = [];
         const stride = geom.getStride();
         if (stride >= 3 && coordinates[2] != null && coordinates[2] !== noDataValue) {
             // Feature already has altitude, skip
@@ -203,31 +207,36 @@ async function fetchZCoordinates(
         if (fast) {
             const extent = geom.getExtent();
             const center = getCenter(extent);
-            giroCoordinates.push(new Coordinates(featureProjection, center[0], center[1], 0));
+            const c = new Coordinates(featureProjection, center[0], center[1], noDataValue);
+            featureCoordinates.push(c);
+            giroCoordinates.push(c);
         } else {
             for (let i = 0; i < coordinates.length; i += stride) {
-                giroCoordinates.push(
-                    new Coordinates(
-                        featureProjection,
-                        coordinates[i + 0],
-                        coordinates[i + 1],
-                        stride >= 3 ? coordinates[i + 2] : 0,
-                    ),
+                const c = new Coordinates(
+                    featureProjection,
+                    coordinates[i + 0],
+                    coordinates[i + 1],
+                    stride >= 3 ? coordinates[i + 2] : noDataValue,
                 );
+                featureCoordinates.push(c);
+                giroCoordinates.push(c);
             }
         }
-        promises.push(IgnProvider.alticode(giroCoordinates));
         // @ts-expect-error ol_uid is hidden
-        altitudes.set(feature.ol_uid, giroCoordinates);
+        giroCoordinatesByFeature.set(feature.ol_uid, featureCoordinates);
     }
 
-    await Promise.allSettled(promises);
+    console.debug(
+        `Fetching altitudes for ${giroCoordinates.length} coordinates from ${features.length} features...`,
+    );
+
+    await IgnProvider.alticode(giroCoordinates);
 
     for (const feature of features) {
         // @ts-expect-error ol_uid is hidden
-        const giroCoordinates = altitudes.get(feature.ol_uid);
+        const featureCoordinates = giroCoordinatesByFeature.get(feature.ol_uid);
         const geom = feature.getGeometry();
-        if (geom == null || giroCoordinates == null) {
+        if (geom == null || featureCoordinates == null) {
             continue;
         }
 
@@ -235,7 +244,7 @@ async function fetchZCoordinates(
             case 'Point': {
                 const g = geom as Point;
                 const c = g.getCoordinates();
-                c[2] = giroCoordinates[0].values[2] + offset;
+                c[2] = featureCoordinates[0].values[2] + offset;
                 g.setCoordinates(c);
                 break;
             }
@@ -245,7 +254,7 @@ async function fetchZCoordinates(
                 const c = g.getCoordinates();
                 for (let i = 0; i < c.length; i += 1) {
                     c[i][2] =
-                        (fast ? giroCoordinates[0].values[2] : giroCoordinates[i].values[2]) +
+                        (fast ? featureCoordinates[0].values[2] : featureCoordinates[i].values[2]) +
                         offset;
                 }
                 g.setCoordinates(c);
@@ -259,8 +268,9 @@ async function fetchZCoordinates(
                 for (let i = 0; i < c.length; i += 1) {
                     for (let j = 0; j < c[i].length; j += 1) {
                         c[i][j][2] =
-                            (fast ? giroCoordinates[0].values[2] : giroCoordinates[k].values[2]) +
-                            offset;
+                            (fast
+                                ? featureCoordinates[0].values[2]
+                                : featureCoordinates[k].values[2]) + offset;
                         k += 1;
                     }
                 }
@@ -276,8 +286,8 @@ async function fetchZCoordinates(
                         for (let m = 0; m < c[i][j].length; m += 1) {
                             c[i][j][m][2] =
                                 (fast
-                                    ? giroCoordinates[0].values[2]
-                                    : giroCoordinates[k].values[2]) + offset;
+                                    ? featureCoordinates[0].values[2]
+                                    : featureCoordinates[k].values[2]) + offset;
                             k += 1;
                         }
                     }
@@ -289,6 +299,9 @@ async function fetchZCoordinates(
             // do nothing
         }
     }
+
+    console.debug(`Fetched all missing altitudes in ${clock.getElapsedTime()}s`);
+    clock.stop();
 }
 
 /**
