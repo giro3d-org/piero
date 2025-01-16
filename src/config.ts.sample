@@ -145,6 +145,14 @@ const config: Configuration = {
     },
     datasets: [
         {
+            type: 'flatPointcloud',
+            source: {
+                type: 'las',
+                url: 'Semis_2021_0841_6518_LA93_IGN69.laz',
+            },
+            name: 'Semis_2021_0841_6518_LA93_IGN69',
+        },
+        {
             name: 'Fountains (GML)',
             type: 'vector',
             rendering: 'label',
@@ -176,7 +184,6 @@ const config: Configuration = {
             source: {
                 type: 'mvt',
                 url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
-                backgroundColor: '',
                 style: 'river',
             },
         },
@@ -344,7 +351,6 @@ const config: Configuration = {
             source: {
                 type: 'mvt',
                 url: 'https://3d.oslandia.com/cp4sc/pg_tileserv/public.courseau/{z}/{x}/{y}.pbf',
-                backgroundColor: '',
                 style: 'river',
             },
         },

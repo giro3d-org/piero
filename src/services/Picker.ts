@@ -271,7 +271,7 @@ export default class Picker {
      */
     getObjectsAt(
         instance: Instance,
-        e: MouseEvent,
+        e: MouseEvent | Vector2,
         radius = 1,
         filterOnObjects?: (obj: Object3D | Entity) => boolean,
     ): PickResult[] | null {

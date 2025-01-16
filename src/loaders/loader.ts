@@ -109,7 +109,13 @@ async function importFile(instance: Instance, file: File): Promise<Dataset> {
                     break;
                 case 'las':
                 case 'laz':
-                    fileType = 'las';
+                    // Note that COPC files do not have a specified extension.
+                    // `.copc.laz` is just a convention.
+                    if (fileinfo.filename.endsWith('.copc.laz')) {
+                        fileType = 'copc';
+                    } else {
+                        fileType = 'las';
+                    }
                     break;
                 default:
                     throw new Error(`File ${fileinfo.fileext} not supported`);
