@@ -86,6 +86,9 @@ async function getEntity(
                     fetchElevation: sourceConfig.fetchElevation ?? dataset.get('fetchElevation'),
                     fetchElevationFast:
                         sourceConfig.fetchElevationFast ?? dataset.get('fetchElevationFast'),
+                    fetchElevationOffset:
+                        sourceConfig.fetchElevationOffset ?? dataset.get('fetchElevationOffset'),
+                    noDataValue: sourceConfig.noDataValue ?? dataset.get('noDataValue'),
                 };
 
                 switch (sourceConfig.type) {

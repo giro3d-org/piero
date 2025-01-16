@@ -22,7 +22,7 @@ export default class VectorShapeEntity extends Shape {
     }
 
     protected async preprocess(): Promise<void> {
-        const olFeatures = await this.source.load();
+        const olFeatures = await this.source.load(this.instance);
         const feature = olFeatures.at(0);
         const geometry = feature?.getGeometry();
 

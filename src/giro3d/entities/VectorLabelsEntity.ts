@@ -124,7 +124,7 @@ export default class VectorLabelsEntity extends Entity3D {
     protected async preprocess(): Promise<void> {
         for (const source of this.sources) {
             // TODO: avoid await in the loop
-            const olFeatures = await source.load();
+            const olFeatures = await source.load(this.instance);
             const root = new Group();
 
             const defaultElevation = source.elevation ?? 0;

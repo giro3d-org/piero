@@ -1,8 +1,11 @@
 import { fillObject3DUserData } from '@/loaders/userData';
+import { alticoderGenerator } from '@/providers/Alticoding';
+import type { ExtractOptional } from '@/types/utilities';
 import Fetcher, { type FetchContext } from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
 import { DEFAULT_LINE_COLOR, DEFAULT_SURFACE_COLOR } from '@giro3d/giro3d/core/FeatureTypes';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
 import type FeatureFormat from 'ol/format/Feature';
@@ -27,6 +30,15 @@ export interface VectorMeshSourceOptions
 const geojsonFormat = new GeoJSONFormat();
 const gpxFormat = new GPXFormat();
 const kmlFormat = new KMLFormat();
+
+export const defaultParameters: Required<ExtractOptional<VectorMeshSourceOptions>> = {
+    dataProjection: 'EPSG:4326',
+    elevation: 0,
+    fetchElevation: false,
+    fetchElevationFast: false,
+    fetchElevationOffset: 0.1,
+    noDataValue: 0,
+};
 
 /**
  * Converts a GeoJSON object into a list of GeoJSON features
@@ -68,11 +80,12 @@ export function toGeoJSONFeatures(json: GeoJSON.GeoJSON): GeoJSON.Feature[] {
  * @returns Array of simple features, where unsupported features are discarded
  */
 export async function geojsonToOlFeatures(
+    instance: Instance,
     features: GeoJSON.Feature[],
     parameters: VectorMeshSourceOptions,
 ): Promise<SimpleFeature[]> {
     const dataProjection = await Projections.loadProjCrsIfNeeded(
-        parameters.dataProjection ?? 'EPSG:4326',
+        parameters.dataProjection ?? defaultParameters.dataProjection,
     );
 
     const olFeatures = features.flatMap(f =>
@@ -83,13 +96,20 @@ export async function geojsonToOlFeatures(
     );
     const simpleFeatures = OLFeatures.toSimpleFeatures(olFeatures);
 
-    if (parameters.fetchElevation ?? false) {
+    const fetchElevation = parameters.fetchElevation ?? defaultParameters.fetchElevation;
+    if (fetchElevation) {
+        const fetchElevationFast =
+            parameters.fetchElevationFast ?? defaultParameters.fetchElevationFast;
+        const fetchElevationOffset =
+            parameters.fetchElevationOffset ?? defaultParameters.fetchElevationOffset;
+        const noDataValue = parameters.noDataValue ?? defaultParameters.noDataValue;
+
         await OLFeatures.fetchZCoordinates(
             simpleFeatures,
             parameters.featureProjection,
-            0.1,
-            0,
-            parameters.fetchElevationFast ?? true,
+            alticoderGenerator(instance, fetchElevationFast, noDataValue),
+            fetchElevationOffset,
+            noDataValue,
         );
     }
     return simpleFeatures;
@@ -106,6 +126,7 @@ export async function geojsonToOlFeatures(
  * @returns Array of simple features, where unsupported features are discarded
  */
 export async function toOlFeatures(
+    instance: Instance,
     data: string,
     format: FeatureFormat,
     parameters: VectorMeshSourceOptions,
@@ -113,17 +134,24 @@ export async function toOlFeatures(
     const olFeatures = await OLFeatures.readSimpleFeatures(
         data,
         format,
-        parameters.dataProjection ?? 'EPSG:4326',
+        parameters.dataProjection ?? defaultParameters.dataProjection,
         parameters.featureProjection,
     );
 
-    if (parameters.fetchElevation ?? false) {
+    const fetchElevation = parameters.fetchElevation ?? defaultParameters.fetchElevation;
+    if (fetchElevation) {
+        const fetchElevationFast =
+            parameters.fetchElevationFast ?? defaultParameters.fetchElevationFast;
+        const fetchElevationOffset =
+            parameters.fetchElevationOffset ?? defaultParameters.fetchElevationOffset;
+        const noDataValue = parameters.noDataValue ?? defaultParameters.noDataValue;
+
         await OLFeatures.fetchZCoordinates(
             olFeatures,
             parameters.featureProjection,
-            0.1,
-            0,
-            parameters.fetchElevationFast ?? true,
+            alticoderGenerator(instance, fetchElevationFast, noDataValue),
+            fetchElevationOffset,
+            noDataValue,
         );
     }
     return olFeatures;
@@ -132,20 +160,25 @@ export async function toOlFeatures(
 /**
  * Converts {@link SimpleFeature}s into a Three.js `Group`.
  * Assumes features are already in the correct CRS.
- * If Z-coordinates are missing in the features, they are filled at
- * `options?.elevation` (or at 0 if not specified).
+ * If Z-coordinates are missing in the features (`null` or equal to `noDataValue`),
+ * they are filled at `options?.elevation` or at `defaultElevation`.
  *
  * @param features - Features to convert
  * @param options - GeometryConverter options
+ * @param defaultElevation - Default elevation if not provided via options
+ * @param noDataValue - Value considered as no data for filling Z.
  * @returns Group containing all meshes for all features
  */
 export async function olFeaturestoGroup(
     features: SimpleFeature[],
     options?: PolygonOptions,
+    defaultElevation = defaultParameters.elevation,
+    noDataValue = defaultParameters.noDataValue,
 ): Promise<Group> {
     const elevation =
-        (Array.isArray(options?.elevation) ? options.elevation[0] : options?.elevation) ?? 0;
-    OLFeatures.fillZCoordinates(features, elevation);
+        (Array.isArray(options?.elevation) ? options.elevation[0] : options?.elevation) ??
+        defaultElevation;
+    OLFeatures.fillZCoordinates(features, elevation, noDataValue);
     return OLFeatures.toMeshes(features, options);
 }
 
@@ -153,8 +186,10 @@ export async function olFeaturestoGroup(
 export interface VectorMeshSource {
     /** Elevation of the features */
     elevation?: number;
+    /** No data value for elevation */
+    noDataValue?: number;
     /** Loads the features. Will be called only once */
-    load(): Promise<SimpleFeature[]>;
+    load(instance: Instance): Promise<SimpleFeature[]>;
     /** Context of the data */
     context(): FetchContext;
 }
@@ -162,6 +197,7 @@ export interface VectorMeshSource {
 /** OpenLayers-based source */
 export class OlMeshSource implements VectorMeshSource {
     elevation?: number;
+    noDataValue?: number;
     /** OL Feature format */
     readonly format: FeatureFormat;
     readonly options: VectorMeshSourceOptions;
@@ -170,11 +206,12 @@ export class OlMeshSource implements VectorMeshSource {
         this.format = format;
         this.options = options;
         this.elevation = options.elevation;
+        this.noDataValue = options.noDataValue;
     }
 
-    async load(): Promise<SimpleFeature[]> {
+    async load(instance: Instance): Promise<SimpleFeature[]> {
         const text = await Fetcher.fetchText(this.options.url);
-        const features = await toOlFeatures(text, this.format, this.options);
+        const features = await toOlFeatures(instance, text, this.format, this.options);
         return features;
     }
 
@@ -207,7 +244,7 @@ export class GeoJsonMeshSource implements VectorMeshSource {
         this.elevation = options.elevation;
     }
 
-    async load(): Promise<SimpleFeature[]> {
+    async load(instance: Instance): Promise<SimpleFeature[]> {
         // TODO: For some historical (?) reason we are not using bare OL
         // parsing, and we are using toGeoJSONFeatures instead. Not sure
         // why we were doing this in the first place, maybe we can remove
@@ -220,7 +257,7 @@ export class GeoJsonMeshSource implements VectorMeshSource {
         const features = toGeoJSONFeatures(json);
 
         // Convert them into OpenLayers features
-        const olFeatures = await geojsonToOlFeatures(features, this.options);
+        const olFeatures = await geojsonToOlFeatures(instance, features, this.options);
         return olFeatures;
     }
 
@@ -241,12 +278,17 @@ export default class VectorMeshEntity extends Entity3D {
     protected async preprocess(): Promise<void> {
         for (const source of this.sources) {
             // TODO: avoid await in the loop
-            const olFeatures = await source.load();
-            const group = await olFeaturestoGroup(olFeatures, {
-                elevation: source.elevation,
-                fill: { color: DEFAULT_SURFACE_COLOR },
-                stroke: { color: DEFAULT_LINE_COLOR },
-            });
+            const olFeatures = await source.load(this.instance);
+            const group = await olFeaturestoGroup(
+                olFeatures,
+                {
+                    elevation: source.elevation,
+                    fill: { color: DEFAULT_SURFACE_COLOR },
+                    stroke: { color: DEFAULT_LINE_COLOR },
+                },
+                source.elevation,
+                source.noDataValue,
+            );
 
             this.object3d.add(group);
             this.onObjectCreated(group);
