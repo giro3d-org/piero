@@ -35,7 +35,7 @@ export const defaultParameters: Required<ExtractOptional<VectorMeshSourceOptions
     dataProjection: 'EPSG:4326',
     elevation: 0,
     fetchElevation: false,
-    fetchElevationFast: true,
+    fetchElevationFast: false,
     fetchElevationOffset: 0.1,
     noDataValue: 0,
 };

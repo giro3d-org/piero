@@ -48,7 +48,7 @@ export interface ElevationMixin {
     /**
      * Fetch elevation from map instead of API
      *
-     * @defaultValue true
+     * @defaultValue false
      */
     fetchElevationFast?: boolean;
     /**
