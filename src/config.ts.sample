@@ -145,14 +145,6 @@ const config: Configuration = {
     },
     datasets: [
         {
-            type: 'flatPointcloud',
-            source: {
-                type: 'las',
-                url: 'Semis_2021_0841_6518_LA93_IGN69.laz',
-            },
-            name: 'Semis_2021_0841_6518_LA93_IGN69',
-        },
-        {
             name: 'Fountains (GML)',
             type: 'vector',
             rendering: 'label',
