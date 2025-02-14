@@ -92,7 +92,7 @@ const config: Configuration = {
                 source: {
                     type: 'wmts',
                     resolution: 0.5,
-                    layer: 'ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES',
+                    layer: 'ELEVATION.ELEVATIONGRIDCOVERAGE',
                     format: 'image/x-bil;bits=32',
                     url: 'https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities',
                     nodata: -1000,
