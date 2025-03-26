@@ -30,15 +30,16 @@ The documentation of the configuration fields is defined in the TypeScript types
 
 To tweak your app, chances are you will first want to:
 
-1. Change the default CRS: `default_crs` - note that until <https://gitlab.com/giro3d/piero/-/issues/26> is fixed, you'll need to make sure the CRS is registered in [Giro3DManager](src/services/Giro3DManager.ts) first,
-2. Change the basemap extent: `basemap.extent`,
-3. Change the camera position:
+1. Define the CRS you will use: `crs_definitions`
+2. Change the default CRS: `default_crs` - note that it must be defined
+3. Change the basemap extent: `basemap.extent`,
+4. Change the camera position:
     - `camera.position` to set the position of the camera,
     - `camera.lookAt` to set where the camera looks at (if removed, the center of the extent will be used)
-4. Change how the 3D map is displayed: `basemap.layers` sets how we get the elevation and what's being displayed as background
-5. Change the 3D data displayed: `datasets`
-6. Change the overlays displayed on the map: `overlays` (can be empty)
-7. Change the default bookmarks: `bookmarks` (can be empty)
+5. Change how the 3D map is displayed: `basemap.layers` sets how we get the elevation and what's being displayed as background
+6. Change the 3D data displayed: `datasets`
+7. Change the overlays displayed on the map: `overlays` (can be empty)
+8. Change the default bookmarks: `bookmarks` (can be empty)
 
 When defining layers and datasets, you can unleash Giro3D's advanced features via _some_ configuration. This is reserved for advanced users. You can generate the API doc for the configuration to dive deeper:
 
