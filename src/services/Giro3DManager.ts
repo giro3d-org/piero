@@ -1,4 +1,3 @@
-import config from '@/config';
 import AnalysisManager from '@/services/AnalysisManager';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
@@ -8,6 +7,7 @@ import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
 import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
+import { getCrsDefinitions } from '@/utils/Configuration';
 import Download from '@/utils/Download';
 import Fetcher from '@/utils/Fetcher';
 import Instance from '@giro3d/giro3d/core/Instance';
@@ -16,14 +16,12 @@ import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import type { Object3D } from 'three';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
-if (config.crs_definitions) {
-    for (const [name, definition] of Object.entries(config.crs_definitions)) {
-        try {
-            Instance.registerCRS(name, definition);
-        } catch (error: unknown) {
-            console.error(`Failed to register CRS "${name}" as "${definition}".`);
-            throw error;
-        }
+for (const [name, definition] of Object.entries(getCrsDefinitions())) {
+    try {
+        Instance.registerCRS(name, definition);
+    } catch (error: unknown) {
+        console.error(`Failed to register CRS "${name}" as "${definition}".`);
+        throw error;
     }
 }
 
