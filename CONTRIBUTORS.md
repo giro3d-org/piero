@@ -8,6 +8,8 @@ The following people have contributed to Piero.
     -   [Sébastien Guimmara](https://github.com/sguimmara)
     -   [Sylvain Beorchia](https://github.com/sylvainbeo)
     -   [Thomas Muguet](https://github.com/tmuguet)
+-   [Phoenix LiDAR Systems](https://phoenixlidar.com)
+    -   [Jérémie Piellard](https://github.com/piellardj)
 
 The following organizations supported Piero:
 

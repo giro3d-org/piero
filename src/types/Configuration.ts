@@ -77,6 +77,8 @@ export interface BasemapConfig
 
 /** Piero configuration */
 export interface Configuration {
+    /** Custom CRS definitions */
+    crs_definitions?: Record<CRS, string>;
     /**
      * The default CRS to be used in the view
      *
