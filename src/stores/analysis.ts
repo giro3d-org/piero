@@ -1,10 +1,11 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { defineStore } from 'pinia';
 import { Box3, Vector3 } from 'three';
 import { ref } from 'vue';
 
 export const useAnalysisStore = defineStore('analysis', () => {
+    const config = getConfig();
     const floodingPlaneHeight = ref(170);
     const _enableFloodingPlane = ref(false);
 

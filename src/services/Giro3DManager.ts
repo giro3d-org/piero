@@ -7,23 +7,13 @@ import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
 import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
-import { getCrsDefinitions } from '@/utils/Configuration';
 import Download from '@/utils/Download';
 import Fetcher from '@/utils/Fetcher';
-import Instance from '@giro3d/giro3d/core/Instance';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import { setLazPerfPath } from '@giro3d/giro3d/sources/las/config';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import type { Object3D } from 'three';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
-
-for (const [name, definition] of Object.entries(getCrsDefinitions())) {
-    try {
-        Instance.registerCRS(name, definition);
-    } catch (error: unknown) {
-        console.error(`Failed to register CRS "${name}" as "${definition}".`);
-        throw error;
-    }
-}
 
 if (import.meta.env.VITE_HEADERS) {
     for (const [host, header] of Object.entries(import.meta.env.VITE_HEADERS)) {

@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import {
     parseDatasetConfig,
     type Dataset,
@@ -23,6 +23,7 @@ function buildDatasets(root: DatasetOrGroup) {
 }
 
 export const useDatasetStore = defineStore('datasets', () => {
+    const config = getConfig();
     const datasets = shallowReactive(
         parseDatasetConfig(config.datasets).map(ds => buildDatasets(ds)),
     );

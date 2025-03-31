@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import { Dataset } from '@/types/Dataset';
 import type {
     DatasetConfigImportable,
@@ -66,6 +66,7 @@ function getFilename(fileOrUrl: UrlOrFetchedData): FileInfo {
  * @throws `Error` if file cannot be imported (unsupported, etc.)
  */
 async function importFile(instance: Instance, file: File): Promise<Dataset> {
+    const config = getConfig();
     const fileinfo = getFilename(file);
 
     if (fileinfo.filename == null || fileinfo.fileext == null) {

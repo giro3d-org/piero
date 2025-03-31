@@ -5,7 +5,7 @@ Piero can be customized via two files:
 -   `src/config.ts` for the app configuration,
 -   `src/styles.ts` for the overlay styles.
 
-Sample configuration are available at [`src/config.ts.sample`](src/config.ts.sample) and [`src/styles.ts.sample`](src/styles.ts.sample).
+Sample configuration are available at [`src/config-default.ts`](src/config-default.ts) and [`src/styles.ts.sample`](src/styles.ts.sample).
 
 When changing these files, you'll need to rebuild and redeploy your app.
 

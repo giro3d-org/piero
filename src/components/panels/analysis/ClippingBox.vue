@@ -1,9 +1,11 @@
 <script setup lang="ts">
-    import config from '@/config';
+    import getConfig from '@/config-loader';
     import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
     import { Vector3 } from 'three';
     import { ref } from 'vue';
+
+    const config = getConfig();
 
     const analysis = useAnalysisStore();
     const camera = useCameraStore();

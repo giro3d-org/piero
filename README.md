@@ -120,7 +120,6 @@ On compatible platforms, you can use the `init.sh` script to initialize the conf
     ```
 2. Copy the default app configuration
     ```sh
-     cp src/config.ts.sample src/config.ts
      cp src/styles.ts.sample src/styles.ts
     ```
 

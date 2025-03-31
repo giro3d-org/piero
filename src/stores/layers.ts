@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import { GraticuleLayer } from '@/giro3d/Graticule';
 import { BaseLayerObject, type BaseLayer } from '@/types/BaseLayer';
 import { OverlayObject, type Overlay } from '@/types/Overlay';
@@ -7,6 +7,7 @@ import { defineStore } from 'pinia';
 import { computed, shallowReactive } from 'vue';
 
 function buildBaseLayers() {
+    const config = getConfig();
     const result: BaseLayer[] = [];
 
     const conf = config.basemap.layers;
@@ -20,6 +21,7 @@ function buildBaseLayers() {
 }
 
 function buildGraticuleLayer() {
+    const config = getConfig();
     if ('graticule' in config.basemap && config.basemap.graticule !== undefined) {
         // Build only if needed
         const layer = new GraticuleLayer();
@@ -34,6 +36,7 @@ function buildGraticuleLayer() {
 }
 
 function buildOverlays() {
+    const config = getConfig();
     const result: Overlay[] = [];
     for (const item of config.overlays) {
         let conf: OverlayConfig;

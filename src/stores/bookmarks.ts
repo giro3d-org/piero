@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import Bookmark from '@/types/Bookmark';
 import CameraPosition from '@/types/CameraPosition';
 import { defineStore } from 'pinia';
@@ -6,6 +6,7 @@ import { Vector3 } from 'three';
 import { computed, ref } from 'vue';
 
 function buildInitialList() {
+    const config = getConfig();
     const result: Bookmark[] = [];
 
     for (const conf of config.bookmarks) {
