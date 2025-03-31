@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { defineAsyncComponent } from 'vue';
     import type { PanelType } from './Configuration';
-    import Configuration from './Configuration';
+    import getConfigurationPanels from './Configuration';
 
     const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
     const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
@@ -20,7 +20,7 @@
 
     defineEmits(['restart-tour']);
 
-    const panels = Configuration.panels;
+    const panels = getConfigurationPanels();
     const gitCommit = import.meta.env.VITE_GIT_COMMIT;
 </script>
 
