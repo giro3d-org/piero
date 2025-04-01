@@ -1,6 +1,7 @@
 import Instance from '@giro3d/giro3d/core/Instance';
 import DefaultConfig from './config-default';
 import type { Configuration } from './types/Configuration';
+import Fetcher from './utils/Fetcher';
 
 let config: Readonly<Configuration> | null = null;
 let configInitializedPromise: Promise<unknown> | null = null;
@@ -64,17 +65,8 @@ async function retrieveConfigJson(): Promise<Configuration> {
     const urlSearchParams = new URLSearchParams(document.location.search);
     const configUrl = urlSearchParams.get('config');
     if (configUrl !== null) {
-        return await fetchJson(configUrl);
+        return await Fetcher.fetchJson(configUrl);
     } else {
         return DefaultConfig;
     }
-}
-
-async function fetchJson<T>(url: string | URL): Promise<T> {
-    const response = await fetch(url);
-    const json = await response.json();
-    if (typeof json !== 'object' || json === null) {
-        throw new Error(`Failed to fetch JSON form url '${url}'.`);
-    }
-    return json as T;
 }
