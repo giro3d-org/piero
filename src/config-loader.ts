@@ -1,5 +1,5 @@
+import DefaultConfig from '@/config';
 import Instance from '@giro3d/giro3d/core/Instance';
-import DefaultConfig from './config-default';
 import type { Configuration } from './types/Configuration';
 import Fetcher from './utils/Fetcher';
 
