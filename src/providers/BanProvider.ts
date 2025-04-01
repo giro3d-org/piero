@@ -1,3 +1,4 @@
+import Fetcher from '@/utils/Fetcher';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import type { GeocodingResult } from './Geocoding';
 import IgnProvider from './IgnProvider';
@@ -10,8 +11,10 @@ export default {
      * @returns Results
      */
     async geocode(query: string): Promise<GeocodingResult[]> {
-        const source = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}`);
-        const data = await source.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data = await Fetcher.fetchJson<any>(
+            `https://api-adresse.data.gouv.fr/search/?q=${query}`,
+        );
 
         const coordinates: Coordinates[] = data.features.map(
             (feature: { geometry: { coordinates: [number, number] } }) =>

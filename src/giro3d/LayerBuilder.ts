@@ -80,8 +80,7 @@ async function createWMTSSource(
 ): Promise<WMTS> {
     const parser = new WMTSCapabilities();
 
-    const res = await fetch(url);
-    const text = await res.text();
+    const text = await Fetcher.fetchText(url);
 
     const result = parser.read(text);
     const options = optionsFromCapabilities(result, {
