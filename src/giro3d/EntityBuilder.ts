@@ -226,6 +226,7 @@ async function getEntity(
             const cfg = dataset.config as TiledPointCloudDatasetConfig;
             entity = new TiledPointCloudEntity({
                 ...cfg.source,
+                url: getPublicFolderUrl(cfg.source.url),
                 name: cfg.name,
             });
             break;
@@ -244,6 +245,7 @@ async function getEntity(
             const cfg = dataset.config as TiledIfcDatasetConfig;
             entity = new Tiles3dEntity({
                 ...cfg.source,
+                url: getPublicFolderUrl(cfg.source.url),
             });
             break;
         }
