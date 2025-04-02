@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import { fillObject3DUserData } from '@/loaders/userData';
 import { getColorMap } from '@/utils/Configuration';
 import type { UrlOrData } from '@/utils/Fetcher';
@@ -206,6 +206,8 @@ export default class PointCloudEntity extends PointCloud {
 
     constructor(options: PointCloudOptions) {
         super(options);
+
+        const config = getConfig();
 
         this.colorMap = getColorMap(config.pointcloud);
 

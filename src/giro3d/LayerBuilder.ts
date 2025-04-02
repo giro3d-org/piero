@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import dynamicStyles from '@/styles';
 import type { BaseLayer, BaseLayerOptions, BasemapLayer } from '@/types/BaseLayer';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
@@ -80,8 +80,7 @@ async function createWMTSSource(
 ): Promise<WMTS> {
     const parser = new WMTSCapabilities();
 
-    const res = await fetch(url);
-    const text = await res.text();
+    const text = await Fetcher.fetchText(url);
 
     const result = parser.read(text);
     const options = optionsFromCapabilities(result, {
@@ -365,6 +364,7 @@ async function getSource(config: LayerSourceConfig): Promise<ImageSource> {
 async function getLayerOptions(
     layer: BaseLayer | Overlay | DatasetAsLayerConfig,
 ): Promise<LayerOptions> {
+    const config = getConfig();
     const source = await getSource(layer.source);
 
     const options = 'options' in layer ? layer.options : layer;

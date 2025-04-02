@@ -1,4 +1,4 @@
-import config from '@/config';
+import getConfig from '@/config-loader';
 import type { CameraConfigDeprecated } from '@/types/configuration/camera';
 import { getExtent } from '@/utils/Configuration';
 import type Instance from '@giro3d/giro3d/core/Instance';
@@ -39,6 +39,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getDefaultCameraPosition(): Coordinates {
+        const config = getConfig();
         const conf = config.camera;
         if (Array.isArray(conf.position)) {
             console.warn(
@@ -67,6 +68,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getDefaultCameraLookAt(): Coordinates {
+        const config = getConfig();
         if ('lookAt' in config.camera && config.camera.lookAt) {
             return new Coordinates(
                 config.camera.lookAt.crs ?? config.default_crs,
@@ -81,6 +83,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getDefaultBasemapOptions() {
+        const config = getConfig();
         const opts = {
             hillshading: config.basemap.hillshading ?? {
                 enabled: true,
@@ -100,6 +103,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getDefaultBasemapExtent() {
+        const config = getConfig();
         if (config.basemap.extent) {
             return getExtent(config.basemap.extent);
         }
@@ -134,6 +138,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getCRS() {
+        const config = getConfig();
         return config.default_crs;
     }
 

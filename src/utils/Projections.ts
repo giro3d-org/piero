@@ -1,3 +1,4 @@
+import Fetcher from '@/utils/Fetcher';
 import Instance from '@giro3d/giro3d/core/Instance';
 import proj4 from 'proj4';
 
@@ -25,11 +26,8 @@ async function loadProjCrsIfNeeded(projection: string) {
     if (epsgCode != null) {
         const epsgString = `EPSG:${epsgCode}`;
         if (proj4.defs(epsgString) === undefined) {
-            await fetch(`https://epsg.io/${epsgCode}.proj4`)
-                .then(p => p.text())
-                .then(t => {
-                    Instance.registerCRS(epsgString, t);
-                });
+            const text = await Fetcher.fetchText(`https://epsg.io/${epsgCode}.proj4`);
+            Instance.registerCRS(epsgString, text);
         }
         return epsgString;
     }

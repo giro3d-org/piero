@@ -3,9 +3,14 @@ import './assets/main.scss';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
+import { loadConfig } from './config-loader';
 
-const app = createApp(App);
+async function start(): Promise<void> {
+    await loadConfig();
 
-app.use(createPinia());
+    const app = createApp(App);
+    app.use(createPinia());
+    app.mount('#app');
+}
 
-app.mount('#app');
+start();

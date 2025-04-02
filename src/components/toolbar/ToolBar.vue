@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import Configuration from '../Configuration';
+    import getConfigurationPanels from '../Configuration';
     import ToolbarButton from './ToolbarButton.vue';
 
     defineProps<{
@@ -7,7 +7,7 @@
     }>();
     defineEmits(['selected']);
 
-    const panels = Configuration.panels;
+    const panels = getConfigurationPanels();
 </script>
 
 <template>

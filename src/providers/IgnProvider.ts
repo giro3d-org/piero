@@ -1,3 +1,4 @@
+import Fetcher from '@/utils/Fetcher';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
 const tmpCoords = new Coordinates('EPSG:4326', 0, 0, 0);
@@ -7,12 +8,11 @@ type AltitudeResponse = {
 };
 
 async function alticodeBatch(lngs: number[], lats: number[]): Promise<number[]> {
-    const requestAltitude = await fetch(
+    const altitude = await Fetcher.fetchJson<AltitudeResponse>(
         `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lngs.join(
             '|',
         )}&lat=${lats.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
     );
-    const altitude: AltitudeResponse = await requestAltitude.json();
     return altitude.elevations;
 }
 
