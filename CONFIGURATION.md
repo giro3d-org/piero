@@ -47,6 +47,12 @@ When defining layers and datasets, you can unleash Giro3D's advanced features vi
 npx typedoc && npx http-server apidoc/
 ```
 
+### Remote config
+
+When running Piero, you can also load remote configurations defined as JSON files instead of the default configuration from `config.ts`. The content of the JSON configuration file is basically the same as the definition of the `config` variable in the `config.ts`.
+
+Pass a `config` parameter in the app to use the remote config instead of the default one, e.g.: `http://localhost:8080/?config=http://example.com/config.json`.
+
 ## `styles.ts`
 
 The file **must** follow this pattern:
