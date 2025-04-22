@@ -44,7 +44,7 @@ export interface BasemapConfig
     extends ExtentConfigWithCenter,
         Pick<
             MapConstructorOptions,
-            | 'hillshading'
+            | 'lighting'
             | 'contourLines'
             | 'graticule'
             | 'colorimetry'

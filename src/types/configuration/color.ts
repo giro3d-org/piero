@@ -1,4 +1,4 @@
-import type ColorMapMode from '@giro3d/giro3d/core/layer/ColorMapMode';
+import type ColorMapMode from '@giro3d/giro3d/core/ColorMapMode';
 
 /**
  * Color ramp name, as supported by [chroma.js](https://gka.github.io/chroma.js/#chroma-brewer)

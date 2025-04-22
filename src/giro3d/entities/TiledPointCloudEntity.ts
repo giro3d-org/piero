@@ -17,14 +17,10 @@ export interface TiledPointCloudSource extends Tiles3dSource {
 export default class TiledPointCloudEntity extends Tiles3dEntity {
     constructor(parameters: TiledPointCloudSource) {
         const config = getConfig();
-        const material = new PointCloudMaterial({
-            size: 2,
-            mode: MODE.ELEVATION,
-        });
-        material.colorMap = getColorMap(config.pointcloud);
-
         super(parameters, {
-            material,
+            colorMap: getColorMap(config.pointcloud),
+            pointSize: 2,
+            pointCloudMode: MODE.ELEVATION,
         });
         this.name = `pointcloud-${parameters.name}`;
     }
