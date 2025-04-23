@@ -486,7 +486,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             case 'first-person':
                 {
                     this._orbitControls.dollyToCursor = false;
-                    this._orbitControls.verticalDragToForward = false;
                     // Set small min/max distance so rotating is always close to the camera position
                     this._orbitControls.minDistance = 2;
                     this._orbitControls.maxDistance = 2;
@@ -517,7 +516,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             case 'orbit':
                 {
                     this._orbitControls.dollyToCursor = true;
-                    this._orbitControls.verticalDragToForward = true;
                     this._orbitControls.minDistance = 2;
                     this._orbitControls.maxDistance = Infinity;
                     this._orbitControls.dollySpeed = 1;

@@ -64,7 +64,7 @@
         "@tarekraafat/autocomplete.js": "^10.2.7",
         "bootstrap": "^5.3.3",
         "bootstrap-icons": "^1.11.3",
-        "camera-controls": "^2.8.3",
+        "camera-controls": "^2.10.1",
         "chart.js": "^3.9.1",
         "chroma-js": "^2.4.2",
         "cityjson-threejs-loader": "github:cityjson/cityjson-threejs-loader",
