@@ -1,3 +1,4 @@
+import getConfig from '@/config-loader';
 import EntityBuilder from '@/giro3d/EntityBuilder';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import loader from '@/loaders/loader';
@@ -204,7 +205,7 @@ export default class DatasetManager {
         let dataset: DatasetOrGroup;
         try {
             this._notifications.push(new Notification(file.name, 'Importing file...'));
-            const _dataset = await loader.importFile(this._instance, file);
+            const _dataset = await loader.importFile(file, getConfig());
             dataset = this._store.add(_dataset); // We need to keep track of the reactive dataset!
             this._notifications.push(
                 new Notification(dataset.name, 'Import done, parsing data...', 'success'),
