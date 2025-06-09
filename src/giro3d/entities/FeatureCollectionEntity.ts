@@ -1,4 +1,5 @@
 import { fillObject3DUserData } from '@/loaders/userData';
+import type { FeatureCollectionDatasetConfig } from '@/types/configuration/datasets/featureCollection';
 import type {
     FeatureElevationCallback,
     FeatureExtrusionOffsetCallback,
@@ -14,6 +15,7 @@ import { tile } from 'ol/loadingstrategy.js';
 import VectorSource from 'ol/source/Vector';
 import { createXYZ } from 'ol/tilegrid.js';
 import { Color } from 'three';
+import type { Builder } from '../EntityBuilder';
 import type { FeatureProjectionMixin } from '../sources/mixins';
 
 /** Options for the Giro3D FeatureCollection */
@@ -168,3 +170,13 @@ export class FeatureCollectionEntity extends FeatureCollection {
         fillObject3DUserData(this, { filename });
     }
 }
+
+export const build: Builder = context => {
+    const cfg = context.dataset.config as FeatureCollectionDatasetConfig;
+    const entity = new FeatureCollectionEntity({
+        ...cfg,
+        featureProjection: context.instance.referenceCrs,
+    });
+
+    return Promise.resolve(entity);
+};

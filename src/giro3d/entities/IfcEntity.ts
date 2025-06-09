@@ -1,4 +1,6 @@
 import { fillObject3DUserData } from '@/loaders/userData';
+import type { IFCDatasetConfig } from '@/types/configuration/datasets/ifc';
+import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
@@ -24,6 +26,7 @@ import {
 } from 'openbim-components';
 import type { Material, Vector2 } from 'three';
 import { Group, Matrix4, MeshBasicMaterial, Vector3 } from 'three';
+import type { Builder } from '../EntityBuilder';
 import type { CoordinatesMixin, UrlOrDataMixin } from '../sources/mixins';
 
 // Copied/extract quite a lot from openbim-components library:
@@ -611,3 +614,17 @@ export default class IfcEntity
     static isIFCPickResult = (obj: unknown): obj is IFCPickResult =>
         isObject(obj) && IfcEntity.isIFCEntity((obj as PickResult<unknown>).entity);
 }
+
+export const build: Builder = context => {
+    const dataset = context.dataset;
+
+    const cfg = dataset.config as IFCDatasetConfig;
+    const at = getCoordinates(cfg.source.position ?? dataset.get('position'));
+    const entity = new IfcEntity({
+        ...cfg.source,
+        at,
+        name: dataset.name,
+    });
+
+    return Promise.resolve(entity);
+};

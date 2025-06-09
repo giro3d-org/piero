@@ -1,4 +1,5 @@
 import { fillObject3DUserData } from '@/loaders/userData';
+import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
 import Fetcher from '@/utils/Fetcher';
 import Projections from '@/utils/Projections';
 import { isObject } from '@/utils/Types';
@@ -15,6 +16,7 @@ import {
 } from 'cityjson-threejs-loader';
 import type { Material, Vector2 } from 'three';
 import { DoubleSide, FrontSide, Group } from 'three';
+import type { Builder } from '../EntityBuilder';
 import type {
     DataProjectionMixin,
     FeatureProjectionMixin,
@@ -260,3 +262,13 @@ export default class CityJSONEntity
     static isCityJSONEntity = (obj: object): obj is CityJSONEntity =>
         isObject(obj) && (obj as CityJSONEntity).isCityJSONEntity;
 }
+
+export const build: Builder = context => {
+    const cfg = context.dataset.config as CityJSONDatasetConfig;
+    const entity = new CityJSONEntity({
+        ...cfg.source,
+        featureProjection: context.instance.referenceCrs,
+    });
+
+    return Promise.resolve(entity);
+};

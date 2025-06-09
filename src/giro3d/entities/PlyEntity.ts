@@ -1,4 +1,6 @@
 import { fillObject3DUserData } from '@/loaders/userData';
+import type { PLYDatasetConfig } from '@/types/configuration/datasets/ply';
+import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
@@ -6,6 +8,7 @@ import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures'
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { Color, DoubleSide, Group, Mesh, MeshLambertMaterial } from 'three';
 import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
+import type { Builder } from '../EntityBuilder';
 import type { CoordinatesMixin, FeatureProjectionMixin, UrlOrDataMixin } from '../sources/mixins';
 
 /** Parameters for creating {@link PlyEntity} */
@@ -96,3 +99,17 @@ export default class PlyEntity extends Entity3D {
         this.notifyChange(this.object3d);
     }
 }
+
+export const build: Builder = context => {
+    const { dataset, instance } = context;
+
+    const cfg = dataset.config as PLYDatasetConfig;
+    const at = getCoordinates(cfg.source.position ?? dataset.get('position'));
+    const entity = new PlyEntity({
+        ...cfg.source,
+        at,
+        featureProjection: instance.referenceCrs,
+    });
+
+    return Promise.resolve(entity);
+};
