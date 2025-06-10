@@ -74,7 +74,7 @@ for (const pkg of Object.keys(pkgConfig.dependencies)) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+const config = defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
 
     return {
@@ -160,3 +160,5 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
+
+export default config;

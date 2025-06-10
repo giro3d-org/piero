@@ -1,6 +1,8 @@
 import getConfig from '@/config-loader';
-import { getColorMap } from '@/utils/Configuration';
+import type { TiledPointCloudDatasetConfig } from '@/types/configuration/datasets/tiledPointCloud';
+import { getColorMap, getPublicFolderUrl } from '@/utils/Configuration';
 import PointCloudMaterial, { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
+import type { Builder } from '../EntityBuilder';
 import type { Tiles3dSource } from './Tiles3dEntity';
 import Tiles3dEntity from './Tiles3dEntity';
 
@@ -27,3 +29,16 @@ export default class TiledPointCloudEntity extends Tiles3dEntity {
         this.name = `pointcloud-${parameters.name}`;
     }
 }
+
+export const build: Builder = context => {
+    const { dataset } = context;
+
+    const cfg = dataset.config as TiledPointCloudDatasetConfig;
+    const entity = new TiledPointCloudEntity({
+        ...cfg.source,
+        url: getPublicFolderUrl(cfg.source.url),
+        name: cfg.name,
+    });
+
+    return Promise.resolve(entity);
+};
