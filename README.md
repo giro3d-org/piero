@@ -29,30 +29,30 @@ Piero is powered by **[Giro3D](https://giro3d.org/)** and supports a variety of 
 
 ### Imagery
 
--   GeoTIFF and [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/)
--   [MVT](https://docs.mapbox.com/data/tilesets/guides/vector-tiles-standards/)
--   [WMS](https://www.ogc.org/standard/wms/)
--   [WMTS](https://www.ogc.org/standard/wmts/)
--   ... or any source supported by OpenLayers: BingMaps, OpenStreetMap, StadiaMaps, etc.
+- GeoTIFF and [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/)
+- [MVT](https://docs.mapbox.com/data/tilesets/guides/vector-tiles-standards/)
+- [WMS](https://www.ogc.org/standard/wms/)
+- [WMTS](https://www.ogc.org/standard/wmts/)
+- ... or any source supported by OpenLayers: BingMaps, OpenStreetMap, StadiaMaps, etc.
 
 ### 2D and 2.5D assets
 
--   [GeoJSON](https://geojson.org/)
--   [GeoPackage](https://www.geopackage.org/)
--   [GPX](https://www.topografix.com/gpx.asp)
--   [KML](https://www.ogc.org/standard/kml/)
--   [Shapefile](https://doc.arcgis.com/en/arcgis-online/reference/shapefiles.htm) - not yet supported via drag and drop
--   [WFS](https://www.ogc.org/standard/wfs/)
+- [GeoJSON](https://geojson.org/)
+- [GeoPackage](https://www.geopackage.org/)
+- [GPX](https://www.topografix.com/gpx.asp)
+- [KML](https://www.ogc.org/standard/kml/)
+- [Shapefile](https://doc.arcgis.com/en/arcgis-online/reference/shapefiles.htm) - not yet supported via drag and drop
+- [WFS](https://www.ogc.org/standard/wfs/)
 
 ### 3D assets
 
--   [3D Tiles](https://www.ogc.org/standard/3DTiles/) - not supported via drag and drop
--   [CityJSON](https://www.cityjson.org/)
--   [CSV pointcloud](https://github.com/ASPRSorg/LAS)
--   [IFC](https://www.buildingsmart.org/standards/bsi-standards/industry-foundation-classes/)
--   [LAS/LAZ pointcloud](https://github.com/ASPRSorg/LAS)
--   [PLY](https://paulbourke.net/dataformats/ply/) - not supported via drag and drop
--   [Potree pointcloud](https://github.com/potree/potree/)
+- [3D Tiles](https://www.ogc.org/standard/3DTiles/) - not supported via drag and drop
+- [CityJSON](https://www.cityjson.org/)
+- [CSV pointcloud](https://github.com/ASPRSorg/LAS)
+- [IFC](https://www.buildingsmart.org/standards/bsi-standards/industry-foundation-classes/)
+- [LAS/LAZ pointcloud](https://github.com/ASPRSorg/LAS)
+- [PLY](https://paulbourke.net/dataformats/ply/) - not supported via drag and drop
+- [Potree pointcloud](https://github.com/potree/potree/)
 
 ### Extend
 
