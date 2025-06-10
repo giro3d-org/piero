@@ -4,6 +4,7 @@ import { getExtent } from '@/utils/Configuration';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
 import { defineStore } from 'pinia';
 import { FrontSide } from 'three';
@@ -82,10 +83,10 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return mapExtent.center();
     }
 
-    function getDefaultBasemapOptions() {
+    function getDefaultBasemapOptions(): Omit<MapConstructorOptions, 'extent'> {
         const config = getConfig();
-        const opts = {
-            hillshading: config.basemap.hillshading ?? {
+        const opts: Omit<MapConstructorOptions, 'extent'> = {
+            lighting: config.basemap.lighting ?? {
                 enabled: true,
                 elevationLayersOnly: true,
             },
@@ -102,7 +103,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return opts;
     }
 
-    function getDefaultBasemapExtent() {
+    function getDefaultBasemapExtent(): Extent {
         const config = getConfig();
         if (config.basemap.extent) {
             return getExtent(config.basemap.extent);

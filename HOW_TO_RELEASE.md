@@ -32,9 +32,9 @@ Create a branch `release/XX.YY` where `XX.YY` is the release version number (e.g
 
 ## Bump the version number
 
--   bump version in package.json and run `npm i`
+- bump version in package.json and run `npm i`
 
 ## Open a MR
 
--   open a MR on the repo with these changes
--   once merged, tag the commit on main branch (Don't forget the `v` prefix)
+- open a MR on the repo with these changes
+- once merged, tag the commit on main branch (Don't forget the `v` prefix)

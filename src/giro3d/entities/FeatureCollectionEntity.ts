@@ -144,6 +144,7 @@ export class FeatureCollectionEntity extends FeatureCollection {
                 }
 
                 const fill: FillStyle = {
+                    shading: true,
                     color: new Color(fillColor),
                 };
 

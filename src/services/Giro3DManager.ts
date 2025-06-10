@@ -105,8 +105,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.addEventListener('update-end', this._boundOnFrameEnd);
 
         this.mainInstance.renderingOptions.enableEDL = true;
-        this.mainInstance.renderingOptions.enableInpainting = true;
-        this.mainInstance.renderingOptions.enablePointCloudOcclusion = true;
+        this.mainInstance.renderingOptions.enableInpainting = false;
+        this.mainInstance.renderingOptions.enablePointCloudOcclusion = false;
 
         const lightColor = 0xffffff;
 

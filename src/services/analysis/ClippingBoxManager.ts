@@ -130,8 +130,8 @@ export default class ClippingBoxManager {
             this._volumeHelpers.add(this._clippingBoxHelper);
             this._volumeHelpers.add(this._clippingBoxMesh);
             this._transformControls.attach(this._clippingBoxMesh);
-            this._transformControls.updateMatrixWorld();
-            this._instance.scene.add(this._transformControls);
+            this._transformControls.getHelper().updateMatrixWorld();
+            this._instance.scene.add(this._transformControls.getHelper());
             this._instance.notifyChange();
         }
     }
@@ -163,7 +163,7 @@ export default class ClippingBoxManager {
      */
     private disposeClippingBox() {
         this._transformControls?.detach();
-        this._transformControls?.removeFromParent();
+        this._transformControls?.getHelper().removeFromParent();
         this._transformControls?.dispose();
 
         this._clippingBoxMesh?.geometry?.dispose();
@@ -212,7 +212,7 @@ export default class ClippingBoxManager {
                 this._clippingBoxMesh?.position.copy(this._store.clippingBoxCenter);
                 this._clippingBoxMesh?.updateMatrixWorld();
                 this._clippingBoxHelper?.updateMatrixWorld();
-                this._transformControls?.updateMatrixWorld();
+                this._transformControls?.getHelper().updateMatrixWorld();
                 this._instance.notifyChange(this._volumeHelpers);
                 this._instance.notifyChange(this._transformControls);
             }

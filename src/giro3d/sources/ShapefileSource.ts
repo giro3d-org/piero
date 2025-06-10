@@ -44,6 +44,7 @@ async function fetchShapefile(
         },
     });
 
+    // @ts-expect-error raw is unknown
     return raw.features;
 }
 
