@@ -204,8 +204,6 @@ export default class CityJSONEntity
 
                 this.object3d.add(loader.scene);
 
-                // @ts-expect-error I think CityJSON incorrectly uses Number instead of string
-                // PR submitted: https://github.com/cityjson/cityjson-threejs-loader/pull/13
                 this._availableLods = parser.lods;
 
                 // Find the "best" LoD
@@ -248,7 +246,6 @@ export default class CityJSONEntity
 
     pickFeaturesFrom(pickedResult: CityJSONPickResult): CityJSONFeature[] {
         const { object } = pickedResult;
-        // @ts-expect-error - resolveIntersectionInfo typing is broken
         const cityjsonInfo = object.resolveIntersectionInfo(
             pickedResult,
         ) as CityJSONIntersectionInfo;
