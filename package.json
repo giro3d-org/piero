@@ -50,7 +50,7 @@
         "lint": "npm run lint-eslint && npm run lint-prettier && npm run lint-markdownlint",
         "serve": "npm run build -- --base 'http://localhost:8080' && vite preview --port 8080",
         "start": "vite --port 8080",
-        "test": "npm run lint",
+        "test": "vitest",
         "prepare": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm public/laz-perf.wasm && husky"
     },
     "dependencies": {
