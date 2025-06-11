@@ -39,7 +39,7 @@
     "homepage": "https://piero.giro3d.org/",
     "private": true,
     "scripts": {
-        "build": "vue-tsc && vite build",
+        "build": "NODE_OPTIONS=--max-old-space-size=8192 vue-tsc && NODE_OPTIONS=--max-old-space-size=8192 vite build",
         "format-eslint": "eslint . --fix --ignore-path .gitignore",
         "format-prettier": "prettier --write .",
         "format-markdownlint": "markdownlint . --fix --ignore-path .gitignore",
