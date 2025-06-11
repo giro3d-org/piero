@@ -26,11 +26,6 @@ try {
 
 console.log(`📦️ Building Piero at ${commitHash}`);
 
-const openbimComponentsChunks = {
-    // Big libs, put them in their own chunks
-    'web-ifc': 'web-ifc',
-};
-
 const homepages = {
     'camera-controls': 'https://github.com/yomotsu/camera-controls',
     'openbim-components': 'https://ifcjs.github.io/components/',
@@ -91,45 +86,32 @@ const config = defineConfig(({ mode }) => {
             exclude: ['cityjson-threejs-loader'],
         },
         build: {
-            sourcemap: false,
+            sourcemap: true,
+            minify: false,
+
             rollupOptions: {
                 output: {
+                    // Chunkin serves two purposes:
+                    // 1. At build time, reduce the amount of memory required, since by default Rollup
+                    //    will attempt to generate a single, huge chunk, which will require a lot of memory.
+                    // 2. At runtime, split the total data to download into manageable chunks so that browser
+                    //    can load them in parallel.
+                    //
+                    // However, chunking has its own drawbacks, such as subtly changing the behaviour of the application
+                    // and even break at runtime. The rollup doc says:
+                    // "Be aware that manual chunks can change the behaviour of the application if side
+                    // effects are triggered before the corresponding modules are actually used."
+                    // https://rollupjs.org/configuration-options/#output-manualchunks
+                    //
+                    // So we have to find the right chunking method to avoid those runtime issues.
+                    // But since the dependencies change with versions, we have to re-test and update
+                    // the chunking strategy.
                     manualChunks: function manualChunks(id) {
-                        // By default, Vite/Rollup tries to generate one big chunk with mostly everything.
-                        // It takes a lot of memory to do so (breaks when building on small VMs, e.g. 4GB of RAM), and produces a huge chunk.
-                        // Here we generate one chunk:
-                        // - per node_module (except for openbim-components which is splitted)
-                        // - for the app itself
-                        // This ends up generating _a lot_ of chunks (>120), but each are quite small.
-                        // We could try to regroup some of them into larger chunks, but:
-                        // - having that many chunks is not that bad when using HTTP2,
-                        // - we'd need to carefully craft the chunks to check their size and avoid bundling errors like
-                        //   "ReferenceError: can't access lexical declaration 'ma' before initialization"
-                        // - we also have a production build that is closer to the development build
-
                         if (id.includes('node_modules')) {
-                            const paths = id.split('/'); // TODO: check on windows - might not work?
-                            const i = paths.indexOf('node_modules');
-                            const npm_module = paths.at(i + 1);
-
-                            if (npm_module === 'openbim-components') {
-                                // Very large (3,806.30 kB │ gzip: 649.38 kB) and includes the whole universe, including three AGAIN
-                                // So chunk it
-                                const openbim_path = paths.at(i + 2);
-                                if (openbim_path === 'node_modules') {
-                                    // And go a step further...
-                                    const openbim_modules_path = paths.at(i + 3);
-                                    if (openbim_modules_path in openbimComponentsChunks) {
-                                        return `${npm_module}-${openbimComponentsChunks[openbim_modules_path]}`;
-                                    }
-                                }
-                                return npm_module;
-                            }
-
-                            return npm_module;
-                        } else if (id.includes('/src/')) {
-                            return 'app';
+                            return 'vendor';
                         }
+
+                        return null;
                     },
                 },
             },
