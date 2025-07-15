@@ -1,14 +1,13 @@
 <script setup lang="ts">
-    import { defineAsyncComponent } from 'vue';
     import type { PanelType } from './Configuration';
     import getConfigurationPanels from './Configuration';
 
-    const DatasetPanel = defineAsyncComponent(() => import('./panels/DatasetPanel.vue'));
-    const AboutPanel = defineAsyncComponent(() => import('./panels/AboutPanel.vue'));
-    const BookmarkPanel = defineAsyncComponent(() => import('./panels/BookmarkPanel.vue'));
-    const AnalysisPanel = defineAsyncComponent(() => import('./panels/AnalysisPanel.vue'));
-    const AnnotationPanel = defineAsyncComponent(() => import('./panels/AnnotationPanel.vue'));
-    const MeasurementPanel = defineAsyncComponent(() => import('./panels/MeasurementPanel.vue'));
+    import AboutPanel from './panels/AboutPanel.vue';
+    import AnalysisPanel from './panels/AnalysisPanel.vue';
+    import AnnotationPanel from './panels/AnnotationPanel.vue';
+    import BookmarkPanel from './panels/BookmarkPanel.vue';
+    import DatasetPanel from './panels/DatasetPanel.vue';
+    import MeasurementPanel from './panels/MeasurementPanel.vue';
 
     defineProps<{
         /**

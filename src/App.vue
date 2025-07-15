@@ -12,19 +12,18 @@
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import Extent from '@giro3d/giro3d/core/geographic/Extent';
     import { Vector2, Vector3 } from 'three';
-    import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue';
+    import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
     import AlertToast from './components/AlertToast.vue';
+    import AttributePanel from './components/AttributePanel.vue';
     import type { PanelType } from './components/Configuration';
     import MainView from './components/MainView.vue';
     import MinimapView from './components/MinimapView.vue';
     import NavigationButtons from './components/NavigationButtons.vue';
+    import PanelContainer from './components/PanelContainer.vue';
     import ProgressBar from './components/ProgressBar.vue';
     import SearchOverlay from './components/SearchOverlay.vue';
     import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
-
-    const AttributePanel = defineAsyncComponent(() => import('./components/AttributePanel.vue'));
-    const PanelContainer = defineAsyncComponent(() => import('./components/PanelContainer.vue'));
 
     const selectedTool = ref<PanelType | null>('datasets');
     const progress = ref(1);
