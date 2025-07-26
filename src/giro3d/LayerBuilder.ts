@@ -61,6 +61,7 @@ import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
+import type { MagnificationTextureFilter, MinificationTextureFilter } from 'three';
 
 /**
  * Creates a WMTS source for Giro3D based on the GetCapabilities response
@@ -379,6 +380,13 @@ async function getLayerOptions(
     const colorMap = colorMapConfig ? getColorMap(colorMapConfig) : undefined;
     const resolution = 'resolution' in layer.source ? layer.source.resolution : undefined;
 
+    let minFilter: MinificationTextureFilter | undefined = undefined;
+    let magFilter: MagnificationTextureFilter | undefined = undefined;
+    if ('type' in layer && layer.type === 'color') {
+        minFilter = layer.options.minFilter;
+        magFilter = layer.options.magFilter;
+    }
+
     return {
         name: layer.name,
         source,
@@ -391,6 +399,8 @@ async function getLayerOptions(
         backgroundColor: options.backgroundColor,
         resolutionFactor: resolution,
         noDataOptions: options.noDataOptions,
+        minFilter,
+        magFilter,
     };
 }
 
@@ -407,6 +417,8 @@ async function getOverlay(overlay: Overlay, extent: Extent): Promise<ColorLayer>
         extent,
         ...commonOptions,
         elevationRange: opts.elevationRange,
+        minFilter: opts.minFilter,
+        magFilter: opts.magFilter,
     });
 }
 
@@ -422,6 +434,8 @@ async function getLayer(basemap: BaseLayer): Promise<BasemapLayer> {
             const opts = basemap.options as BaseLayerOptions<ElevationLayerConfig>;
             return new ElevationLayer({
                 ...commonOptions,
+                minFilter: opts.minFilter,
+                magFilter: opts.magFilter,
                 minmax: opts.minmax ?? { min: 0, max: 5000 },
                 noDataOptions: {
                     replaceNoData: false,
@@ -461,6 +475,8 @@ async function getDatasetLayer(
             return new ColorLayer({
                 ...commonOptions,
                 elevationRange: cfg.elevationRange,
+                minFilter: cfg.minFilter,
+                magFilter: cfg.magFilter,
             });
         }
         case 'maskLayer': {
