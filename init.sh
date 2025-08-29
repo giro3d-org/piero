@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-npm --silent install
+npm --silent install --force
 cp -n ./src/config.ts.sample ./src/config.ts
 cp -n ./src/styles.ts.sample ./src/styles.ts
 

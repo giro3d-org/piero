@@ -19,6 +19,8 @@
 
 ![Piero application](graphics/screenshots/piero-app.webp)
 
+[TOC]
+
 ---
 
 ## Bring Your Own Data
@@ -115,9 +117,13 @@ cd piero
 On compatible platforms, you can use the `init.sh` script to initialize the configuration; otherwise initialize it manually:
 
 1. Install npm dependencies
+
     ```sh
-     npm install
+     npm install --force
     ```
+
+    `--force` is required until issue #87 gets resolved.
+
 2. Copy the default app configuration
     ```sh
      cp src/config.ts.sample src/config.ts
