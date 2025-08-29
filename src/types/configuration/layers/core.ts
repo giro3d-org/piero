@@ -20,6 +20,8 @@ export interface LayerConfigMixin
         | 'noDataOptions'
         | 'preloadImages'
         | 'resolutionFactor'
+        | 'minFilter'
+        | 'magFilter'
     > {
     /** Restrict the extent of the data */
     extent?: GeoExtent;
@@ -47,7 +49,7 @@ export interface LayerConfigBase<TLayerType extends string> extends LayerConfigM
 
 /** Mixin configuration for color layer options */
 export interface ColorLayerConfigMixin
-    extends Pick<ColorLayerOptions, 'elevationRange' | 'opacity'> {}
+    extends Pick<ColorLayerOptions, 'elevationRange' | 'opacity' | 'minFilter' | 'magFilter'> {}
 /** Mixin configuration for elevation layer options */
 export interface ElevationLayerConfigMixin extends Pick<ElevationLayerOptions, 'minmax'> {}
 /** Mixin configuration for mask layer options */

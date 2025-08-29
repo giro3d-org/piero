@@ -36,7 +36,7 @@ export interface LayerConfigMixin
 
 /** Mixin configuration for color layer options */
 export interface ColorLayerConfigMixin
-    extends Pick<ColorLayerOptions, 'elevationRange' | 'opacity'> {}
+    extends Pick<ColorLayerOptions, 'elevationRange' | 'opacity' | 'minFilter' | 'magFilter'> {}
 /** Mixin configuration for elevation layer options */
 export interface ElevationLayerConfigMixin extends Pick<ElevationLayerOptions, 'minmax'> {}
 /** Mixin configuration for mask layer options */
