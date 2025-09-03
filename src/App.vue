@@ -16,6 +16,7 @@
     import AlertToast from './components/AlertToast.vue';
     import AttributePanel from './components/AttributePanel.vue';
     import type { PanelType } from './components/Configuration';
+    import LoadingScreen from './components/LoadingScreen.vue';
     import MainView from './components/MainView.vue';
     import MinimapView from './components/MinimapView.vue';
     import NavigationButtons from './components/NavigationButtons.vue';
@@ -32,6 +33,7 @@
     const pickedFeature = ref<Feature | null>(null);
     const tooltip = ref<string | null>(null);
     const isLoading = ref(false);
+    const showLoadingScreen = ref(true);
     let hasMovedDuringFrame = false;
 
     const giro3dStore = useGiro3dStore();
@@ -83,15 +85,12 @@
             }
         }, 50);
 
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-            if (import.meta.env.PROD) {
-                loadingScreen.style.transition = 'opacity 1s linear';
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => loadingScreen.remove(), 1000);
-            } else {
-                loadingScreen.remove();
-            }
+        if (import.meta.env.PROD) {
+            setTimeout(() => {
+                showLoadingScreen.value = false;
+            }, 1000);
+        } else {
+            showLoadingScreen.value = false;
         }
     });
 
@@ -246,6 +245,7 @@
 </script>
 
 <template>
+    <LoadingScreen v-if="showLoadingScreen" />
     <MainView
         id="main-view"
         @click="evt => pick(evt, true)"
