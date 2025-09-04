@@ -1,19 +1,17 @@
 {
     "compilerOptions": {
-        "target": "ES2021",
+        "target": "ES2022",
         "module": "ESNext",
-        "lib": ["ES2021", "DOM", "DOM.Iterable"],
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "skipLibCheck": true,
         "allowJs": true,
         "checkJs": true,
 
         /* Bundler mode */
         "moduleResolution": "node",
-        "allowImportingTsExtensions": true,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "noEmit": true,
         "jsx": "preserve",
         "esModuleInterop": true,
 
@@ -21,9 +19,10 @@
         "strict": true,
 
         "paths": {
-            "@/*": ["./src/*"]
+            "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly
+            "@giro3d/piero/*": ["./packages/piero/src/*"]
         }
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+    "include": ["*.ts"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

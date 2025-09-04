@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "emitDeclarationOnly": true,
+
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+
+        "outDir": "dist"
+    },
+    "extends": "../../tsconfig.json",
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "../../env.d.ts"]
+}

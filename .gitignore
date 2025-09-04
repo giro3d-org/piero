@@ -7,8 +7,8 @@ dist
 .env.local
 
 # App config
-src/config.ts
-src/styles.ts
+config.ts
+styles.ts
 
 # App apidoc
 apidoc/
