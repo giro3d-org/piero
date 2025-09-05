@@ -5,17 +5,6 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-// TODO
-// type PackageJson = {
-//     name: string;
-//     homepage?: string;
-//     repository?:
-//         | string
-//         | {
-//               url: string;
-//           };
-// };
-
 let commitHash = 'unknown';
 try {
     commitHash = child_process.execSync('git describe --tags --always').toString();
@@ -24,51 +13,6 @@ try {
 }
 
 console.log(`📦️ Building Piero at ${commitHash}`);
-
-// TODO
-// const homepages = {
-//     'camera-controls': 'https://github.com/yomotsu/camera-controls',
-//     'openbim-components': 'https://ifcjs.github.io/components/',
-//     'web-ifc': 'https://ifcjs.github.io/web-ifc/docs/',
-// };
-
-// TODO
-// function getHomepage(packageJson: PackageJson): string | undefined {
-//     if (homepages[packageJson.name] != null) {
-//         return homepages[packageJson.name];
-//     }
-//     if (packageJson.homepage != null) {
-//         return packageJson.homepage;
-//     }
-//     if (packageJson.repository != null) {
-//         if (typeof packageJson.repository === 'string') {
-//             if (packageJson.repository.startsWith('github')) {
-//                 return 'https://github.com/' + packageJson.repository.split(':')[1];
-//             } else if (packageJson.repository.startsWith('gitlab')) {
-//                 return 'https://gitlab.com/' + packageJson.repository.split(':')[1];
-//             } else if (packageJson.repository.startsWith('http')) {
-//                 return packageJson.repository;
-//             } else {
-//                 return undefined;
-//             }
-//         } else {
-//             return packageJson.repository.url.replace('.git', '');
-//         }
-//     }
-//     return undefined;
-// }
-
-// TODO
-// const dependencies = {};
-// for (const pkg of Object.keys(pkgConfig.dependencies)) {
-//     const packageFilePath = path.join(__dirname, 'node_modules', pkg, 'package.json');
-//     const packageJson = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
-//     dependencies[packageJson.name] = {
-//         description: packageJson.description,
-//         license: packageJson.license,
-//         homepage: getHomepage(packageJson),
-//     };
-// }
 
 // https://vitejs.dev/config/
 const config = defineConfig(({ mode }) => {
@@ -91,6 +35,8 @@ const config = defineConfig(({ mode }) => {
         build: {
             sourcemap: true,
             minify: false,
+
+            outDir: 'dist',
 
             rollupOptions: {
                 output: {
