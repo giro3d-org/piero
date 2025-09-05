@@ -39,7 +39,7 @@ build:
 pages:
     stage: publish
     rules:
-        - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release"
+        - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release
           variables:
               ENVIRONMENT_NAME: $CI_COMMIT_TAG
         - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
