@@ -82,7 +82,6 @@
         "pinia": "^2.1.7",
         "proj4": "^2.9.0",
         "shepherd.js": "^11.2.0",
-        "shx": "^0.3.4",
         "three": "^0.170.0",
         "three.meshline": "^1.4.0",
         "regenerator-runtime": "^0.14.1",
