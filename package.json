@@ -1,7 +1,7 @@
 {
     "name": "piero",
     "type": "module",
-    "version": "24.10.0",
+    "version": "25.10.0",
     "workspaces": [
         "./",
         "packages/piero"
