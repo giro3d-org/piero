@@ -14,13 +14,15 @@
         "isolatedModules": true,
         "jsx": "preserve",
         "esModuleInterop": true,
+        "noEmit": true,
 
         /* Linting */
         "strict": true,
 
         "paths": {
             "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly
-            "@giro3d/piero/*": ["./packages/piero/src/*"]
+            "@giro3d/piero/*": ["./packages/piero/src/*"],
+            "@/*": ["./packages/piero/src/*"]
         }
     },
     "include": ["*.ts"],

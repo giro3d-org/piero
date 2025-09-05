@@ -8,7 +8,7 @@
     ],
     "private": true,
     "scripts": {
-        "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build && vue-tsc",
+        "build": "vue-tsc && NODE_OPTIONS=--max-old-space-size=8192 vite build",
         "build:library": "npm run build --workspace=packages/piero",
         "make-package": "npm run make-package --workspace=packages/piero",
         "format-eslint": "eslint . --fix --ignore-path .gitignore",

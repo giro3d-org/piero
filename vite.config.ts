@@ -17,6 +17,7 @@ console.log(`📦️ Building Piero at ${commitHash}`);
 // https://vitejs.dev/config/
 const config = defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
+    const isProduction = mode === 'production';
 
     return {
         define: {
@@ -33,8 +34,8 @@ const config = defineConfig(({ mode }) => {
             exclude: ['cityjson-threejs-loader'],
         },
         build: {
-            sourcemap: true,
-            minify: false,
+            sourcemap: !isProduction,
+            minify: isProduction,
 
             outDir: 'dist',
 
