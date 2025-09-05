@@ -25,3 +25,5 @@ public/geojson
 public/ifc
 public/ply
 public/shp
+
+*.tgz
