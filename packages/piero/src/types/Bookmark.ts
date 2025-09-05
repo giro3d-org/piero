@@ -13,7 +13,7 @@ export type SerializedBookmark = {
     url: string;
 };
 
-type BookmarkEventMap = {
+export type BookmarkEventMap = {
     delete: {
         /** empty */
     };
