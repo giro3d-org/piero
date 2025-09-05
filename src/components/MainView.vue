@@ -44,8 +44,7 @@
         }
         store.setMainView(null);
         if (instance.value) {
-            // @ts-expect-error Giro3D Instance API doesn't support setting it to undefined, but it works and is necessary before disposing
-            instance.value.controls = undefined;
+            instance.value.view.setControls(null);
             instance.value.dispose();
         }
     });
