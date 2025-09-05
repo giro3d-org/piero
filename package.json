@@ -9,6 +9,7 @@
     "private": true,
     "scripts": {
         "build:library": "npm run build --workspace=packages/piero",
+        "make-package": "npm run make-package --workspace=packages/piero",
         "format-eslint": "eslint . --fix --ignore-path .gitignore",
         "format-prettier": "prettier --write .",
         "format-markdownlint": "markdownlint . --fix --ignore-path .gitignore",
