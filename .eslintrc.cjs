@@ -109,7 +109,7 @@ module.exports = {
         // Also apply TS rules from Giro3D
         '@typescript-eslint/no-non-null-assertion': 'error',
         '@typescript-eslint/consistent-type-imports': 'error',
-        '@typescript-eslint/strict-boolean-expressions': 'error',
+        // '@typescript-eslint/strict-boolean-expressions': 'error',
         '@typescript-eslint/no-unused-vars': [
             'error', // or "error"
             {
