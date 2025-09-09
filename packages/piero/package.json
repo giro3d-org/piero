@@ -1,0 +1,96 @@
+{
+    "name": "@giro3d/piero",
+    "type": "module",
+    "version": "25.10.0-alpha.0",
+    "description": "A web application for 3D geospatial data visualization, powered by Giro3D",
+    "keywords": [
+        "front-end",
+        "web",
+        "framework",
+        "webgl",
+        "webgl2",
+        "geography",
+        "gis",
+        "geospatial",
+        "3d",
+        "3D",
+        "three",
+        "three.js",
+        "openlayers",
+        "map",
+        "layer",
+        "visualization",
+        "pointcloud",
+        "3dtiles",
+        "raster",
+        "vector",
+        "geojson",
+        "geometry",
+        "giro3d"
+    ],
+    "types": "dist/index.d.ts",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.es.js",
+    "exports": {
+        ".": {
+            "import": "./dist/index.es.js",
+            "require": "./dist/index.cjs.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./modules": {
+            "import": "./dist/modules.es.js",
+            "require": "./dist/modules.cjs.js",
+            "types": "./dist/modules.d.ts"
+        },
+        "./piero.css": "./dist/assets/style.css"
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": [
+        "**/*.css"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/giro3d/piero.git"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://gitlab.com/giro3d/piero/-/issues"
+    },
+    "homepage": "https://piero.giro3d.org/",
+    "scripts": {
+        "prepublishOnly": "npm run build-library",
+        "build-library": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
+        "package-library": "npm run build-library && npm pack"
+    },
+    "peerDependencies": {
+        "vue": "^3.4.20",
+        "@giro3d/giro3d": "^0.43.0",
+        "ol": "^9.2.4",
+        "three": "^0.170.0"
+    },
+    "dependencies": {
+        "@loaders.gl/core": "^4.1.1",
+        "@loaders.gl/csv": "^4.1.1",
+        "@loaders.gl/geopackage": "^4.1.1",
+        "@loaders.gl/las": "^4.1.1",
+        "@loaders.gl/shapefile": "^4.1.1",
+        "@popperjs/core": "^2.11.8",
+        "@tarekraafat/autocomplete.js": "^10.2.7",
+        "openbim-components": "1.1.5",
+        "web-ifc": "^0.0.44",
+        "bootstrap": "^5.3.3",
+        "cityjson-threejs-loader": "github:cityjson/cityjson-threejs-loader",
+        "bootstrap-icons": "^1.11.3",
+        "camera-controls": "^2.10.1",
+        "chart.js": "^3.9.1",
+        "chroma-js": "^2.4.2",
+        "d3-dsv": "^1.2.0",
+        "font-gis": "^1.0.5",
+        "pinia": "^2.1.7",
+        "proj4": "^2.9.0",
+        "shepherd.js": "^11.2.0",
+        "regenerator-runtime": "^0.14.1"
+    }
+}

@@ -1,21 +1,25 @@
 # Piero Configuration
 
-Piero can be customized via two files:
+Piero can be customized via configuration files and modules.
 
-- `src/config.ts` for the app configuration,
-- `src/styles.ts` for the overlay styles.
+## Configuration files
 
-Sample configuration are available at [`src/config.ts.sample`](src/config.ts.sample) and [`src/styles.ts.sample`](src/styles.ts.sample).
+Configuration files are:
+
+- `config.ts` for the app configuration,
+- `styles.ts` for the overlay styles.
+
+Sample configuration are available at [`config.ts.sample`](config.ts.sample) and [`styles.ts.sample`](styles.ts.sample).
 
 When changing these files, you'll need to rebuild and redeploy your app.
 
-## `config.ts`
+### `config.ts`
 
 The file **must** follow this pattern:
 
 ```typescript
 // Import Configuration typing
-import { Configuration } from './types/Configuration';
+import type { Configuration } from '@giro3d/piero';
 
 // Define configuration
 const config: Configuration = {
@@ -26,7 +30,7 @@ const config: Configuration = {
 export default config;
 ```
 
-The documentation of the configuration fields is defined in the TypeScript types of [`src/types/Configuration.ts`](src/types/Configuration.ts); your IDE should be able to guide you. The sample configuration is a good starting point.
+The documentation of the configuration fields is defined in the TypeScript types of [`packages/piero/src/types/Configuration.ts`](packages/piero/src/types/Configuration.ts); your IDE should be able to guide you. The sample configuration is a good starting point.
 
 To tweak your app, chances are you will first want to:
 
@@ -47,13 +51,13 @@ When defining layers and datasets, you can unleash Giro3D's advanced features vi
 npx typedoc && npx http-server apidoc/
 ```
 
-### Remote config
+#### Remote config
 
 When running Piero, you can also load remote configurations defined as JSON files instead of the default configuration from `config.ts`. The content of the JSON configuration file is basically the same as the definition of the `config` variable in the `config.ts`.
 
 Pass a `config` parameter in the app to use the remote config instead of the default one, e.g.: `http://localhost:8080/?config=http://example.com/config.json`.
 
-## `styles.ts`
+### `styles.ts`
 
 The file **must** follow this pattern:
 
@@ -76,3 +80,31 @@ export default styles;
 Each style consists in a key (that can be referenced in overlays) and a OpenLayer-like [StyleFunction](https://openlayers.org/en/v8.1.0/apidoc/module-ol_style_Style.html#~StyleFunction).
 
 Such styles can be used to tweak the style based on properties of each feature.
+
+## Modules
+
+_Modules_ can extend functionality of Piero. To register modules with Piero, you must create your own web app that uses the Piero _library_ (`@giro3d/piero`).
+
+The entry point of the library is [`createPieroApp()`](packages/piero/src/createPieroApp.ts). It allows injecting custom modules as well as the configuration.
+
+> [!note]
+> You can refer to [`main.ts`](main.ts) for more information on how to use Piero as a library.
+
+### Module implementation
+
+Modules interact with the application through interfaces defined in the `PieroContext` that is injected when the module is initialized.
+
+```ts
+import type { Module, PieroContext } from '@giro3d/piero';
+
+class MyCustomModule implements Module {
+    name = 'My custom module';
+
+    initialize(context: PieroContext): void {
+        console.log('initialized !');
+    }
+}
+```
+
+> [!warning]
+> Although technically possible to interact with the application using other means (such as direct import of Pinia stores), this is discouraged as only the `PieroContext` is the official stable API.
