@@ -38,6 +38,11 @@
             datasets.importFromFile(file);
         }
     }
+
+    function importDatasetFromUrl(): void {
+        const url = document.getElementById('dataset-import-url') as HTMLInputElement;
+        datasets.importFromFile(url.value);
+    }
 </script>
 
 <template>
@@ -116,6 +121,25 @@
         </div>
 
         <ButtonArea>
+            <div class="input-group mb-3">
+                <input
+                    type="text"
+                    id="dataset-import-url"
+                    class="form-control"
+                    placeholder="https://"
+                    aria-label="URL to import"
+                    aria-describedby="button-dataset-import-url"
+                />
+                <button
+                    @click="importDatasetFromUrl"
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="button-dataset-import-url"
+                >
+                    Import URL
+                </button>
+            </div>
+
             <ImportButton title="Import file" text="Import file" @import="importDataset" />
         </ButtonArea>
     </div>

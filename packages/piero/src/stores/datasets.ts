@@ -107,7 +107,7 @@ export const useDatasetStore = defineStore('datasets', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importFromFile(file: File): void {
+    function importFromFile(file: File | string): void {
         // Nothing to do, rely on action listeners.
     }
 

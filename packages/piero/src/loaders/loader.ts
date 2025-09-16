@@ -2,13 +2,14 @@ import type { Configuration } from '@/types/Configuration';
 import type { DatasetConfigImportable } from '@/types/configuration/datasets';
 
 import { Dataset } from '@/types/Dataset';
+import { getPublicFolderUrl } from '@/utils/Configuration';
 
 import * as csv from './csv';
 import * as las from './las';
 import * as vector from './vector';
 
 export type LoaderContext = {
-    file: File;
+    file: File | string;
     extension: string;
     filename: string;
     configuration: Configuration;
@@ -50,23 +51,48 @@ export function registerLoader(fileExtension: string, loader: LoadDatasetFromFil
 /**
  * Gets the filename and extension from a File or URL
  *
- * @param file - File or URL
+ * @param fileOrUrl - File or URL
  * @returns File name and extension
  */
-function getLoaderContext(file: File, config: Configuration): LoaderContext {
-    if (file.name == null) {
+function getLoaderContext(fileOrUrl: File | string, config: Configuration): LoaderContext {
+    if (typeof fileOrUrl === 'string') {
+        const absoluteUrl = getPublicFolderUrl(fileOrUrl);
+        const url = new URL(absoluteUrl);
+        const baseUrl = `${url.origin}${url.pathname}`;
+        const parts = baseUrl.split('/');
+        const filename = parts.pop();
+
+        if (filename == null) {
+            throw new Error('Could not determine filename');
+        }
+
+        const extension = filename.split('.').at(-1);
+
+        if (extension == null) {
+            throw new Error(`File has no extension: ${filename}`);
+        }
+
+        return {
+            file: fileOrUrl,
+            filename,
+            configuration: config,
+            extension,
+        };
+    }
+
+    if (fileOrUrl.name == null) {
         throw new Error('Could not determine filename');
     }
 
-    const extension = file.name.split('.').at(-1);
+    const extension = fileOrUrl.name.split('.').at(-1);
 
     if (extension == null) {
-        throw new Error(`File has no extension: ${file.name}`);
+        throw new Error(`File has no extension: ${fileOrUrl.name}`);
     }
 
     return {
-        file,
-        filename: file.name,
+        file: fileOrUrl,
+        filename: fileOrUrl.name,
         configuration: config,
         extension,
     };
@@ -90,12 +116,15 @@ function selectLoader(filename: string): LoadDatasetFromFile | null {
 /**
  * Loads a file and creates its Dataset.
  *
- * @param file - File to load
+ * @param fileOrUrl - File to load
  * @returns Created objects
  * @throws `Error` if file cannot be imported (unsupported, etc.)
  */
-async function importFile(file: File, config: Readonly<Configuration>): Promise<Dataset> {
-    const context = getLoaderContext(file, config);
+async function importFile(
+    fileOrUrl: File | string,
+    config: Readonly<Configuration>,
+): Promise<Dataset> {
+    const context = getLoaderContext(fileOrUrl, config);
 
     const loader = selectLoader(context.filename);
 
