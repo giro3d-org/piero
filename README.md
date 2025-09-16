@@ -126,8 +126,8 @@ On compatible platforms, you can use the `init.sh` script to initialize the conf
 
 2. Copy the default app configuration
     ```sh
-     cp src/config.ts.sample src/config.ts
-     cp src/styles.ts.sample src/styles.ts
+     cp config.ts.sample config.ts
+     cp styles.ts.sample styles.ts
     ```
 
 If you want to learn more about the configuration, head up to [its documentation](./CONFIGURATION.md).
