@@ -180,6 +180,7 @@ export default class CityJSONEntity
                 }
 
                 const m = loader.matrix.toArray();
+                const translate = json.transform?.translate ?? [-m[12], -m[13], z];
                 const projection =
                     json?.metadata?.referenceSystem ??
                     this.source.dataProjection ??
@@ -187,7 +188,7 @@ export default class CityJSONEntity
 
                 const proj = await Projections.loadProjCrsIfNeeded(projection);
                 if (proj) {
-                    const coords = new Coordinates(proj, -m[12], -m[13], z);
+                    const coords = new Coordinates(proj, translate[0], translate[1], translate[2]);
                     const coordsReference = coords.as(this.source.featureProjection);
                     loader.scene.position.set(
                         coordsReference.values[0],
@@ -195,7 +196,7 @@ export default class CityJSONEntity
                         coordsReference.values[2],
                     );
                 } else {
-                    loader.scene.position.set(-m[12], -m[13], z);
+                    loader.scene.position.set(translate[0], translate[1], translate[2]);
                 }
                 loader.scene.updateMatrix();
                 loader.scene.updateMatrixWorld(true);
