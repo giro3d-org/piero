@@ -1,4 +1,5 @@
 import type { SourceConfigUrlMixin } from '@/types/configuration/sources/core/baseConfig';
+
 import type { DatasetConfigBase, DatasetSourceConfigBase } from './core';
 
 /** Potree PointCloud source configuration */

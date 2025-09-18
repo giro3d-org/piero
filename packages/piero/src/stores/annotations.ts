@@ -1,7 +1,8 @@
-import type Annotation from '@/types/Annotation';
-import type AnnotationMode from '@/types/AnnotationMode';
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
+
+import type Annotation from '@/types/Annotation';
+import type AnnotationMode from '@/types/AnnotationMode';
 
 export const useAnnotationStore = defineStore('annotations', () => {
     const annotations = reactive<Annotation[]>([]) as Annotation[];
@@ -22,15 +23,15 @@ export const useAnnotationStore = defineStore('annotations', () => {
         _showLabels.value = v;
     }
 
-    function setIsUserDrawing(value: boolean) {
+    function setIsUserDrawing(value: boolean): void {
         _isUserDrawing.value = value;
     }
 
-    function getAnnotationMode() {
+    function getAnnotationMode(): AnnotationMode {
         return annotationMode.value;
     }
 
-    function setAnnotationMode(mode: AnnotationMode) {
+    function setAnnotationMode(mode: AnnotationMode): void {
         annotationMode.value = mode;
     }
 
@@ -38,46 +39,46 @@ export const useAnnotationStore = defineStore('annotations', () => {
         return annotations;
     }
 
-    function remove(annotation: Annotation) {
+    function remove(annotation: Annotation): void {
         annotations.splice(annotations.indexOf(annotation), 1);
     }
 
-    function createPoint() {
+    function createPoint(): void {
         // Nothing to do.
     }
 
-    function createLine() {
+    function createLine(): void {
         // Nothing to do.
     }
 
-    function createPolygon() {
+    function createPolygon(): void {
         // Nothing to do.
     }
 
-    function add(annotation: Annotation) {
+    function add(annotation: Annotation): void {
         annotations.push(annotation);
     }
 
-    function hasAnnotation(name: string) {
+    function hasAnnotation(name: string): boolean {
         return annotations.some(m => m.title === name);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function edit(annotation: Annotation) {
+    function edit(annotation: Annotation): void {
         // Nothing to do.
     }
 
-    function stopEdition() {
+    function stopEdition(): void {
         // Nothing to do.
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importAnnotationFile(file: Blob) {
+    function importAnnotationFile(file: Blob): void {
         // Nothing to do
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importAnnotationsFiles(files: File[]) {
+    function importAnnotationsFiles(files: File[]): void {
         // Nothing to do
     }
 

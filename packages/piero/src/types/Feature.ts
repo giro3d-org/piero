@@ -7,12 +7,12 @@ export interface Attribute {
 export type AttributesGroups = Map<string, Attribute[]>;
 
 export default class Feature {
-    readonly name: string;
-    readonly attributes: AttributesGroups;
-    readonly parent: string;
-    readonly point: Vector3;
+    public readonly name: string;
+    public readonly attributes: AttributesGroups;
+    public readonly parent: string;
+    public readonly point: Vector3;
 
-    constructor(name: string, parent: string, attributes: AttributesGroups, point: Vector3) {
+    public constructor(name: string, parent: string, attributes: AttributesGroups, point: Vector3) {
         this.name = name;
         this.parent = parent;
         this.attributes = attributes;

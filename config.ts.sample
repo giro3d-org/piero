@@ -157,7 +157,7 @@ const config: Configuration = {
             name: 'Fountains (GML)',
             type: 'vector',
             rendering: 'label',
-            text: feature => {
+            text: (feature): string => {
                 return feature.get('gid');
             },
             source: {

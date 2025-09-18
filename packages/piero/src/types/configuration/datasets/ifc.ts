@@ -1,5 +1,6 @@
 import type { UrlOrDataMixin } from '@/giro3d/sources/mixins';
 import type { SourceConfigLocationMixin } from '@/types/configuration/sources/core/baseConfig';
+
 import type { DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
 
 /** IFC source configuration */

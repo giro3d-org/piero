@@ -3,12 +3,12 @@ import { Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
 const DEFAULT_HEIGHT = 170;
 
 export default class FloodingPlane {
-    geometry: PlaneGeometry;
-    material: MeshBasicMaterial;
-    object3D: Mesh<PlaneGeometry, MeshBasicMaterial>;
+    public geometry: PlaneGeometry;
+    public material: MeshBasicMaterial;
+    public object3D: Mesh<PlaneGeometry, MeshBasicMaterial>;
     private _height: number;
 
-    constructor() {
+    public constructor() {
         this.geometry = new PlaneGeometry(1, 1, 1, 1);
         this.material = new MeshBasicMaterial({ color: 0x00aaaa, transparent: true, opacity: 0.5 });
         this.object3D = new Mesh(this.geometry, this.material);
@@ -17,31 +17,31 @@ export default class FloodingPlane {
         this._height = DEFAULT_HEIGHT;
     }
 
-    dispose() {
+    public dispose(): void {
         this.object3D.removeFromParent();
         this.geometry.dispose();
         this.material.dispose();
     }
 
-    set height(z) {
+    public set height(z: number) {
         this._height = z;
     }
 
-    setPosition(x: number, y: number, z: number, width: number, height: number) {
+    public setPosition(x: number, y: number, z: number, width: number, height: number): void {
         this.object3D.scale.set(width, height, 1);
         this.object3D.position.set(x, y, z);
         this.object3D.updateMatrixWorld();
     }
 
-    get height() {
+    public get height(): number {
         return this._height;
     }
 
-    set visible(v) {
+    public set visible(v: boolean) {
         this.object3D.visible = v;
     }
 
-    get visible() {
+    public get visible(): boolean {
         return this.object3D.visible;
     }
 }

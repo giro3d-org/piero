@@ -1,15 +1,18 @@
-import Measure3D from '@/giro3d/Measure3D';
+import type Instance from '@giro3d/giro3d/core/Instance';
+
+import { MathUtils, Vector3 } from 'three';
+
 import type CameraController from '@/services/CameraController';
-import MeasureTool from '@/services/MeasureTool';
 import type Picker from '@/services/Picker';
+
+import Measure3D from '@/giro3d/Measure3D';
+import MeasureTool from '@/services/MeasureTool';
 import { useMeasurementStore } from '@/stores/measurement';
 import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/types/Measure';
 import Notification from '@/types/Notification';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import { MathUtils, Vector3 } from 'three';
 
-function promptTitle(defaultValue: string) {
+function promptTitle(defaultValue: string): string | null {
     return window.prompt('Measure name', defaultValue);
 }
 
@@ -26,13 +29,17 @@ export default class MeasurementManager {
     private readonly _boundMeasure: (e: MouseEvent) => void;
     private readonly _boundSaveMeasure: (e: MouseEvent) => void;
 
-    constructor(instance: Instance, camera: CameraController, picker: Picker) {
+    public constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this._instance = instance;
         this._measureTool = new MeasureTool(picker);
         this._camera = camera;
 
-        this._boundPause = () => (this._paused = true);
-        this._boundRestart = () => (this._paused = false);
+        this._boundPause = (): void => {
+            this._paused = true;
+        };
+        this._boundRestart = (): void => {
+            this._paused = false;
+        };
         this._camera.addEventListener('interaction-start', this._boundPause);
         this._camera.addEventListener('interaction-end', this._boundRestart);
 
@@ -67,7 +74,7 @@ export default class MeasurementManager {
         this._instance.domElement.addEventListener('click', this._boundSaveMeasure);
     }
 
-    dispose() {
+    public dispose(): void {
         this._instance.domElement.removeEventListener('mousemove', this._boundMeasure);
         this._instance.domElement.removeEventListener('click', this._boundSaveMeasure);
 
@@ -79,29 +86,29 @@ export default class MeasurementManager {
         this._measureTool.dispose();
     }
 
-    private onEscape(e: KeyboardEvent) {
+    private onEscape(e: KeyboardEvent): void {
         if (e.code === 'Escape' && this._store.isUserMeasuring()) {
             this.stopMeasuring();
         }
     }
 
-    startMeasuring() {
+    public startMeasuring(): void {
         this._store.setIsUserMeasuring(true);
     }
 
-    stopMeasuring() {
+    public stopMeasuring(): void {
         this._store.setIsUserMeasuring(false);
         this._measureTool.clean();
         this._instance.notifyChange();
     }
 
-    private measure(event: MouseEvent) {
+    private measure(event: MouseEvent): void {
         if (!this._paused && this._store.isUserMeasuring()) {
             void this._measureTool.measure(this._instance, event);
         }
     }
 
-    private saveMeasure() {
+    private saveMeasure(): void {
         if (!this._paused && this._store.isUserMeasuring()) {
             const measurement = this._measureTool.getLastMeasurement();
             if (measurement && !Number.isNaN(measurement.length)) {
@@ -125,7 +132,11 @@ export default class MeasurementManager {
         }
     }
 
-    private async pushNewMeasure(title: string, measurement: Measure3D, properties: object = {}) {
+    private async pushNewMeasure(
+        title: string,
+        measurement: Measure3D,
+        properties: object = {},
+    ): Promise<void> {
         await this._instance.add(measurement);
         const measure = new Measure(title, measurement, properties);
         measurement.userData.measure = measure;
@@ -134,18 +145,21 @@ export default class MeasurementManager {
         this._instance.notifyChange(measurement);
     }
 
-    updateMeasure(measure: Measure) {
+    public updateMeasure(measure: Measure): void {
         measure.object.visible = measure.visible;
         measure.object.traverse(o => (o.visible = measure.visible));
         this._instance.notifyChange();
     }
 
-    private deleteMeasure(measure: Measure) {
+    private deleteMeasure(measure: Measure): void {
         this._instance.remove(measure.object);
         this._instance.notifyChange();
     }
 
-    private async importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
+    private async importMeasure(
+        feature: GeoJSON.Feature,
+        skipNames: Set<string>,
+    ): Promise<boolean> {
         if (feature.geometry.type !== 'LineString') {
             throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
         }
@@ -171,7 +185,10 @@ export default class MeasurementManager {
         return true;
     }
 
-    private async importBlob(file: Blob, skipNames: Set<string>) {
+    private async importBlob(
+        file: Blob,
+        skipNames: Set<string>,
+    ): Promise<{ nbImported: number; nbSkipped: number }> {
         const str = await file.text();
         const geojson = JSON.parse(str) as GeoJSON.Feature | GeoJSON.FeatureCollection;
 
@@ -191,7 +208,7 @@ export default class MeasurementManager {
         return { nbImported, nbSkipped };
     }
 
-    private async importMeasureFile(file: Blob) {
+    private async importMeasureFile(file: Blob): Promise<void> {
         const existingMeasures = new Set(this._store.getMeasures().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingMeasures);
@@ -208,7 +225,7 @@ export default class MeasurementManager {
         }
     }
 
-    private async importMeasureFiles(files: File[]) {
+    private async importMeasureFiles(files: File[]): Promise<void> {
         const promises = [];
         let nbTotalImported = 0;
         let nbTotalSkipped = 0;

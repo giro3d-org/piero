@@ -1,6 +1,7 @@
 import child_process from 'child_process';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, mergeConfig } from 'vite';
+
 import libConfig from './packages/piero/vite.config';
 
 let commitHash = 'unknown';
@@ -38,7 +39,7 @@ const appConfig = defineConfig(() => {
                     // So we have to find the right chunking method to avoid those runtime issues.
                     // But since the dependencies change with versions, we have to re-test and update
                     // the chunking strategy.
-                    manualChunks: function manualChunks(id) {
+                    manualChunks: function manualChunks(id): string | null {
                         if (id.includes('node_modules')) {
                             return 'vendor';
                         }

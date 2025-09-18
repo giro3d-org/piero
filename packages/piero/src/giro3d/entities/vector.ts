@@ -1,13 +1,16 @@
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
 import type {
     VectorDatasetConfig,
     VectorLabelsDatasetConfig,
 } from '@/types/configuration/datasets/vector';
-import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
 import type { EntityBuilder } from '../EntityBuilder';
+import type { VectorMeshSource, VectorMeshSourceOptions } from './VectorMeshEntity';
+
 import GeopackageSource from '../sources/GeopackageSource';
 import ShapefileSource from '../sources/ShapefileSource';
 import VectorLabelsEntity from './VectorLabelsEntity';
-import type { VectorMeshSource, VectorMeshSourceOptions } from './VectorMeshEntity';
 import VectorMeshEntity, {
     GeoJsonMeshSource,
     GpxMeshSource,

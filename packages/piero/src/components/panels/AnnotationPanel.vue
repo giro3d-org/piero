@@ -1,19 +1,21 @@
 <script setup lang="ts">
-    import DropdownView from '@/components/DropdownView.vue';
-    import SwitchToggle from '@/components/SwitchToggle.vue';
+    import { ref, watch } from 'vue';
+
+    import type AnnotationMode from '@/types/AnnotationMode';
+    import type Named from '@/types/Named';
+
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
+    import DropdownView from '@/components/DropdownView.vue';
     import AnnotationItem from '@/components/panels/AnnotationItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import SwitchToggle from '@/components/SwitchToggle.vue';
     import { useAnnotationStore } from '@/stores/annotations';
     import { useCameraStore } from '@/stores/camera';
     import Annotation from '@/types/Annotation';
-    import type AnnotationMode from '@/types/AnnotationMode';
     import { annotationModes } from '@/types/AnnotationMode';
-    import type Named from '@/types/Named';
     import Download from '@/utils/Download';
-    import { ref, watch } from 'vue';
 
     const annotations = useAnnotationStore();
     const cameraStore = useCameraStore();
@@ -23,25 +25,25 @@
         annotations.setAnnotationMode(newMode);
     });
 
-    function setCurrentMode(src: Named | null) {
+    function setCurrentMode(src: Named | null): void {
         annotationMode.value = src?.value as AnnotationMode;
     }
 
-    function goTo(annotation: Annotation) {
+    function goTo(annotation: Annotation): void {
         cameraStore.lookTopDownAt(annotation.object);
     }
 
-    function downloadAnnotation(annotation: Annotation) {
+    function downloadAnnotation(annotation: Annotation): void {
         const geojson = annotation.toGeoJSON();
         Download.downloadAsJson(geojson, `annotation-${annotation.title}.json`);
     }
 
-    function exportAnnotations() {
+    function exportAnnotations(): void {
         const geojson = Annotation.toCollection(annotations.getAnnotations());
         Download.downloadAsJson(geojson, 'annotations.json');
     }
 
-    function importAnnotationFile(files: File[]) {
+    function importAnnotationFile(files: File[]): void {
         annotations.importAnnotationsFiles(files);
     }
 </script>

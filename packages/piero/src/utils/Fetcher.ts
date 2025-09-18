@@ -1,5 +1,6 @@
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 import { fetchFile } from '@loaders.gl/core';
+
 import { getPublicFolderUrl } from './Configuration';
 
 /** URL to load or Blob (drag-and-drop) */

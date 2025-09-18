@@ -1,14 +1,16 @@
 <script setup lang="ts">
-    import SpinnerControl from '@/components/SpinnerControl.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
+    import { MathUtils } from 'three';
+    import { reactive, ref, watch } from 'vue';
+
+    import type { Datagroup } from '@/types/Dataset';
+
     import CompactList from '@/components/atoms/CompactList.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import type { Datagroup } from '@/types/Dataset';
-    import { MathUtils } from 'three';
-    import { reactive, ref, watch } from 'vue';
+    import SpinnerControl from '@/components/SpinnerControl.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     const props = defineProps<{
         group: Datagroup;

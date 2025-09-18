@@ -1,12 +1,15 @@
-import type CameraController from '@/services/CameraController';
-import CameraPosition from '@/types/CameraPosition';
 import type Instance from '@giro3d/giro3d/core/Instance';
-import Panel from '@giro3d/giro3d/gui/Panel';
 import type GUI from 'lil-gui';
+
+import Panel from '@giro3d/giro3d/gui/Panel';
 import { Vector3 } from 'three';
 
+import type CameraController from '@/services/CameraController';
+
+import CameraPosition from '@/types/CameraPosition';
+
 class CameraControlsInspector extends Panel {
-    camera: CameraController;
+    public camera: CameraController;
     private _cameraPosition: CameraPosition;
     private _boundOnAfterCameraUpdate: () => void;
 
@@ -14,7 +17,7 @@ class CameraControlsInspector extends Panel {
      * @param gui - The GUI.
      * @param instance - The Giro3D instance.
      */
-    constructor(gui: GUI, cameraController: CameraController, instance: Instance) {
+    public constructor(gui: GUI, cameraController: CameraController, instance: Instance) {
         super(gui, instance, 'Camera Controls');
 
         this.camera = cameraController;
@@ -42,12 +45,12 @@ class CameraControlsInspector extends Panel {
         this._controllers.push(focalOffset.add(this._cameraPosition.focalOffset, 'z'));
     }
 
-    dispose(): void {
+    public override dispose(): void {
         this.instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
         super.dispose();
     }
 
-    private onAfterCameraUpdate() {
+    private onAfterCameraUpdate(): void {
         this.camera.getCameraPosition(this._cameraPosition);
     }
 }

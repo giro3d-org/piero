@@ -1,13 +1,14 @@
-import Fetcher from '@/utils/Fetcher';
 import Instance from '@giro3d/giro3d/core/Instance';
 import proj4 from 'proj4';
+
+import Fetcher from '@/utils/Fetcher';
 
 /**
  * Loads a Projection info and registers it in Giro3D if needed
  * @param projection - Projection code
  * @returns EPSG string (e.g. `EPSG:2154`)
  */
-async function loadProjCrsIfNeeded(projection: string) {
+async function loadProjCrsIfNeeded(projection: string): Promise<string> {
     let epsgCode: string | null = null;
 
     const regexes = [

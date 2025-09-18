@@ -1,12 +1,15 @@
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+
+import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+
 import type { PieroContext } from '@/context';
 import type { EntityBuilder } from '@/giro3d/EntityBuilder';
 import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 import type { AttributeExtractorFn } from '@/services/Picker';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
 import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
-import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+import type { Attribute, AttributesGroups } from '@/types/Feature';
+
 import CityJSONEntity, { isCityJSONPickResult } from './cityjson/CityJSONEntity';
 import CityJSONEntityInspector from './cityjson/CityJSONEntityInspector';
 
@@ -66,9 +69,9 @@ const getAttributesFromCityObject: AttributeExtractorFn = (
 };
 
 export default class CityJSONLoader implements Module {
-    readonly name = 'CityJSON';
+    public readonly name = 'CityJSON';
 
-    initialize(context: PieroContext): Promise<void> | void {
+    public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('cityjson', {
             name: 'CityJSON',
             icon: 'bi-buildings',

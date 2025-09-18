@@ -1,16 +1,20 @@
+import type { Coordinate } from 'ol/coordinate';
+
+import Shape from '@giro3d/giro3d/entities/Shape';
+import { Vector3 } from 'three';
+
+import type { SimpleGeometryType } from '@/utils/OLFeatures';
+
 import { DEFAULT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
 import { fillObject3DUserData } from '@/loaders/userData';
-import type { SimpleGeometryType } from '@/utils/OLFeatures';
-import Shape from '@giro3d/giro3d/entities/Shape';
-import type { Coordinate } from 'ol/coordinate';
-import { Vector3 } from 'three';
+
 import type { VectorMeshSource } from './VectorMeshEntity';
 
 /** Entity for displaying vector data as meshes */
 export default class VectorShapeEntity extends Shape {
-    readonly source: VectorMeshSource;
+    public readonly source: VectorMeshSource;
 
-    constructor(source: VectorMeshSource) {
+    public constructor(source: VectorMeshSource) {
         super({
             color: DEFAULT_SHAPE_COLOR,
             vertexRadius: SHAPE_POINT_RADIUS,
@@ -21,7 +25,7 @@ export default class VectorShapeEntity extends Shape {
         this.source = source;
     }
 
-    protected async preprocess(): Promise<void> {
+    protected override async preprocess(): Promise<void> {
         const olFeatures = await this.source.load(this.instance);
         const feature = olFeatures.at(0);
         const geometry = feature?.getGeometry();

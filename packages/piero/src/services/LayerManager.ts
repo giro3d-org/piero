@@ -1,18 +1,22 @@
+import type Extent from '@giro3d/giro3d/core/geographic/Extent';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type Layer from '@giro3d/giro3d/core/layer/Layer';
+
+import { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
+import { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
+import Giro3dMap from '@giro3d/giro3d/entities/Map';
+import { EventDispatcher } from 'three';
+
+import type { BaseLayer, BasemapLayer } from '@/types/BaseLayer';
+import type { Overlay } from '@/types/Overlay';
+
 import Grid from '@/giro3d/Grid';
 import LayerBuilder from '@/giro3d/LayerBuilder';
 import Plane from '@/giro3d/Plane';
 import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import { useLayerStore } from '@/stores/layers';
-import type { BaseLayer, BasemapLayer } from '@/types/BaseLayer';
-import type { Overlay } from '@/types/Overlay';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
-import { isElevationLayer } from '@giro3d/giro3d/core/layer/ElevationLayer';
-import type Layer from '@giro3d/giro3d/core/layer/Layer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
-import { EventDispatcher } from 'three';
 
 // Hide the grid when above this altitude threshold
 const GRID_ALTITUDE_THRESHOLD = 3000;
@@ -37,7 +41,7 @@ export default class LayerManager extends EventDispatcher {
 
     private readonly _boundOnAfterCameraUpdate: () => void;
 
-    constructor(instance: Instance) {
+    public constructor(instance: Instance) {
         super();
 
         this._instance = instance;
@@ -113,7 +117,7 @@ export default class LayerManager extends EventDispatcher {
         this._basemap.dispose({ disposeLayers: true });
     }
 
-    private onAfterCameraUpdate() {
+    private onAfterCameraUpdate(): void {
         const pos = this._cameraStore.getCamera3dPosition();
         const oldGridVisible = this._grid.visible;
         const newGridVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
@@ -134,32 +138,32 @@ export default class LayerManager extends EventDispatcher {
         }
     }
 
-    notify(layer: BasemapLayer) {
+    public notify(layer: BasemapLayer): void {
         this._instance.notifyChange(layer);
     }
 
-    removeBasemapLayer(layer: BasemapLayer) {
+    public removeBasemapLayer(layer: BasemapLayer): void {
         this._datasetLayers.delete(layer.id);
         this._basemap.removeLayer(layer, { disposeLayer: true });
         this._instance.notifyChange(this._basemap);
     }
 
-    async addDatasetLayer(layer: BasemapLayer) {
+    public async addDatasetLayer(layer: BasemapLayer): Promise<void> {
         this._datasetLayers.add(layer.id);
         await this._basemap.addLayer(layer);
         this.updateLayerOrdering();
     }
 
-    get extent() {
+    public get extent(): Extent {
         return this._basemap.extent;
     }
 
-    setMapOpacity(opacity: number) {
+    public setMapOpacity(opacity: number): void {
         this._basemap.opacity = opacity;
         this._instance.notifyChange(this._basemap);
     }
 
-    private async loadBasemap(basemap: BaseLayer) {
+    private async loadBasemap(basemap: BaseLayer): Promise<BasemapLayer> {
         const layer = await LayerBuilder.getLayer(basemap);
 
         this._baseLayers.set(basemap.uuid, layer);
@@ -184,7 +188,7 @@ export default class LayerManager extends EventDispatcher {
         return layer;
     }
 
-    private async loadOverlay(overlay: Overlay) {
+    private async loadOverlay(overlay: Overlay): Promise<ColorLayer> {
         const layer = await LayerBuilder.getOverlay(overlay, this.extent);
 
         this._overlays.set(overlay.uuid, layer);
@@ -221,13 +225,13 @@ export default class LayerManager extends EventDispatcher {
         return layer;
     }
 
-    onOverlayReordered(overlay: Overlay) {
+    private onOverlayReordered(overlay: Overlay): void {
         if (overlay.visible) {
             this.updateLayerOrdering();
         }
     }
 
-    async onLayerOpacityChanged(basemap: BaseLayer, newOpacity: number) {
+    private async onLayerOpacityChanged(basemap: BaseLayer, newOpacity: number): Promise<void> {
         const layer = await this.getLayer(basemap);
         if (layer && isColorLayer(layer)) {
             layer.opacity = newOpacity;
@@ -238,7 +242,7 @@ export default class LayerManager extends EventDispatcher {
         }
     }
 
-    async onOverlayOpacityChanged(overlay: Overlay, newOpacity: number) {
+    private async onOverlayOpacityChanged(overlay: Overlay, newOpacity: number): Promise<void> {
         const layer = await this.getOverlay(overlay);
         if (layer) {
             layer.opacity = newOpacity;
@@ -246,7 +250,10 @@ export default class LayerManager extends EventDispatcher {
         }
     }
 
-    async onLayerVisibilityChanged(basemap: BaseLayer, newVisibility: boolean) {
+    private async onLayerVisibilityChanged(
+        basemap: BaseLayer,
+        newVisibility: boolean,
+    ): Promise<void> {
         if (basemap.type === 'elevation' && newVisibility) {
             // First make sure we don't have any other elevation layer enabled
             const keys = [...this._baseLayers.keys()];
@@ -281,7 +288,10 @@ export default class LayerManager extends EventDispatcher {
         }
     }
 
-    async onOverlayVisibilityChanged(overlay: Overlay, newVisibility: boolean) {
+    private async onOverlayVisibilityChanged(
+        overlay: Overlay,
+        newVisibility: boolean,
+    ): Promise<void> {
         const layer = await this.getOverlay(overlay, newVisibility);
         if (layer) {
             layer.visible = newVisibility;
@@ -293,7 +303,7 @@ export default class LayerManager extends EventDispatcher {
         }
     }
 
-    private updateLayerOrdering() {
+    private updateLayerOrdering(): void {
         // We'll sort layers in the counter-intuitive way:
         // - first one will be the bottom one
         // - last one will be the top one

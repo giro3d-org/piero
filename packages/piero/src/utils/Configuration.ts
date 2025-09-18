@@ -1,12 +1,15 @@
-import { getConfig } from '@/config-loader';
-import type { ColorMapConfig } from '@/types/configuration/color';
-import type { ExperimentalFeatures } from '@/types/configuration/features';
-import type { GeoExtent, GeoVec3 } from '@/types/configuration/geographic';
 import ColorMap from '@giro3d/giro3d/core/ColorMap';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import chroma from 'chroma-js';
 import { Color } from 'three';
+
+import type { ColorMapConfig } from '@/types/configuration/color';
+import type { ExperimentalFeatures } from '@/types/configuration/features';
+import type { GeoExtent, GeoVec3 } from '@/types/configuration/geographic';
+
+import { getConfig } from '@/config-loader';
+
 import Download from './Download';
 
 export function getPublicFolderUrl(url: string): string {

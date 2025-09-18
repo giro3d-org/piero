@@ -1,6 +1,7 @@
 import type { Configuration } from '@/types/Configuration';
-import { Dataset } from '@/types/Dataset';
 import type { DatasetConfigImportable } from '@/types/configuration/datasets';
+
+import { Dataset } from '@/types/Dataset';
 
 import * as csv from './csv';
 import * as las from './las';
@@ -38,7 +39,7 @@ const loaders: Record<string, LoadDatasetFromFile> = {
  * @param fileExtension - The file extension, without the dot.
  * @param loader - The loader to use.
  */
-export function registerLoader(fileExtension: string, loader: LoadDatasetFromFile) {
+export function registerLoader(fileExtension: string, loader: LoadDatasetFromFile): void {
     if (loaders[fileExtension] != null) {
         console.warn(`replacing loader for file extension '.${fileExtension}'`);
     }

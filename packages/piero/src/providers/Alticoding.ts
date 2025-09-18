@@ -1,6 +1,7 @@
-import type Instance from '@giro3d/giro3d/core/Instance';
 import type Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import type Map from '@giro3d/giro3d/entities/Map';
+
 import IgnProvider from './IgnProvider';
 
 /**

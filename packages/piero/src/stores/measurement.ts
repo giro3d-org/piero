@@ -1,7 +1,8 @@
-import type Measure from '@/types/Measure';
-import type MeasurementMode from '@/types/MeasurementMode';
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
+
+import type Measure from '@/types/Measure';
+import type MeasurementMode from '@/types/MeasurementMode';
 
 export const useMeasurementStore = defineStore('measurement', () => {
     const measurements = reactive<Measure[]>([]) as Measure[];
@@ -13,15 +14,15 @@ export const useMeasurementStore = defineStore('measurement', () => {
         return _isUserMeasuring.value;
     }
 
-    function setIsUserMeasuring(value: boolean) {
+    function setIsUserMeasuring(value: boolean): void {
         _isUserMeasuring.value = value;
     }
 
-    function getMeasurementMode() {
+    function getMeasurementMode(): MeasurementMode {
         return measurementMode.value;
     }
 
-    function setMeasurementMode(mode: MeasurementMode) {
+    function setMeasurementMode(mode: MeasurementMode): void {
         measurementMode.value = mode;
     }
 
@@ -29,31 +30,31 @@ export const useMeasurementStore = defineStore('measurement', () => {
         return measurements;
     }
 
-    function remove(measure: Measure) {
+    function remove(measure: Measure): void {
         measurements.splice(measurements.indexOf(measure), 1);
     }
 
-    function add(measure: Measure) {
+    function add(measure: Measure): void {
         measurements.push(measure);
     }
 
-    function hasMeasure(name: string) {
+    function hasMeasure(name: string): boolean {
         return measurements.some(m => m.title === name);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importMeasureFile(file: Blob) {
+    function importMeasureFile(file: Blob): void {
         // Nothing to do
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function importMeasureFiles(files: File[]) {
+    function importMeasureFiles(files: File[]): void {
         // Nothing to do
     }
 
-    function start() {}
+    function start(): void {}
 
-    function end() {}
+    function end(): void {}
 
     return {
         count,

@@ -1,5 +1,6 @@
-import Fetcher from '@/utils/Fetcher';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+
+import Fetcher from '@/utils/Fetcher';
 
 const tmpCoords = new Coordinates('EPSG:4326', 0, 0, 0);
 

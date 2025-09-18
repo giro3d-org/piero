@@ -1,3 +1,9 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type { Object3D } from 'three';
+
+import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
+import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
+
 import AnalysisManager from '@/services/AnalysisManager';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
@@ -8,10 +14,6 @@ import MeasurementManager from '@/services/MeasurementManager';
 import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
 import Fetcher from '@/utils/Fetcher';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
-import type { Object3D } from 'three';
-import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
 if (import.meta.env.VITE_HEADERS) {
     for (const [host, header] of Object.entries(import.meta.env.VITE_HEADERS)) {
@@ -61,21 +63,21 @@ type Giro3DManagerEventMap = {
 export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
     private readonly _store = useGiro3dStore();
 
-    readonly mainInstance: Instance;
-    readonly camera: CameraController;
-    readonly layerManager: LayerManager;
-    readonly datasetManager: DatasetManager;
-    readonly annotationManager: AnnotationManager;
-    readonly analysisManager: AnalysisManager;
-    readonly highlighter: Highlighter;
-    readonly picker: Picker;
-    readonly measurementManager: MeasurementManager;
-    readonly ambientLight: AmbientLight;
-    readonly dirLight: DirectionalLight;
+    public readonly mainInstance: Instance;
+    public readonly camera: CameraController;
+    public readonly layerManager: LayerManager;
+    public readonly datasetManager: DatasetManager;
+    public readonly annotationManager: AnnotationManager;
+    public readonly analysisManager: AnalysisManager;
+    public readonly highlighter: Highlighter;
+    public readonly picker: Picker;
+    public readonly measurementManager: MeasurementManager;
+    public readonly ambientLight: AmbientLight;
+    public readonly dirLight: DirectionalLight;
 
     private readonly _boundOnFrameEnd: () => void;
 
-    constructor(instance: Instance) {
+    public constructor(instance: Instance) {
         super();
 
         this.mainInstance = instance;
@@ -138,7 +140,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.camera.dispose();
     }
 
-    onFrameEnd() {
+    private onFrameEnd(): void {
         // Temporary solution to avoid annoying horizontal line artifacts
         // on point cloud due to constantly shifting near clipping plane.
         const camera = this.mainInstance.view.camera;
@@ -150,7 +152,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     /**
      * Gets the datasets & annotations as Object3D.
      */
-    getObjects3d(): Object3D[] {
+    public getObjects3d(): Object3D[] {
         const result: Object3D[] = [];
         this.mainInstance.scene.traverse(o => {
             result.push(o);
@@ -163,7 +165,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
      *
      * @returns Bounding box of all datasets.
      */
-    getBoundingBox() {
+    public getBoundingBox(): Box3 {
         const bbox = new Box3();
         const bbox2 = new Box3();
         this.mainInstance.scene.traverse(obj => {

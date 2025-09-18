@@ -1,4 +1,5 @@
 import type { Options as StadiaMapsOptions } from 'ol/source/StadiaMaps';
+
 import type { ImageSourceConfigMixin, SourceConfigBase } from './core/baseConfig';
 
 /** StadiaMaps source configuration */

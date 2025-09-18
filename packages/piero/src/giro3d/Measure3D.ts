@@ -1,8 +1,12 @@
-import { DEFAULT_MEASURE_COLOR, HIGHLIGHT_MEASURE_COLOR } from '@/constants';
-import type Measure from '@/types/Measure';
-import { isObject } from '@/utils/Types';
 import type { LineLabelFormatter } from '@giro3d/giro3d/entities/Shape';
+import type { Vector3 } from 'three';
+
 import Shape from '@giro3d/giro3d/entities/Shape';
+
+import type Measure from '@/types/Measure';
+
+import { DEFAULT_MEASURE_COLOR, HIGHLIGHT_MEASURE_COLOR } from '@/constants';
+import { isObject } from '@/utils/Types';
 
 const lengthFormat = new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 2,
@@ -24,18 +28,18 @@ export type MeasureUserData = {
 class Measure3D extends Shape<MeasureUserData> {
     public readonly isMeasure3D = true as const;
 
-    get from() {
+    public get from(): Vector3 {
         return this.points[0];
     }
-    get to() {
+    public get to(): Vector3 {
         return this.points[1];
     }
-    get length() {
+    public get length(): number {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.getLength()!;
     }
 
-    constructor() {
+    public constructor() {
         super({
             showLineLabel: true,
             color: DEFAULT_MEASURE_COLOR,
@@ -48,16 +52,16 @@ class Measure3D extends Shape<MeasureUserData> {
         this.depthTest = true;
     }
 
-    copy(source: this): this {
+    public copy(source: this): this {
         this.setPoints([source.from, source.to]);
         return this;
     }
 
-    clone(): Measure3D {
+    public clone(): Measure3D {
         return new Measure3D().copy(this);
     }
 
-    static isMeasure3D = (obj: unknown): obj is Measure3D =>
+    public static isMeasure3D = (obj: unknown): obj is Measure3D =>
         isObject(obj) && (obj as Measure3D).isMeasure3D;
 }
 

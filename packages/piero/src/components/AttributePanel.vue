@@ -1,7 +1,10 @@
 <script setup lang="ts">
-    import type { AttributesGroups } from '@/types/Feature';
     import type { Vector3 } from 'three';
+
     import { ref } from 'vue';
+
+    import type { AttributesGroups } from '@/types/Feature';
+
     import AttributeGroup from './AttributeGroup.vue';
     import CoordinateFragment from './CoordinateFragment.vue';
 
@@ -14,7 +17,7 @@
 
     const copied = ref(false);
 
-    function copyText() {
+    function copyText(): void {
         const value = `${props.point.x};${props.point.y};${props.point.z}`;
         navigator.clipboard
             .writeText(value)

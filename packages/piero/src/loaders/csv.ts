@@ -1,4 +1,5 @@
 import type { PointCloudDatasetConfig } from '@/types/configuration/datasets/pointCloud';
+
 import type { LoadDatasetFromFile } from './loader';
 
 export const load: LoadDatasetFromFile<PointCloudDatasetConfig> = context => {

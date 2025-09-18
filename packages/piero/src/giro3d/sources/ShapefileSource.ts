@@ -1,17 +1,22 @@
-import type { FetchContext, UrlOrData } from '@/utils/Fetcher';
-import Fetcher from '@/utils/Fetcher';
-import type { SimpleFeature } from '@/utils/OLFeatures';
 import type Instance from '@giro3d/giro3d/core/Instance';
+
 import { load } from '@loaders.gl/core';
 import { ShapefileLoader as ShapefileGLLoader } from '@loaders.gl/shapefile';
+
+import type { FetchContext, UrlOrData } from '@/utils/Fetcher';
+import type { SimpleFeature } from '@/utils/OLFeatures';
+
+import Fetcher from '@/utils/Fetcher';
+
 import type { VectorMeshSource } from '../entities/VectorMeshEntity';
-import { geojsonToOlFeatures } from '../entities/VectorMeshEntity';
 import type {
     DataProjectionMixin,
     ElevationMixin,
     FeatureProjectionMixin,
     UrlOrDataMixin,
 } from './mixins';
+
+import { geojsonToOlFeatures } from '../entities/VectorMeshEntity';
 
 /**
  * Options for loading Shapefile files into a {@link VectorMeshEntity}
@@ -52,15 +57,15 @@ async function fetchShapefile(
  * Source for loading a Shapefile file into a {@link VectorMeshEntity}
  */
 export default class ShapefileSource implements VectorMeshSource {
-    elevation?: number;
-    readonly options: ShapefileSourceParameters;
+    public elevation?: number;
+    public readonly options: ShapefileSourceParameters;
 
-    constructor(options: ShapefileSourceParameters) {
+    public constructor(options: ShapefileSourceParameters) {
         this.options = options;
         this.elevation = options.elevation;
     }
 
-    async load(instance: Instance): Promise<SimpleFeature[]> {
+    public async load(instance: Instance): Promise<SimpleFeature[]> {
         // First, get the data as a list of GeoJSON features
         const features = await fetchShapefile(this.options.url, this.options.featureProjection);
         // Convert them into OpenLayers features
@@ -71,7 +76,7 @@ export default class ShapefileSource implements VectorMeshSource {
         return olFeatures;
     }
 
-    context(): FetchContext {
+    public context(): FetchContext {
         return Fetcher.getContext(this.options.url);
     }
 }

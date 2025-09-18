@@ -1,24 +1,28 @@
-import Measure3D from '@/giro3d/Measure3D';
-import { useAnalysisStore } from '@/stores/analysis';
-import type Annotation from '@/types/Annotation';
-import type { PieroShapeUserData } from '@/types/Annotation';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
-import Feature from '@/types/Feature';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import type { PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
-import { isPointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import type { VectorPickFeature } from '@giro3d/giro3d/core/picking/PickResult';
-import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
 import type Entity from '@giro3d/giro3d/entities/Entity';
 import type FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import type Giro3DMap from '@giro3d/giro3d/entities/Map';
-import { isMap } from '@giro3d/giro3d/entities/Map';
 import type { ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+import type { Vector2 } from 'three';
+
+import { isPointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import { isMap } from '@giro3d/giro3d/entities/Map';
 import { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { type Feature as OLFeature } from 'ol';
-import type { Vector2 } from 'three';
 import { Box3, Vector3, type Object3D } from 'three';
+
+import type Annotation from '@/types/Annotation';
+import type { PieroShapeUserData } from '@/types/Annotation';
+import type { Attribute, AttributesGroups } from '@/types/Feature';
+
+import Measure3D from '@/giro3d/Measure3D';
+import { useAnalysisStore } from '@/stores/analysis';
+import Feature from '@/types/Feature';
+
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
 
 export type AttributeExtractorFn<T extends PickResult = PickResult> = (
@@ -42,7 +46,7 @@ function comparePickResults(a: PickResult, b: PickResult): number {
 export default class Picker {
     private readonly _analysisStore = useAnalysisStore();
 
-    filterPick(instance: Instance, result: PickResult): boolean {
+    protected filterPick(instance: Instance, result: PickResult): boolean {
         if (this._analysisStore.isClippingBoxEnabled()) {
             const containsPoint = this._analysisStore.getClippingBox().containsPoint(result.point);
             if (this._analysisStore.isClippingBoxInverted()) {
@@ -65,11 +69,14 @@ export default class Picker {
         return true;
     }
 
-    getNameFromOLFeature(feature: OLFeature): string {
+    protected getNameFromOLFeature(feature: OLFeature): string {
         return feature.get('nom') ?? feature.get('name') ?? feature.getId();
     }
 
-    getAttributesFromOLFeature(feature: OLFeature, attributesGroups: AttributesGroups) {
+    protected getAttributesFromOLFeature(
+        feature: OLFeature,
+        attributesGroups: AttributesGroups,
+    ): void {
         if (!attributesGroups.has('Feature')) {
             attributesGroups.set('Feature', []);
         }
@@ -86,11 +93,14 @@ export default class Picker {
         }
     }
 
-    getAttributesFromPointCloud(pickResult: PointsPickResult, attributesGroups: AttributesGroups) {
+    protected getAttributesFromPointCloud(
+        pickResult: PointsPickResult,
+        attributesGroups: AttributesGroups,
+    ): void {
         attributesGroups.get('Dataset')?.push({ key: 'Tile', value: pickResult.object.name });
     }
 
-    getAttributesFromUserData(userData: object, attributes: Attribute[]) {
+    protected getAttributesFromUserData(userData: object, attributes: Attribute[]): void {
         for (const [key, value] of Object.entries(userData)) {
             if (
                 key === 'geometry' ||
@@ -126,7 +136,7 @@ export default class Picker {
         }
     }
 
-    getAttributesFromObject3D(object: Object3D, attributes: Attribute[]) {
+    protected getAttributesFromObject3D(object: Object3D, attributes: Attribute[]): void {
         if (object?.userData != null) {
             this.getAttributesFromUserData(object.userData, attributes);
         }
@@ -140,7 +150,10 @@ export default class Picker {
         }
     }
 
-    getAttributesFromPickedObject3D(pickResult: PickResult, attributesGroups: AttributesGroups) {
+    protected getAttributesFromPickedObject3D(
+        pickResult: PickResult,
+        attributesGroups: AttributesGroups,
+    ): void {
         if (!attributesGroups.has('Feature')) {
             attributesGroups.set('Feature', []);
         }
@@ -149,7 +162,7 @@ export default class Picker {
         this.getAttributesFromObject3D(pickResult.object, attributes);
     }
 
-    getAttributesFromEntity(entity: Entity, attributesGroups: AttributesGroups) {
+    protected getAttributesFromEntity(entity: Entity, attributesGroups: AttributesGroups): void {
         if (!attributesGroups.has('Feature')) {
             attributesGroups.set('Feature', []);
         }
@@ -160,7 +173,7 @@ export default class Picker {
         }
     }
 
-    getDatasetAttributes(object: Object3D, datasetAttributes: Attribute[]) {
+    protected getDatasetAttributes(object: Object3D, datasetAttributes: Attribute[]): void {
         if (object?.userData?.dataset?.name != null) {
             datasetAttributes.push({ key: 'Dataset', value: object.userData.dataset.name });
         }
@@ -181,7 +194,7 @@ export default class Picker {
      * may return nothing)
      * @returns Result or null if notthing found
      */
-    getObjectsAt(
+    public getObjectsAt(
         instance: Instance,
         e: MouseEvent | Vector2,
         radius = 1,
@@ -217,7 +230,7 @@ export default class Picker {
      * may return nothing)
      * @returns Result or null if nothing found
      */
-    getMapAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
+    public getMapAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
         const where = instance.getObjects(o => (o as Giro3DMap).isMap);
         const picked = instance
             .pickObjectsAt(e, {
@@ -231,7 +244,7 @@ export default class Picker {
         return picked ?? null;
     }
 
-    getFirstFeatureAt(
+    public getFirstFeatureAt(
         instance: Instance,
         e: MouseEvent,
         radius = 1,
@@ -250,7 +263,7 @@ export default class Picker {
         return null;
     }
 
-    getGeometryAttributes(object: Object3D, attributes: Array<Attribute>) {
+    public getGeometryAttributes(object: Object3D, attributes: Array<Attribute>): void {
         const bbox = new Box3();
         const size = new Vector3();
         const center = new Vector3();
@@ -273,7 +286,10 @@ export default class Picker {
         });
     }
 
-    getAttributesFromAnnotation(pickResult: ShapePickResult, attributesGroups: AttributesGroups) {
+    protected getAttributesFromAnnotation(
+        pickResult: ShapePickResult,
+        attributesGroups: AttributesGroups,
+    ): void {
         if (!attributesGroups.has('GeoJSON')) {
             attributesGroups.set('GeoJSON', []);
         }
@@ -329,7 +345,10 @@ export default class Picker {
         }
     }
 
-    getAttributesFromMeasure(pickResult: PickResult, attributesGroups: AttributesGroups) {
+    protected getAttributesFromMeasure(
+        pickResult: PickResult,
+        attributesGroups: AttributesGroups,
+    ): void {
         if (!attributesGroups.has('GeoJSON')) {
             attributesGroups.set('GeoJSON', []);
         }
@@ -358,7 +377,7 @@ export default class Picker {
         attributes.push({ key: 'Length', value: `${parent.length.toFixed(2)}m` });
     }
 
-    getFeatureFromPickedObject(pickedObject: PickResult): Feature | null {
+    public getFeatureFromPickedObject(pickedObject: PickResult): Feature | null {
         const { entity, object, features } = pickedObject;
 
         const object3d = entity?.object3d ?? object;
@@ -418,7 +437,7 @@ export default class Picker {
         return new Feature(name, parent, attributesGroups, pickedObject.point);
     }
 
-    getMouseCoordinate(instance: Instance, mouse: Vector2): Vector3 | null {
+    public getMouseCoordinate(instance: Instance, mouse: Vector2): Vector3 | null {
         const where = instance.getObjects(o => (o as Giro3DMap).isMap);
 
         const picked = instance
@@ -431,7 +450,7 @@ export default class Picker {
         return picked?.point ?? null;
     }
 
-    hasFeature(instance: Instance, mouse: Vector2): boolean {
+    public hasFeature(instance: Instance, mouse: Vector2): boolean {
         const where = instance.getObjects(
             o =>
                 (o as Giro3DMap).isMap !== true &&
@@ -449,7 +468,7 @@ export default class Picker {
         return picked != null;
     }
 
-    pick(
+    public pick(
         instance: Instance,
         event: MouseEvent,
     ): { point: Vector3; feature: Feature | null; pickResult: PickResult } | null {

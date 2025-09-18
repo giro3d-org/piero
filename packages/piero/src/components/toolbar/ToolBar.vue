@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import logo from '@/assets/piero_logo_compact.png';
+
     import getConfigurationPanels from '../Configuration';
     import ToolbarButton from './ToolbarButton.vue';
 

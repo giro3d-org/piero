@@ -1,6 +1,9 @@
-import type { Configuration } from '@/types/Configuration';
 import Instance from '@giro3d/giro3d/core/Instance';
+
+import type { Configuration } from '@/types/Configuration';
+
 import type { DynamicStyleCollection } from './types/VectorStyle';
+
 import Fetcher from './utils/Fetcher';
 
 let currentConfiguration: Readonly<Configuration> | null = null;
@@ -10,7 +13,7 @@ export function getDynamicStyles(): DynamicStyleCollection {
     return dynamicStyles;
 }
 
-export function setDynamicStyles(styles: DynamicStyleCollection) {
+export function setDynamicStyles(styles: DynamicStyleCollection): void {
     dynamicStyles = styles;
 }
 

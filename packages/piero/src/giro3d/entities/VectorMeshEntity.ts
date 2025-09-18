@@ -1,18 +1,22 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
+import type FeatureFormat from 'ol/format/Feature';
+
+import { DEFAULT_LINE_COLOR, DEFAULT_SURFACE_COLOR } from '@giro3d/giro3d/core/FeatureTypes';
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import GeoJSONFormat from 'ol/format/GeoJSON';
+import GPXFormat from 'ol/format/GPX';
+import KMLFormat from 'ol/format/KML';
+import { Group } from 'three';
+
+import type { ExtractOptional } from '@/types/utilities';
+
 import { fillObject3DUserData } from '@/loaders/userData';
 import { alticoderGenerator } from '@/providers/Alticoding';
-import type { ExtractOptional } from '@/types/utilities';
 import Fetcher, { type FetchContext } from '@/utils/Fetcher';
 import OLFeatures, { type SimpleFeature } from '@/utils/OLFeatures';
 import Projections from '@/utils/Projections';
-import { DEFAULT_LINE_COLOR, DEFAULT_SURFACE_COLOR } from '@giro3d/giro3d/core/FeatureTypes';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
-import type FeatureFormat from 'ol/format/Feature';
-import GPXFormat from 'ol/format/GPX';
-import GeoJSONFormat from 'ol/format/GeoJSON';
-import KMLFormat from 'ol/format/KML';
-import { Group } from 'three';
+
 import type {
     DataProjectionMixin,
     ElevationMixin,
@@ -196,55 +200,55 @@ export interface VectorMeshSource {
 
 /** OpenLayers-based source */
 export class OlMeshSource implements VectorMeshSource {
-    elevation?: number;
-    noDataValue?: number;
+    public elevation?: number;
+    public noDataValue?: number;
     /** OL Feature format */
-    readonly format: FeatureFormat;
-    readonly options: VectorMeshSourceOptions;
+    public readonly format: FeatureFormat;
+    public readonly options: VectorMeshSourceOptions;
 
-    constructor(format: FeatureFormat, options: VectorMeshSourceOptions) {
+    public constructor(format: FeatureFormat, options: VectorMeshSourceOptions) {
         this.format = format;
         this.options = options;
         this.elevation = options.elevation;
         this.noDataValue = options.noDataValue;
     }
 
-    async load(instance: Instance): Promise<SimpleFeature[]> {
+    public async load(instance: Instance): Promise<SimpleFeature[]> {
         const text = await Fetcher.fetchText(this.options.url);
         const features = await toOlFeatures(instance, text, this.format, this.options);
         return features;
     }
 
-    context(): FetchContext {
+    public context(): FetchContext {
         return Fetcher.getContext(this.options.url);
     }
 }
 
 /** GPX source */
 export class GpxMeshSource extends OlMeshSource {
-    constructor(options: VectorMeshSourceOptions) {
+    public constructor(options: VectorMeshSourceOptions) {
         super(gpxFormat, options);
     }
 }
 
 /** KML source */
 export class KmlMeshSource extends OlMeshSource {
-    constructor(options: VectorMeshSourceOptions) {
+    public constructor(options: VectorMeshSourceOptions) {
         super(kmlFormat, options);
     }
 }
 
 /** GeoJSON source */
 export class GeoJsonMeshSource implements VectorMeshSource {
-    elevation?: number;
-    readonly options: VectorMeshSourceOptions;
+    public elevation?: number;
+    public readonly options: VectorMeshSourceOptions;
 
-    constructor(options: VectorMeshSourceOptions) {
+    public constructor(options: VectorMeshSourceOptions) {
         this.options = options;
         this.elevation = options.elevation;
     }
 
-    async load(instance: Instance): Promise<SimpleFeature[]> {
+    public async load(instance: Instance): Promise<SimpleFeature[]> {
         // TODO: For some historical (?) reason we are not using bare OL
         // parsing, and we are using toGeoJSONFeatures instead. Not sure
         // why we were doing this in the first place, maybe we can remove
@@ -261,16 +265,16 @@ export class GeoJsonMeshSource implements VectorMeshSource {
         return olFeatures;
     }
 
-    context(): FetchContext {
+    public context(): FetchContext {
         return Fetcher.getContext(this.options.url);
     }
 }
 
 /** Entity for displaying vector data as meshes */
 export default class VectorMeshEntity extends Entity3D {
-    readonly sources: VectorMeshSource[];
+    public readonly sources: VectorMeshSource[];
 
-    constructor(sources: VectorMeshSource | VectorMeshSource[]) {
+    public constructor(sources: VectorMeshSource | VectorMeshSource[]) {
         super(new Group());
         this.sources = Array.isArray(sources) ? sources : [sources];
     }

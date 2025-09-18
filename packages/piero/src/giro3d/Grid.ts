@@ -1,13 +1,14 @@
-import type Instance from '@giro3d/giro3d/core/Instance';
 import type Extent from '@giro3d/giro3d/core/geographic/Extent';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import type { Material } from 'three';
+
 import { GridHelper, Vector3 } from 'three';
 
 class Grid {
     private readonly _instance: Instance;
     private readonly _grid: GridHelper;
 
-    constructor(instance: Instance, extent: Extent, name: string) {
+    public constructor(instance: Instance, extent: Extent, name: string) {
         this._instance = instance;
         const dims = extent.dimensions();
         const center = extent.center();
@@ -26,16 +27,16 @@ class Grid {
         void this._instance.add(this._grid);
     }
 
-    dispose() {
+    public dispose(): void {
         this._instance.remove(this._grid);
         this._grid.geometry.dispose();
         (this._grid.material as Material).dispose();
     }
 
-    get visible() {
+    public get visible(): boolean {
         return this._grid.visible;
     }
-    set visible(v: boolean) {
+    public set visible(v: boolean) {
         this._grid.visible = v;
         this._instance.notifyChange(this._grid);
     }

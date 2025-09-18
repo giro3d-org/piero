@@ -1,6 +1,7 @@
+import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
+
 import type { CRS, GeoVec3 } from '@/types/configuration/geographic';
 import type { UrlOrData } from '@/utils/Fetcher';
-import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
 
 /** Base configuration for all sources (layers, overlays and datasets) */
 export interface SourceConfigBase<TSourceType extends string> {

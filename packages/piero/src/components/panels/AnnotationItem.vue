@@ -1,6 +1,8 @@
 <script setup lang="ts">
-    import type Annotation from '@/types/Annotation';
     import { onMounted, onUnmounted, ref } from 'vue';
+
+    import type Annotation from '@/types/Annotation';
+
     import AttributeItem from '../AttributeItem.vue';
     import VisibilityControl from '../VisibilityControl.vue';
     import EmptyIndicator from './EmptyIndicator.vue';
@@ -14,7 +16,9 @@
 
     const isEditing = ref(props.annotation.isEditing);
 
-    const onIsEditingChanged = () => (isEditing.value = props.annotation.isEditing);
+    const onIsEditingChanged = (): void => {
+        isEditing.value = props.annotation.isEditing;
+    };
 
     onMounted(() => {
         props.annotation.addEventListener('isEditing', onIsEditingChanged);

@@ -11,22 +11,22 @@ export default interface BookmarkApi {
 export class BookmarkApiImpl implements BookmarkApi {
     private readonly _store: BookmarkStore;
 
-    constructor(store: BookmarkStore) {
+    public constructor(store: BookmarkStore) {
         this._store = store;
     }
 
-    getBookmarks(): Bookmark[] {
+    public getBookmarks(): Bookmark[] {
         return this._store.getBookmarks();
     }
 
-    setBookmarks(bookmarks: Bookmark[]): void {
+    public setBookmarks(bookmarks: Bookmark[]): void {
         this._store.clear();
         for (const bookmark of bookmarks) {
             this._store.add(bookmark);
         }
     }
 
-    clearBookmarks(): void {
+    public clearBookmarks(): void {
         this._store.clear();
     }
 }

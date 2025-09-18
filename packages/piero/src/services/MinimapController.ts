@@ -1,13 +1,15 @@
-import Viewbox from '@/types/Viewbox';
 import type Instance from '@giro3d/giro3d/core/Instance';
+import type Map from '@giro3d/giro3d/entities/Map.js';
+
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import type Map from '@giro3d/giro3d/entities/Map.js';
 import GiroMap from '@giro3d/giro3d/entities/Map.js';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js';
 import OSM from 'ol/source/OSM';
 import { Vector2, Vector3 } from 'three';
+
+import Viewbox from '@/types/Viewbox';
 
 const DEFAULT_EXTENT = new Extent(
     'EPSG:3857',
@@ -17,7 +19,7 @@ const DEFAULT_EXTENT = new Extent(
     20037508.342789244,
 );
 
-function loadOSMLayer(map: Map) {
+function loadOSMLayer(map: Map): Promise<ColorLayer> {
     const layer = new ColorLayer({
         name: 'osm',
         source: new TiledImageSource({ source: new OSM() }),
@@ -35,7 +37,7 @@ export default class MinimapController {
     private readonly _basemap: Map;
     private _boundUpdateViewbox: () => void;
 
-    constructor(instance: Instance) {
+    public constructor(instance: Instance) {
         this._mainInstance = null;
         this._minimapInstance = instance;
 
@@ -69,7 +71,7 @@ export default class MinimapController {
         this._boundUpdateViewbox = this.updateViewbox.bind(this);
     }
 
-    dispose() {
+    public dispose(): void {
         if (this._mainInstance) {
             this._mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
         }
@@ -83,7 +85,7 @@ export default class MinimapController {
         this._viewbox.object3D.material.dispose();
     }
 
-    setMainInstance(instance: Instance | null) {
+    public setMainInstance(instance: Instance | null): void {
         if (this._mainInstance) {
             this._mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
         }
@@ -93,7 +95,7 @@ export default class MinimapController {
         }
     }
 
-    getCorners() {
+    public getCorners(): { ul: Vector3; ur: Vector3; ll: Vector3; lr: Vector3 } | undefined {
         const instance = this._mainInstance;
         const minimapInstance = this._minimapInstance;
 
@@ -103,7 +105,7 @@ export default class MinimapController {
 
         const canvasSize = instance.engine.getWindowSize();
 
-        const raycast = (x: number, y: number) => {
+        const raycast = (x: number, y: number): Vector3 | undefined => {
             const results = instance.pickObjectsAt(new Vector2(x, y), { limit: 1, radius: 0 });
             const point = results.at(0)?.point;
             if (point) {
@@ -130,7 +132,7 @@ export default class MinimapController {
         return { ul, ur, ll, lr };
     }
 
-    updateViewbox() {
+    public updateViewbox(): void {
         // Disabled as it consumes too much CPU
         // let corners = this.getCorners();
         if (this._mainInstance === null) {

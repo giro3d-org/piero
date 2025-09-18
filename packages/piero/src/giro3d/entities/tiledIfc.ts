@@ -1,6 +1,9 @@
 import type { TiledIfcDatasetConfig } from '@/types/configuration/datasets/tiledIfc';
+
 import { getPublicFolderUrl } from '@/utils/Configuration';
+
 import type { EntityBuilder } from '../EntityBuilder';
+
 import Tiles3dEntity from './Tiles3dEntity';
 
 export const build: EntityBuilder = context => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import type { PanelType } from './Configuration';
-    import getConfigurationPanels from './Configuration';
 
+    import getConfigurationPanels from './Configuration';
     import AboutPanel from './panels/AboutPanel.vue';
     import AnalysisPanel from './panels/AnalysisPanel.vue';
     import AnnotationPanel from './panels/AnnotationPanel.vue';

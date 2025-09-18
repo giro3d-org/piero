@@ -1,4 +1,5 @@
 import type { TiledPointCloudSource } from '@/giro3d/entities/TiledPointCloudEntity';
+
 import type { DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
 
 /** 3D-Tiles PointCloud source configuration */

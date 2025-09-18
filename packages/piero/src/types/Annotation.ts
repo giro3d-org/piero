@@ -1,7 +1,9 @@
-import Download from '@/utils/Download';
 import type Shape from '@giro3d/giro3d/entities/Shape';
 import type { ColorRepresentation } from 'three';
+
 import { EventDispatcher, MathUtils } from 'three';
+
+import Download from '@/utils/Download';
 
 type EmptyEvent = {
     /** empty */
@@ -25,14 +27,18 @@ export type PieroShapeUserData = {
 };
 
 export default class Annotation extends EventDispatcher<AnnotationEventMap> {
-    readonly uuid: string;
-    readonly title: string;
+    public readonly uuid: string;
+    public readonly title: string;
     private _visible: boolean;
     private _isEditing: boolean;
     private _object: () => Shape<PieroShapeUserData>;
-    properties: object;
+    public properties: object;
 
-    constructor(title: string, object: () => Shape<PieroShapeUserData>, properties: object = {}) {
+    public constructor(
+        title: string,
+        object: () => Shape<PieroShapeUserData>,
+        properties: object = {},
+    ) {
         super();
 
         this.title = title;
@@ -43,29 +49,29 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
         this.uuid = MathUtils.generateUUID();
     }
 
-    get visible() {
+    public get visible(): boolean {
         return this._visible;
     }
 
-    set visible(v) {
+    public set visible(v: boolean) {
         this._visible = v;
         this.dispatchEvent({ type: 'visible' });
     }
 
-    get object() {
+    public get object(): Shape<PieroShapeUserData> {
         return this._object();
     }
 
-    get isEditing() {
+    public get isEditing(): boolean {
         return this._isEditing;
     }
 
-    set isEditing(v) {
+    public set isEditing(v: boolean) {
         this._isEditing = v;
         this.dispatchEvent({ type: 'isEditing' });
     }
 
-    toGeoJSON() {
+    public toGeoJSON(): GeoJSON.Feature {
         const geojson = this.object.toGeoJSON({
             includeAltitudes: true,
         });
@@ -80,7 +86,7 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
         return geojson;
     }
 
-    static toCollection(annotations: Annotation[]): GeoJSON.FeatureCollection {
+    public static toCollection(annotations: Annotation[]): GeoJSON.FeatureCollection {
         const features = annotations.map(annotation => annotation.toGeoJSON());
 
         return {

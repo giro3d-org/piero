@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import type { DatasetOrGroup } from '@/types/Dataset';
+
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
@@ -10,21 +12,20 @@
     import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
     import { useLayerStore } from '@/stores/layers';
-    import type { DatasetOrGroup } from '@/types/Dataset';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
     const analysis = useAnalysisStore();
     const layers = useLayerStore();
 
-    function zoomOnDataset(dataset: DatasetOrGroup) {
+    function zoomOnDataset(dataset: DatasetOrGroup): void {
         const box = datasets.getBoundingBox(dataset);
         if (!box?.isEmpty()) {
             camera.lookTopDownAt(box);
         }
     }
 
-    function clipToDataset(dataset: DatasetOrGroup) {
+    function clipToDataset(dataset: DatasetOrGroup): void {
         const box = datasets.getBoundingBox(dataset);
         if (!box?.isEmpty()) {
             analysis.setClippingBox(box);
@@ -32,7 +33,7 @@
         }
     }
 
-    function importDataset(files: File[]) {
+    function importDataset(files: File[]): void {
         for (const file of files) {
             datasets.importFromFile(file);
         }

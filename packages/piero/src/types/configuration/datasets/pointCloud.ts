@@ -1,4 +1,5 @@
 import type { PointCloudSourceOptions } from '@/giro3d/entities/PointCloudEntity';
+
 import type { DatasetConfigBase, DatasetConfigMaskingMixin, DatasetSourceConfigBase } from './core';
 
 export interface CSVPointCloudSourceConfig

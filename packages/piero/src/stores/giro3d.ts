@@ -1,14 +1,17 @@
-import { getConfig } from '@/config-loader';
-import type { CameraConfigDeprecated } from '@/types/configuration/camera';
-import { getExtent } from '@/utils/Configuration';
 import type Instance from '@giro3d/giro3d/core/Instance';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
+
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import { defineStore } from 'pinia';
 import { FrontSide } from 'three';
 import { shallowRef } from 'vue';
+
+import type { CameraConfigDeprecated } from '@/types/configuration/camera';
+
+import { getConfig } from '@/config-loader';
+import { getExtent } from '@/utils/Configuration';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
@@ -19,7 +22,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return mainView.value;
     }
 
-    function setMainView(instance: Instance | null) {
+    function setMainView(instance: Instance | null): void {
         mainView.value = instance;
     }
 
@@ -27,7 +30,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return minimapView.value;
     }
 
-    function setMinimapView(instance: Instance | null) {
+    function setMinimapView(instance: Instance | null): void {
         minimapView.value = instance;
     }
 
@@ -35,7 +38,7 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return inspector.value;
     }
 
-    function setInspector(i: Inspector | null) {
+    function setInspector(i: Inspector | null): void {
         inspector.value = i;
     }
 
@@ -138,12 +141,12 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         );
     }
 
-    function getCRS() {
+    function getCRS(): string {
         const config = getConfig();
         return config.default_crs;
     }
 
-    function notifyChange() {
+    function notifyChange(): void {
         mainView.value?.notifyChange();
     }
 

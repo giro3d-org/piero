@@ -1,5 +1,7 @@
-import type { CRS } from '@/types/configuration/geographic';
 import type { Options as XYZOptions } from 'ol/source/XYZ';
+
+import type { CRS } from '@/types/configuration/geographic';
+
 import type { SourceConfigBase, SourceConfigProjectionMixin } from './core/baseConfig';
 import type { TiledImageSourceConfigMixin } from './core/tiled';
 

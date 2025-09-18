@@ -1,11 +1,12 @@
-import type { Module } from '@/module';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+
+import type { Module } from '@/module';
 
 export const useModuleStore = defineStore('modules', () => {
     const loadedModules = ref<Module[]>([]);
 
-    function setLoadedModules(modules: Module[]) {
+    function setLoadedModules(modules: Module[]): void {
         loadedModules.value = modules;
     }
 

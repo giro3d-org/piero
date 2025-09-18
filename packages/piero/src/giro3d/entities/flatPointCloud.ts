@@ -1,10 +1,15 @@
-import type { PointCloudDatasetConfig } from '@/types/configuration/datasets/pointCloud';
-import { getPublicFolderUrl } from '@/utils/Configuration';
-import Fetcher from '@/utils/Fetcher';
+import type { PointCloudSource } from '@giro3d/giro3d/sources/PointCloudSource';
+
 import COPCSource from '@giro3d/giro3d/sources/COPCSource';
 import LASSource from '@giro3d/giro3d/sources/LASSource';
-import type { PointCloudSource } from '@giro3d/giro3d/sources/PointCloudSource';
+
+import type { PointCloudDatasetConfig } from '@/types/configuration/datasets/pointCloud';
+
+import { getPublicFolderUrl } from '@/utils/Configuration';
+import Fetcher from '@/utils/Fetcher';
+
 import type { EntityBuilder } from '../EntityBuilder';
+
 import PointCloudEntity, { CSVPointCloudSource } from './PointCloudEntity';
 
 export const build: EntityBuilder = context => {
@@ -23,7 +28,7 @@ export const build: EntityBuilder = context => {
                 url:
                     typeof cfg.source.url === 'string'
                         ? getPublicFolderUrl(cfg.source.url)
-                        : async (begin: number, end: number) => {
+                        : async (begin: number, end: number): Promise<Uint8Array> => {
                               const blob = cfg.source.url as Blob;
                               const slice = blob.slice(begin, end);
                               const buf = await slice.arrayBuffer();
@@ -36,7 +41,7 @@ export const build: EntityBuilder = context => {
                 url:
                     typeof cfg.source.url === 'string'
                         ? getPublicFolderUrl(cfg.source.url)
-                        : async () => {
+                        : async (): Promise<Uint8Array> => {
                               const d = await Fetcher.fetchArrayBuffer(cfg.source.url);
                               return new Uint8Array(d.slice(0));
                           },

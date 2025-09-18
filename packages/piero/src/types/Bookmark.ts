@@ -1,5 +1,7 @@
-import Download from '@/utils/Download';
 import { EventDispatcher, Vector3 } from 'three';
+
+import Download from '@/utils/Download';
+
 import CameraPosition from './CameraPosition';
 
 type BookmarkJson = {
@@ -23,24 +25,24 @@ export type BookmarkEventMap = {
 };
 
 export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
-    readonly name: string;
-    readonly camera: CameraPosition;
+    public readonly name: string;
+    public readonly camera: CameraPosition;
 
-    constructor(name: string, camera: CameraPosition) {
+    public constructor(name: string, camera: CameraPosition) {
         super();
         this.name = name;
         this.camera = camera;
     }
 
-    delete() {
+    public delete(): void {
         this.dispatchEvent({ type: 'delete' });
     }
 
-    goTo() {
+    public goTo(): void {
         this.dispatchEvent({ type: 'goto' });
     }
 
-    getUrl() {
+    public getUrl(): URL {
         const base = Download.getBaseUrl() + '?';
         const cam = this.camera;
         const json: BookmarkJson = {
@@ -58,7 +60,7 @@ export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
         return url;
     }
 
-    static new(name: string, urlString: string): Bookmark {
+    public static new(name: string, urlString: string): Bookmark {
         const url = new URL(urlString);
         const view = url.searchParams.get('view');
         if (view === null) {

@@ -1,14 +1,13 @@
-import { fillObject3DUserData } from '@/loaders/userData';
-import Fetcher from '@/utils/Fetcher';
-import { isObject } from '@/utils/Types';
+import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type { Fragment } from 'bim-fragment/fragment';
 import type { FragmentMesh } from 'bim-fragment/fragment-mesh';
 import type { FragmentsGroup } from 'bim-fragment/fragments-group';
 import type { FragmentIdMap } from 'openbim-components';
+import type { Box3, Material, Vector2 } from 'three';
+
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import {
     Components,
     FragmentBoundingBox,
@@ -22,8 +21,12 @@ import {
     SimpleScene,
     toCompositeID,
 } from 'openbim-components';
-import type { Material, Vector2 } from 'three';
 import { Group, Matrix4, MeshBasicMaterial, Vector3 } from 'three';
+
+import { fillObject3DUserData } from '@/loaders/userData';
+import Fetcher from '@/utils/Fetcher';
+import { isObject } from '@/utils/Types';
+
 import type { CoordinatesMixin, UrlOrDataMixin } from '../../giro3d/sources/mixins';
 
 // Copied/extract quite a lot from openbim-components library:
@@ -139,9 +142,9 @@ export default class IfcEntity
     extends Entity3D
     implements PickableFeatures<IFCFeature, IFCPickResult>
 {
-    readonly isIfcEntity = true as const;
-    readonly isPickableFeatures = true as const;
-    override readonly type = 'IfcEntity' as const;
+    public readonly isIfcEntity = true as const;
+    public readonly isPickableFeatures = true as const;
+    public override readonly type = 'IfcEntity' as const;
 
     private readonly _source: IfcSource;
 
@@ -154,7 +157,7 @@ export default class IfcEntity
     private _classificationCache: ClassificationItem[] | null;
     private _fragmentBoundingBox: FragmentBoundingBox | null;
 
-    constructor(source: IfcSource) {
+    public constructor(source: IfcSource) {
         super(new Group());
         this._source = source;
 
@@ -236,7 +239,7 @@ export default class IfcEntity
         this.notifyChange(this.object3d);
     }
 
-    private initializeEntityIndexes() {
+    private initializeEntityIndexes(): void {
         this._indexMap = {};
         const properties = this._model.properties;
         if (properties === undefined) {
@@ -256,14 +259,14 @@ export default class IfcEntity
         }
     }
 
-    private setEntityIndex(expressID: number) {
+    private setEntityIndex(expressID: number): Set<number> {
         if (!(expressID in this._indexMap)) {
             this._indexMap[expressID] = new Set();
         }
         return this._indexMap[expressID];
     }
 
-    getProperty(expressID: number): { name: string; value: number | null } | null {
+    public getProperty(expressID: number): { name: string; value: number | null } | null {
         const properties = this._model.properties;
         if (properties === undefined) {
             return null;
@@ -278,7 +281,7 @@ export default class IfcEntity
         return { name, value };
     }
 
-    getProperties(expressID: string): IFCProperty[] {
+    public getProperties(expressID: string): IFCProperty[] {
         const properties = [];
         const objectRawProperties = this._model.properties;
         if (!objectRawProperties) {
@@ -390,14 +393,14 @@ export default class IfcEntity
         this._fragmentBoundingBox = await this._components.tools.get(FragmentBoundingBox);
     }
 
-    getClassification(): ClassificationItem[] {
+    public getClassification(): ClassificationItem[] {
         if (this._classificationCache === null) {
             throw new Error('Must call initClassification before getClassification');
         }
         return this._classificationCache;
     }
 
-    private addHighlightToFragment(name: FragmentTypeName, fragment: Fragment) {
+    private addHighlightToFragment(name: FragmentTypeName, fragment: Fragment): void {
         if (!(name in fragment.fragments)) {
             const subFragment = fragment.addFragment(name, [materials[name]]);
             if (fragment.blocks.count > 1) {
@@ -417,7 +420,7 @@ export default class IfcEntity
         }
     }
 
-    clearHighlight(name: FragmentTypeName = 'selection') {
+    public clearHighlight(name: FragmentTypeName = 'selection'): void {
         for (const fragID of Object.keys(this._ifcSelection[name])) {
             const fragment = this._fragmentManager.list[fragID];
             const selection = fragment?.fragments[name];
@@ -430,11 +433,11 @@ export default class IfcEntity
         this._ifcSelection[name] = {};
     }
 
-    private regenerate(name: FragmentTypeName, fragID: string) {
+    private regenerate(name: FragmentTypeName, fragID: string): void {
         this.updateFragmentFill(name, fragID);
     }
 
-    private addComposites(name: FragmentTypeName, mesh: FragmentMesh, itemID: number) {
+    private addComposites(name: FragmentTypeName, mesh: FragmentMesh, itemID: number): void {
         this.addHighlightToFragment(name, mesh.fragment);
         const composites = mesh.fragment.composites[itemID];
         if (composites) {
@@ -445,7 +448,7 @@ export default class IfcEntity
         }
     }
 
-    private updateFragmentFill(name: FragmentTypeName, fragmentID: string) {
+    private updateFragmentFill(name: FragmentTypeName, fragmentID: string): void {
         const ids = this._ifcSelection[name][fragmentID];
         const fragment = this._fragmentManager.list[fragmentID];
         if (fragment == null) {
@@ -483,7 +486,7 @@ export default class IfcEntity
         }
     }
 
-    highlight(name: FragmentTypeName, mesh: FragmentMesh, itemId: string) {
+    public highlight(name: FragmentTypeName, mesh: FragmentMesh, itemId: string): void {
         this._ifcSelection[name][mesh.uuid] = new Set<string>();
 
         const idNum = parseInt(itemId, 10);
@@ -510,7 +513,7 @@ export default class IfcEntity
         this.notifyChange(this);
     }
 
-    highlightById(ids: FragmentIdMap, name: FragmentTypeName = 'selection') {
+    public highlightById(ids: FragmentIdMap, name: FragmentTypeName = 'selection'): void {
         for (const fragID of Object.keys(ids)) {
             if (!(fragID in this._ifcSelection[name])) {
                 this._ifcSelection[name][fragID] = new Set<string>();
@@ -532,7 +535,7 @@ export default class IfcEntity
         this.notifyChange(this);
     }
 
-    getBoundingBoxById(ids: FragmentIdMap) {
+    public getBoundingBoxById(ids: FragmentIdMap): Box3 | undefined {
         this.clearHighlight('bbox');
         this.highlightById(ids, 'bbox');
 
@@ -572,7 +575,7 @@ export default class IfcEntity
         return box;
     }
 
-    override pick(canvasCoords: Vector2, options?: PickOptions): IFCPickResult[] {
+    public override pick(canvasCoords: Vector2, options?: PickOptions): IFCPickResult[] {
         return super.pick(canvasCoords, options).map(p => ({
             ...p,
             entity: this,
@@ -582,7 +585,7 @@ export default class IfcEntity
         }));
     }
 
-    pickFeaturesFrom(pickedResult: IFCPickResult) {
+    public pickFeaturesFrom(pickedResult: IFCPickResult): IFCFeature[] {
         const mesh = pickedResult.object;
         if (mesh.fragment != null && pickedResult.instanceId != null && pickedResult.face) {
             const blockId = mesh.fragment.getVertexBlockID(mesh.geometry, pickedResult.face.a);
@@ -606,8 +609,8 @@ export default class IfcEntity
         return [];
     }
 
-    static isIFCEntity = (obj: unknown): obj is IfcEntity =>
+    public static isIFCEntity = (obj: unknown): obj is IfcEntity =>
         isObject(obj) && (obj as IfcEntity).isIfcEntity;
-    static isIFCPickResult = (obj: unknown): obj is IFCPickResult =>
+    public static isIFCPickResult = (obj: unknown): obj is IFCPickResult =>
         isObject(obj) && IfcEntity.isIFCEntity((obj as PickResult<unknown>).entity);
 }
