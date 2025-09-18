@@ -74,7 +74,7 @@ publish_prerelease_package:
         - npm run package-libraries
         - npm publish packages/piero/ --access public --tag ${channel}
     rules:
-        - if: "$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_pre_release"
+        - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_pre_release'
 
 publish_package:
     stage: publish
@@ -85,4 +85,4 @@ publish_package:
         - npm run package-libraries
         - npm publish packages/piero/ --access public
     rules:
-        - if: "$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release"
+        - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release'
