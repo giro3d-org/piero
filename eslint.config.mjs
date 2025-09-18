@@ -1,5 +1,6 @@
 import skipFormattingConfig from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
+import perfectionist from 'eslint-plugin-perfectionist';
 import prettier from 'eslint-plugin-prettier';
 import tsdoc from 'eslint-plugin-tsdoc';
 import pluginVue from 'eslint-plugin-vue';
@@ -14,6 +15,7 @@ export default defineConfigWithVueTs([
     {
         plugins: {
             tsdoc,
+            perfectionist,
             prettier,
         },
         rules: {
@@ -106,6 +108,8 @@ export default defineConfigWithVueTs([
             'max-classes-per-file': 'off', // for me, if we export only one, I don't see the wrong here
 
             // Also apply TS rules from Giro3D
+            '@typescript-eslint/explicit-member-accessibility': 'error',
+            '@typescript-eslint/explicit-function-return-type': 'error',
             '@typescript-eslint/no-non-null-assertion': 'error',
             '@typescript-eslint/consistent-type-imports': 'error',
             '@typescript-eslint/strict-boolean-expressions': 'error',
@@ -117,6 +121,9 @@ export default defineConfigWithVueTs([
                     caughtErrorsIgnorePattern: '^_',
                 },
             ],
+            'perfectionist/sort-imports': 'error',
+
+            // Piero-Specific
             '@typescript-eslint/no-empty-object-type': [
                 'error',
                 {
