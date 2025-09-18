@@ -107,7 +107,7 @@ You can register your own modules (classes that implement the `Module` interface
 
 ```ts
 // index.ts
-import { createPieroApp, Module } from '@giro3d/piero';
+import { createPieroApp, Module, PieroContext } from '@giro3d/piero';
 
 class MyCustomModule implements Module {
     name = 'A custom module';
