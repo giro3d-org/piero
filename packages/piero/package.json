@@ -1,7 +1,7 @@
 {
     "name": "@giro3d/piero",
     "type": "module",
-    "version": "25.10.0-beta.5",
+    "version": "25.10.0-beta.6",
     "description": "A web application for 3D geospatial data visualization, powered by Giro3D",
     "keywords": [
         "front-end",
@@ -45,8 +45,7 @@
         "./piero.css": "./dist/assets/style.css"
     },
     "files": [
-        "dist",
-        "README.md"
+        "dist"
     ],
     "sideEffects": [
         "**/*.css"
