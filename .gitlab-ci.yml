@@ -74,7 +74,7 @@ publish_prerelease_package:
     rules:
         - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_pre_release'
     variables:
-        NPM_AUTH_TOKEN: $NPM_AUTH_TOKEN
+        NODE_AUTH_TOKEN: $NPM_AUTH_TOKEN
 
 publish_package:
     stage: publish
@@ -85,4 +85,4 @@ publish_package:
     rules:
         - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release'
     variables:
-        NPM_AUTH_TOKEN: $NPM_AUTH_TOKEN
+        NODE_AUTH_TOKEN: $NPM_AUTH_TOKEN
