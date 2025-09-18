@@ -49,6 +49,7 @@ And an `index.ts` file:
 ```ts
 // index.ts
 import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 import configuration from './config';
 
@@ -58,6 +59,8 @@ createPieroApp({
     configuration,
 });
 ```
+
+Note that you have to import the CSS file from Piero.
 
 Create the `config.ts` file in the same folder as `index.ts`, and fill it with your configuration (you can use the [sample configuration](https://gitlab.com/giro3d/piero/-/blob/main/config.ts.sample) as a starting point).
 
@@ -78,6 +81,7 @@ Alternatively, you can pass a URL to a remote JSON configuration
 ```ts
 // index.ts
 import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 createPieroApp({
     container: '#app',
@@ -93,6 +97,7 @@ To deploy your app, update the `baseUrl` to be the URL from which the app is ser
 ```ts
 // index.ts
 import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 createPieroApp({
     container: '#app',
@@ -108,6 +113,7 @@ You can register your own modules (classes that implement the `Module` interface
 ```ts
 // index.ts
 import { createPieroApp, Module, PieroContext } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 class MyCustomModule implements Module {
     name = 'A custom module';
