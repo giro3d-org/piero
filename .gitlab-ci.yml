@@ -70,7 +70,7 @@ publish_prerelease_package:
     retry: 1
     script:
         - channel="$(echo "$CI_COMMIT_TAG" | sed -E 's/^v[0-9]+\.[0-9]+\.[0-9]+-([[:alnum:]]+)\.[0-9]+$/\1/')"
-        - npm --loglevel verbose publish packages/piero/ --access public --tag ${channel}
+        - npm publish packages/piero/ --access public --tag ${channel}
     rules:
         - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_pre_release'
     variables:
