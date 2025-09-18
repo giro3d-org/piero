@@ -1,5 +1,5 @@
 import type { PieroContext } from '@/context';
-import type { Builder } from '@/giro3d/EntityBuilder';
+import type { EntityBuilder } from '@/giro3d/EntityBuilder';
 import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 import type { HighlightFn } from '@/services/Highlighter';
@@ -95,7 +95,7 @@ const attributeExtractor: AttributeExtractorFn = (
     }
 };
 
-const entityBuilder: Builder = context => {
+const entityBuilder: EntityBuilder = context => {
     const dataset = context.dataset;
 
     const cfg = dataset.config as IFCDatasetConfig;

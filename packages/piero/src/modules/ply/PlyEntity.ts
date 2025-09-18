@@ -10,7 +10,7 @@ import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { Color, DoubleSide, Group, Mesh, MeshLambertMaterial } from 'three';
-import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader';
+import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 
 /** Parameters for creating {@link PlyEntity} */
 export interface PlySource

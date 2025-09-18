@@ -25,7 +25,7 @@ import {
     Vector3,
     Vector4,
 } from 'three';
-import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import type Picker from './Picker';
 
 CameraControls.install({

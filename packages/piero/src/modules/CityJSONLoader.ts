@@ -1,5 +1,5 @@
 import type { PieroContext } from '@/context';
-import type { Builder } from '@/giro3d/EntityBuilder';
+import type { EntityBuilder } from '@/giro3d/EntityBuilder';
 import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 import type { AttributeExtractorFn } from '@/services/Picker';
@@ -21,7 +21,7 @@ export const loader: LoadDatasetFromFile = context => {
     } satisfies CityJSONDatasetConfig;
 };
 
-export const entityBuilder: Builder = context => {
+export const entityBuilder: EntityBuilder = context => {
     const cfg = context.dataset.config as unknown as CityJSONDatasetConfig;
     const entity = new CityJSONEntity({
         ...cfg.source,
