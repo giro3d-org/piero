@@ -8,7 +8,7 @@ import { getContrastColor } from '@giro3d/giro3d/utils/ColorUtils';
 import type { Coordinate } from 'ol/coordinate';
 import type { Intersection } from 'three';
 import { Box3, Color, Group, MathUtils, Raycaster, Vector2, Vector3 } from 'three';
-import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import type { VectorMeshSource } from './VectorMeshEntity';
 
 const tmpNDC = new Vector2();
