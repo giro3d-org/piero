@@ -1,7 +1,7 @@
 {
     "name": "@giro3d/piero",
     "type": "module",
-    "version": "25.10.0-beta.8",
+    "version": "25.10.0-beta.9",
     "description": "A web application for 3D geospatial data visualization, powered by Giro3D",
     "keywords": [
         "front-end",
@@ -57,6 +57,10 @@
     "license": "MIT",
     "bugs": {
         "url": "https://gitlab.com/giro3d/piero/-/issues"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "homepage": "https://piero.giro3d.org/",
     "scripts": {
