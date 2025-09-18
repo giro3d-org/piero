@@ -35,7 +35,7 @@
     const selectedTool = ref<PanelType | null>('datasets');
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
-    let mouse = new Vector2();
+    const mouse = new Vector2();
     const pickedFeature = ref<Feature | null>(null);
     const tooltip = ref<string | null>(null);
     const isLoading = ref(false);
@@ -75,7 +75,7 @@
                         if (args[0] === null) {
                             disposeMinimap();
                         } else {
-                            initializeMinimap(args[0]);
+                            void initializeMinimap(args[0]);
                         }
                         break;
                 }
@@ -139,7 +139,7 @@
         giro3d.value = null;
     }
 
-    function initializeMinimap(instance: Instance) {
+    function initializeMinimap(instance: Instance): void {
         minimap.value = new MinimapController(instance);
         if (giro3d.value) {
             minimap.value.setMainInstance(giro3d.value.mainInstance);
@@ -248,7 +248,7 @@
             1000,
         );
         const bbox3 = target.toBox3(poi.z, poi.z + 200);
-        giro3d.value.camera.lookTopDownAt(bbox3, false);
+        void giro3d.value.camera.lookTopDownAt(bbox3, false);
     }
 </script>
 

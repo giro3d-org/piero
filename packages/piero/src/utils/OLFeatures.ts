@@ -98,12 +98,12 @@ function toSimpleFeatures(features: FeatureLike[]): SimpleFeature[] {
  * @param featureProjection - Output projection (typically the one used by Giro3D instance)
  * @returns Features
  */
-async function readSimpleFeatures(
+function readSimpleFeatures(
     data: string,
     format: FeatureFormat,
     dataProjection: string,
     featureProjection: string,
-): Promise<SimpleFeature[]> {
+): SimpleFeature[] {
     return toSimpleFeatures(
         format.readFeatures(data, {
             dataProjection,

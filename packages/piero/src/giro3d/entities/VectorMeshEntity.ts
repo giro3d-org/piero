@@ -131,7 +131,7 @@ export async function toOlFeatures(
     format: FeatureFormat,
     parameters: VectorMeshSourceOptions,
 ): Promise<SimpleFeature[]> {
-    const olFeatures = await OLFeatures.readSimpleFeatures(
+    const olFeatures = OLFeatures.readSimpleFeatures(
         data,
         format,
         parameters.dataProjection ?? defaultParameters.dataProjection,
@@ -169,12 +169,12 @@ export async function toOlFeatures(
  * @param noDataValue - Value considered as no data for filling Z.
  * @returns Group containing all meshes for all features
  */
-export async function olFeaturestoGroup(
+export function olFeaturestoGroup(
     features: SimpleFeature[],
     options?: PolygonOptions,
     defaultElevation = defaultParameters.elevation,
     noDataValue = defaultParameters.noDataValue,
-): Promise<Group> {
+): Group {
     const elevation =
         (Array.isArray(options?.elevation) ? options.elevation[0] : options?.elevation) ??
         defaultElevation;
@@ -275,11 +275,11 @@ export default class VectorMeshEntity extends Entity3D {
         this.sources = Array.isArray(sources) ? sources : [sources];
     }
 
-    protected async preprocess(): Promise<void> {
+    protected override async preprocess(): Promise<void> {
         for (const source of this.sources) {
             // TODO: avoid await in the loop
             const olFeatures = await source.load(this.instance);
-            const group = await olFeaturestoGroup(
+            const group = olFeaturestoGroup(
                 olFeatures,
                 {
                     elevation: source.elevation,

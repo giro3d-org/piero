@@ -75,7 +75,7 @@ export default class CityJSONEntity
 {
     readonly isCityJSONEntity = true;
     readonly isPickableFeatures = true;
-    readonly type = 'CityJSONEntity';
+    override readonly type = 'CityJSONEntity';
 
     readonly source: CityJSONSource;
     private _availableLods: string[] | null;
@@ -145,16 +145,16 @@ export default class CityJSONEntity
         });
     }
 
-    async preprocess(): Promise<void> {
+    override async preprocess(): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const json: any = await Fetcher.fetchJson(this.source.url);
 
-        return new Promise<void>(resolve => {
+        return new Promise<void>((resolve, reject) => {
             const parser = new CityJSONWorkerParser();
             const loader = new CityJSONThreeLoader(parser);
 
             parser.chunkSize = 2000;
-            parser.onComplete = async () => {
+            parser.onComplete = () => {
                 // FIXME: here's a code smell indicating we are not using CityJSON correctly
                 let z = 0;
                 if (
@@ -186,54 +186,57 @@ export default class CityJSONEntity
                     this.source.dataProjection ??
                     this.source.featureProjection;
 
-                const proj = await Projections.loadProjCrsIfNeeded(projection);
-                if (proj) {
-                    const coords = new Coordinates(proj, translate[0], translate[1], translate[2]);
-                    const coordsReference = coords.as(this.source.featureProjection);
-                    loader.scene.position.set(
-                        coordsReference.values[0],
-                        coordsReference.values[1],
-                        coordsReference.values[2],
-                    );
-                } else {
-                    loader.scene.position.set(translate[0], translate[1], translate[2]);
-                }
-                loader.scene.updateMatrix();
-                loader.scene.updateMatrixWorld(true);
+                Projections.loadProjCrsIfNeeded(projection)
+                    .then(proj => {
+                        if (proj) {
+                            const coords = new Coordinates(proj, translate[0], translate[1], translate[2]);
+                            const coordsReference = coords.as(this.source.featureProjection);
+                            loader.scene.position.set(
+                                coordsReference.values[0],
+                                coordsReference.values[1],
+                                coordsReference.values[2],
+                            );
+                        } else {
+                            loader.scene.position.set(translate[0], translate[1], translate[2]);
+                        }
+                        loader.scene.updateMatrix();
+                        loader.scene.updateMatrixWorld(true);
 
-                this.object3d.add(loader.scene);
+                        this.object3d.add(loader.scene);
 
-                this._availableLods = parser.lods;
+                        this._availableLods = parser.lods;
 
-                // Find the "best" LoD
-                if (this._availableLods != null && this._availableLods.length > 0) {
-                    const sortedAvailableLods = Array.from(this._availableLods);
-                    sortedAvailableLods.sort();
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    const bestLod = sortedAvailableLods.pop()!;
-                    this._displayedLodIdx = this._availableLods.indexOf(bestLod);
-                } else {
-                    this._displayedLodIdx = -1;
-                }
+                        // Find the "best" LoD
+                        if (this._availableLods != null && this._availableLods.length > 0) {
+                            const sortedAvailableLods = Array.from(this._availableLods);
+                            sortedAvailableLods.sort();
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            const bestLod = sortedAvailableLods.pop()!;
+                            this._displayedLodIdx = this._availableLods.indexOf(bestLod);
+                        } else {
+                            this._displayedLodIdx = -1;
+                        }
 
-                this.traverseCityMaterials(m => {
-                    m.showLod = this._displayedLodIdx;
-                });
+                        this.traverseCityMaterials(m => {
+                            m.showLod = this._displayedLodIdx;
+                        });
 
-                this.onObjectCreated(loader.scene);
+                        this.onObjectCreated(loader.scene);
 
-                const context = Fetcher.getContext(this.source.url);
-                fillObject3DUserData(this, { filename: context.filename });
+                        const context = Fetcher.getContext(this.source.url);
+                        fillObject3DUserData(this, { filename: context.filename });
 
-                this.notifyChange(this.object3d);
-                resolve();
+                        this.notifyChange(this.object3d);
+                        resolve();
+                    })
+                    .catch(e => reject(e as Error));
             };
 
             loader.load(json);
         });
     }
 
-    pick(canvasCoords: Vector2, options?: PickOptions): CityJSONPickResult[] {
+    override pick(canvasCoords: Vector2, options?: PickOptions): CityJSONPickResult[] {
         return super.pick(canvasCoords, options).map(p => ({
             ...p,
             entity: this,

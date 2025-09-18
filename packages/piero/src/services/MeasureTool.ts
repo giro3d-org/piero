@@ -20,7 +20,7 @@ export default class MeasureTool {
         this.clean();
     }
 
-    measure(instance: Instance, event: MouseEvent) {
+    public measure(instance: Instance, event: MouseEvent): void {
         const picked = this._picker.getFirstFeatureAt(instance, event, 0, o => !isShape(o))?.at(0);
 
         if (picked && picked.normal) {
@@ -43,7 +43,7 @@ export default class MeasureTool {
             if (intersects) {
                 if (!this._hoverMeasurement) {
                     this._hoverMeasurement = new Measure3D();
-                    instance.add(this._hoverMeasurement);
+                    void instance.add(this._hoverMeasurement);
                 }
                 this._hoverMeasurement.visible = true;
                 this._hoverMeasurement.setPoints([picked.point, intersects.point]);

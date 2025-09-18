@@ -52,16 +52,16 @@ export default class DatasetManager {
                         this.deleteDataset(args[0]);
                         break;
                     case 'importFromFile':
-                        this.importFromFile(args[0]);
+                        void this.importFromFile(args[0]);
                         break;
                     case 'setVisible':
-                        this.onVisibilityChanged(args[0], args[1]);
+                        void this.onVisibilityChanged(args[0], args[1]);
                         break;
                     case 'toggleGrid':
-                        this.onToggleGrid(args[0]);
+                        void this.onToggleGrid(args[0]);
                         break;
                     case 'toggleMask':
-                        this.onToggleMask(args[0]);
+                        void this.onToggleMask(args[0]);
                         break;
                 }
             });
@@ -69,7 +69,7 @@ export default class DatasetManager {
 
         for (const dataset of this._store.getDatasets()) {
             if (dataset.visible) {
-                this.preloadDataset(dataset);
+                void this.preloadDataset(dataset);
             }
         }
     }
@@ -78,7 +78,7 @@ export default class DatasetManager {
         // Nothing to do (?)
     }
 
-    private createGrid(dataset: DatasetOrGroup) {
+    private async createGrid(dataset: DatasetOrGroup) {
         const box = this._store.getBoundingBox(dataset);
         if (box == null || box.isEmpty()) {
             return;
@@ -102,7 +102,7 @@ export default class DatasetManager {
             },
         });
         grid.name = `AxisGrid-${dataset.uuid}`;
-        this._instance.add(grid);
+        await this._instance.add(grid);
         this._axisGrids.set(dataset.uuid, grid);
     }
 
@@ -114,15 +114,15 @@ export default class DatasetManager {
         this._axisGrids.delete(dataset.uuid);
     }
 
-    private onToggleGrid(dataset: DatasetOrGroup) {
+    private async onToggleGrid(dataset: DatasetOrGroup) {
         if (this._axisGrids.has(dataset.uuid)) {
             this.deleteGrid(dataset);
         } else {
-            this.createGrid(dataset);
+            await this.createGrid(dataset);
         }
     }
 
-    private createMask(dataset: DatasetOrGroup) {
+    private async createMask(dataset: DatasetOrGroup) {
         // TODO: this assumes the dataset covers the whole bounding box
         // (in particular, that it is oriented the same way)
         // which will most likely not be the case...
@@ -160,10 +160,10 @@ export default class DatasetManager {
 
         // Apply the mask to the map
         const maps = this._instance.getObjects(obj => isMap(obj)) as Giro3DMap[];
-        maps.forEach(map => {
-            map.addLayer(mask);
+        for (const map of maps) {
+            await map.addLayer(mask);
             this._instance.notifyChange(map);
-        });
+        }
         this._masks.set(dataset.uuid, mask);
     }
 
@@ -179,11 +179,11 @@ export default class DatasetManager {
         this._masks.delete(dataset.uuid);
     }
 
-    private onToggleMask(dataset: DatasetOrGroup) {
+    private async onToggleMask(dataset: DatasetOrGroup) {
         if (this._masks.has(dataset.uuid)) {
             this.deleteMask(dataset);
         } else {
-            this.createMask(dataset);
+            await this.createMask(dataset);
         }
     }
 
@@ -193,11 +193,11 @@ export default class DatasetManager {
             if (!dataset.isPreloaded && newVisibility) {
                 await this.preloadDataset(dataset);
             }
-            this.updateDataset(dataset);
+            await this.updateDataset(dataset);
             if (Datagroup.isGroup(dataset)) {
-                dataset.children.forEach(ds => this.onVisibilityChanged(ds, newVisibility));
+                dataset.children.forEach(ds => void this.onVisibilityChanged(ds, newVisibility));
             }
-        } catch (e) {
+        } catch (_e) {
             dataset.visible = false;
         }
 
@@ -228,14 +228,14 @@ export default class DatasetManager {
             this._notifications.push(
                 new Notification(dataset.name, 'Import successful.', 'success'),
             );
-        } catch (e) {
+        } catch (_e) {
             // Already logged, ignore
         }
 
         GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'dataset-added', value: dataset });
     }
 
-    private updateDataset(dataset: DatasetOrGroup) {
+    private async updateDataset(dataset: DatasetOrGroup) {
         const entity = this._entities.get(dataset.uuid);
         if (entity) {
             entity.visible = dataset.visible;
@@ -244,7 +244,7 @@ export default class DatasetManager {
                 'isMaskingBasemap' in dataset.config &&
                 dataset.config.isMaskingBasemap === true
             ) {
-                this.createMask(dataset);
+                await this.createMask(dataset);
             } else if (!dataset.visible && this._masks.has(dataset.uuid)) {
                 this.deleteMask(dataset);
             }

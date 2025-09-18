@@ -25,7 +25,6 @@ const tmpIntersectList: Intersection[] = [];
  */
 export type LabelPickResult = PickResult & {
     isLabelPickResult: true;
-    // eslint-disable-next-line no-use-before-define
     entity: VectorLabelsEntity;
 };
 
@@ -63,7 +62,7 @@ export default class VectorLabelsEntity extends Entity3D {
         this._styleCallback = options?.style;
     }
 
-    updateVisibility(): void {
+    override updateVisibility(): void {
         // Setting the root object's visibility is not enough
         // to set the visibility of CSS2DObjects (labels).
         this.object3d.traverse(o => {
@@ -71,7 +70,7 @@ export default class VectorLabelsEntity extends Entity3D {
         });
     }
 
-    updateOpacity(): void {
+    override updateOpacity(): void {
         // Opacity is driven by CSS, not by Threejs rendering
         const cssOpacity = `${this.opacity * 100}%`;
         this._labels.forEach(label => (label.element.style.opacity = cssOpacity));
@@ -121,7 +120,7 @@ export default class VectorLabelsEntity extends Entity3D {
         return object;
     }
 
-    protected async preprocess(): Promise<void> {
+    protected override async preprocess(): Promise<void> {
         for (const source of this.sources) {
             // TODO: avoid await in the loop
             const olFeatures = await source.load(this.instance);
@@ -215,8 +214,7 @@ export default class VectorLabelsEntity extends Entity3D {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pick(coordinates: Vector2, _options?: PickOptions): LabelPickResult[] {
+    override pick(coordinates: Vector2, _options?: PickOptions): LabelPickResult[] {
         const normalized = this.instance.canvasToNormalizedCoords(coordinates, tmpNDC);
         const raycaster = new Raycaster();
         raycaster.setFromCamera(normalized, this.instance.view.camera);
@@ -238,7 +236,7 @@ export default class VectorLabelsEntity extends Entity3D {
         return [];
     }
 
-    getBoundingBox(): Box3 | null {
+    override getBoundingBox(): Box3 | null {
         // For some reason (because of nested groups?), Three.js does not
         // compute correctly the bounding box of this.object3d
         const pts = this._labels.map(l => l.position);

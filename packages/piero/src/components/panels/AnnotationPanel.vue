@@ -41,7 +41,7 @@
         Download.downloadAsJson(geojson, 'annotations.json');
     }
 
-    async function importAnnotationFile(files: File[]) {
+    function importAnnotationFile(files: File[]) {
         annotations.importAnnotationsFiles(files);
     }
 </script>

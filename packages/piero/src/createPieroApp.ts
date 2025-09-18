@@ -61,7 +61,7 @@ async function resolveConfiguration(params: AppParameters): Promise<Configuratio
  */
 export default async function createPieroApp(params: AppParameters): Promise<void> {
     const configuration = await resolveConfiguration(params);
-    setConfiguration(configuration);
+    await setConfiguration(configuration);
 
     console.info('Configuration loaded.');
 

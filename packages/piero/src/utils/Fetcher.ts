@@ -60,7 +60,7 @@ async function toDataURL(url: UrlOrData): Promise<string> {
         } else {
             const reader = new FileReader();
             reader.addEventListener('load', () => resolve(reader.result as string), false);
-            reader.addEventListener('error', () => reject(reader.error));
+            reader.addEventListener('error', () => reject(reader.error as DOMException));
             reader.readAsDataURL(url);
         }
     });

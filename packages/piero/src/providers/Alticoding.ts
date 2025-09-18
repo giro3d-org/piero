@@ -11,7 +11,8 @@ export type Alticoder = (coordinates: Coordinates[]) => Promise<void>;
 /**
  * Alticoder using {@link IgnProvider}.
  */
-export const IgnAlticoder = IgnProvider.alticode;
+export const IgnAlticoder = (coordinates: Coordinates[]): Promise<void> =>
+    IgnProvider.alticode(coordinates);
 
 /**
  * Alticoder generator using (only) the map
@@ -36,6 +37,7 @@ export const mapAlticoderGenerator = (instance: Instance): Alticoder => {
                 coords._values[2] = res.elevation;
             }
         });
+        return Promise.resolve();
     };
     return alticoder;
 };

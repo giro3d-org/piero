@@ -85,7 +85,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
 
         const position = this._store.getDefaultCameraPosition();
         const lookAt = this._store.getDefaultCameraLookAt();
-        this.camera.lookAt(position.toVector3(), lookAt.toVector3());
+        void this.camera.lookAt(position.toVector3(), lookAt.toVector3());
 
         this.layerManager = new LayerManager(this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance, this.layerManager);
@@ -125,7 +125,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.notifyChange();
     }
 
-    dispose() {
+    public dispose(): void {
         this.mainInstance.removeEventListener('update-end', this._boundOnFrameEnd);
         this.mainInstance.scene.remove(this.dirLight.target);
         this.mainInstance.scene.remove(this.dirLight);

@@ -19,7 +19,7 @@ class Plane {
         this._plane.position.set(center.x, center.y, -101);
 
         this._plane.updateMatrixWorld();
-        this._instance.add(this._plane);
+        void this._instance.add(this._plane);
     }
 
     dispose() {

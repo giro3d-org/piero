@@ -18,10 +18,10 @@ export default class FloodingPlaneManager {
             after(() => {
                 switch (name) {
                     case 'enableFloodingPlane':
-                        this.updatePlane();
+                        void this.updatePlane();
                         break;
                     case 'setFloodingPlaneHeight':
-                        this.updatePlane();
+                        void this.updatePlane();
                         break;
                 }
             });
@@ -35,10 +35,10 @@ export default class FloodingPlaneManager {
         }
     }
 
-    private updatePlane() {
+    private async updatePlane() {
         if (!this._plane) {
             this._plane = new FloodingPlane();
-            this._instance.add(this._plane.object3D);
+            await this._instance.add(this._plane.object3D);
         }
         const extent = this._layerManager.extent;
         const center = extent.centerAsVector2();

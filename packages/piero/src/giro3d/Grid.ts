@@ -23,7 +23,7 @@ class Grid {
         gridMat.transparent = true;
 
         this._grid.updateMatrixWorld();
-        this._instance.add(this._grid);
+        void this._instance.add(this._grid);
     }
 
     dispose() {

@@ -25,7 +25,7 @@ function loadOSMLayer(map: Map) {
 
     layer.visible = true;
 
-    map.addLayer(layer);
+    return map.addLayer(layer);
 }
 
 export default class MinimapController {
@@ -52,9 +52,9 @@ export default class MinimapController {
         });
         this._basemap.name = 'minimap';
 
-        this._minimapInstance.add(this._basemap);
+        void this._minimapInstance.add(this._basemap);
 
-        loadOSMLayer(this._basemap);
+        void loadOSMLayer(this._basemap);
 
         const center = new Coordinates('EPSG:4326', 4.84, 45.76).as(
             this._minimapInstance.referenceCrs,

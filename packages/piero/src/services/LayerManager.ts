@@ -54,7 +54,7 @@ export default class LayerManager extends EventDispatcher {
         });
         this._basemap.terrain.segments = 32;
         this._basemap.name = 'basemaps';
-        this._instance.add(this._basemap);
+        void this._instance.add(this._basemap);
 
         this._grid = new Grid(this._instance, extent, GRID_NAME);
         this._plane = new Plane(this._instance, extent, PLANE_NAME);
@@ -64,13 +64,13 @@ export default class LayerManager extends EventDispatcher {
 
         for (const overlay of this._layerStore.getOverlays()) {
             if (overlay.visible) {
-                this.loadOverlay(overlay);
+                void this.loadOverlay(overlay);
             }
         }
 
         for (const basemap of this._layerStore.getBasemaps()) {
             if (basemap.visible) {
-                this.loadBasemap(basemap);
+                void this.loadBasemap(basemap);
             }
         }
 
@@ -84,16 +84,16 @@ export default class LayerManager extends EventDispatcher {
             after(() => {
                 switch (name) {
                     case 'setBasemapVisibility':
-                        this.onLayerVisibilityChanged(args[0], args[1]);
+                        void this.onLayerVisibilityChanged(args[0], args[1]);
                         break;
                     case 'setBasemapOpacity':
-                        this.onLayerOpacityChanged(args[0], args[1]);
+                        void this.onLayerOpacityChanged(args[0], args[1]);
                         break;
                     case 'setOverlayOpacity':
-                        this.onOverlayOpacityChanged(args[0], args[1]);
+                        void this.onOverlayOpacityChanged(args[0], args[1]);
                         break;
                     case 'setOverlayVisibility':
-                        this.onOverlayVisibilityChanged(args[0], args[1]);
+                        void this.onOverlayVisibilityChanged(args[0], args[1]);
                         break;
                     case 'moveOverlayDown':
                     case 'moveOverlayUp':
@@ -104,7 +104,7 @@ export default class LayerManager extends EventDispatcher {
         });
     }
 
-    dispose() {
+    public dispose(): void {
         this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
         this._instance.remove(this._basemap);
@@ -163,7 +163,7 @@ export default class LayerManager extends EventDispatcher {
         const layer = await LayerBuilder.getLayer(basemap);
 
         this._baseLayers.set(basemap.uuid, layer);
-        this._basemap.addLayer(layer);
+        await this._basemap.addLayer(layer);
         this.updateLayerOrdering();
 
         layer.visible = basemap.visible;
@@ -188,7 +188,7 @@ export default class LayerManager extends EventDispatcher {
         const layer = await LayerBuilder.getOverlay(overlay, this.extent);
 
         this._overlays.set(overlay.uuid, layer);
-        this._basemap.addLayer(layer);
+        await this._basemap.addLayer(layer);
         this.updateLayerOrdering();
 
         layer.visible = overlay.visible;

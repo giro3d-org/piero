@@ -99,7 +99,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         orbitHelperElement.append(orbitHelperElementIcon);
 
         this._orbitHelper = new CSS2DObject(orbitHelperElement);
-        this._instance.add(this._orbitHelper);
+        void this._instance.add(this._orbitHelper);
 
         const positionOnMapElement = document.createElement('div');
         positionOnMapElement.className = 'helper';
@@ -109,13 +109,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         positionOnMapElement.append(positionOnMapElementIcon);
 
         this._positionOnMapHelper = new CSS2DObject(positionOnMapElement);
-        this._instance.add(this._positionOnMapHelper);
+        void this._instance.add(this._positionOnMapHelper);
 
         this._cameraControlsInspector = null;
 
         this.initializeOrbitControls();
 
-        this._pickObjectsAt = (event: MouseEvent) =>
+        this._pickObjectsAt = (event: MouseEvent): PickResult | null =>
             this._picker.getFirstFeatureAt(this._instance, event, 1)?.at(0) ?? null;
 
         this._clock = new Clock();
@@ -140,7 +140,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                     this.setNavigationMode(args[0]);
                     break;
                 case 'lookTopDownAt':
-                    this.lookTopDownAt(args[0]);
+                    void this.lookTopDownAt(args[0]);
                     break;
             }
         });
@@ -160,7 +160,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         });
     }
 
-    dispose() {
+    public dispose(): void {
         this._instance.removeEventListener('before-camera-update', this._boundOnBeforeCameraUpdate);
         this._instance.removeEventListener('after-camera-update', this._boundOnAfterCameraUpdate);
 
@@ -354,7 +354,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             // do nothing
         }
         if (forwardDirection) {
-            this.executeInteraction(() =>
+            void this.executeInteraction(() =>
                 this._orbitControls.forward(
                     forwardDirection * this._orbitControls.truckSpeed * factor,
                     true,
@@ -362,7 +362,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             );
         }
         if (dollyDirection) {
-            this.executeInteraction(() =>
+            void this.executeInteraction(() =>
                 this._orbitControls.dollyInFixed(
                     dollyDirection * this._orbitControls.truckSpeed * factor,
                     true,
@@ -370,7 +370,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             );
         }
         if (truckDirectionX) {
-            this.executeInteraction(() =>
+            void this.executeInteraction(() =>
                 this._orbitControls.truck(
                     truckDirectionX * this._orbitControls.truckSpeed * factor,
                     0,
@@ -379,7 +379,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             );
         }
         if (truckDirectionY) {
-            this.executeInteraction(() =>
+            void this.executeInteraction(() =>
                 this._orbitControls.truck(
                     0,
                     truckDirectionY * this._orbitControls.truckSpeed * factor,
@@ -452,13 +452,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._instance.notifyChange();
     }
 
-    private async onPositionOnMapContextMenu(e: MouseEvent) {
+    private onPositionOnMapContextMenu(e: MouseEvent) {
         this._disablePositionOnMap();
         this._store.setNavigationMode('orbit');
         e.preventDefault();
     }
 
-    private async onPositionOnMapClick(e: MouseEvent) {
+    private onPositionOnMapClick(e: MouseEvent) {
         const picked = this._picker.getMapAt(this._instance, e);
         if (picked) {
             this._disablePositionOnMap();
@@ -474,8 +474,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             newTarget.add(direction);
             newTarget.z = newPosition.z;
 
-            await this.lookAt(newPosition, newTarget, true);
-            this._store.setNavigationMode('first-person');
+            void this.lookAt(newPosition, newTarget, true).finally(() =>
+                this._store.setNavigationMode('first-person'),
+            );
         }
     }
 
@@ -510,7 +511,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
                     direction.normalize().setLength(3);
                     newTarget.copy(position).add(direction);
-                    this.lookAt(position, newTarget, false);
+                    void this.lookAt(position, newTarget, false);
                 }
                 break;
             case 'orbit':
@@ -541,7 +542,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                     const intersects = raycaster.intersectObject(this._instance.scene).at(0);
 
                     if (intersects) {
-                        this.lookAt(position, intersects.point, false);
+                        void this.lookAt(position, intersects.point, false);
                     }
                 }
                 break;
@@ -615,7 +616,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             altitude,
         ).toVector3();
         const center = extent.centerAsVector3();
-        this.lookAt(cameraPosition, center, false);
+        void this.lookAt(cameraPosition, center, false);
     }
 
     /**
@@ -634,7 +635,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         await this.executeInteraction(async () => {
             // Need to reset focal offset because of orbit point
             // https://github.com/yomotsu/camera-controls/issues/303
-            this._orbitControls.setFocalOffset(0, 0, 0, false);
+            void this._orbitControls.setFocalOffset(0, 0, 0, false);
             return this._orbitControls.setLookAt(
                 position.x,
                 position.y,
@@ -669,9 +670,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     }
 
     setCamera(pos: CameraPosition) {
-        this.executeInteraction(async () => {
+        void this.executeInteraction(async () => {
             this._orbitControls.setOrbitPoint(0, 0, 0);
-            this._orbitControls.setLookAt(
+            void this._orbitControls.setLookAt(
                 pos.camera.x,
                 pos.camera.y,
                 pos.camera.z,
@@ -680,13 +681,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 pos.target.z,
                 false,
             );
-            this._orbitControls.setFocalOffset(
+            void this._orbitControls.setFocalOffset(
                 pos.focalOffset.z,
                 pos.focalOffset.y,
                 pos.focalOffset.z,
                 false,
             );
             this._orbitControls.update(0);
+            return Promise.resolve();
         });
     }
 
@@ -710,7 +712,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     ): Promise<void[]> {
         const bbox = this.getBox(obj);
         return this.executeInteraction(() => {
-            this._orbitControls.setFocalOffset(0, 0, 0);
+            void this._orbitControls.setFocalOffset(0, 0, 0);
             return this._orbitControls.fitToBox(bbox, enableTransition, options);
         });
     }

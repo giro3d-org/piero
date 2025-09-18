@@ -26,9 +26,11 @@ export {
     BookmarkApi,
     BookmarkEvents,
     Configuration,
+    createPieroApp,
     DatasetApi,
     EntityBuilder,
     Fetcher,
+    fillObject3DUserData,
     LoadDatasetFromFile,
     Module,
     PieroContext,
@@ -38,6 +40,4 @@ export {
     Projections,
     UserData,
     ViewApi,
-    createPieroApp,
-    fillObject3DUserData,
 };

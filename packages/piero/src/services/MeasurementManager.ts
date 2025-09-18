@@ -52,10 +52,10 @@ export default class MeasurementManager {
                         this.deleteMeasure(args[0]);
                         break;
                     case 'importMeasureFile':
-                        this.importMeasureFile(args[0]);
+                        void this.importMeasureFile(args[0]);
                         break;
                     case 'importMeasureFiles':
-                        this.importMeasureFiles(args[0]);
+                        void this.importMeasureFiles(args[0]);
                         break;
                 }
             });
@@ -97,7 +97,7 @@ export default class MeasurementManager {
 
     private measure(event: MouseEvent) {
         if (!this._paused && this._store.isUserMeasuring()) {
-            this._measureTool.measure(this._instance, event);
+            void this._measureTool.measure(this._instance, event);
         }
     }
 
@@ -119,14 +119,14 @@ export default class MeasurementManager {
                 }
                 const name = promptTitle(title);
                 if (name != null) {
-                    this.pushNewMeasure(name, measurement);
+                    void this.pushNewMeasure(name, measurement);
                 }
             }
         }
     }
 
-    private pushNewMeasure(title: string, measurement: Measure3D, properties: object = {}) {
-        this._instance.add(measurement);
+    private async pushNewMeasure(title: string, measurement: Measure3D, properties: object = {}) {
+        await this._instance.add(measurement);
         const measure = new Measure(title, measurement, properties);
         measurement.userData.measure = measure;
         measure.addEventListener('visible', () => this.updateMeasure(measure));
@@ -145,7 +145,7 @@ export default class MeasurementManager {
         this._instance.notifyChange();
     }
 
-    private importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
+    private async importMeasure(feature: GeoJSON.Feature, skipNames: Set<string>) {
         if (feature.geometry.type !== 'LineString') {
             throw new Error(`Cannot import geometry type ${feature.geometry.type}`);
         }
@@ -166,7 +166,7 @@ export default class MeasurementManager {
 
         const o = new Measure3D();
         o.setPoints([from, to]);
-        this.pushNewMeasure(feature.properties?.title, o, feature.properties);
+        await this.pushNewMeasure(feature.properties?.title, o, feature.properties);
 
         return true;
     }
@@ -181,7 +181,8 @@ export default class MeasurementManager {
         let nbSkipped = 0;
 
         for (const feature of features) {
-            if (this.importMeasure(feature, skipNames)) {
+            const imported = await this.importMeasure(feature, skipNames);
+            if (imported) {
                 nbImported++;
             } else {
                 nbSkipped++;
@@ -201,7 +202,8 @@ export default class MeasurementManager {
                     'success',
                 ),
             );
-        } catch (e) {
+        } catch (e: unknown) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             new Notification('Measures', `Could not import file: ${e}`, 'warning');
         }
     }

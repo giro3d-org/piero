@@ -104,7 +104,8 @@ async function importFile(file: File, config: Readonly<Configuration>): Promise<
 
     const datasetConfig: DatasetConfigImportable = loader(context);
 
-    return new Dataset(datasetConfig);
+    // Reserve promise usage for future (e.g. autodetecting format based on content, etc.)
+    return Promise.resolve(new Dataset(datasetConfig));
 }
 
 export default {

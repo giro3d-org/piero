@@ -32,7 +32,7 @@
         }
     }
 
-    async function importDataset(files: File[]) {
+    function importDataset(files: File[]) {
         for (const file of files) {
             datasets.importFromFile(file);
         }

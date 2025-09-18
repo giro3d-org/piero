@@ -70,10 +70,10 @@ export default interface DatasetApi {
 /** @internal */
 export class DatasetApiImpl implements DatasetApi {
     registerDatasetType(datasetType: string, params: DatasetRegistrationParams): void {
-        if (params.icon) {
+        if (params.icon != null) {
             datasetIcons[datasetType] = params.icon;
         }
-        if (params.name) {
+        if (params.name != null) {
             datasetTitles[datasetType] = params.name;
         }
         if (params.highlight) {

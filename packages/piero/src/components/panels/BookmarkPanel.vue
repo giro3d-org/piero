@@ -81,9 +81,9 @@
         );
     }
 
-    async function importBookmarkFile(files: File[]) {
+    function importBookmarkFile(files: File[]): void {
         for (const file of files) {
-            importBookmarks(file);
+            void importBookmarks(file);
         }
     }
 

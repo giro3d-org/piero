@@ -12,6 +12,7 @@ async function addSkybox(instance: Instance) {
     const cubeTextureLoader = new CubeTextureLoader();
     const cubeTexture = cubeTextureLoader.load([px, nx, py, ny, pz, nz]);
     instance.scene.background = cubeTexture;
+    return Promise.resolve();
 }
 
 export default { addSkybox };

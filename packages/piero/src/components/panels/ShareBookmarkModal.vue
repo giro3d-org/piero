@@ -4,7 +4,7 @@
     }>();
 
     function copyToClipboard(url: string) {
-        navigator.clipboard.writeText(url);
+        void navigator.clipboard.writeText(url);
     }
 </script>
 

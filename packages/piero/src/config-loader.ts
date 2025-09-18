@@ -53,6 +53,8 @@ export async function setConfiguration(newConfiguration: Configuration): Promise
     }
 
     currentConfiguration = newConfiguration;
+    // Reserve promise usage for future
+    return Promise.resolve();
 }
 
 export async function loadRemoteConfiguration(url: string): Promise<Configuration> {

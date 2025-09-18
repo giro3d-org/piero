@@ -159,10 +159,10 @@ export default class AnnotationManager {
                         this.drawPolygon();
                         break;
                     case 'importAnnotationFile':
-                        this.importAnnotationFile(args[0]);
+                        void this.importAnnotationFile(args[0]);
                         break;
                     case 'importAnnotationsFiles':
-                        this.importAnnotationFiles(args[0]);
+                        void this.importAnnotationFiles(args[0]);
                         break;
                 }
             });
@@ -228,7 +228,9 @@ export default class AnnotationManager {
     // Note this was directly imported from the drawtool example
     // We might want to make it part of the Shape API, but we have to think
     // about potential pitfalls as there is not a single mapping between GeoJSON and Shapes.
-    private importShapeFromGeoJSON(feature: GeoJSON.Feature): Shape<PieroShapeUserData> {
+    private async importShapeFromGeoJSON(
+        feature: GeoJSON.Feature,
+    ): Promise<Shape<PieroShapeUserData>> {
         if (feature.type !== 'Feature') {
             throw new Error('not a valid GeoJSON feature');
         }
@@ -302,7 +304,7 @@ export default class AnnotationManager {
 
         this.computeMeasurements(result);
 
-        this._instance.add(result);
+        await this._instance.add(result);
 
         return result;
     }
@@ -373,7 +375,7 @@ export default class AnnotationManager {
         defaultName: string,
     ) {
         if (shape && !this._shapes.has(shape.id)) {
-            const userData = shape.userData as PieroShapeUserData;
+            const userData = shape.userData;
             userData.type = type;
             userData.highlightable = true;
 
@@ -416,13 +418,14 @@ export default class AnnotationManager {
     ) {
         this._store.setIsUserDrawing(true);
 
-        this._drawTool[drawFn]({
+        void this._drawTool[drawFn]({
             ...this.getCreationOptions(),
             ...opts,
-        }).then(shape => {
-            this.addShape(shape as Shape<PieroShapeUserData>, type, defaultName);
-            this._store.setIsUserDrawing(false);
-        });
+        })
+            .then(shape => {
+                this.addShape(shape as Shape<PieroShapeUserData>, type, defaultName);
+            })
+            .finally(() => this._store.setIsUserDrawing(false));
     }
 
     private drawPoint() {
@@ -461,7 +464,7 @@ export default class AnnotationManager {
         return annotation;
     }
 
-    private importAnnotation(feature: GeoJSON.Feature, skipNames: Set<string>) {
+    private async importAnnotation(feature: GeoJSON.Feature, skipNames: Set<string>) {
         if (feature.properties == null || typeof feature.properties !== 'object') {
             feature.properties = {};
         }
@@ -473,7 +476,7 @@ export default class AnnotationManager {
             return false;
         }
 
-        const shape = this.importShapeFromGeoJSON(feature);
+        const shape = await this.importShapeFromGeoJSON(feature);
         this.pushNewAnnotation(feature.properties.title, shape, feature.properties);
         return true;
     }
@@ -488,7 +491,8 @@ export default class AnnotationManager {
         let nbSkipped = 0;
 
         for (const feature of features) {
-            if (this.importAnnotation(feature, skipNames)) {
+            const imported = await this.importAnnotation(feature, skipNames);
+            if (imported) {
                 nbImported++;
             } else {
                 nbSkipped++;
@@ -508,7 +512,8 @@ export default class AnnotationManager {
                     'success',
                 ),
             );
-        } catch (e) {
+        } catch (e: unknown) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             new Notification('Annotations', `Could not import file: ${e}`, 'warning');
         }
     }
@@ -554,7 +559,7 @@ export default class AnnotationManager {
         }
     }
 
-    private async editAnnotation(annotation: Annotation) {
+    private editAnnotation(annotation: Annotation) {
         const shape = this._shapes.get(annotation.uuid);
 
         if (!shape) {

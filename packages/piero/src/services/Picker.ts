@@ -4,7 +4,6 @@ import type Annotation from '@/types/Annotation';
 import type { PieroShapeUserData } from '@/types/Annotation';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 import Feature from '@/types/Feature';
-import type Measure from '@/types/Measure';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import type { PointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
 import { isPointsPickResult } from '@giro3d/giro3d/core/picking/PickPointsAt';
@@ -390,7 +389,7 @@ export default class Picker {
                 const entity = pickedObject.entity;
 
                 if (Measure3D.isMeasure3D(entity)) {
-                    const measure = entity.userData.measure as Measure;
+                    const measure = entity.userData.measure;
                     name = measure?.title ?? name;
                     this.getAttributesFromMeasure(pickedObject, attributesGroups);
                 } else {

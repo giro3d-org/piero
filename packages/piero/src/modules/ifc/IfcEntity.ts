@@ -141,7 +141,7 @@ export default class IfcEntity
 {
     readonly isIfcEntity = true as const;
     readonly isPickableFeatures = true as const;
-    readonly type = 'IfcEntity' as const;
+    override readonly type = 'IfcEntity' as const;
 
     private readonly _source: IfcSource;
 
@@ -177,7 +177,7 @@ export default class IfcEntity
         this._fragmentBoundingBox = null;
     }
 
-    protected async preprocess(): Promise<void> {
+    protected override async preprocess(): Promise<void> {
         const data = await Fetcher.fetchArrayBuffer(this._source.url);
 
         this._fragmentManager = await this._components.tools.get(FragmentManager);
@@ -359,7 +359,7 @@ export default class IfcEntity
             // name is N00, N01, N02...
             // { storeys: "N00" }, { storeys: "N01" }...
             const filter = { ...result, [currentSystemName]: [name] };
-            const found = (await this._fragmentClassifier.find(filter)) as FragmentIdMap;
+            const found = await this._fragmentClassifier.find(filter);
             const hasElements = Object.keys(found).length > 0;
 
             if (hasElements) {
@@ -572,7 +572,7 @@ export default class IfcEntity
         return box;
     }
 
-    pick(canvasCoords: Vector2, options?: PickOptions): IFCPickResult[] {
+    override pick(canvasCoords: Vector2, options?: PickOptions): IFCPickResult[] {
         return super.pick(canvasCoords, options).map(p => ({
             ...p,
             entity: this,
