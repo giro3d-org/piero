@@ -1,5 +1,3 @@
-# Piero
-
 <div align="center">
   <a href="https://piero.giro3d.org">
     <img src="https://piero.giro3d.org/piero_logo.svg" height="120" alt="Piero">
