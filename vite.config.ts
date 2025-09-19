@@ -2,7 +2,7 @@ import child_process from 'child_process';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, mergeConfig } from 'vite';
 
-import libConfig from './packages/piero/vite.config';
+import { commonConfig } from './packages/piero/vite.config';
 
 let commitHash = 'unknown';
 try {
@@ -11,10 +11,10 @@ try {
     // Ignore
 }
 
-console.log(`🚀 Building Piero app at ${commitHash}`);
-
 // https://vitejs.dev/config/
 const appConfig = defineConfig(() => {
+    console.log(`🚀 Building Piero app at ${commitHash}`);
+
     const root = __dirname + '/';
 
     return {
@@ -57,4 +57,4 @@ const appConfig = defineConfig(() => {
     };
 });
 
-export default defineConfig(env => mergeConfig(libConfig(env), appConfig(env)));
+export default defineConfig(env => mergeConfig(commonConfig(env), appConfig(env)));
