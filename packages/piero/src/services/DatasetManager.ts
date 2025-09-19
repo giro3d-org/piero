@@ -214,10 +214,11 @@ export default class DatasetManager {
         });
     }
 
-    private async importFromFile(file: File): Promise<void> {
+    private async importFromFile(file: File | string): Promise<void> {
         let dataset: DatasetOrGroup;
+        const name = file instanceof File ? file.name : file;
         try {
-            this._notifications.push(new Notification(file.name, 'Importing file...'));
+            this._notifications.push(new Notification(name, 'Importing file...'));
             const _dataset = await loader.importFile(file, getConfig());
             dataset = this._store.add(_dataset); // We need to keep track of the reactive dataset!
             this._notifications.push(
@@ -225,7 +226,7 @@ export default class DatasetManager {
             );
         } catch (e) {
             console.error(e);
-            this._notifications.push(new Notification(file.name, (e as Error).message, 'error'));
+            this._notifications.push(new Notification(name, (e as Error).message, 'error'));
             return;
         }
 
