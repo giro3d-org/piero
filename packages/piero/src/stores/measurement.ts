@@ -57,18 +57,18 @@ export const useMeasurementStore = defineStore('measurement', () => {
     function end(): void {}
 
     return {
+        add,
         count,
+        end,
+        getMeasurementMode,
         getMeasures,
         hasMeasure,
-        isUserMeasuring,
-        setIsUserMeasuring,
-        getMeasurementMode,
-        setMeasurementMode,
-        remove,
-        add,
         importMeasureFile,
         importMeasureFiles,
+        isUserMeasuring,
+        remove,
+        setIsUserMeasuring,
+        setMeasurementMode,
         start,
-        end,
     };
 });

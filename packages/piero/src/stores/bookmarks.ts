@@ -51,7 +51,7 @@ export const useBookmarkStore = defineStore('bookmarks', () => {
         return [...bookmarks.value];
     }
 
-    return { count, add, remove, clear, getBookmarks };
+    return { add, clear, count, getBookmarks, remove };
 });
 
 export type BookmarkStore = ReturnType<typeof useBookmarkStore>;

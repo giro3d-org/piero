@@ -54,10 +54,10 @@ export default class PLYLoader implements Module {
 
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('ply', {
+            attributeExtractor: getAttributesFromPlyObject,
+            entityBuilder: build,
             icon: 'bi-file-earmark-binary',
             name: 'PLY',
-            entityBuilder: build,
-            attributeExtractor: getAttributesFromPlyObject,
         });
     }
 }

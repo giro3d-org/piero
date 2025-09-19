@@ -4,6 +4,6 @@ import type { ImageSourceConfigMixin, SourceConfigBase } from './core/baseConfig
 
 /** Bing maps source configuration */
 export interface BingMapsSourceConfig
-    extends SourceConfigBase<'bingmaps'>,
-        ImageSourceConfigMixin,
-        Pick<BingMapsOptions, 'hidpi' | 'culture' | 'key' | 'imagerySet'> {}
+    extends ImageSourceConfigMixin,
+        Pick<BingMapsOptions, 'culture' | 'hidpi' | 'imagerySet' | 'key'>,
+        SourceConfigBase<'bingmaps'> {}

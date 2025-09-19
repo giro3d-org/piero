@@ -10,10 +10,10 @@ import type {
 
 /** COG source configuration */
 export interface GeoTIFFSourceConfig
-    extends SourceConfigBase<'cog'>,
-        ImageSourceConfigMixin,
-        SourceConfigProjectionMixin,
-        Pick<GeoTIFFSourceOptions, 'url' | 'channels'> {
+    extends ImageSourceConfigMixin,
+        Pick<GeoTIFFSourceOptions, 'channels' | 'url'>,
+        SourceConfigBase<'cog'>,
+        SourceConfigProjectionMixin {
     /** @deprecated Use {@link dataProjection} instead, will be removed in 24.10 */
     projection: CRS;
 }

@@ -24,14 +24,6 @@
         measures.setMeasurementMode(newMode);
     });
 
-    function setCurrentMode(src: Named | null): void {
-        measurementMode.value = src?.value as MeasurementMode;
-    }
-
-    function goTo(measure: Measure): void {
-        cameraStore.lookTopDownAt(measure.object);
-    }
-
     function downloadMeasure(measure: Measure): void {
         const geojson = measure.toGeoJSON();
         Download.downloadAsJson(geojson, `measure-${measure.title}.json`);
@@ -42,8 +34,16 @@
         Download.downloadAsJson(geojson, 'measures.json');
     }
 
+    function goTo(measure: Measure): void {
+        cameraStore.lookTopDownAt(measure.object);
+    }
+
     function importMeasureFile(files: File[]): void {
         measures.importMeasureFiles(files);
+    }
+
+    function setCurrentMode(src: Named | null): void {
+        measurementMode.value = src?.value as MeasurementMode;
     }
 </script>
 

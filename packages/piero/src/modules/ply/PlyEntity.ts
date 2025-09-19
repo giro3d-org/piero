@@ -15,12 +15,6 @@ import { fillObject3DUserData } from '@/loaders/userData';
 import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
 
-/** Parameters for creating {@link PlyEntity} */
-export interface PlySource
-    extends UrlOrDataMixin,
-        Required<CoordinatesMixin>,
-        Required<FeatureProjectionMixin> {}
-
 /**
  * Feature returned when picking on Ply objects
  */
@@ -28,12 +22,24 @@ export interface PlyFeature {
     color: Color;
 }
 
+/** Parameters for creating {@link PlyEntity} */
+export interface PlySource
+    extends Required<CoordinatesMixin>,
+        Required<FeatureProjectionMixin>,
+        UrlOrDataMixin {}
+
 /**
  * PLY 3D object implementing our picking
  */
 export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
     public readonly isPickableFeatures = true;
     public readonly isPlyMesh = true;
+
+    public static isPlyMesh = (obj: unknown): obj is PlyMesh =>
+        isObject(obj) && (obj as PlyMesh).isPlyMesh;
+
+    public static isPlyPickResult = (obj: unknown): obj is PickResult<PlyFeature> =>
+        isObject(obj) && PlyMesh.isPlyMesh((obj as PickResult<unknown>)?.object);
 
     public pickFeaturesFrom(pickedResult: PickResult): PlyFeature[] {
         if (this.geometry.hasAttribute('color') && pickedResult.face) {
@@ -52,11 +58,6 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
 
         return [];
     }
-
-    public static isPlyMesh = (obj: unknown): obj is PlyMesh =>
-        isObject(obj) && (obj as PlyMesh).isPlyMesh;
-    public static isPlyPickResult = (obj: unknown): obj is PickResult<PlyFeature> =>
-        isObject(obj) && PlyMesh.isPlyMesh((obj as PickResult<unknown>)?.object);
 }
 
 /**

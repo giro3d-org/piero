@@ -21,49 +21,29 @@ import type { VectorDatasetRendering } from './configuration/datasets/vector';
 // Also, please prefer JSON-serializable fields, so that one day if we want to fetch the configuration from
 // a back-end, we won't have too much rework to do.
 
-/**
- * Extent configuration
- *
- * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
- */
-export interface ExtentConfigWithCenter {
-    /**
-     * Center of the map.
-     *
-     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
-     */
-    center?: GeoVec2 | [number, number];
-    /**
-     * Size of the map in CRS units.
-     *
-     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
-     */
-    size?: [number, number];
-}
-
 /** Basemap configuration */
 export interface BasemapConfig
     extends ExtentConfigWithCenter,
         Pick<
             MapConstructorOptions,
-            | 'lighting'
-            | 'contourLines'
-            | 'graticule'
-            | 'colorimetry'
-            | 'side'
-            | 'terrain'
             | 'backgroundColor'
             | 'backgroundOpacity'
-            | 'showOutline'
+            | 'colorimetry'
+            | 'contourLines'
             | 'elevationRange'
+            | 'graticule'
+            | 'lighting'
+            | 'showOutline'
+            | 'side'
+            | 'terrain'
         > {
-    /** Extent configuration */
-    extent?: GeoExtent;
-
     /**
      * Color map configuration for Elevation layer, used when it's the only layer displayed
      */
     colormap: ColorMapConfig;
+
+    /** Extent configuration */
+    extent?: GeoExtent;
 
     /**
      * Layers
@@ -79,25 +59,16 @@ export interface BasemapConfig
 
 /** Piero configuration */
 export interface Configuration {
-    /** Custom CRS definitions */
-    crs_definitions?: Record<CRS, string>;
-    /**
-     * The default CRS to be used in the view
-     *
-     * Requires the CRS to be geocentric.
-     * Requires the CRS to be registered.
-     */
-    default_crs: CRS;
-    /** Experimental features to switch on */
-    enabled_features?: ExperimentalFeatures[];
-    /** Camera configuration */
-    camera: CameraConfig | CameraConfigDeprecated;
-    /** Basemap configuration */
-    basemap: BasemapConfig;
-    /** Pointcloud display configuration */
-    pointcloud: ColorMapConfig;
     /** Analysis tools configuration */
     analysis: AnalysisConfig;
+    /** Basemap configuration */
+    basemap: BasemapConfig;
+    /** Array of bookmarks - can be empty */
+    bookmarks: BookmarkConfig[];
+    /** Camera configuration */
+    camera: CameraConfig | CameraConfigDeprecated;
+    /** Custom CRS definitions */
+    crs_definitions?: Record<CRS, string>;
     /**
      * Array of datasets to display
      *
@@ -109,10 +80,14 @@ export interface Configuration {
      */
     datasets: DatasetOrGroupConfig[];
     /**
-     * When importing vector datasets, pick how to render them.
-     * @defaultValue mesh
+     * The default CRS to be used in the view
+     *
+     * Requires the CRS to be geocentric.
+     * Requires the CRS to be registered.
      */
-    importedVectorDatasetRendering?: VectorDatasetRendering | 'overlay';
+    default_crs: CRS;
+    /** Experimental features to switch on */
+    enabled_features?: ExperimentalFeatures[];
     /**
      * When importing vector datasets as meshes, select if the app should fetch elevation.
      * @defaultValue true
@@ -126,6 +101,11 @@ export interface Configuration {
      */
     importedMeshDatasetFetchElevationFast?: boolean;
     /**
+     * When importing vector datasets, pick how to render them.
+     * @defaultValue mesh
+     */
+    importedVectorDatasetRendering?: 'overlay' | VectorDatasetRendering;
+    /**
      * Array of overlays to display on the 2.5D map - can be empty
      *
      * Overlays define data that are merged into the 2.5D map.
@@ -133,10 +113,30 @@ export interface Configuration {
      */
     overlays: (
         | OverlayConfig
+        | OverlayRasterConfigDeprecated
         | OverlayVectorConfigDeprecated
         | OverlayVectorTileConfigDeprecated
-        | OverlayRasterConfigDeprecated
     )[];
-    /** Array of bookmarks - can be empty */
-    bookmarks: BookmarkConfig[];
+    /** Pointcloud display configuration */
+    pointcloud: ColorMapConfig;
+}
+
+/**
+ * Extent configuration
+ *
+ * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+ */
+export interface ExtentConfigWithCenter {
+    /**
+     * Center of the map.
+     *
+     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+     */
+    center?: [number, number] | GeoVec2;
+    /**
+     * Size of the map in CRS units.
+     *
+     * @deprecated Use {@link BasemapConfig.extent} field instead. Will be removed in release v24.10.
+     */
+    size?: [number, number];
 }

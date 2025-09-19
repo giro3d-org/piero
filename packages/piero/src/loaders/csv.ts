@@ -5,11 +5,11 @@ import type { LoadDatasetFromFile } from './loader';
 export const load: LoadDatasetFromFile<PointCloudDatasetConfig> = context => {
     return {
         name: context.filename,
-        visible: true,
-        type: 'flatPointcloud',
         source: {
             type: 'csv',
             url: context.file,
         },
+        type: 'flatPointcloud',
+        visible: true,
     } as PointCloudDatasetConfig;
 };

@@ -1,3 +1,9 @@
+function downloadAsJson(object: object, filename: string): void {
+    const text = JSON.stringify(object, null, 2);
+    const blob = new Blob([text], { type: 'application/json' });
+    downloadBlob(blob, filename);
+}
+
 function downloadBlob(object: Blob | MediaSource, filename: string): void {
     const blobUrl = URL.createObjectURL(object);
     const link = document.createElement('a');
@@ -10,21 +16,15 @@ function downloadBlob(object: Blob | MediaSource, filename: string): void {
     URL.revokeObjectURL(blobUrl);
 }
 
-function downloadAsJson(object: object, filename: string): void {
-    const text = JSON.stringify(object, null, 2);
-    const blob = new Blob([text], { type: 'application/json' });
-    downloadBlob(blob, filename);
-}
-
 let baseUrl = import.meta.env.PROD ? import.meta.env.BASE_URL : undefined;
-
-function setBaseUrl(url: string): void {
-    baseUrl = url;
-}
 
 function getBaseUrl(fallback: string = 'http://localhost:8080/'): string {
     const url = baseUrl ?? fallback;
     return url.at(-1) === '/' ? url : url + '/';
 }
 
-export default { downloadBlob, downloadAsJson, getBaseUrl, setBaseUrl };
+function setBaseUrl(url: string): void {
+    baseUrl = url;
+}
+
+export default { downloadAsJson, downloadBlob, getBaseUrl, setBaseUrl };

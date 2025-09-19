@@ -6,10 +6,10 @@ import { computed, shallowReactive } from 'vue';
 
 import { getConfig } from '@/config-loader';
 import {
-    parseDatasetConfig,
     type Dataset,
     type DatasetLayer,
     type DatasetOrGroup,
+    parseDatasetConfig,
 } from '@/types/Dataset';
 
 function buildDatasets(root: DatasetOrGroup): DatasetOrGroup {
@@ -127,18 +127,18 @@ export const useDatasetStore = defineStore('datasets', () => {
     }
 
     return {
-        count,
-        getTree,
-        getDatasets,
         add,
-        remove,
-        importFromFile,
-        setVisible,
-        getBoundingBox,
-        getEntity,
-        getLayer,
         attachEntity,
         attachLayer,
+        count,
+        getBoundingBox,
+        getDatasets,
+        getEntity,
+        getLayer,
+        getTree,
+        importFromFile,
+        remove,
+        setVisible,
         toggleGrid,
         toggleMask,
     };

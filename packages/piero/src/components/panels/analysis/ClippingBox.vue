@@ -14,22 +14,9 @@
     const floatValue = (event: Event): number =>
         Number.parseFloat((event.target as HTMLInputElement).value);
 
-    function setX(x: number): void {
-        const center = analysis.clippingBoxCenter.clone();
-        center.setX(x);
-        analysis.setClippingBoxCenter(center);
-    }
-
-    function setY(y: number): void {
-        const center = analysis.clippingBoxCenter.clone();
-        center.setY(y);
-        analysis.setClippingBoxCenter(center);
-    }
-
-    function setZ(z: number): void {
-        const center = analysis.clippingBoxCenter.clone();
-        center.setZ(z);
-        analysis.setClippingBoxCenter(center);
+    function setFromCamera(): void {
+        const { target } = camera.getCameraPosition();
+        analysis.setClippingBoxCenter(target.clone());
     }
 
     function setSizeX(x: number): void {
@@ -50,14 +37,41 @@
         analysis.setClippingBoxSize(size);
     }
 
-    function setFromCamera(): void {
-        const { target } = camera.getCameraPosition();
-        analysis.setClippingBoxCenter(target.clone());
+    function setX(x: number): void {
+        const center = analysis.clippingBoxCenter.clone();
+        center.setX(x);
+        analysis.setClippingBoxCenter(center);
+    }
+
+    function setY(y: number): void {
+        const center = analysis.clippingBoxCenter.clone();
+        center.setY(y);
+        analysis.setClippingBoxCenter(center);
+    }
+
+    function setZ(z: number): void {
+        const center = analysis.clippingBoxCenter.clone();
+        center.setZ(z);
+        analysis.setClippingBoxCenter(center);
     }
 
     const floorReferenceAltitude = ref(config.analysis.clipping_box.floor_preset.altitude);
     const floorSize = ref(config.analysis.clipping_box.floor_preset.size);
     const floorNumber = ref(config.analysis.clipping_box.floor_preset.floor);
+
+    function floorDown(): void {
+        floorNumber.value -= 1;
+        const center = analysis.clippingBoxCenter.clone();
+        center.setZ(getFloorAltitude());
+        analysis.setClippingBoxCenter(center);
+    }
+
+    function floorUp(): void {
+        floorNumber.value += 1;
+        const center = analysis.clippingBoxCenter.clone();
+        center.setZ(getFloorAltitude());
+        analysis.setClippingBoxCenter(center);
+    }
 
     function getFloorAltitude(): number {
         // Adjust Z so it's at the center of the floor (thus the +0.5)
@@ -76,20 +90,6 @@
 
         analysis.setClippingBoxSize(boxSize);
         analysis.setClippingBoxCenter(boxCenter);
-    }
-
-    function floorUp(): void {
-        floorNumber.value += 1;
-        const center = analysis.clippingBoxCenter.clone();
-        center.setZ(getFloorAltitude());
-        analysis.setClippingBoxCenter(center);
-    }
-
-    function floorDown(): void {
-        floorNumber.value -= 1;
-        const center = analysis.clippingBoxCenter.clone();
-        center.setZ(getFloorAltitude());
-        analysis.setClippingBoxCenter(center);
     }
 </script>
 

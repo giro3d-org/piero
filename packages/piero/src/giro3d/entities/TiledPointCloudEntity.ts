@@ -35,8 +35,8 @@ export const build: EntityBuilder = context => {
     const cfg = dataset.config as TiledPointCloudDatasetConfig;
     const entity = new TiledPointCloudEntity({
         ...cfg.source,
-        url: getPublicFolderUrl(cfg.source.url),
         name: cfg.name,
+        url: getPublicFolderUrl(cfg.source.url),
     });
 
     return Promise.resolve(entity);

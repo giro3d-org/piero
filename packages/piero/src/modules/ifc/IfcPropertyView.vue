@@ -17,16 +17,6 @@
 
     const isPreloaded = refAndWatch(props.dataset, 'isPreloaded');
 
-    function getIfcEntity(): IfcEntity | null {
-        const entity = datasets.getEntity(props.dataset);
-
-        if (entity == null) {
-            return null;
-        }
-
-        return entity as IfcEntity;
-    }
-
     function getClassificationRoot(): ClassificationItem[] | null {
         const ifcEntity = getIfcEntity();
 
@@ -35,6 +25,16 @@
         }
 
         return ifcEntity.getClassification();
+    }
+
+    function getIfcEntity(): IfcEntity | null {
+        const entity = datasets.getEntity(props.dataset);
+
+        if (entity == null) {
+            return null;
+        }
+
+        return entity as IfcEntity;
     }
 </script>
 

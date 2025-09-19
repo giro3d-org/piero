@@ -18,12 +18,26 @@ import type {
     VectorShapeDatasetConfig,
 } from './vector';
 
+/** Configuration for a group of datasets */
+export interface DatagroupConfig
+    extends DatasetCascadingConfig,
+        DatasetConfigBase<'group'>,
+        DatasetConfigMaskingMixin {
+    /** Datasets contained in this group */
+    children: DatasetOrGroupConfig[];
+}
+
+export type DatasetAsLayerConfig =
+    | ColorLayerDatasetConfig
+    | ElevationLayerDatasetConfig
+    | MaskLayerDatasetConfig;
+
 export type DatasetAsMeshConfig =
     | CityJSONDatasetConfig
-    | PointCloudDatasetConfig
     | FeatureCollectionDatasetConfig
     | IFCDatasetConfig
     | PLYDatasetConfig
+    | PointCloudDatasetConfig
     | PotreePointCloudDatasetConfig
     | TiledIfcDatasetConfig
     | TiledPointCloudDatasetConfig
@@ -31,38 +45,24 @@ export type DatasetAsMeshConfig =
     | VectorMeshDatasetConfig
     | VectorShapeDatasetConfig;
 
-export type DatasetAsLayerConfig =
-    | ColorLayerDatasetConfig
-    | ElevationLayerDatasetConfig
-    | MaskLayerDatasetConfig;
-
 /** All supported datasets */
-export type DatasetConfig = DatasetAsMeshConfig | DatasetAsLayerConfig;
+export type DatasetConfig = DatasetAsLayerConfig | DatasetAsMeshConfig;
 
 export type DatasetConfigImportable = Extract<
     DatasetConfig,
     | CityJSONDatasetConfig
-    | PointCloudDatasetConfig
+    | ColorLayerDatasetConfig
     | IFCDatasetConfig
+    | PointCloudDatasetConfig
+    | VectorLabelsDatasetConfig
     | VectorMeshDatasetConfig
     | VectorShapeDatasetConfig
-    | VectorLabelsDatasetConfig
-    | ColorLayerDatasetConfig
 >;
 
+/** Configuration for dataset hierarchy */
+export type DatasetOrGroupConfig = DatagroupConfig | DatasetConfig;
 /** List of all dataset types */
 export type DatasetType = DatasetConfig['type'];
-
-/** Configuration for a group of datasets */
-export interface DatagroupConfig
-    extends DatasetConfigBase<'group'>,
-        DatasetCascadingConfig,
-        DatasetConfigMaskingMixin {
-    /** Datasets contained in this group */
-    children: DatasetOrGroupConfig[];
-}
-/** Configuration for dataset hierarchy */
-export type DatasetOrGroupConfig = DatasetConfig | DatagroupConfig;
 
 /** List of dataset types that can be imported into the app */
 export type DatasetTypeImportable = DatasetConfigImportable['type'];

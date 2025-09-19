@@ -1,10 +1,10 @@
 <script setup lang="ts">
     defineProps<{
-        text: string;
         pos: {
             x: number;
             y: number;
         };
+        text: string;
     }>();
 </script>
 

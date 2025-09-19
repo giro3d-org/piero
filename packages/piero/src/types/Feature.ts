@@ -7,8 +7,8 @@ export interface Attribute {
 export type AttributesGroups = Map<string, Attribute[]>;
 
 export default class Feature {
-    public readonly name: string;
     public readonly attributes: AttributesGroups;
+    public readonly name: string;
     public readonly parent: string;
     public readonly point: Vector3;
 

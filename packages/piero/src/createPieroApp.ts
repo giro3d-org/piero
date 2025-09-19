@@ -17,33 +17,6 @@ import { useBookmarkStore } from './stores/bookmarks';
 import { useModuleStore } from './stores/modules';
 import Download from './utils/Download';
 
-export type AppParameters = {
-    /**
-     * Where to attach the piero root element.
-     */
-    container: string | Element;
-    /**
-     * The static configuration to use, or the URL to a remote configuration.
-     */
-    configuration: Configuration | string;
-    /**
-     * Optional style functions to use.
-     */
-    dynamicStyles?: DynamicStyleCollection;
-
-    /**
-     * The base URL of the application. This is used to resolve relative URLs.
-     * @example 'http://localhost:8080/' or 'https://mydomain.com/myapp/'
-     */
-    baseUrl: string;
-
-    /**
-     * The list of modules to load.
-     * @defaultValue []
-     */
-    modules?: Module[];
-};
-
 async function resolveConfiguration(params: AppParameters): Promise<Configuration> {
     let configuration: Configuration;
 
@@ -58,6 +31,33 @@ async function resolveConfiguration(params: AppParameters): Promise<Configuratio
 
     return configuration;
 }
+
+export type AppParameters = {
+    /**
+     * The base URL of the application. This is used to resolve relative URLs.
+     * @example 'http://localhost:8080/' or 'https://mydomain.com/myapp/'
+     */
+    baseUrl: string;
+    /**
+     * The static configuration to use, or the URL to a remote configuration.
+     */
+    configuration: Configuration | string;
+    /**
+     * Where to attach the piero root element.
+     */
+    container: Element | string;
+
+    /**
+     * Optional style functions to use.
+     */
+    dynamicStyles?: DynamicStyleCollection;
+
+    /**
+     * The list of modules to load.
+     * @defaultValue []
+     */
+    modules?: Module[];
+};
 
 /**
  * Entry point for a Piero application.
@@ -85,11 +85,11 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
     // to interact with the Piero application, without having
     // to import individual services.
     const context: Partial<PieroContext> = {
-        configuration,
         baseURL: new URL(Download.getBaseUrl()),
-        events: GLOBAL_EVENT_DISPATCHER,
         bookmarks: new BookmarkApiImpl(useBookmarkStore(pinia)),
+        configuration,
         datasets: new DatasetApiImpl(),
+        events: GLOBAL_EVENT_DISPATCHER,
     };
 
     const readyContext = context as PieroContext;

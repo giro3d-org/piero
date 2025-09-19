@@ -30,9 +30,9 @@ export default class PotreeLoader implements Module {
 
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('potree', {
-            name: 'Potree Point Cloud',
-            icon: 'fg-multipoint',
             entityBuilder,
+            icon: 'fg-multipoint',
+            name: 'Potree Point Cloud',
         });
     }
 }

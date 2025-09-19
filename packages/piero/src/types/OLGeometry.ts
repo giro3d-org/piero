@@ -1,10 +1,10 @@
 export type OLGeometry =
-    | 'Point'
-    | 'LineString'
-    | 'LinearRing'
-    | 'Polygon'
-    | 'MultiPoint'
-    | 'MultiLineString'
-    | 'MultiPolygon'
+    | 'Circle'
     | 'GeometryCollection'
-    | 'Circle';
+    | 'LinearRing'
+    | 'LineString'
+    | 'MultiLineString'
+    | 'MultiPoint'
+    | 'MultiPolygon'
+    | 'Point'
+    | 'Polygon';

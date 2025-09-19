@@ -14,5 +14,5 @@ export const useModuleStore = defineStore('modules', () => {
         return loadedModules.value;
     }
 
-    return { setLoadedModules, getLoadedModules };
+    return { getLoadedModules, setLoadedModules };
 });

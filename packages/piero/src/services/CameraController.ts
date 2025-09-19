@@ -34,24 +34,24 @@ import type Picker from './Picker';
 
 CameraControls.install({
     THREE: {
+        Box3,
+        MathUtils,
+        Matrix4,
+        Quaternion,
+        Raycaster,
+        Sphere,
+        Spherical,
         Vector2,
         Vector3,
         Vector4,
-        Quaternion,
-        Matrix4,
-        Spherical,
-        Box3,
-        Sphere,
-        Raycaster,
-        MathUtils,
     },
 });
 
 type CameraControllerEventMap = {
-    'interaction-start': {
+    'interaction-end': {
         /** empty */
     };
-    'interaction-end': {
+    'interaction-start': {
         /** empty */
     };
 };
@@ -60,25 +60,33 @@ type CameraControllerEventMap = {
  * Wraps Camera-controls into Giro3D
  */
 class CameraController extends EventDispatcher<CameraControllerEventMap> {
-    private readonly _instance: Instance;
-    private readonly _picker: Picker;
-    private readonly _orbitControls: CameraControls;
-    private readonly _pickObjectsAt: (e: MouseEvent) => PickResult | null;
-    private readonly _clock: Clock;
-    private readonly _store = useCameraStore();
-    private readonly _giro3dStore = useGiro3dStore();
-    private readonly _orbitHelper: CSS2DObject;
-    private readonly _positionOnMapHelper: CSS2DObject;
-    private _cameraControlsInspector: CameraControlsInspector | null;
-    private readonly _boundOnBeforeCameraUpdate: () => void;
+    public get enabled(): boolean {
+        return this._orbitControls.enabled;
+    }
+    public set enabled(v: boolean) {
+        this._orbitControls.enabled = v;
+    }
     private readonly _boundOnAfterCameraUpdate: () => void;
+    private readonly _boundOnBeforeCameraUpdate: () => void;
     private _boundOrbitControlsOnContextMenu!: (e: MouseEvent) => void;
+    private _boundOrbitControlsOnKey!: (e: KeyboardEvent) => void;
     private _boundOrbitControlsOnMouseUp!: (e: MouseEvent) => void;
     private _boundOrbitControlsOnWheel!: (e: MouseEvent) => void;
-    private _boundOrbitControlsOnKey!: (e: KeyboardEvent) => void;
-    private _boundPositionOnMapOnMouseMove: ((e: MouseEvent) => void) | null;
     private _boundPositionOnMapOnClick: ((e: MouseEvent) => void) | null;
     private _boundPositionOnMapOnContextMenu: ((e: MouseEvent) => void) | null;
+    private _boundPositionOnMapOnMouseMove: ((e: MouseEvent) => void) | null;
+    private _cameraControlsInspector: CameraControlsInspector | null;
+    private readonly _clock: Clock;
+    private readonly _giro3dStore = useGiro3dStore();
+    private readonly _instance: Instance;
+    private readonly _orbitControls: CameraControls;
+    private readonly _orbitHelper: CSS2DObject;
+    private readonly _picker: Picker;
+    private readonly _pickObjectsAt: (e: MouseEvent) => PickResult | null;
+
+    private readonly _positionOnMapHelper: CSS2DObject;
+
+    private readonly _store = useCameraStore();
 
     /**
      * Creates new Camera-controls and bind them to Giro3D.
@@ -135,16 +143,16 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._boundPositionOnMapOnMouseMove = null;
         this._boundPositionOnMapOnContextMenu = null;
 
-        this._store.$onAction(({ name, args }) => {
+        this._store.$onAction(({ args, name }) => {
             switch (name) {
+                case 'lookTopDownAt':
+                    void this.lookTopDownAt(args[0]);
+                    break;
                 case 'setCameraPosition':
                     this.setCamera(args[0]);
                     break;
                 case 'setNavigationMode':
                     this.setNavigationMode(args[0]);
-                    break;
-                case 'lookTopDownAt':
-                    void this.lookTopDownAt(args[0]);
                     break;
             }
         });
@@ -153,7 +161,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         if (inspector != null) {
             this.initializeInspector(inspector);
         }
-        this._giro3dStore.$onAction(({ name, after, args }) => {
+        this._giro3dStore.$onAction(({ after, args, name }) => {
             after(() => {
                 switch (name) {
                     case 'setInspector':
@@ -173,6 +181,248 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         this._instance.remove(this._positionOnMapHelper);
         this._instance.remove(this._orbitHelper);
+    }
+
+    /**
+     * Executes an interaction with animation.
+     *
+     * Required to call this instead of calling directly camera-controls because
+     * of how Giro3D mainloop works.
+     *
+     * @param callback - Interaction to execute
+     * @returns Resolves when interaction is done
+     */
+    public executeInteraction<T = void>(callback: () => Promise<T>): Promise<T> {
+        this._orbitControls.update(this._clock.getDelta());
+
+        // Execute the interaction
+        const res = callback();
+
+        // As mainloop can pause, before_camera_update can be triggered irregularly
+        // Make sure to "reset" the clock to enable smooth transitions with camera-controls
+        this._orbitControls.update(this._clock.getDelta());
+        // Dispatch events so giro3d and giro3dservice gets notified
+        this._orbitControls.dispatchEvent({ type: 'update' });
+        return res;
+    }
+
+    public getCameraPosition(target?: CameraPosition): CameraPosition {
+        const controls = this._orbitControls;
+        const cameraPosition =
+            target ?? new CameraPosition(new Vector3(), new Vector3(), new Vector3());
+
+        controls.getPosition(cameraPosition.camera);
+        controls.getTarget(cameraPosition.target);
+        controls.getFocalOffset(cameraPosition.focalOffset);
+
+        return cameraPosition;
+    }
+    /**
+     * Looks to a bounding box or Object3D.
+     *
+     * @param obj - Bounding box or Object to look at
+     * @param enableTransition - Enables transition
+     * @param options - Camera-controls' fitToBox options
+     * @returns Resolves when interaction is done
+     */
+    public goToBox(
+        obj: Box3 | Entity3D | Object3D,
+        enableTransition: boolean = true,
+        options: object = {
+            paddingBottom: 10,
+            paddingLeft: 10,
+            paddingRight: 10,
+            paddingTop: 10,
+        },
+    ): Promise<void[]> {
+        const bbox = this.getBox(obj);
+        return this.executeInteraction(() => {
+            void this._orbitControls.setFocalOffset(0, 0, 0);
+            return this._orbitControls.fitToBox(bbox, enableTransition, options);
+        });
+    }
+    /**
+     * Sets the camera to look at a position.
+     *
+     * @param position - Position of the camera
+     * @param lookAt - Posiiton to look at
+     * @param enableTransition - Enables transition
+     * @returns Resolves when interaction is done
+     */
+    public async lookAt(
+        position: Vector3,
+        lookAt: Vector3,
+        enableTransition: boolean = false,
+    ): Promise<void> {
+        await this.executeInteraction(async () => {
+            // Need to reset focal offset because of orbit point
+            // https://github.com/yomotsu/camera-controls/issues/303
+            void this._orbitControls.setFocalOffset(0, 0, 0, false);
+            return this._orbitControls.setLookAt(
+                position.x,
+                position.y,
+                position.z,
+                lookAt.x,
+                lookAt.y,
+                lookAt.z,
+                enableTransition,
+            );
+        });
+        this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
+    }
+    public lookTopDownAt(obj: Box3 | Entity3D | Object3D, enableTransition = true): Promise<void> {
+        const center = new Vector3();
+        const size = new Vector3();
+        const newCameraPosition = new Vector3(0, 0, 1);
+
+        const bbox = this.getBox(obj);
+        bbox.min.z = bbox.max.z;
+        bbox.getCenter(center);
+        bbox.getSize(size);
+
+        const distance = this._orbitControls.getDistanceToFitBox(size.x, size.y, 0);
+        const cameraPosition = newCameraPosition.multiplyScalar(distance).add(center);
+
+        // Slightly offset camera to avoid gimbal lock
+        cameraPosition.x += size.x / 10;
+        cameraPosition.y -= size.y / 10;
+
+        return this.lookAt(cameraPosition, center, enableTransition);
+    }
+
+    public setCamera(pos: CameraPosition): void {
+        void this.executeInteraction(async () => {
+            this._orbitControls.setOrbitPoint(0, 0, 0);
+            void this._orbitControls.setLookAt(
+                pos.camera.x,
+                pos.camera.y,
+                pos.camera.z,
+                pos.target.x,
+                pos.target.y,
+                pos.target.z,
+                false,
+            );
+            void this._orbitControls.setFocalOffset(
+                pos.focalOffset.z,
+                pos.focalOffset.y,
+                pos.focalOffset.z,
+                false,
+            );
+            this._orbitControls.update(0);
+            return Promise.resolve();
+        });
+    }
+
+    /**
+     * Sets initial position of camera to view an extent.
+     *
+     * @param extent - Extent to look at
+     * @param altitude - Altitude of camera
+     */
+    public setInitialPosition(extent: Extent, altitude = 4000): void {
+        const cameraPosition = new Coordinates(
+            extent.crs,
+            extent.west,
+            extent.south,
+            altitude,
+        ).toVector3();
+        const center = extent.centerAsVector3();
+        void this.lookAt(cameraPosition, center, false);
+    }
+
+    protected getBox(obj: Box3 | Entity3D | Object3D): Box3 {
+        // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
+        let bbox = new Box3();
+        if ((obj as Box3).isBox3) {
+            bbox = (obj as Box3).clone();
+        } else if ((obj as Entity3D).isEntity3D) {
+            const entity3d = obj as Entity3D;
+            const entityBbox = entity3d.getBoundingBox();
+            if (entityBbox && !entityBbox.isEmpty()) {
+                bbox = entityBbox.clone();
+            } else if ('extent' in entity3d) {
+                // In case object is hidden
+                bbox = (entity3d.extent as Extent).toBox3(0, 200);
+            }
+        } else if ((obj as Object3D).isObject3D) {
+            bbox.setFromObject(obj as Object3D);
+        } else {
+            throw new Error('obj should be instanceof Box3, Object3D or Entity3D');
+        }
+        if (bbox.isEmpty()) {
+            throw new Error('Could not find bounding box of object');
+        }
+
+        bbox.min.z = Math.max(bbox.min.z, 0);
+        bbox.max.z = Math.min(bbox.max.z, 2000);
+
+        return bbox;
+    }
+
+    private _disablePositionOnMap(): void {
+        if (
+            this._boundPositionOnMapOnClick ||
+            this._boundPositionOnMapOnMouseMove ||
+            this._boundPositionOnMapOnContextMenu
+        ) {
+            if (this._boundPositionOnMapOnClick) {
+                this._instance.domElement.removeEventListener(
+                    'click',
+                    this._boundPositionOnMapOnClick,
+                );
+            }
+            this._boundPositionOnMapOnClick = null;
+
+            if (this._boundPositionOnMapOnMouseMove) {
+                this._instance.domElement.removeEventListener(
+                    'mousemove',
+                    this._boundPositionOnMapOnMouseMove,
+                );
+            }
+            this._boundPositionOnMapOnMouseMove = null;
+
+            if (this._boundPositionOnMapOnContextMenu) {
+                this._instance.domElement.removeEventListener(
+                    'contextmenu',
+                    this._boundPositionOnMapOnContextMenu,
+                );
+            }
+            this._boundPositionOnMapOnContextMenu = null;
+
+            this._positionOnMapHelper.visible = false;
+            this._instance.domElement.style.cursor = 'auto';
+            this._instance.notifyChange();
+        }
+    }
+
+    private _enablePositionOnMap(): void {
+        this._boundPositionOnMapOnClick = this.onPositionOnMapClick.bind(this);
+        this._boundPositionOnMapOnMouseMove = this.onPositionOnMapMouseMove.bind(this);
+        this._boundPositionOnMapOnContextMenu = this.onPositionOnMapContextMenu.bind(this);
+
+        this._instance.domElement.addEventListener(
+            'mousemove',
+            this._boundPositionOnMapOnMouseMove,
+        );
+        this._instance.domElement.addEventListener('click', this._boundPositionOnMapOnClick);
+        this._instance.domElement.addEventListener(
+            'contextmenu',
+            this._boundPositionOnMapOnContextMenu,
+        );
+    }
+
+    private disposeOrbitControls(): void {
+        this._instance.domElement.removeEventListener('keydown', this._boundOrbitControlsOnKey);
+
+        this._instance.domElement.removeEventListener('wheel', this._boundOrbitControlsOnWheel);
+
+        this._instance.domElement.removeEventListener(
+            'contextmenu',
+            this._boundOrbitControlsOnContextMenu,
+        );
+        this._instance.domElement.removeEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
+
+        this._orbitControls.disconnect();
     }
 
     private initializeInspector(inspector: Inspector | null): void {
@@ -237,18 +487,60 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._instance.domElement.addEventListener('keydown', this._boundOrbitControlsOnKey);
     }
 
-    private disposeOrbitControls(): void {
-        this._instance.domElement.removeEventListener('keydown', this._boundOrbitControlsOnKey);
-
-        this._instance.domElement.removeEventListener('wheel', this._boundOrbitControlsOnWheel);
-
-        this._instance.domElement.removeEventListener(
-            'contextmenu',
-            this._boundOrbitControlsOnContextMenu,
+    private onAfterCameraUpdate(): void {
+        // this.instance.view.camera.position is *not always* the same as orbitControls.getPosition()
+        this._store.setCurrentPosition(
+            this.getCameraPosition(),
+            this._instance.view.camera.position,
         );
-        this._instance.domElement.removeEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
+    }
 
-        this._orbitControls.disconnect();
+    private onBeforeCameraUpdate(): void {
+        // Called from giro3d
+        const delta = this._clock.getDelta();
+        const hasControlsUpdated = this._orbitControls.update(delta);
+        if (hasControlsUpdated) {
+            this._instance.notifyChange(this._instance.view.camera);
+        }
+    }
+
+    private onPositionOnMapClick(e: MouseEvent): void {
+        const picked = this._picker.getMapAt(this._instance, e);
+        if (picked) {
+            this._disablePositionOnMap();
+
+            const direction = new Vector3();
+            this._instance.view.camera.getWorldDirection(direction);
+            direction.normalize().setLength(3);
+
+            const newPosition = picked.point.clone();
+            newPosition.z += 1.7;
+
+            const newTarget = newPosition.clone();
+            newTarget.add(direction);
+            newTarget.z = newPosition.z;
+
+            void this.lookAt(newPosition, newTarget, true).finally(() =>
+                this._store.setNavigationMode('first-person'),
+            );
+        }
+    }
+
+    private onPositionOnMapContextMenu(e: MouseEvent): void {
+        this._disablePositionOnMap();
+        this._store.setNavigationMode('orbit');
+        e.preventDefault();
+    }
+
+    private onPositionOnMapMouseMove(e: MouseEvent): void {
+        const picked = this._picker.getMapAt(this._instance, e);
+        this._instance.domElement.style.cursor = picked ? 'none' : 'auto';
+        this._positionOnMapHelper.visible = picked != null;
+        if (picked) {
+            this._positionOnMapHelper.position.copy(picked.point);
+            this._positionOnMapHelper.updateMatrixWorld();
+        }
+        this._instance.notifyChange();
     }
 
     private orbitControlsOnContextMenu(e: MouseEvent): void {
@@ -269,20 +561,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             this._orbitHelper.updateMatrixWorld();
         }
     }
-    private orbitControlsOnMouseUp(): void {
-        if (this._store.getNavigationMode() !== 'orbit') {
-            return;
-        }
 
-        this._orbitHelper.visible = false;
-        this._instance.notifyChange();
-    }
-    private orbitControlsOnWheel(): void {
-        // As camera-controls doesn't dispatch controlstart/controlend events, we need
-        // to take care of them for proper events
-        this._orbitControls.dispatchEvent({ type: 'controlstart' });
-        setTimeout(() => this._orbitControls.dispatchEvent({ type: 'controlend' }), 0);
-    }
     private orbitControlsOnKey(e: KeyboardEvent): void {
         const navigationMode = this._store.getNavigationMode();
 
@@ -298,14 +577,14 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
 
         const keys = {
-            ARROW_LEFT: 'ArrowLeft',
-            ARROW_UP: 'ArrowUp',
-            ARROW_RIGHT: 'ArrowRight',
             ARROW_BOTTOM: 'ArrowDown',
-            KEY_UP: 'KeyW',
+            ARROW_LEFT: 'ArrowLeft',
+            ARROW_RIGHT: 'ArrowRight',
+            ARROW_UP: 'ArrowUp',
+            KEY_DOWN: 'KeyS',
             KEY_LEFT: 'KeyA',
             KEY_RIGHT: 'KeyD',
-            KEY_DOWN: 'KeyS',
+            KEY_UP: 'KeyW',
         };
 
         let forwardDirection = 0;
@@ -320,22 +599,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
 
         switch (e.code) {
-            case keys.KEY_UP:
-                truckDirectionY = -1;
-                break;
-
-            case keys.KEY_DOWN:
-                truckDirectionY = 1;
-                break;
-
-            case keys.ARROW_UP:
-                if (navigationMode === 'first-person') {
-                    dollyDirection = 1;
-                } else {
-                    forwardDirection = 1;
-                }
-                break;
-
             case keys.ARROW_BOTTOM:
                 if (navigationMode === 'first-person') {
                     dollyDirection = -1;
@@ -345,13 +608,29 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 break;
 
             case keys.ARROW_LEFT:
+
             case keys.KEY_LEFT:
                 truckDirectionX = -1;
                 break;
 
             case keys.ARROW_RIGHT:
+
             case keys.KEY_RIGHT:
                 truckDirectionX = 1;
+                break;
+            case keys.ARROW_UP:
+                if (navigationMode === 'first-person') {
+                    dollyDirection = 1;
+                } else {
+                    forwardDirection = 1;
+                }
+                break;
+
+            case keys.KEY_DOWN:
+                truckDirectionY = 1;
+                break;
+            case keys.KEY_UP:
+                truckDirectionY = -1;
                 break;
 
             default:
@@ -393,101 +672,29 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         }
     }
 
-    private _enablePositionOnMap(): void {
-        this._boundPositionOnMapOnClick = this.onPositionOnMapClick.bind(this);
-        this._boundPositionOnMapOnMouseMove = this.onPositionOnMapMouseMove.bind(this);
-        this._boundPositionOnMapOnContextMenu = this.onPositionOnMapContextMenu.bind(this);
-
-        this._instance.domElement.addEventListener(
-            'mousemove',
-            this._boundPositionOnMapOnMouseMove,
-        );
-        this._instance.domElement.addEventListener('click', this._boundPositionOnMapOnClick);
-        this._instance.domElement.addEventListener(
-            'contextmenu',
-            this._boundPositionOnMapOnContextMenu,
-        );
-    }
-
-    private _disablePositionOnMap(): void {
-        if (
-            this._boundPositionOnMapOnClick ||
-            this._boundPositionOnMapOnMouseMove ||
-            this._boundPositionOnMapOnContextMenu
-        ) {
-            if (this._boundPositionOnMapOnClick) {
-                this._instance.domElement.removeEventListener(
-                    'click',
-                    this._boundPositionOnMapOnClick,
-                );
-            }
-            this._boundPositionOnMapOnClick = null;
-
-            if (this._boundPositionOnMapOnMouseMove) {
-                this._instance.domElement.removeEventListener(
-                    'mousemove',
-                    this._boundPositionOnMapOnMouseMove,
-                );
-            }
-            this._boundPositionOnMapOnMouseMove = null;
-
-            if (this._boundPositionOnMapOnContextMenu) {
-                this._instance.domElement.removeEventListener(
-                    'contextmenu',
-                    this._boundPositionOnMapOnContextMenu,
-                );
-            }
-            this._boundPositionOnMapOnContextMenu = null;
-
-            this._positionOnMapHelper.visible = false;
-            this._instance.domElement.style.cursor = 'auto';
-            this._instance.notifyChange();
+    private orbitControlsOnMouseUp(): void {
+        if (this._store.getNavigationMode() !== 'orbit') {
+            return;
         }
-    }
 
-    private onPositionOnMapMouseMove(e: MouseEvent): void {
-        const picked = this._picker.getMapAt(this._instance, e);
-        this._instance.domElement.style.cursor = picked ? 'none' : 'auto';
-        this._positionOnMapHelper.visible = picked != null;
-        if (picked) {
-            this._positionOnMapHelper.position.copy(picked.point);
-            this._positionOnMapHelper.updateMatrixWorld();
-        }
+        this._orbitHelper.visible = false;
         this._instance.notifyChange();
     }
 
-    private onPositionOnMapContextMenu(e: MouseEvent): void {
-        this._disablePositionOnMap();
-        this._store.setNavigationMode('orbit');
-        e.preventDefault();
-    }
-
-    private onPositionOnMapClick(e: MouseEvent): void {
-        const picked = this._picker.getMapAt(this._instance, e);
-        if (picked) {
-            this._disablePositionOnMap();
-
-            const direction = new Vector3();
-            this._instance.view.camera.getWorldDirection(direction);
-            direction.normalize().setLength(3);
-
-            const newPosition = picked.point.clone();
-            newPosition.z += 1.7;
-
-            const newTarget = newPosition.clone();
-            newTarget.add(direction);
-            newTarget.z = newPosition.z;
-
-            void this.lookAt(newPosition, newTarget, true).finally(() =>
-                this._store.setNavigationMode('first-person'),
-            );
-        }
+    private orbitControlsOnWheel(): void {
+        // As camera-controls doesn't dispatch controlstart/controlend events, we need
+        // to take care of them for proper events
+        this._orbitControls.dispatchEvent({ type: 'controlstart' });
+        setTimeout(() => this._orbitControls.dispatchEvent({ type: 'controlend' }), 0);
     }
 
     private setNavigationMode(mode: NavigationMode): void {
         this._disablePositionOnMap();
 
         switch (mode) {
+            case 'disabled':
+                this._orbitControls.enabled = false;
+                break;
             case 'first-person':
                 {
                     this._orbitControls.dollyToCursor = false;
@@ -554,9 +761,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
                 this._orbitControls.enabled = false;
                 this._enablePositionOnMap();
                 break;
-            case 'disabled':
-                this._orbitControls.enabled = false;
-                break;
             default: {
                 // Exhaustiveness checking
                 const _exhaustiveCheck: never = mode;
@@ -564,210 +768,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             }
         }
         this._instance.domElement.focus();
-    }
-
-    private onBeforeCameraUpdate(): void {
-        // Called from giro3d
-        const delta = this._clock.getDelta();
-        const hasControlsUpdated = this._orbitControls.update(delta);
-        if (hasControlsUpdated) {
-            this._instance.notifyChange(this._instance.view.camera);
-        }
-    }
-
-    private onAfterCameraUpdate(): void {
-        // this.instance.view.camera.position is *not always* the same as orbitControls.getPosition()
-        this._store.setCurrentPosition(
-            this.getCameraPosition(),
-            this._instance.view.camera.position,
-        );
-    }
-
-    /**
-     * Executes an interaction with animation.
-     *
-     * Required to call this instead of calling directly camera-controls because
-     * of how Giro3D mainloop works.
-     *
-     * @param callback - Interaction to execute
-     * @returns Resolves when interaction is done
-     */
-    public executeInteraction<T = void>(callback: () => Promise<T>): Promise<T> {
-        this._orbitControls.update(this._clock.getDelta());
-
-        // Execute the interaction
-        const res = callback();
-
-        // As mainloop can pause, before_camera_update can be triggered irregularly
-        // Make sure to "reset" the clock to enable smooth transitions with camera-controls
-        this._orbitControls.update(this._clock.getDelta());
-        // Dispatch events so giro3d and giro3dservice gets notified
-        this._orbitControls.dispatchEvent({ type: 'update' });
-        return res;
-    }
-
-    /**
-     * Sets initial position of camera to view an extent.
-     *
-     * @param extent - Extent to look at
-     * @param altitude - Altitude of camera
-     */
-    public setInitialPosition(extent: Extent, altitude = 4000): void {
-        const cameraPosition = new Coordinates(
-            extent.crs,
-            extent.west,
-            extent.south,
-            altitude,
-        ).toVector3();
-        const center = extent.centerAsVector3();
-        void this.lookAt(cameraPosition, center, false);
-    }
-
-    /**
-     * Sets the camera to look at a position.
-     *
-     * @param position - Position of the camera
-     * @param lookAt - Posiiton to look at
-     * @param enableTransition - Enables transition
-     * @returns Resolves when interaction is done
-     */
-    public async lookAt(
-        position: Vector3,
-        lookAt: Vector3,
-        enableTransition: boolean = false,
-    ): Promise<void> {
-        await this.executeInteraction(async () => {
-            // Need to reset focal offset because of orbit point
-            // https://github.com/yomotsu/camera-controls/issues/303
-            void this._orbitControls.setFocalOffset(0, 0, 0, false);
-            return this._orbitControls.setLookAt(
-                position.x,
-                position.y,
-                position.z,
-                lookAt.x,
-                lookAt.y,
-                lookAt.z,
-                enableTransition,
-            );
-        });
-        this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
-    }
-
-    public get enabled(): boolean {
-        return this._orbitControls.enabled;
-    }
-
-    public set enabled(v: boolean) {
-        this._orbitControls.enabled = v;
-    }
-
-    public getCameraPosition(target?: CameraPosition): CameraPosition {
-        const controls = this._orbitControls;
-        const cameraPosition =
-            target ?? new CameraPosition(new Vector3(), new Vector3(), new Vector3());
-
-        controls.getPosition(cameraPosition.camera);
-        controls.getTarget(cameraPosition.target);
-        controls.getFocalOffset(cameraPosition.focalOffset);
-
-        return cameraPosition;
-    }
-
-    public setCamera(pos: CameraPosition): void {
-        void this.executeInteraction(async () => {
-            this._orbitControls.setOrbitPoint(0, 0, 0);
-            void this._orbitControls.setLookAt(
-                pos.camera.x,
-                pos.camera.y,
-                pos.camera.z,
-                pos.target.x,
-                pos.target.y,
-                pos.target.z,
-                false,
-            );
-            void this._orbitControls.setFocalOffset(
-                pos.focalOffset.z,
-                pos.focalOffset.y,
-                pos.focalOffset.z,
-                false,
-            );
-            this._orbitControls.update(0);
-            return Promise.resolve();
-        });
-    }
-
-    /**
-     * Looks to a bounding box or Object3D.
-     *
-     * @param obj - Bounding box or Object to look at
-     * @param enableTransition - Enables transition
-     * @param options - Camera-controls' fitToBox options
-     * @returns Resolves when interaction is done
-     */
-    public goToBox(
-        obj: Box3 | Object3D | Entity3D,
-        enableTransition: boolean = true,
-        options: object = {
-            paddingTop: 10,
-            paddingLeft: 10,
-            paddingBottom: 10,
-            paddingRight: 10,
-        },
-    ): Promise<void[]> {
-        const bbox = this.getBox(obj);
-        return this.executeInteraction(() => {
-            void this._orbitControls.setFocalOffset(0, 0, 0);
-            return this._orbitControls.fitToBox(bbox, enableTransition, options);
-        });
-    }
-
-    public lookTopDownAt(obj: Box3 | Object3D | Entity3D, enableTransition = true): Promise<void> {
-        const center = new Vector3();
-        const size = new Vector3();
-        const newCameraPosition = new Vector3(0, 0, 1);
-
-        const bbox = this.getBox(obj);
-        bbox.min.z = bbox.max.z;
-        bbox.getCenter(center);
-        bbox.getSize(size);
-
-        const distance = this._orbitControls.getDistanceToFitBox(size.x, size.y, 0);
-        const cameraPosition = newCameraPosition.multiplyScalar(distance).add(center);
-
-        // Slightly offset camera to avoid gimbal lock
-        cameraPosition.x += size.x / 10;
-        cameraPosition.y -= size.y / 10;
-
-        return this.lookAt(cameraPosition, center, enableTransition);
-    }
-
-    protected getBox(obj: Box3 | Object3D | Entity3D): Box3 {
-        // We produce broken CityJSON (bbox.max.z being 10e38), workaround that!
-        let bbox = new Box3();
-        if ((obj as Box3).isBox3) {
-            bbox = (obj as Box3).clone();
-        } else if ((obj as Entity3D).isEntity3D) {
-            const entity3d = obj as Entity3D;
-            const entityBbox = entity3d.getBoundingBox();
-            if (entityBbox && !entityBbox.isEmpty()) {
-                bbox = entityBbox.clone();
-            } else if ('extent' in entity3d) {
-                // In case object is hidden
-                bbox = (entity3d.extent as Extent).toBox3(0, 200);
-            }
-        } else if ((obj as Object3D).isObject3D) {
-            bbox.setFromObject(obj as Object3D);
-        } else {
-            throw new Error('obj should be instanceof Box3, Object3D or Entity3D');
-        }
-        if (bbox.isEmpty()) {
-            throw new Error('Could not find bounding box of object');
-        }
-
-        bbox.min.z = Math.max(bbox.min.z, 0);
-        bbox.max.z = Math.min(bbox.max.z, 2000);
-
-        return bbox;
     }
 }
 

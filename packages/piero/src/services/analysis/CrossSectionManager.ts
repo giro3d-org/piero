@@ -6,18 +6,18 @@ import { useAnalysisStore } from '@/stores/analysis';
 import { useDatasetStore } from '@/stores/datasets';
 
 export default class CrossSectionManager {
+    private readonly _datasetStore = useDatasetStore();
     private readonly _instance: Instance;
     private readonly _store = useAnalysisStore();
-    private readonly _datasetStore = useDatasetStore();
 
     public constructor(instance: Instance) {
         this._instance = instance;
-        this._store.$onAction(({ name, after }) => {
+        this._store.$onAction(({ after, name }) => {
             after(() => {
                 switch (name) {
                     case 'enableCrossSection':
-                    case 'setCrossSectionOrientation':
                     case 'setCrossSectionCenter':
+                    case 'setCrossSectionOrientation':
                         this.updateCrossSection();
                         break;
                 }
@@ -54,8 +54,8 @@ export default class CrossSectionManager {
                 // they can optimize their rendering
                 // See https://gitlab.com/giro3d/piero/-/merge_requests/82
                 entity.dispatchEvent({
-                    type: 'clippingPlanes-property-changed',
                     clippingPlanes: clippingPlanes,
+                    type: 'clippingPlanes-property-changed',
                 });
             }
         }

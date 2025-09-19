@@ -4,9 +4,9 @@
     import ButtonWithIcon from './ButtonWithIcon.vue';
 
     defineProps<{
-        title: string;
-        text?: string;
         icon?: string;
+        text?: string;
+        title: string;
     }>();
 
     const emits = defineEmits<{
@@ -41,18 +41,18 @@
         e.preventDefault();
     }
 
-    function onDrop(e: DragEvent): void {
-        hover.value = false;
-        const files = e.dataTransfer?.files;
-        importFiles(files);
-        e.preventDefault();
-    }
-
     function onDragOver(e: DragEvent): void {
         e.preventDefault();
         if (e.dataTransfer) {
             e.dataTransfer.dropEffect = 'copy';
         }
+    }
+
+    function onDrop(e: DragEvent): void {
+        hover.value = false;
+        const files = e.dataTransfer?.files;
+        importFiles(files);
+        e.preventDefault();
     }
 </script>
 

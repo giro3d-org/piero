@@ -30,9 +30,9 @@ async function start(): Promise<void> {
 
     // We are now ready to instantiate Piero on the #app DOM element of our webpage.
     return createPieroApp({
-        container: '#app',
         baseUrl,
         configuration,
+        container: '#app',
         dynamicStyles: styles,
         modules,
     });

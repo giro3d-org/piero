@@ -17,12 +17,6 @@
     const isLoading = ref<boolean>(false);
     const showCharts = ref<boolean>(false);
 
-    function setCurrentSource(src: Dataset): void {
-        source.value = src;
-        isLoading.value = false;
-        showCharts.value = false;
-    }
-
     async function createStatistics(): Promise<void> {
         isLoading.value = true;
         showCharts.value = false;
@@ -32,6 +26,12 @@
 
         isLoading.value = false;
         showCharts.value = true;
+    }
+
+    function setCurrentSource(src: Dataset): void {
+        source.value = src;
+        isLoading.value = false;
+        showCharts.value = false;
     }
 </script>
 

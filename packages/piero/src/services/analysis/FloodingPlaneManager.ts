@@ -8,15 +8,15 @@ import FloodingPlane from '@/types/FloodingPlane';
 export default class FloodingPlaneManager {
     private readonly _instance: Instance;
     private readonly _layerManager: LayerManager;
-    private readonly _store = useAnalysisStore();
     private _plane: FloodingPlane | null;
+    private readonly _store = useAnalysisStore();
 
     public constructor(instance: Instance, layerManager: LayerManager) {
         this._instance = instance;
         this._layerManager = layerManager;
         this._plane = null;
 
-        this._store.$onAction(({ name, after }) => {
+        this._store.$onAction(({ after, name }) => {
             after(() => {
                 switch (name) {
                     case 'enableFloodingPlane':

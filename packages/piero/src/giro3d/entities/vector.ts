@@ -20,7 +20,7 @@ import VectorMeshEntity, {
 import VectorShapeEntity from './VectorShapeEntity';
 
 export const build: EntityBuilder = context => {
-    const { instance, dataset } = context;
+    const { dataset, instance } = context;
 
     const cfg = dataset.config as VectorDatasetConfig;
     const sourcesConfig = Array.isArray(cfg.source) ? cfg.source : [cfg.source];
@@ -31,22 +31,29 @@ export const build: EntityBuilder = context => {
 
     for (const sourceConfig of sourcesConfig) {
         const commonOptions: VectorMeshSourceOptions = {
-            url: sourceConfig.url,
             dataProjection: sourceConfig.dataProjection ?? dataset.get('dataProjection'),
-            featureProjection: instance.referenceCrs,
             elevation: sourceConfig.elevation ?? dataset.get('elevation'),
+            featureProjection: instance.referenceCrs,
             fetchElevation: sourceConfig.fetchElevation ?? dataset.get('fetchElevation'),
             fetchElevationFast:
                 sourceConfig.fetchElevationFast ?? dataset.get('fetchElevationFast'),
             fetchElevationOffset:
                 sourceConfig.fetchElevationOffset ?? dataset.get('fetchElevationOffset'),
             noDataValue: sourceConfig.noDataValue ?? dataset.get('noDataValue'),
+            url: sourceConfig.url,
         };
 
         switch (sourceConfig.type) {
             case 'geojson':
                 sources.push(
                     new GeoJsonMeshSource({
+                        ...commonOptions,
+                    }),
+                );
+                break;
+            case 'geopackage':
+                sources.push(
+                    new GeopackageSource({
                         ...commonOptions,
                     }),
                 );
@@ -72,13 +79,6 @@ export const build: EntityBuilder = context => {
                     }),
                 );
                 break;
-            case 'geopackage':
-                sources.push(
-                    new GeopackageSource({
-                        ...commonOptions,
-                    }),
-                );
-                break;
             case 'shapefile':
                 sources.push(
                     new ShapefileSource({
@@ -95,14 +95,14 @@ export const build: EntityBuilder = context => {
     }
 
     switch (rendering) {
+        case 'label':
+            entity = new VectorLabelsEntity(sources, cfg as VectorLabelsDatasetConfig);
+            break;
         case 'mesh':
             entity = new VectorMeshEntity(sources);
             break;
         case 'shape':
             entity = new VectorShapeEntity(sources[0]);
-            break;
-        case 'label':
-            entity = new VectorLabelsEntity(sources, cfg as VectorLabelsDatasetConfig);
             break;
         default: {
             // Exhaustiveness checking

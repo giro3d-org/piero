@@ -10,8 +10,8 @@ import CameraPosition from '@/types/CameraPosition';
 
 class CameraControlsInspector extends Panel {
     public camera: CameraController;
-    private _cameraPosition: CameraPosition;
     private _boundOnAfterCameraUpdate: () => void;
+    private _cameraPosition: CameraPosition;
 
     /**
      * @param gui - The GUI.

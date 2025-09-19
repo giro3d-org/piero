@@ -61,21 +61,21 @@ type Giro3DManagerEventMap = {
 };
 
 export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
-    private readonly _store = useGiro3dStore();
-
-    public readonly mainInstance: Instance;
-    public readonly camera: CameraController;
-    public readonly layerManager: LayerManager;
-    public readonly datasetManager: DatasetManager;
-    public readonly annotationManager: AnnotationManager;
-    public readonly analysisManager: AnalysisManager;
-    public readonly highlighter: Highlighter;
-    public readonly picker: Picker;
-    public readonly measurementManager: MeasurementManager;
     public readonly ambientLight: AmbientLight;
-    public readonly dirLight: DirectionalLight;
 
+    public readonly analysisManager: AnalysisManager;
+    public readonly annotationManager: AnnotationManager;
+    public readonly camera: CameraController;
+    public readonly datasetManager: DatasetManager;
+    public readonly dirLight: DirectionalLight;
+    public readonly highlighter: Highlighter;
+    public readonly layerManager: LayerManager;
+    public readonly mainInstance: Instance;
+    public readonly measurementManager: MeasurementManager;
+    public readonly picker: Picker;
     private readonly _boundOnFrameEnd: () => void;
+
+    private readonly _store = useGiro3dStore();
 
     public constructor(instance: Instance) {
         super();
@@ -140,26 +140,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.camera.dispose();
     }
 
-    private onFrameEnd(): void {
-        // Temporary solution to avoid annoying horizontal line artifacts
-        // on point cloud due to constantly shifting near clipping plane.
-        const camera = this.mainInstance.view.camera;
-        camera.near = 2;
-
-        this.dispatchEvent({ type: 'update' });
-    }
-
-    /**
-     * Gets the datasets & annotations as Object3D.
-     */
-    public getObjects3d(): Object3D[] {
-        const result: Object3D[] = [];
-        this.mainInstance.scene.traverse(o => {
-            result.push(o);
-        });
-        return result;
-    }
-
     /**
      * Gets bounding box of all datasets & annotations.
      *
@@ -173,5 +153,25 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
             bbox.union(bbox2);
         });
         return bbox;
+    }
+
+    /**
+     * Gets the datasets & annotations as Object3D.
+     */
+    public getObjects3d(): Object3D[] {
+        const result: Object3D[] = [];
+        this.mainInstance.scene.traverse(o => {
+            result.push(o);
+        });
+        return result;
+    }
+
+    private onFrameEnd(): void {
+        // Temporary solution to avoid annoying horizontal line artifacts
+        // on point cloud due to constantly shifting near clipping plane.
+        const camera = this.mainInstance.view.camera;
+        camera.near = 2;
+
+        this.dispatchEvent({ type: 'update' });
     }
 }

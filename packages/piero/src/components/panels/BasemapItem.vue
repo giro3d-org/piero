@@ -8,27 +8,27 @@
     import VisibilityControl from '@/components/VisibilityControl.vue';
 
     defineProps<{
-        type: LayerType | 'graticule';
-        opacity: number;
-        visible: boolean;
-        isLoading: boolean;
         hasOpacitySlider: boolean;
+        isLoading: boolean;
         name: string;
+        opacity: number;
+        type: 'graticule' | LayerType;
+        visible: boolean;
     }>();
 
     defineEmits(['update:opacity', 'update:visible']);
 
-    const icons: Record<LayerType | 'graticule', string> = {
-        elevation: 'fg-profile',
+    const icons: Record<'graticule' | LayerType, string> = {
         color: 'fg-landcover-map',
-        mask: 'bi-mask',
+        elevation: 'fg-profile',
         graticule: 'fg-grid',
+        mask: 'bi-mask',
     };
-    const iconTitles: Record<LayerType | 'graticule', string> = {
-        elevation: 'Elevation layer',
+    const iconTitles: Record<'graticule' | LayerType, string> = {
         color: 'Color layer',
-        mask: 'Mask layer',
+        elevation: 'Elevation layer',
         graticule: 'Graticule',
+        mask: 'Mask layer',
     };
 </script>
 

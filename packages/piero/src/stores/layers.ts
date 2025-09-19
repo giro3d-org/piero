@@ -5,8 +5,8 @@ import type { OverlayConfig } from '@/types/configuration/layers';
 
 import { getConfig } from '@/config-loader';
 import { GraticuleLayer } from '@/giro3d/Graticule';
-import { BaseLayerObject, type BaseLayer } from '@/types/BaseLayer';
-import { OverlayObject, type Overlay } from '@/types/Overlay';
+import { type BaseLayer, BaseLayerObject } from '@/types/BaseLayer';
+import { type Overlay, OverlayObject } from '@/types/Overlay';
 
 function buildBaseLayers(): BaseLayer[] {
     const config = getConfig();
@@ -48,10 +48,10 @@ function buildOverlays(): Overlay[] {
             );
             conf = {
                 name: item.name,
-                visible: item.visible,
                 source: {
                     ...item,
                 },
+                visible: item.visible,
             };
         } else {
             conf = item;
@@ -127,13 +127,13 @@ export const useLayerStore = defineStore('layers', () => {
         basemapCount,
         getBasemaps,
         getGraticuleLayer,
+        getOverlays,
+        moveOverlayDown,
+        moveOverlayUp,
+        overlayCount,
         setBasemapOpacity,
         setBasemapVisibility,
-        overlayCount,
-        getOverlays,
         setOverlayOpacity,
         setOverlayVisibility,
-        moveOverlayUp,
-        moveOverlayDown,
     };
 });

@@ -6,8 +6,8 @@ import type { ImageSourceConfigMixin } from './baseConfig';
 
 /** Mixin configuration for vector tiled layers */
 export interface VectorTileSourceConfigMixin
-    extends Pick<VectorTileSourceOptions, 'url' | 'backgroundColor'>,
-        ImageSourceConfigMixin {
+    extends ImageSourceConfigMixin,
+        Pick<VectorTileSourceOptions, 'backgroundColor' | 'url'> {
     /** Style */
     style: VectorStyle;
 }

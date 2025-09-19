@@ -22,6 +22,11 @@
         let description: string;
 
         switch (newMode) {
+            case 'disabled': {
+                name = 'Disabled';
+                description = 'Camera is disabled';
+                break;
+            }
             case 'first-person': {
                 name = 'First person';
                 description = `<i class="bi bi-hand-index-thumb"></i> Left-click to rotate; Right-click to pan<br>
@@ -41,11 +46,6 @@
                 name = 'Position on map';
                 description = `<i class="bi bi-hand-index-thumb"></i> Left-click on the map to move to First Person view on the ground.<br>
                     Cancel with right-click or Escape`;
-                break;
-            }
-            case 'disabled': {
-                name = 'Disabled';
-                description = 'Camera is disabled';
                 break;
             }
             default: {

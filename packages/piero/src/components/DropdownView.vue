@@ -5,10 +5,10 @@
     import type Named from '@/types/Named';
 
     const props = defineProps<{
-        items: Named[];
         current: Named | null;
+        descriptionPosition?: 'bottom' | 'top';
+        items: Named[];
         label: string;
-        descriptionPosition?: 'top' | 'bottom';
     }>();
 
     const emits = defineEmits<{

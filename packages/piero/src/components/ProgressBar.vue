@@ -1,8 +1,8 @@
 <script setup lang="ts">
     defineProps({
         progress: {
-            type: Number,
             required: true,
+            type: Number,
         },
     });
 </script>

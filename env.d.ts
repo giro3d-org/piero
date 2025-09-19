@@ -1,7 +1,11 @@
 interface DependencyInfo {
     description?: string;
-    license?: string;
     homepage?: string;
+    license?: string;
+}
+
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
 }
 
 /**
@@ -11,13 +15,11 @@ interface DependencyInfo {
  * See https://vitejs.dev/guide/env-and-mode.html for more info.
  */
 interface ImportMetaEnv {
-    /**
-     * If the app requires "Authorization" headers for a domain, set this variable to the path (e.g. `https://mydomain/foo/bar`)
-     */
+    //// Region: HTTP Authorization configuration
+
+    /* If the app requires "Authorization" headers for a domain, set this variable to the path (e.g. `https://mydomain/foo/bar`) */
     readonly VITE_AUTHORIZATION_DOMAIN?: string;
-    /**
-     * If the app requires "Authorization" headers for a domain, set this variable to the header value (e.g. `Basic foobar=`)
-     */
+    /* If the app requires "Authorization" headers for a domain, set this variable to the header value (e.g. `Basic foobar=`) */
     readonly VITE_AUTHORIZATION_VALUE?: string;
 
     /**
@@ -46,12 +48,11 @@ interface ImportMetaEnv {
      */
     readonly VITE_HEADERS?: Record<string, Record<string, string>>;
 
-    readonly PROD: boolean;
+    //// Region: Vite configuration
     readonly BASE_URL: string;
+    readonly PROD: boolean;
+
+    //// Region: About configuration
     readonly VITE_DEPENDENCIES: Record<string, DependencyInfo>;
     readonly VITE_GIT_COMMIT: string;
-}
-
-interface ImportMeta {
-    readonly env: ImportMetaEnv;
 }

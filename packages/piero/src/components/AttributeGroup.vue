@@ -4,8 +4,8 @@
     import AttributeItem from './AttributeItem.vue';
 
     defineProps<{
-        title: string;
         children: Array<Attribute>;
+        title: string;
     }>();
 </script>
 

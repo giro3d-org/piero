@@ -16,10 +16,6 @@ export const customHighlighters: HighlightFn[] = [];
 export default class Highlighter {
     private _clearHighlight: (() => void) | null = null;
 
-    public dispose(): void {
-        this.clear();
-    }
-
     public clear(): void {
         if (this._clearHighlight) {
             this._clearHighlight();
@@ -27,19 +23,8 @@ export default class Highlighter {
         }
     }
 
-    private highlightShape(pick: ShapePickResult): void {
-        const shape = pick.entity as Shape<PieroShapeUserData | MeasureUserData>;
-
-        if (shape.userData.highlightable) {
-            const previousColor = new Color(shape.color);
-            shape.color = shape.userData.highlightColor;
-            shape.instance.notifyChange();
-
-            this._clearHighlight = (): void => {
-                shape.color = previousColor;
-                shape.instance.notifyChange();
-            };
-        }
+    public dispose(): void {
+        this.clear();
     }
 
     public highlightFromPick(pick: PickResult): void {
@@ -58,6 +43,21 @@ export default class Highlighter {
             if (clearHighlight) {
                 this._clearHighlight = clearHighlight;
             }
+        }
+    }
+
+    private highlightShape(pick: ShapePickResult): void {
+        const shape = pick.entity as Shape<MeasureUserData | PieroShapeUserData>;
+
+        if (shape.userData.highlightable) {
+            const previousColor = new Color(shape.color);
+            shape.color = shape.userData.highlightColor;
+            shape.instance.notifyChange();
+
+            this._clearHighlight = (): void => {
+                shape.color = previousColor;
+                shape.instance.notifyChange();
+            };
         }
     }
 }

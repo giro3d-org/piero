@@ -39,11 +39,11 @@ const highlight: HighlightFn = (pick: PickResult) => {
 const loader: LoadDatasetFromFile<IFCDatasetConfig> = context => {
     return {
         name: context.filename,
-        visible: true,
-        type: 'ifc',
         source: {
             url: context.file,
         },
+        type: 'ifc',
+        visible: true,
     } satisfies IFCDatasetConfig;
 };
 
@@ -65,7 +65,7 @@ const attributeExtractor: AttributeExtractorFn = (
     }
     const attributes = attributesGroups.get('IFC') as Attribute[];
 
-    const { itemProperties, ifcProperties } = feature;
+    const { ifcProperties, itemProperties } = feature;
 
     const nullValue = 'NULL';
     const name = itemProperties.Name?.value ?? nullValue;
@@ -91,7 +91,7 @@ const attributeExtractor: AttributeExtractorFn = (
         attributes.push({ key: 'ObjectType', value: itemProperties.ObjectType.value });
     }
 
-    for (const { parentName, name, value } of ifcProperties) {
+    for (const { name, parentName, value } of ifcProperties) {
         if (!attributesGroups.has(parentName)) {
             attributesGroups.set(parentName, []);
         }
@@ -121,14 +121,14 @@ export default class IFCLoader implements Module {
 
     public async initialize(context: PieroContext): Promise<void> {
         context.datasets.registerDatasetType('ifc', {
-            name: 'IFC',
-            icon: 'bi-building',
-            loader,
+            attributeExtractor,
             entityBuilder,
             fileExtensions: ['ifc'],
-            propertyView: IfcPropertyView,
-            attributeExtractor,
             highlight,
+            icon: 'bi-building',
+            loader,
+            name: 'IFC',
+            propertyView: IfcPropertyView,
         });
 
         EntityPanel.registerInspector('IfcEntity', IfcEntityInspector);

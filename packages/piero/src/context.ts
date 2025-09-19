@@ -11,19 +11,19 @@ import type { Configuration } from './types/Configuration';
  */
 export interface PieroContext {
     /**
-     * The configuration of the Piero app.
-     */
-    configuration: Readonly<Configuration>;
-
-    /**
-     * The global event dispatcher.
-     */
-    events: EventDispatcher<PieroEvents>;
-
-    /**
      * The base URL of the application.
      */
     baseURL: URL;
+
+    /**
+     * Bookmark related functions.
+     */
+    bookmarks: BookmarkApi;
+
+    /**
+     * The configuration of the Piero app.
+     */
+    configuration: Readonly<Configuration>;
 
     /**
      * Dataset related functions.
@@ -31,12 +31,12 @@ export interface PieroContext {
     datasets: DatasetApi;
 
     /**
+     * The global event dispatcher.
+     */
+    events: EventDispatcher<PieroEvents>;
+
+    /**
      * 3D View related functions.
      */
     view: ViewApi;
-
-    /**
-     * Bookmark related functions.
-     */
-    bookmarks: BookmarkApi;
 }

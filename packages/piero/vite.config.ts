@@ -10,8 +10,8 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import pkgConfig from './package.json';
 
 type PackageJson = {
-    name: string;
     homepage?: string;
+    name: string;
     repository?:
         | string
         | {
@@ -61,8 +61,8 @@ const dependencies: Record<
     string,
     {
         description: string;
-        license: string;
         homepage?: string;
+        license: string;
     }
 > = {};
 
@@ -71,8 +71,8 @@ for (const pkg of Object.keys(pkgConfig.dependencies)) {
     const packageJson = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
     dependencies[packageJson.name] = {
         description: packageJson.description,
-        license: packageJson.license,
         homepage: getHomepage(packageJson),
+        license: packageJson.license,
     };
 }
 
@@ -87,16 +87,16 @@ export const commonConfig = defineConfig(env => {
 
     return {
         define: {
+            'import.meta.env.VITE_AUTHORIZATIONS': metaEnv.VITE_AUTHORIZATIONS,
             'import.meta.env.VITE_DEPENDENCIES': JSON.stringify(dependencies),
             'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(commitHash),
             'import.meta.env.VITE_HEADERS': metaEnv.VITE_HEADERS,
-            'import.meta.env.VITE_AUTHORIZATIONS': metaEnv.VITE_AUTHORIZATIONS,
         },
         optimizeDeps: {
             // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it
             // however it depends on earcut which _has_ to be optimized (because giro3d also depends on it)
-            include: ['earcut'],
             exclude: ['cityjson-threejs-loader'],
+            include: ['earcut'],
         },
         plugins: [
             vue(),
@@ -115,9 +115,9 @@ export const commonConfig = defineConfig(env => {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
                 // Use our dependencies for openbim-components & stuff
+                'camera-controls': path.resolve(modules, 'camera-controls'),
                 three: path.resolve(modules, 'three'),
                 'web-ifc': path.resolve(modules, 'web-ifc'),
-                'camera-controls': path.resolve(modules, 'camera-controls'),
                 // Use our dependencies for @math.gl
                 proj4: path.resolve(modules, 'proj4'),
             },
@@ -132,41 +132,41 @@ const libConfig = defineConfig(e => {
     const root = __dirname + '/';
 
     return {
-        root,
-        plugins: [
-            dts({
-                insertTypesEntry: true, // generates an entrypoint .d.ts
-            }),
-        ],
         build: {
-            sourcemap: !isProduction,
-            minify: isProduction,
-
             lib: {
-                name: 'piero',
                 entry: {
                     // To help with tree-shaking, modules are shipped in a separate entry point.
                     index: './src/index.ts',
                     modules: './src/modules/index.ts',
                 },
                 formats: ['es', 'cjs'],
+                name: 'piero',
             },
+            minify: isProduction,
 
             rollupOptions: {
                 external: ['vue', '@giro3d/giro3d', 'three', 'ol'],
                 output: {
-                    globals: {
-                        vue: 'Vue',
-                    },
                     assetFileNames: 'assets/[name][extname]',
                     chunkFileNames: '[name].[format].js',
                     entryFileNames: ({ name }): string => {
                         // name will be "index" or "modules"
                         return `${name}.[format].js`;
                     },
+                    globals: {
+                        vue: 'Vue',
+                    },
                 },
             },
+
+            sourcemap: !isProduction,
         },
+        plugins: [
+            dts({
+                insertTypesEntry: true, // generates an entrypoint .d.ts
+            }),
+        ],
+        root,
     };
 });
 

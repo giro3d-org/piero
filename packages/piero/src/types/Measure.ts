@@ -11,20 +11,14 @@ type MeasureEventMap = {
 };
 
 export default class Measure extends EventDispatcher<MeasureEventMap> {
-    public readonly uuid: string;
-    public readonly title: string;
-    private _visible: boolean;
-    private _object: Measure3D;
     public properties: object;
-
-    public constructor(title: string, object: Measure3D, properties: object = {}) {
-        super();
-
-        this.title = title;
-        this._visible = true;
-        this._object = object;
-        this.properties = properties;
-        this.uuid = MathUtils.generateUUID();
+    public readonly title: string;
+    public readonly uuid: string;
+    public get object(): Measure3D {
+        return this._object;
+    }
+    public set object(obj: Measure3D) {
+        this._object = obj;
     }
 
     public get visible(): boolean {
@@ -36,58 +30,64 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
         this.dispatchEvent({ type: 'visible' });
     }
 
-    public get object(): Measure3D {
-        return this._object;
-    }
+    private _object: Measure3D;
 
-    public set object(obj: Measure3D) {
-        this._object = obj;
-    }
+    private _visible: boolean;
 
-    public toGeoJSON(): GeoJSON.Feature {
-        const geojson = {
-            type: 'Feature',
-            id: `${Download.getBaseUrl()}#${this.uuid}`,
-            geometry: {
-                type: 'LineString',
-                coordinates: [this.object.from.toArray(), this.object.to.toArray()],
-            },
-            properties: {
-                ...this.properties,
-                title: this.title,
-                updated: new Date().toISOString(),
-            },
-        } as GeoJSON.Feature;
+    public constructor(title: string, object: Measure3D, properties: object = {}) {
+        super();
 
-        return geojson;
+        this.title = title;
+        this._visible = true;
+        this._object = object;
+        this.properties = properties;
+        this.uuid = MathUtils.generateUUID();
     }
 
     public static toCollection(measures: Measure[]): GeoJSON.FeatureCollection {
         const features = measures.map(measure => measure.toGeoJSON());
 
         return {
-            type: 'FeatureCollection',
             features,
+            type: 'FeatureCollection',
             // @ts-expect-error GeoJSON spec does not allow properties on FeatureCollection
             // But OWC requires it Oo
             id: `${Download.getBaseUrl()}#${MathUtils.generateUUID()}`,
             properties: {
-                lang: 'en',
-                title: 'Giro3D measures',
-                updated: new Date().toISOString(),
                 creator: 'Giro3D',
                 generator: {
                     title: 'Giro3D',
                     uri: Download.getBaseUrl(),
                 },
+                lang: 'en',
                 links: [
                     {
-                        rel: 'profile',
                         href: 'http://www.opengis.net/spec/owc-atom/1.0/req/core',
+                        rel: 'profile',
                         title: 'This file is compliant with version 1.0 of OGC Context',
                     },
                 ],
+                title: 'Giro3D measures',
+                updated: new Date().toISOString(),
             },
         };
+    }
+
+    public toGeoJSON(): GeoJSON.Feature {
+        const geojson = {
+            geometry: {
+                coordinates: [this.object.from.toArray(), this.object.to.toArray()],
+                type: 'LineString',
+            },
+            id: `${Download.getBaseUrl()}#${this.uuid}`,
+            properties: {
+                ...this.properties,
+                title: this.title,
+                updated: new Date().toISOString(),
+            },
+            type: 'Feature',
+        } as GeoJSON.Feature;
+
+        return geojson;
     }
 }

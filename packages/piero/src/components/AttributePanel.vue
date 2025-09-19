@@ -9,9 +9,9 @@
     import CoordinateFragment from './CoordinateFragment.vue';
 
     const props = defineProps<{
+        attributes: AttributesGroups;
         name?: string;
         parent: string;
-        attributes: AttributesGroups;
         point: Vector3;
     }>();
 

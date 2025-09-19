@@ -54,7 +54,7 @@
 
     const giro3d = shallowRef<Giro3DManager | null>(null);
     const minimap = shallowRef<MinimapController | null>(null);
-    const debounce = ref<NodeJS.Timeout | string | number | undefined>();
+    const debounce = ref<NodeJS.Timeout | number | string | undefined>();
 
     onMounted(() => {
         const mainview = giro3dStore.getMainView();
@@ -66,7 +66,7 @@
             initializeMinimap(minimapView);
         }
 
-        giro3dStore.$onAction(({ name, after, args }) => {
+        giro3dStore.$onAction(({ after, args, name }) => {
             after(() => {
                 switch (name) {
                     case 'setMainView':
@@ -116,6 +116,18 @@
         disposeGiro3DManager();
     });
 
+    function disposeGiro3DManager(): void {
+        if (minimap.value) {
+            minimap.value.setMainInstance(null);
+        }
+        giro3d.value?.dispose();
+        giro3d.value = null;
+    }
+
+    function disposeMinimap(): void {
+        minimap.value?.dispose();
+    }
+
     function initializeGiro3DManager(instance: Instance): void {
         const mainview = giro3dStore.getMainView();
         if (mainview === null) {
@@ -136,14 +148,6 @@
         }
     }
 
-    function disposeGiro3DManager(): void {
-        if (minimap.value) {
-            minimap.value.setMainInstance(null);
-        }
-        giro3d.value?.dispose();
-        giro3d.value = null;
-    }
-
     function initializeMinimap(instance: Instance): void {
         minimap.value = new MinimapController(instance);
         if (giro3d.value) {
@@ -151,16 +155,29 @@
         }
     }
 
-    function disposeMinimap(): void {
-        minimap.value?.dispose();
+    function onMouseMove(event: MouseEvent): void {
+        if (giro3d.value) {
+            giro3d.value.mainInstance.eventToCanvasCoords(event, mouse);
+            hasMovedDuringFrame = true;
+        }
     }
 
-    function selectPanel(key: PanelType): void {
-        if (key === selectedTool.value) {
-            selectedTool.value = null;
-        } else {
-            selectedTool.value = key;
+    function onPointOfInterestSelected(poi: GeocodingResult): void {
+        if (!giro3d.value) {
+            return;
         }
+        const instance = giro3d.value.mainInstance;
+        const poiCoordinates = new Coordinates(poi.crs, poi.x, poi.y, poi.z).as(
+            instance.referenceCrs,
+        );
+        const target = Extent.fromCenterAndSize(
+            poiCoordinates.crs,
+            poiCoordinates.toVector2(),
+            1000,
+            1000,
+        );
+        const bbox3 = target.toBox3(poi.z, poi.z + 200);
+        void giro3d.value.camera.lookTopDownAt(bbox3, false);
     }
 
     function pick(event: MouseEvent, clicked?: boolean): void {
@@ -205,6 +222,14 @@
         }
     }
 
+    function selectPanel(key: PanelType): void {
+        if (key === selectedTool.value) {
+            selectedTool.value = null;
+        } else {
+            selectedTool.value = key;
+        }
+    }
+
     function updateCoordinates(mouse: Vector2): void {
         if (giro3d.value != null) {
             const point = giro3d.value.picker.getMouseCoordinate(giro3d.value.mainInstance, mouse);
@@ -229,31 +254,6 @@
             const picked = giro3d.value.picker.hasFeature(giro3d.value.mainInstance, mouse);
             giro3d.value.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
         }
-    }
-
-    function onMouseMove(event: MouseEvent): void {
-        if (giro3d.value) {
-            giro3d.value.mainInstance.eventToCanvasCoords(event, mouse);
-            hasMovedDuringFrame = true;
-        }
-    }
-
-    function onPointOfInterestSelected(poi: GeocodingResult): void {
-        if (!giro3d.value) {
-            return;
-        }
-        const instance = giro3d.value.mainInstance;
-        const poiCoordinates = new Coordinates(poi.crs, poi.x, poi.y, poi.z).as(
-            instance.referenceCrs,
-        );
-        const target = Extent.fromCenterAndSize(
-            poiCoordinates.crs,
-            poiCoordinates.toVector2(),
-            1000,
-            1000,
-        );
-        const bbox3 = target.toBox3(poi.z, poi.z + 200);
-        void giro3d.value.camera.lookTopDownAt(bbox3, false);
     }
 </script>
 

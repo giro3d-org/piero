@@ -4,14 +4,19 @@ import type Map from '@giro3d/giro3d/entities/Map';
 import { EventDispatcher } from 'three';
 
 export class GraticuleLayer extends EventDispatcher {
+    public readonly canSetOpacity = false;
     public readonly name = 'Graticule' as const;
     public readonly uuid = 'graticule' as const;
-    public readonly canSetOpacity = false;
-    private _enabled: boolean = false;
-    private _visible: boolean = false;
-    private _instance?: Instance;
-    private _map?: Map;
-
+    public get displayed(): boolean {
+        return this.enabled && this.visible;
+    }
+    public get enabled(): boolean {
+        return this._enabled;
+    }
+    public set enabled(v: boolean) {
+        this._enabled = v;
+        this._updateVisible();
+    }
     public set instance(v: Instance) {
         this._instance = v;
     }
@@ -20,25 +25,20 @@ export class GraticuleLayer extends EventDispatcher {
         this._map = v;
     }
 
-    public get enabled(): boolean {
-        return this._enabled;
-    }
-    public set enabled(v: boolean) {
-        this._enabled = v;
-        this._updateVisible();
-    }
-
     public get visible(): boolean {
         return this._visible;
     }
+
     public set visible(v: boolean) {
         this._visible = v;
         this._updateVisible();
     }
+    private _enabled: boolean = false;
 
-    public get displayed(): boolean {
-        return this.enabled && this.visible;
-    }
+    private _instance?: Instance;
+    private _map?: Map;
+
+    private _visible: boolean = false;
 
     private _updateVisible(): void {
         if (this._map && this._instance) {

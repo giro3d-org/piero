@@ -27,19 +27,23 @@ export const PLANE_NAME = 'plane';
 const GRATICULE_ALTITUDE_THRESHOLD = 5000;
 
 export default class LayerManager extends EventDispatcher {
-    private readonly _instance: Instance;
-    private readonly _cameraStore = useCameraStore();
-    private readonly _giro3dStore = useGiro3dStore();
-    private readonly _layerStore = useLayerStore();
-    private readonly _basemap: Giro3dMap;
-    private readonly _grid: Grid;
-    private readonly _plane: Plane;
-
+    public get extent(): Extent {
+        return this._basemap.extent;
+    }
     private readonly _baseLayers: Map<string, BasemapLayer>;
-    private readonly _overlays: Map<string, ColorLayer>;
-    private readonly _datasetLayers: Set<string>;
-
+    private readonly _basemap: Giro3dMap;
     private readonly _boundOnAfterCameraUpdate: () => void;
+    private readonly _cameraStore = useCameraStore();
+    private readonly _datasetLayers: Set<string>;
+    private readonly _giro3dStore = useGiro3dStore();
+
+    private readonly _grid: Grid;
+    private readonly _instance: Instance;
+    private readonly _layerStore = useLayerStore();
+
+    private readonly _overlays: Map<string, ColorLayer>;
+
+    private readonly _plane: Plane;
 
     public constructor(instance: Instance) {
         super();
@@ -84,14 +88,18 @@ export default class LayerManager extends EventDispatcher {
             graticuleLayer.map = this._basemap;
         }
 
-        this._layerStore.$onAction(({ name, args, after }) => {
+        this._layerStore.$onAction(({ after, args, name }) => {
             after(() => {
                 switch (name) {
-                    case 'setBasemapVisibility':
-                        void this.onLayerVisibilityChanged(args[0], args[1]);
+                    case 'moveOverlayDown':
+                    case 'moveOverlayUp':
+                        this.onOverlayReordered(args[0]);
                         break;
                     case 'setBasemapOpacity':
                         void this.onLayerOpacityChanged(args[0], args[1]);
+                        break;
+                    case 'setBasemapVisibility':
+                        void this.onLayerVisibilityChanged(args[0], args[1]);
                         break;
                     case 'setOverlayOpacity':
                         void this.onOverlayOpacityChanged(args[0], args[1]);
@@ -99,13 +107,15 @@ export default class LayerManager extends EventDispatcher {
                     case 'setOverlayVisibility':
                         void this.onOverlayVisibilityChanged(args[0], args[1]);
                         break;
-                    case 'moveOverlayDown':
-                    case 'moveOverlayUp':
-                        this.onOverlayReordered(args[0]);
-                        break;
                 }
             });
         });
+    }
+
+    public async addDatasetLayer(layer: BasemapLayer): Promise<void> {
+        this._datasetLayers.add(layer.id);
+        await this._basemap.addLayer(layer);
+        this.updateLayerOrdering();
     }
 
     public dispose(): void {
@@ -115,27 +125,6 @@ export default class LayerManager extends EventDispatcher {
         this._plane.dispose();
         this._grid.dispose();
         this._basemap.dispose({ disposeLayers: true });
-    }
-
-    private onAfterCameraUpdate(): void {
-        const pos = this._cameraStore.getCamera3dPosition();
-        const oldGridVisible = this._grid.visible;
-        const newGridVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
-
-        if (oldGridVisible !== newGridVisible) {
-            this._grid.visible = newGridVisible;
-            this._plane.visible = newGridVisible;
-        }
-
-        const graticule = this._layerStore.getGraticuleLayer();
-        if (graticule) {
-            const oldGraticuleVisible = graticule.enabled;
-            const newGraticuleVisible = pos.z < GRATICULE_ALTITUDE_THRESHOLD;
-
-            if (oldGraticuleVisible !== newGraticuleVisible) {
-                graticule.enabled = newGraticuleVisible;
-            }
-        }
     }
 
     public notify(layer: BasemapLayer): void {
@@ -148,19 +137,31 @@ export default class LayerManager extends EventDispatcher {
         this._instance.notifyChange(this._basemap);
     }
 
-    public async addDatasetLayer(layer: BasemapLayer): Promise<void> {
-        this._datasetLayers.add(layer.id);
-        await this._basemap.addLayer(layer);
-        this.updateLayerOrdering();
-    }
-
-    public get extent(): Extent {
-        return this._basemap.extent;
-    }
-
     public setMapOpacity(opacity: number): void {
         this._basemap.opacity = opacity;
         this._instance.notifyChange(this._basemap);
+    }
+
+    private async getLayer(
+        basemap: BaseLayer,
+        load: boolean = true,
+    ): Promise<BasemapLayer | undefined> {
+        const layer = this._baseLayers.get(basemap.uuid);
+        if (!layer && load) {
+            return this.loadBasemap(basemap);
+        }
+        return layer;
+    }
+
+    private async getOverlay(
+        overlay: Overlay,
+        load: boolean = true,
+    ): Promise<ColorLayer | undefined> {
+        const layer = this._overlays.get(overlay.uuid);
+        if (!layer && load) {
+            return this.loadOverlay(overlay);
+        }
+        return layer;
     }
 
     private async loadBasemap(basemap: BaseLayer): Promise<BasemapLayer> {
@@ -203,31 +204,24 @@ export default class LayerManager extends EventDispatcher {
         return layer;
     }
 
-    private async getLayer(
-        basemap: BaseLayer,
-        load: boolean = true,
-    ): Promise<BasemapLayer | undefined> {
-        const layer = this._baseLayers.get(basemap.uuid);
-        if (!layer && load) {
-            return this.loadBasemap(basemap);
-        }
-        return layer;
-    }
+    private onAfterCameraUpdate(): void {
+        const pos = this._cameraStore.getCamera3dPosition();
+        const oldGridVisible = this._grid.visible;
+        const newGridVisible = pos.z < GRID_ALTITUDE_THRESHOLD;
 
-    private async getOverlay(
-        overlay: Overlay,
-        load: boolean = true,
-    ): Promise<ColorLayer | undefined> {
-        const layer = this._overlays.get(overlay.uuid);
-        if (!layer && load) {
-            return this.loadOverlay(overlay);
+        if (oldGridVisible !== newGridVisible) {
+            this._grid.visible = newGridVisible;
+            this._plane.visible = newGridVisible;
         }
-        return layer;
-    }
 
-    private onOverlayReordered(overlay: Overlay): void {
-        if (overlay.visible) {
-            this.updateLayerOrdering();
+        const graticule = this._layerStore.getGraticuleLayer();
+        if (graticule) {
+            const oldGraticuleVisible = graticule.enabled;
+            const newGraticuleVisible = pos.z < GRATICULE_ALTITUDE_THRESHOLD;
+
+            if (oldGraticuleVisible !== newGraticuleVisible) {
+                graticule.enabled = newGraticuleVisible;
+            }
         }
     }
 
@@ -239,14 +233,6 @@ export default class LayerManager extends EventDispatcher {
         }
         if (layer && isElevationLayer(layer)) {
             this.setMapOpacity(basemap.opacity);
-        }
-    }
-
-    private async onOverlayOpacityChanged(overlay: Overlay, newOpacity: number): Promise<void> {
-        const layer = await this.getOverlay(overlay);
-        if (layer) {
-            layer.opacity = newOpacity;
-            this.notify(layer);
         }
     }
 
@@ -285,6 +271,20 @@ export default class LayerManager extends EventDispatcher {
                 this.removeBasemapLayer(layer);
             }
             this.notify(layer);
+        }
+    }
+
+    private async onOverlayOpacityChanged(overlay: Overlay, newOpacity: number): Promise<void> {
+        const layer = await this.getOverlay(overlay);
+        if (layer) {
+            layer.opacity = newOpacity;
+            this.notify(layer);
+        }
+    }
+
+    private onOverlayReordered(overlay: Overlay): void {
+        if (overlay.visible) {
+            this.updateLayerOrdering();
         }
     }
 

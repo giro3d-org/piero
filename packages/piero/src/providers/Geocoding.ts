@@ -1,6 +1,6 @@
 export type GeocodingResult = {
-    label: string;
     crs: string;
+    label: string;
     x: number;
     y: number;
     z: number;

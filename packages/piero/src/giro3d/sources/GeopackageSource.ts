@@ -18,15 +18,6 @@ import type {
 import { geojsonToOlFeatures, type VectorMeshSource } from '../entities/VectorMeshEntity';
 
 /**
- * Options for loading Geopackage files into a {@link VectorMeshEntity}
- */
-export interface GeopackageSourceParameters
-    extends UrlOrDataMixin,
-        DataProjectionMixin,
-        Required<FeatureProjectionMixin>,
-        ElevationMixin {}
-
-/**
  * Fetches data via loaders.gl loader.
  * @param url - URL to load or Blob
  * @param parameters - Parameters
@@ -39,9 +30,9 @@ async function fetchGeopackage(
     const raw = (await load(url, GeoPackageGLLoader, {
         fetch: Fetcher.fetch,
         gis: {
+            _targetCrs: featureProjection,
             format: 'geojson',
             reproject: true,
-            _targetCrs: featureProjection,
         },
     })) as Tables<GeoJSONTable>;
 
@@ -59,6 +50,15 @@ async function fetchGeopackage(
 }
 
 /**
+ * Options for loading Geopackage files into a {@link VectorMeshEntity}
+ */
+export interface GeopackageSourceParameters
+    extends DataProjectionMixin,
+        ElevationMixin,
+        Required<FeatureProjectionMixin>,
+        UrlOrDataMixin {}
+
+/**
  * Source for loading a Geopackage file into a {@link VectorMeshEntity}
  */
 export default class GeopackageSource implements VectorMeshSource {
@@ -70,6 +70,10 @@ export default class GeopackageSource implements VectorMeshSource {
         this.elevation = options.elevation;
     }
 
+    public context(): FetchContext {
+        return Fetcher.getContext(this.options.url);
+    }
+
     public async load(instance: Instance): Promise<SimpleFeature[]> {
         // First, get the data as a list of GeoJSON features
         const features = await fetchGeopackage(this.options.url, this.options.featureProjection);
@@ -79,9 +83,5 @@ export default class GeopackageSource implements VectorMeshSource {
             dataProjection: this.options.featureProjection, // Already re-projected
         });
         return olFeatures;
-    }
-
-    public context(): FetchContext {
-        return Fetcher.getContext(this.options.url);
     }
 }

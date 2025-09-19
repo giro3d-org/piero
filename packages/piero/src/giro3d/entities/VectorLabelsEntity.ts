@@ -28,18 +28,11 @@ const tmpIntersectList: Intersection[] = [];
  * Pick result on {@link VectorLabelsEntity}
  */
 export type LabelPickResult = PickResult & {
-    isLabelPickResult: true;
     entity: VectorLabelsEntity;
+    isLabelPickResult: true;
 };
 
 export interface VectorLabelOptions {
-    /**
-     * Callback for generating the text of labels
-     * @param feature - Feature corresponding to the label
-     * @param at - 3D position
-     * @returns Content of the label to create
-     */
-    text?: (feature: SimpleFeature, at: Vector3) => string;
     /**
      * Callback for styling the label
      * @param span - Label
@@ -47,6 +40,13 @@ export interface VectorLabelOptions {
      * @returns Nothing
      */
     style?: (span: HTMLSpanElement, feature: SimpleFeature) => void;
+    /**
+     * Callback for generating the text of labels
+     * @param feature - Feature corresponding to the label
+     * @param at - 3D position
+     * @returns Content of the label to create
+     */
+    text?: (feature: SimpleFeature, at: Vector3) => string;
 }
 
 /**
@@ -55,8 +55,8 @@ export interface VectorLabelOptions {
 export default class VectorLabelsEntity extends Entity3D {
     public readonly sources: VectorMeshSource[];
     private _labels: CSS2DObject[];
-    private _textCallback: (feature: SimpleFeature, at: Vector3) => string;
     private _styleCallback?: (span: HTMLSpanElement, feature: SimpleFeature) => void;
+    private _textCallback: (feature: SimpleFeature, at: Vector3) => string;
 
     public constructor(
         sources: VectorMeshSource | VectorMeshSource[],
@@ -69,12 +69,34 @@ export default class VectorLabelsEntity extends Entity3D {
         this._styleCallback = options?.style;
     }
 
-    public override updateVisibility(): void {
-        // Setting the root object's visibility is not enough
-        // to set the visibility of CSS2DObjects (labels).
-        this.object3d.traverse(o => {
-            o.visible = this.visible;
-        });
+    public override getBoundingBox(): Box3 | null {
+        // For some reason (because of nested groups?), Three.js does not
+        // compute correctly the bounding box of this.object3d
+        const pts = this._labels.map(l => l.position);
+        const box = new Box3().setFromPoints(pts);
+        return box;
+    }
+
+    public override pick(coordinates: Vector2, _options?: PickOptions): LabelPickResult[] {
+        const normalized = this.instance.canvasToNormalizedCoords(coordinates, tmpNDC);
+        const raycaster = new Raycaster();
+        raycaster.setFromCamera(normalized, this.instance.view.camera);
+
+        // TODO: pickLabels should honor _options.filter
+        const pickedLabel = this.pickLabels(raycaster);
+        if (pickedLabel) {
+            const pickResult: LabelPickResult = {
+                distance: pickedLabel.position.distanceTo(raycaster.ray.origin),
+                entity: this,
+                isLabelPickResult: true,
+                object: pickedLabel,
+                point: pickedLabel.position,
+            };
+
+            return [pickResult];
+        }
+
+        return [];
     }
 
     public override updateOpacity(): void {
@@ -83,48 +105,12 @@ export default class VectorLabelsEntity extends Entity3D {
         this._labels.forEach(label => (label.element.style.opacity = cssOpacity));
     }
 
-    private updateStyle(span: HTMLSpanElement, feature: SimpleFeature): void {
-        // Taken from Giro3D's Shape entity
-        span.style.backgroundColor = `rgb(${sRgb.r * 255} ${sRgb.g * 255} ${sRgb.b * 255})`;
-        span.style.borderWidth = '1px';
-        span.style.borderStyle = 'solid';
-        span.style.borderColor = contrastColor;
-        span.style.borderRadius = `${MathUtils.clamp(DEFAULT_FONT_SIZE - 4, 5, 10)}px`;
-        span.style.color = contrastColor;
-        const padding = MathUtils.clamp(Math.round(DEFAULT_FONT_SIZE / 4), 2, 10);
-        span.style.padding = `${padding}px ${padding}px ${padding}px ${padding}px`;
-        span.style.fontSize = `${DEFAULT_FONT_SIZE}px`;
-        span.style.fontWeight = DEFAULT_FONT_WEIGHT;
-        span.style.pointerEvents = 'auto';
-
-        if (this._styleCallback) {
-            this._styleCallback(span, feature);
-        }
-    }
-
-    private createLabel(at: Vector3, feature: SimpleFeature): CSS2DObject {
-        // Taken from Giro3D's Shape entity
-        const container = document.createElement('div');
-        const span = document.createElement('span');
-
-        this.updateStyle(span, feature);
-
-        span.innerText = this._textCallback(feature, at);
-
-        const innerContainer = document.createElement('div');
-
-        container.appendChild(innerContainer);
-        innerContainer.appendChild(span);
-
-        const object = new CSS2DObject(container);
-        object.position.copy(at);
-        object.updateMatrix();
-        object.updateMatrixWorld(true);
-
-        container.addEventListener('mouseover', () => (object.userData.hover = true));
-        container.addEventListener('mouseleave', () => (object.userData.hover = false));
-
-        return object;
+    public override updateVisibility(): void {
+        // Setting the root object's visibility is not enough
+        // to set the visibility of CSS2DObjects (labels).
+        this.object3d.traverse(o => {
+            o.visible = this.visible;
+        });
     }
 
     protected override async preprocess(): Promise<void> {
@@ -146,11 +132,8 @@ export default class VectorLabelsEntity extends Entity3D {
                     const coordinates: Coordinate[] = [];
 
                     switch (type) {
-                        case 'Point':
-                            coordinates.push(geometry.getCoordinates() as Coordinate);
-                            break;
-                        case 'MultiPoint':
                         case 'LineString':
+                        case 'MultiPoint':
                             coordinates.push(...(geometry.getCoordinates() as Coordinate[]));
                             break;
                         case 'MultiLineString':
@@ -161,6 +144,9 @@ export default class VectorLabelsEntity extends Entity3D {
                             coordinates.push(
                                 ...(geometry.getCoordinates() as Coordinate[][][])[0][0],
                             );
+                            break;
+                        case 'Point':
+                            coordinates.push(geometry.getCoordinates() as Coordinate);
                             break;
                         default:
                         // do nothing
@@ -195,6 +181,31 @@ export default class VectorLabelsEntity extends Entity3D {
         this.notifyChange(this.object3d);
     }
 
+    private createLabel(at: Vector3, feature: SimpleFeature): CSS2DObject {
+        // Taken from Giro3D's Shape entity
+        const container = document.createElement('div');
+        const span = document.createElement('span');
+
+        this.updateStyle(span, feature);
+
+        span.innerText = this._textCallback(feature, at);
+
+        const innerContainer = document.createElement('div');
+
+        container.appendChild(innerContainer);
+        innerContainer.appendChild(span);
+
+        const object = new CSS2DObject(container);
+        object.position.copy(at);
+        object.updateMatrix();
+        object.updateMatrixWorld(true);
+
+        container.addEventListener('mouseover', () => (object.userData.hover = true));
+        container.addEventListener('mouseleave', () => (object.userData.hover = false));
+
+        return object;
+    }
+
     private pickLabels(raycaster: Raycaster): CSS2DObject | null {
         let pickedLabel: CSS2DObject | null = null;
 
@@ -218,40 +229,29 @@ export default class VectorLabelsEntity extends Entity3D {
     ): void {
         if (label.userData.hover === true) {
             intersects.push({
+                distance: label.position.distanceTo(raycaster.ray.origin),
                 object: label,
                 point: label.position,
-                distance: label.position.distanceTo(raycaster.ray.origin),
             });
         }
     }
 
-    public override pick(coordinates: Vector2, _options?: PickOptions): LabelPickResult[] {
-        const normalized = this.instance.canvasToNormalizedCoords(coordinates, tmpNDC);
-        const raycaster = new Raycaster();
-        raycaster.setFromCamera(normalized, this.instance.view.camera);
+    private updateStyle(span: HTMLSpanElement, feature: SimpleFeature): void {
+        // Taken from Giro3D's Shape entity
+        span.style.backgroundColor = `rgb(${sRgb.r * 255} ${sRgb.g * 255} ${sRgb.b * 255})`;
+        span.style.borderWidth = '1px';
+        span.style.borderStyle = 'solid';
+        span.style.borderColor = contrastColor;
+        span.style.borderRadius = `${MathUtils.clamp(DEFAULT_FONT_SIZE - 4, 5, 10)}px`;
+        span.style.color = contrastColor;
+        const padding = MathUtils.clamp(Math.round(DEFAULT_FONT_SIZE / 4), 2, 10);
+        span.style.padding = `${padding}px ${padding}px ${padding}px ${padding}px`;
+        span.style.fontSize = `${DEFAULT_FONT_SIZE}px`;
+        span.style.fontWeight = DEFAULT_FONT_WEIGHT;
+        span.style.pointerEvents = 'auto';
 
-        // TODO: pickLabels should honor _options.filter
-        const pickedLabel = this.pickLabels(raycaster);
-        if (pickedLabel) {
-            const pickResult: LabelPickResult = {
-                isLabelPickResult: true,
-                entity: this,
-                point: pickedLabel.position,
-                object: pickedLabel,
-                distance: pickedLabel.position.distanceTo(raycaster.ray.origin),
-            };
-
-            return [pickResult];
+        if (this._styleCallback) {
+            this._styleCallback(span, feature);
         }
-
-        return [];
-    }
-
-    public override getBoundingBox(): Box3 | null {
-        // For some reason (because of nested groups?), Three.js does not
-        // compute correctly the bounding box of this.object3d
-        const pts = this._labels.map(l => l.position);
-        const box = new Box3().setFromPoints(pts);
-        return box;
     }
 }

@@ -12,24 +12,16 @@ import * as tiledIfc from './entities/tiledIfc';
 import * as tiledPointCloud from './entities/TiledPointCloudEntity';
 import * as vector from './entities/vector';
 
-export type BuilderContext = { instance: Instance; dataset: Dataset };
+export type BuilderContext = { dataset: Dataset; instance: Instance };
 export type EntityBuilder = (context: BuilderContext) => Promise<Entity3D>;
 
 const builders: Record<string, EntityBuilder> = {
     featureCollection: featureCollection.build,
-    vector: vector.build,
     flatPointcloud: flatPointCloud.build,
     pointcloud: tiledPointCloud.build,
     tiledIfc: tiledIfc.build,
+    vector: vector.build,
 };
-
-export function registerEntityBuilder(datasetType: string, builder: EntityBuilder): void {
-    if (builders[datasetType] != null) {
-        console.warn(`replacing entity builder for dataset type '${datasetType}'`);
-    }
-
-    builders[datasetType] = builder;
-}
 
 /**
  * Gets the Giro3D entity for a dataset
@@ -61,6 +53,14 @@ async function getEntity(
     entity.object3d.userData.dataset.name = dataset.name;
 
     return entity;
+}
+
+export function registerEntityBuilder(datasetType: string, builder: EntityBuilder): void {
+    if (builders[datasetType] != null) {
+        console.warn(`replacing entity builder for dataset type '${datasetType}'`);
+    }
+
+    builders[datasetType] = builder;
 }
 
 export default {

@@ -26,10 +26,10 @@ import Fetcher from '@/utils/Fetcher';
 
 import type { DataProjectionMixin, UrlOrDataMixin } from '../sources/mixins';
 
-/** Parameters for {@link PointCloudSource} for creating {@link PointCloudEntity} */
-export interface PointCloudSourceOptions extends UrlOrDataMixin, DataProjectionMixin {}
+export type CSVPointCloudSourceOptions = DataProjectionMixin & UrlOrDataMixin;
 
-export type CSVPointCloudSourceOptions = UrlOrDataMixin & DataProjectionMixin;
+/** Parameters for {@link PointCloudSource} for creating {@link PointCloudEntity} */
+export interface PointCloudSourceOptions extends DataProjectionMixin, UrlOrDataMixin {}
 
 /**
  * Source for loading CSV (as X, Y, Z) point clouds.
@@ -37,26 +37,26 @@ export type CSVPointCloudSourceOptions = UrlOrDataMixin & DataProjectionMixin;
  * @see https://loaders.gl/docs/modules/csv/api-reference/csv-loader
  */
 export class CSVPointCloudSource extends PointCloudSourceBase {
+    public readonly dataProjection?: string;
     public readonly isCSVPointCloudSource = true as const;
     public readonly type = 'CSVPointCloudSource';
     public readonly url: UrlOrData;
-    public readonly dataProjection?: string;
-
-    private readonly _opCounter = new OperationCounter();
-    private _root: PointCloudNode | null = null;
-    private _metadata: PointCloudMetadata | null = null;
-    private _points: Float32Array | null = null;
-    private _origin: Vector3 | null = null;
-    private _zArray: Float32Array | null = null;
-    private _localVolume: Box3 | null = null;
-
-    public get progress(): number {
-        return this._opCounter.progress;
-    }
 
     public get loading(): boolean {
         return this._opCounter.loading;
     }
+    public get progress(): number {
+        return this._opCounter.progress;
+    }
+    private _localVolume: Box3 | null = null;
+    private _metadata: PointCloudMetadata | null = null;
+    private readonly _opCounter = new OperationCounter();
+    private _origin: Vector3 | null = null;
+    private _points: Float32Array | null = null;
+
+    private _root: PointCloudNode | null = null;
+
+    private _zArray: Float32Array | null = null;
 
     public constructor(options: CSVPointCloudSourceOptions) {
         super();
@@ -64,12 +64,70 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
         this.dataProjection = options.dataProjection;
     }
 
+    public dispose(): void {
+        // Nothing to dispose
+    }
+
+    public getHierarchy(): Promise<PointCloudNode> {
+        if (this._root == null) {
+            throw new Error('not initialized');
+        }
+
+        return Promise.resolve(this._root);
+    }
+
+    public getMemoryUsage(context: GetMemoryUsageContext): void {
+        if (this._points != null) {
+            context.objects.set(this.id, {
+                cpuMemory: this._points.byteLength,
+                gpuMemory: this._points.byteLength,
+            });
+        }
+    }
+
+    public getMetadata(): Promise<PointCloudMetadata> {
+        if (this._metadata == null) {
+            throw new Error('not initialized');
+        }
+
+        return Promise.resolve(this._metadata);
+    }
+
+    public getNodeData(params: GetNodeDataOptions): Promise<PointCloudNodeData> {
+        if (
+            this._points == null ||
+            this._origin == null ||
+            this._zArray == null ||
+            this._metadata == null ||
+            this._localVolume == null
+        ) {
+            throw new Error('not initialized');
+        }
+
+        let attribute: BufferAttribute | undefined = undefined;
+        if (params.attribute != null && params.attribute.name === 'Z') {
+            const zAttribute = new Float32BufferAttribute(this._zArray, 1);
+
+            attribute = zAttribute;
+        }
+
+        return Promise.resolve({
+            attribute,
+            localBoundingBox: this._localVolume,
+            origin: this._origin,
+            pointCount: this._points.length / 3,
+            position: params.position
+                ? new Float32BufferAttribute(this._points, 3, false)
+                : undefined,
+        });
+    }
+
     protected async initializeOnce(): Promise<this> {
         this._opCounter.increment();
 
         const raw = (await load(this.url, CSVLoader, {
-            fetch: Fetcher.fetch,
             csv: { shape: 'array-row-table' },
+            fetch: Fetcher.fetch,
         })) as ArrayRowTable;
 
         const posArray = new Float32Array(raw.data.length * 3);
@@ -109,96 +167,38 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
         const pointCount = posArray.length / 3;
 
         const node: PointCloudNode = {
-            volume,
             center: volume.getCenter(new Vector3()),
             depth: 0,
-            id: 'root',
             geometricError: 0,
             hasData: true,
-            sourceId: this.id,
+            id: 'root',
             pointCount,
+            sourceId: this.id,
+            volume,
         };
 
         this._root = node;
 
         this._metadata = {
-            volume,
-            pointCount,
             attributes: [
                 {
                     dimension: 1,
                     interpretation: 'unknown',
+                    max: volume.max.z,
+                    min: volume.min.z,
                     name: 'Z',
                     size: 4,
                     type: 'float',
-                    min: volume.min.z,
-                    max: volume.max.z,
                 },
             ],
             crs: this.dataProjection != null ? { name: this.dataProjection } : undefined,
+            pointCount,
+            volume,
         };
 
         this._opCounter.decrement();
 
         return this;
-    }
-
-    public getHierarchy(): Promise<PointCloudNode> {
-        if (this._root == null) {
-            throw new Error('not initialized');
-        }
-
-        return Promise.resolve(this._root);
-    }
-
-    public getMetadata(): Promise<PointCloudMetadata> {
-        if (this._metadata == null) {
-            throw new Error('not initialized');
-        }
-
-        return Promise.resolve(this._metadata);
-    }
-
-    public getNodeData(params: GetNodeDataOptions): Promise<PointCloudNodeData> {
-        if (
-            this._points == null ||
-            this._origin == null ||
-            this._zArray == null ||
-            this._metadata == null ||
-            this._localVolume == null
-        ) {
-            throw new Error('not initialized');
-        }
-
-        let attribute: BufferAttribute | undefined = undefined;
-        if (params.attribute != null && params.attribute.name === 'Z') {
-            const zAttribute = new Float32BufferAttribute(this._zArray, 1);
-
-            attribute = zAttribute;
-        }
-
-        return Promise.resolve({
-            origin: this._origin,
-            position: params.position
-                ? new Float32BufferAttribute(this._points, 3, false)
-                : undefined,
-            attribute,
-            localBoundingBox: this._localVolume,
-            pointCount: this._points.length / 3,
-        });
-    }
-
-    public dispose(): void {
-        // Nothing to dispose
-    }
-
-    public getMemoryUsage(context: GetMemoryUsageContext): void {
-        if (this._points != null) {
-            context.objects.set(this.id, {
-                cpuMemory: this._points.byteLength,
-                gpuMemory: this._points.byteLength,
-            });
-        }
     }
 }
 

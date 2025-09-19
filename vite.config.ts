@@ -18,7 +18,6 @@ const appConfig = defineConfig(() => {
     const root = __dirname + '/';
 
     return {
-        root,
         build: {
             lib: false,
 
@@ -54,6 +53,7 @@ const appConfig = defineConfig(() => {
                 '@giro3d/piero': fileURLToPath(new URL('./packages/piero/src', import.meta.url)),
             },
         },
+        root,
     };
 });
 

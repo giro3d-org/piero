@@ -31,11 +31,11 @@ function loadOSMLayer(map: Map): Promise<ColorLayer> {
 }
 
 export default class MinimapController {
+    private readonly _basemap: Map;
+    private _boundUpdateViewbox: () => void;
     private _mainInstance: Instance | null;
     private readonly _minimapInstance: Instance;
     private readonly _viewbox: Viewbox;
-    private readonly _basemap: Map;
-    private _boundUpdateViewbox: () => void;
 
     public constructor(instance: Instance) {
         this._mainInstance = null;
@@ -85,17 +85,7 @@ export default class MinimapController {
         this._viewbox.object3D.material.dispose();
     }
 
-    public setMainInstance(instance: Instance | null): void {
-        if (this._mainInstance) {
-            this._mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
-        }
-        this._mainInstance = instance;
-        if (instance) {
-            instance.addEventListener('after-camera-update', this._boundUpdateViewbox);
-        }
-    }
-
-    public getCorners(): { ul: Vector3; ur: Vector3; ll: Vector3; lr: Vector3 } | undefined {
+    public getCorners(): { ll: Vector3; lr: Vector3; ul: Vector3; ur: Vector3 } | undefined {
         const instance = this._mainInstance;
         const minimapInstance = this._minimapInstance;
 
@@ -129,7 +119,17 @@ export default class MinimapController {
             return undefined;
         }
 
-        return { ul, ur, ll, lr };
+        return { ll, lr, ul, ur };
+    }
+
+    public setMainInstance(instance: Instance | null): void {
+        if (this._mainInstance) {
+            this._mainInstance.removeEventListener('after-camera-update', this._boundUpdateViewbox);
+        }
+        this._mainInstance = instance;
+        if (instance) {
+            instance.addEventListener('after-camera-update', this._boundUpdateViewbox);
+        }
     }
 
     public updateViewbox(): void {

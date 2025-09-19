@@ -1,47 +1,57 @@
 import skipFormattingConfig from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
+import eslintConfigPrettier from 'eslint-config-prettier';
 import perfectionist from 'eslint-plugin-perfectionist';
 import prettier from 'eslint-plugin-prettier';
 import tsdoc from 'eslint-plugin-tsdoc';
 import pluginVue from 'eslint-plugin-vue';
 
+/* eslint-disable perfectionist/sort-objects */
+
 export default defineConfigWithVueTs([
     {
-        ignores: ['dist/*'],
+        ignores: ['dist/*', 'packages/*/dist/*'],
     },
     pluginVue.configs['flat/essential'],
     vueTsConfigs.recommendedTypeChecked,
     skipFormattingConfig,
+
+    // From Giro3D general rules
     {
         plugins: {
             tsdoc,
             perfectionist,
             prettier,
         },
-        rules: {
-            'vue/multi-word-component-names': 'off',
 
-            // Use the same config as Giro3D, minor some unnecessary/unwanted that are commented-out
+        rules: {
             curly: 'error',
             'tsdoc/syntax': 'warn',
-            'no-console': 'off', // let's log cleverly!
+            'no-console': 'off',
             eqeqeq: ['error', 'smart'],
             'no-plusplus': 'off',
             'arrow-parens': ['error', 'as-needed'],
             '@typescript-eslint/lines-between-class-members': 'off',
             'one-var': ['error', 'never'],
-            // PIERO: No JS here, deactive
-            // // We want to be able to import .ts files from .js files without mentioning the extension,
-            // // otherwise the transpiled file would still import a .ts file and this would break.
-            // 'import/extensions': 'off',
+            'import/extensions': 'off',
             'no-underscore-dangle': 'off',
-            // we make heavy use of for loop, and continue is very handy when used correctly
             'no-continue': 'off',
-            // PIERO: we shouldn't
-            // 'no-param-reassign': 'off', // we use param reassign too much with targets
-            // PIERO: force error
-            // 'no-use-before-define': ['error', 'nofunc'],
-            // same as airbnb, but allow for..of, because our babel config doesn't import generators
+            'no-param-reassign': 'off',
+            'no-use-before-define': ['error', 'nofunc'],
+
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['**/api'],
+                            message:
+                                'API barrel files (api.ts) are reserved for API documentation generation. They must not be used by actual code.',
+                        },
+                    ],
+                },
+            ],
+
             'no-restricted-syntax': [
                 'error',
                 {
@@ -60,6 +70,7 @@ export default defineConfigWithVueTs([
                         '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
                 },
             ],
+
             '@typescript-eslint/naming-convention': [
                 'error',
                 {
@@ -86,44 +97,62 @@ export default defineConfigWithVueTs([
                     leadingUnderscore: 'forbid',
                 },
             ],
-            // disabling this because it is not yet possible to be subtle enough.
-            // For instance, ok:
-            // [this.zoom, this.row, this.col] = values
-            // is more readable than
-            // this.zoom = values[0]; this.row = values[1], this.col = values[2]
-            // or { foo, bar } = object; is better than foo = object.foo; bar = object.bar;
-            //
-            // But what about:
-            // [, , z] = array VS z = array[2];
-            // or
-            //
-            // color = this._activeChain()[this.active.point].color;
-            // VS
-            // ({color} = this._activeChain()[this.active.point])
-            // ?
-            // (yes, parenthesis are necessary)
-            // So let's use our common sense here
-            'prefer-destructuring': 'off',
-            'no-bitwise': 'off', // we DO manipulate bits often enough, making this irrelevant
-            'max-classes-per-file': 'off', // for me, if we export only one, I don't see the wrong here
 
-            // Also apply TS rules from Giro3D
+            'prefer-destructuring': 'off',
+            'no-bitwise': 'off',
+            'max-classes-per-file': 'off',
+
+            // Will be overriden
+            'perfectionist/sort-imports': [
+                'error',
+                {
+                    // internalPattern: ['^~/.+', '^@/.+', '^@giro3d/.*'],
+                    internalPattern: ['^~/.+', '^@/.+'],
+                },
+            ],
+        },
+    },
+
+    // From Giro3D TS rules
+    {
+        rules: {
             '@typescript-eslint/explicit-member-accessibility': 'error',
             '@typescript-eslint/explicit-function-return-type': 'error',
             '@typescript-eslint/no-non-null-assertion': 'error',
             '@typescript-eslint/consistent-type-imports': 'error',
             '@typescript-eslint/strict-boolean-expressions': 'error',
+
             '@typescript-eslint/no-unused-vars': [
-                'error', // or "error"
+                'error',
                 {
                     argsIgnorePattern: '^_',
                     varsIgnorePattern: '^_',
                     caughtErrorsIgnorePattern: '^_',
                 },
             ],
-            'perfectionist/sort-imports': 'error',
+        },
+    },
 
-            // Piero-Specific
+    // Override Giro3D rules
+    {
+        rules: {
+            'no-param-reassign': 'error',
+            'no-use-before-define': 'off',
+            '@typescript-eslint/no-use-before-define': ['error', 'nofunc'],
+            'no-restricted-imports': 'off',
+        },
+    },
+
+    // Vue.js
+    {
+        rules: {
+            'vue/multi-word-component-names': 'off',
+        },
+    },
+
+    // Piero TS
+    {
+        rules: {
             '@typescript-eslint/no-empty-object-type': [
                 'error',
                 {
@@ -137,4 +166,85 @@ export default defineConfigWithVueTs([
             ],
         },
     },
+
+    // Piero perfectionist
+    {
+        plugins: {
+            perfectionist,
+        },
+        rules: {
+            ...perfectionist.configs['recommended-natural'].rules,
+            'perfectionist/sort-imports': [
+                'error',
+                {
+                    // internalPattern: ['^~/.+', '^@/.+', '^@giro3d/.*'],
+                    internalPattern: ['^~/.+', '^@/.+'],
+                },
+            ],
+            'perfectionist/sort-classes': [
+                'error',
+                {
+                    partitionByComment: '// Region:',
+                },
+            ],
+            'perfectionist/sort-interfaces': [
+                'error',
+                {
+                    groups: ['property', 'method', 'unknown'],
+                    partitionByComment: '// Region:',
+                },
+            ],
+            'perfectionist/sort-union-types': [
+                'error',
+                {
+                    groups: ['unknown', 'object', 'nullish'],
+                },
+            ],
+            'perfectionist/sort-modules': [
+                'error',
+                {
+                    groups: [
+                        'declare-enum',
+                        'enum',
+                        ['declare-interface', 'declare-type'],
+                        ['interface', 'type'],
+                        'declare-class',
+                        'class',
+                        'declare-function',
+                        'function',
+                        'export-enum',
+                        ['export-interface', 'export-type'],
+                        'export-class',
+                        'export-function',
+                        [
+                            'export-default-interface',
+                            'export-default-class',
+                            'export-default-function',
+                        ],
+                    ],
+                    partitionByComment: '// Region:',
+                },
+            ],
+            'perfectionist/sort-objects': [
+                'error',
+                {
+                    partitionByComment: true,
+                },
+            ],
+        },
+    },
+
+    // Piero Prettier
+    {
+        plugins: {
+            prettier: prettier,
+        },
+        rules: {
+            // @ts-expect-error possible undefined, but is not!
+            ...prettier.configs.recommended.rules,
+            ...eslintConfigPrettier.rules,
+        },
+    },
 ]);
+
+/* eslint-enable perfectionist/sort-objects */

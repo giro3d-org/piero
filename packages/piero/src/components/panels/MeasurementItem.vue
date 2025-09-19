@@ -4,8 +4,8 @@
     import VisibilityControl from '../VisibilityControl.vue';
 
     defineProps<{
-        visible: boolean;
         measure: Measure;
+        visible: boolean;
     }>();
     defineEmits(['delete', 'download', 'update:visible', 'zoom']);
 </script>
