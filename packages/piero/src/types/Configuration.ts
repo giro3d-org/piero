@@ -114,6 +114,18 @@ export interface Configuration {
      */
     importedVectorDatasetRendering?: VectorDatasetRendering | 'overlay';
     /**
+     * When importing vector datasets as meshes, select if the app should fetch elevation.
+     * @defaultValue true
+     */
+    importedMeshDatasetFetchElevation?: boolean;
+    /**
+     * When importing vector datasets as meshes, select how to fetch elevation.
+     * By default (true), it will query the default Alticoder service (ie. IGN).
+     * We recommend turning it on in case of large datasets (querying would be slow) or if outside France (won't work)
+     * @defaultValue false
+     */
+    importedMeshDatasetFetchElevationFast?: boolean;
+    /**
      * Array of overlays to display on the 2.5D map - can be empty
      *
      * Overlays define data that are merged into the 2.5D map.
