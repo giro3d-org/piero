@@ -48,10 +48,6 @@ pages:
     variables:
         DEPLOY_URL: https://piero.giro3d.org
         OUTPUT: ./dist
-    cache:
-        key: gitlab-pages
-        paths:
-            - node_modules
     environment:
         name: pages/$ENVIRONMENT_NAME
         action: start
