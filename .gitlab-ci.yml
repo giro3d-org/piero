@@ -66,24 +66,17 @@ publish_prerelease_package:
     retry: 1
     script:
         - channel="$(echo "$CI_COMMIT_TAG" | sed -E 's/^v[0-9]+\.[0-9]+\.[0-9]+-([[:alnum:]]+)\.[0-9]+$/\1/')"
-        - npm config set -- '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
-        - echo "🔍 npm registry in use:" && npm config get registry
-        - echo "🔍 .npmrc content:" && cat ~/.npmrc || echo "No ~/.npmrc found"
-        - echo "🔍 Effective npm user:" && npm whoami || echo "Not authenticated"
+        - npm config set -- '//registry.npmjs.org/:_authToken' "${NPM_AUTH_TOKEN}"
         - npm publish packages/piero/ --access public --tag ${channel}
     rules:
         - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_pre_release'
-    variables:
-        NPM_TOKEN: $NPM_TOKEN
 
 publish_package:
     stage: publish
     interruptible: false
     retry: 1
     script:
-        - npm config set -- '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+        - npm config set -- '//registry.npmjs.org/:_authToken' "${NPM_AUTH_TOKEN}"
         - npm publish packages/piero/ --access public
     rules:
         - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release'
-    variables:
-        NPM_TOKEN: $NPM_TOKEN
