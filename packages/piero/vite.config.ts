@@ -3,7 +3,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, mergeConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
@@ -25,8 +25,6 @@ try {
 } catch {
     // Ignore
 }
-
-console.log(`📦️ Building package @giro3d/piero at ${commitHash}`);
 
 const homepages: Record<string, string> = {
     'camera-controls': 'https://github.com/yomotsu/camera-controls',
@@ -78,21 +76,21 @@ for (const pkg of Object.keys(pkgConfig.dependencies)) {
     };
 }
 
-// https://vitejs.dev/config/
-const config = defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), '');
-    const isProduction = mode === 'production';
+/**
+ * Config for both app + lib
+ */
+export const commonConfig = defineConfig(env => {
+    const metaEnv = loadEnv(env.mode, process.cwd(), '');
 
     const root = __dirname + '/';
     const modules = path.resolve(root, '../../node_modules');
 
     return {
-        root,
         define: {
             'import.meta.env.VITE_DEPENDENCIES': JSON.stringify(dependencies),
             'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(commitHash),
-            'import.meta.env.VITE_HEADERS': env.VITE_HEADERS,
-            'import.meta.env.VITE_AUTHORIZATIONS': env.VITE_AUTHORIZATIONS,
+            'import.meta.env.VITE_HEADERS': metaEnv.VITE_HEADERS,
+            'import.meta.env.VITE_AUTHORIZATIONS': metaEnv.VITE_AUTHORIZATIONS,
         },
         optimizeDeps: {
             // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it
@@ -100,6 +98,46 @@ const config = defineConfig(({ mode }) => {
             include: ['earcut'],
             exclude: ['cityjson-threejs-loader'],
         },
+        plugins: [
+            vue(),
+            nodePolyfills({
+                // Whether to polyfill specific globals.
+                globals: {
+                    Buffer: true, // can also be 'build', 'dev', or false
+                    global: true,
+                    process: true,
+                },
+                // Whether to polyfill `node:` protocol imports.
+                protocolImports: true,
+            }),
+        ],
+        resolve: {
+            alias: {
+                '@': fileURLToPath(new URL('./src', import.meta.url)),
+                // Use our dependencies for openbim-components & stuff
+                three: path.resolve(modules, 'three'),
+                'web-ifc': path.resolve(modules, 'web-ifc'),
+                'camera-controls': path.resolve(modules, 'camera-controls'),
+                // Use our dependencies for @math.gl
+                proj4: path.resolve(modules, 'proj4'),
+            },
+        },
+    };
+});
+
+/** Lib-specific config */
+const libConfig = defineConfig(e => {
+    const mode = e.mode;
+    const isProduction = mode === 'production';
+    const root = __dirname + '/';
+
+    return {
+        root,
+        plugins: [
+            dts({
+                insertTypesEntry: true, // generates an entrypoint .d.ts
+            }),
+        ],
         build: {
             sourcemap: !isProduction,
             minify: isProduction,
@@ -129,34 +167,12 @@ const config = defineConfig(({ mode }) => {
                 },
             },
         },
-        plugins: [
-            vue(),
-            dts({
-                insertTypesEntry: true, // generates an entrypoint .d.ts
-            }),
-            nodePolyfills({
-                // Whether to polyfill specific globals.
-                globals: {
-                    Buffer: true, // can also be 'build', 'dev', or false
-                    global: true,
-                    process: true,
-                },
-                // Whether to polyfill `node:` protocol imports.
-                protocolImports: true,
-            }),
-        ],
-        resolve: {
-            alias: {
-                '@': fileURLToPath(new URL('./src', import.meta.url)),
-                // Use our dependencies for openbim-components & stuff
-                three: path.resolve(modules, 'three'),
-                'web-ifc': path.resolve(modules, 'web-ifc'),
-                'camera-controls': path.resolve(modules, 'camera-controls'),
-                // Use our dependencies for @math.gl
-                proj4: path.resolve(modules, 'proj4'),
-            },
-        },
     };
+});
+
+const config = defineConfig(env => {
+    console.log(`📦️ Building package @giro3d/piero at ${commitHash}`);
+    return mergeConfig(commonConfig(env), libConfig(env));
 });
 
 export default config;
