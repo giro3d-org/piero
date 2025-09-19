@@ -69,7 +69,9 @@ const loadMesh: LoadDatasetFromFile<
         source: {
             type: fileType,
             url: context.file,
-            fetchElevation: true,
+            fetchElevation: context.configuration.importedMeshDatasetFetchElevation ?? true,
+            fetchElevationFast:
+                context.configuration.importedMeshDatasetFetchElevationFast ?? false,
         },
     } satisfies VectorMeshDatasetConfig | VectorShapeDatasetConfig | VectorLabelsDatasetConfig;
 };
