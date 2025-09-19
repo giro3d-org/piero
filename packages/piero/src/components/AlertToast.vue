@@ -1,13 +1,15 @@
 <script setup lang="ts">
-    import Notification from '@/types/Notification';
     import * as bootstrap from 'bootstrap';
     import { ref } from 'vue';
+
+    import Notification from '@/types/Notification';
+
     import { useNotificationStore } from '../stores/notifications';
 
     const alertToast = ref<HTMLDivElement | null>(null);
     const notification = ref<Notification>(Notification.empty());
 
-    function showNotification(notif: Notification) {
+    function showNotification(notif: Notification): void {
         notification.value = notif;
 
         const toast = bootstrap.Toast.getOrCreateInstance(alertToast.value as HTMLDivElement);
@@ -24,7 +26,7 @@
         }
     });
 
-    function getStyle() {
+    function getStyle(): string {
         if (notification.value == null) {
             return 'text-bg-success';
         }
@@ -43,7 +45,7 @@
         }
     }
 
-    function getIcon() {
+    function getIcon(): string {
         if (notification.value == null) {
             return 'text-bg-success';
         }

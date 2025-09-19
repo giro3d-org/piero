@@ -1,5 +1,7 @@
-import type { GeoExtent } from '@/types/configuration/geographic';
 import type { TiledImageSourceOptions } from '@giro3d/giro3d/sources/TiledImageSource';
+
+import type { GeoExtent } from '@/types/configuration/geographic';
+
 import type { ImageSourceConfigMixin } from './baseConfig';
 
 /** Format for decoding the data */

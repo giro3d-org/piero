@@ -7,6 +7,7 @@ import type {
     VectorShapeDatasetConfig,
 } from '@/types/configuration/datasets/vector';
 import type { LayerSourceConfig } from '@/types/configuration/layers';
+
 import type { LoadDatasetFromFile } from './loader';
 
 const loadOverlay: LoadDatasetFromFile<ColorLayerDatasetConfig> = context => {

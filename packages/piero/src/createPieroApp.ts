@@ -1,17 +1,20 @@
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
-import App from './App.vue';
+
+import type { PieroContext } from './context';
+import type { Module } from './module';
+import type { Configuration } from './types/Configuration';
+
+import './assets/main.scss';
+import type { DynamicStyleCollection } from './types/VectorStyle';
+
 import { BookmarkApiImpl } from './api/BookmarkApi';
 import { DatasetApiImpl } from './api/DatasetApi';
-import './assets/main.scss';
+import App from './App.vue';
 import { loadRemoteConfiguration, setConfiguration, setDynamicStyles } from './config-loader';
-import type { PieroContext } from './context';
 import { GLOBAL_EVENT_DISPATCHER } from './events';
-import type { Module } from './module';
 import { useBookmarkStore } from './stores/bookmarks';
 import { useModuleStore } from './stores/modules';
-import type { Configuration } from './types/Configuration';
-import type { DynamicStyleCollection } from './types/VectorStyle';
 import Download from './utils/Download';
 
 export type AppParameters = {
@@ -61,7 +64,7 @@ async function resolveConfiguration(params: AppParameters): Promise<Configuratio
  */
 export default async function createPieroApp(params: AppParameters): Promise<void> {
     const configuration = await resolveConfiguration(params);
-    setConfiguration(configuration);
+    await setConfiguration(configuration);
 
     console.info('Configuration loaded.');
 

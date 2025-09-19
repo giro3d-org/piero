@@ -1,15 +1,34 @@
-import { getConfig, getDynamicStyles } from '@/config-loader';
+import type Extent from '@giro3d/giro3d/core/geographic/Extent';
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
+import type ImageSource from '@giro3d/giro3d/sources/ImageSource';
+import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
+import type { TiledImageSourceOptions } from '@giro3d/giro3d/sources/TiledImageSource';
+import type { VectorSourceOptions } from '@giro3d/giro3d/sources/VectorSource';
+import type { VectorTileSourceOptions } from '@giro3d/giro3d/sources/VectorTileSource';
+import type { FeatureLike } from 'ol/Feature';
+import type { UrlTile } from 'ol/source';
+import type ImageStyle from 'ol/style/Image';
+import type { StyleFunction } from 'ol/style/Style';
+import type { MagnificationTextureFilter, MinificationTextureFilter } from 'three';
+
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
+import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import BilFormat from '@giro3d/giro3d/formats/BilFormat';
+import GeoTIFFFormat from '@giro3d/giro3d/formats/GeoTIFFFormat';
+import MapboxTerrainFormat from '@giro3d/giro3d/formats/MapboxTerrainFormat';
+import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
+import VectorSource from '@giro3d/giro3d/sources/VectorSource';
+import VectorTileSource from '@giro3d/giro3d/sources/VectorTileSource';
+import { GPX, GeoJSON, KML, MVT, WMTSCapabilities } from 'ol/format';
+import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
+import { optionsFromCapabilities } from 'ol/source/WMTS';
+import { Circle, Fill, Stroke, Style } from 'ol/style';
+
 import type { BaseLayer, BaseLayerOptions, BasemapLayer } from '@/types/BaseLayer';
-import type { Dataset, DatasetBase } from '@/types/Dataset';
-import type { OLGeometry } from '@/types/OLGeometry';
-import type { Overlay } from '@/types/Overlay';
-import type {
-    FillStyle,
-    PointStyle,
-    StaticVectorStyle,
-    StrokeStyle,
-    VectorStyle,
-} from '@/types/VectorStyle';
 import type { DatasetAsLayerConfig } from '@/types/configuration/datasets';
 import type {
     ColorLayerDatasetConfig,
@@ -32,35 +51,20 @@ import type {
 import type { TiledImageSourceConfigMixin } from '@/types/configuration/sources/core/tiled';
 import type { VectorAsLayerSourceConfigMixin } from '@/types/configuration/sources/core/vector';
 import type { VectorTileSourceConfigMixin } from '@/types/configuration/sources/core/vectorTile';
+import type { Dataset, DatasetBase } from '@/types/Dataset';
+import type { OLGeometry } from '@/types/OLGeometry';
+import type { Overlay } from '@/types/Overlay';
+import type {
+    FillStyle,
+    PointStyle,
+    StaticVectorStyle,
+    StrokeStyle,
+    VectorStyle,
+} from '@/types/VectorStyle';
+
+import { getConfig, getDynamicStyles } from '@/config-loader';
 import { getColorMap, getExtent, getPublicFolderUrl } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import type Extent from '@giro3d/giro3d/core/geographic/Extent';
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
-import Interpretation from '@giro3d/giro3d/core/layer/Interpretation';
-import MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-import BilFormat from '@giro3d/giro3d/formats/BilFormat';
-import GeoTIFFFormat from '@giro3d/giro3d/formats/GeoTIFFFormat';
-import type ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
-import MapboxTerrainFormat from '@giro3d/giro3d/formats/MapboxTerrainFormat';
-import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
-import type ImageSource from '@giro3d/giro3d/sources/ImageSource';
-import type { ImageSourceOptions } from '@giro3d/giro3d/sources/ImageSource';
-import type { TiledImageSourceOptions } from '@giro3d/giro3d/sources/TiledImageSource';
-import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
-import type { VectorSourceOptions } from '@giro3d/giro3d/sources/VectorSource';
-import VectorSource from '@giro3d/giro3d/sources/VectorSource';
-import type { VectorTileSourceOptions } from '@giro3d/giro3d/sources/VectorTileSource';
-import VectorTileSource from '@giro3d/giro3d/sources/VectorTileSource';
-import type { FeatureLike } from 'ol/Feature';
-import { GPX, GeoJSON, KML, MVT, WMTSCapabilities } from 'ol/format';
-import type { UrlTile } from 'ol/source';
-import { BingMaps, OSM, StadiaMaps, TileWMS, WMTS, XYZ } from 'ol/source';
-import { optionsFromCapabilities } from 'ol/source/WMTS';
-import { Circle, Fill, Stroke, Style } from 'ol/style';
-import type { StyleFunction } from 'ol/style/Style';
-import type { MagnificationTextureFilter, MinificationTextureFilter } from 'three';
 
 /**
  * Creates a WMTS source for Giro3D based on the GetCapabilities response
@@ -501,7 +505,7 @@ async function getDatasetLayer(
 }
 
 function parseStaticStyle(style: StaticVectorStyle): Style {
-    function parseStroke(stroke?: StrokeStyle) {
+    function parseStroke(stroke?: StrokeStyle): Stroke | undefined {
         if (stroke) {
             return new Stroke({
                 color: stroke.color,
@@ -510,7 +514,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
         }
         return undefined;
     }
-    function parseFill(fill?: FillStyle) {
+    function parseFill(fill?: FillStyle): Fill | undefined {
         if (fill) {
             return new Fill({
                 color: fill.color,
@@ -518,7 +522,7 @@ function parseStaticStyle(style: StaticVectorStyle): Style {
         }
         return undefined;
     }
-    function parsePoint(point?: PointStyle) {
+    function parsePoint(point?: PointStyle): ImageStyle | undefined {
         if (point) {
             return new Circle({
                 radius: point.radius,

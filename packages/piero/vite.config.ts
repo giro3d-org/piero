@@ -6,6 +6,7 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import dts from 'vite-plugin-dts';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
 import pkgConfig from './package.json';
 
 type PackageJson = {
@@ -121,7 +122,7 @@ const config = defineConfig(({ mode }) => {
                     },
                     assetFileNames: 'assets/[name][extname]',
                     chunkFileNames: '[name].[format].js',
-                    entryFileNames: ({ name }) => {
+                    entryFileNames: ({ name }): string => {
                         // name will be "index" or "modules"
                         return `${name}.[format].js`;
                     },

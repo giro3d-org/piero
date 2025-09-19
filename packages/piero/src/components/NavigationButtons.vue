@@ -1,10 +1,14 @@
 <script setup lang="ts">
+    import type { Ref } from 'vue';
+
+    import { ref, watch } from 'vue';
+
+    import type NavigationMode from '@/types/NavigationMode';
+
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
-    import type NavigationMode from '@/types/NavigationMode';
     import Notification from '@/types/Notification';
-    import type { Ref } from 'vue';
-    import { ref, watch } from 'vue';
+
     import SwitchToggle from './SwitchToggle.vue';
 
     const camera = useCameraStore();
@@ -60,7 +64,7 @@
         );
     });
 
-    function onPositionOnMapToggle() {
+    function onPositionOnMapToggle(): void {
         if (navigationMode.value !== 'position-on-map') {
             navigationMode.value = 'position-on-map';
         } else {

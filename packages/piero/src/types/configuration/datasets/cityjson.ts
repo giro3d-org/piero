@@ -1,4 +1,5 @@
 import type { DataProjectionMixin, UrlOrDataMixin } from '@/giro3d/sources/mixins';
+
 import type { DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
 
 /** CityJSON source configuration */

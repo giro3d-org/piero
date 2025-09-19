@@ -16,36 +16,36 @@ type LayerObjectEventMap = {
 };
 
 export default abstract class LayerObject extends EventDispatcher<LayerObjectEventMap> {
-    readonly uuid: string;
+    public readonly uuid: string;
     private _visible: boolean = false;
     private _opacity: number = 1;
-    readonly name: string;
+    public readonly name: string;
 
-    constructor(name: string) {
+    public constructor(name: string) {
         super();
         this.name = name;
         this.uuid = MathUtils.generateUUID();
     }
 
-    get visible() {
+    public get visible(): boolean {
         return this._visible;
     }
 
-    set visible(v) {
+    public set visible(v: boolean) {
         this._visible = v;
         this.dispatchEvent({ type: 'visible' });
     }
 
-    get opacity() {
+    public get opacity(): number {
         return this._opacity;
     }
 
-    set opacity(v) {
+    public set opacity(v: number) {
         this._opacity = v;
         this.dispatchEvent({ type: 'opacity' });
     }
 
-    delete() {
+    public delete(): void {
         this.dispatchEvent({ type: 'delete' });
     }
 }

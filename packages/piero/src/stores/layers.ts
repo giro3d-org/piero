@@ -1,12 +1,14 @@
+import { defineStore } from 'pinia';
+import { computed, shallowReactive } from 'vue';
+
+import type { OverlayConfig } from '@/types/configuration/layers';
+
 import { getConfig } from '@/config-loader';
 import { GraticuleLayer } from '@/giro3d/Graticule';
 import { BaseLayerObject, type BaseLayer } from '@/types/BaseLayer';
 import { OverlayObject, type Overlay } from '@/types/Overlay';
-import type { OverlayConfig } from '@/types/configuration/layers';
-import { defineStore } from 'pinia';
-import { computed, shallowReactive } from 'vue';
 
-function buildBaseLayers() {
+function buildBaseLayers(): BaseLayer[] {
     const config = getConfig();
     const result: BaseLayer[] = [];
 
@@ -20,7 +22,7 @@ function buildBaseLayers() {
     return result;
 }
 
-function buildGraticuleLayer() {
+function buildGraticuleLayer(): GraticuleLayer | undefined {
     const config = getConfig();
     if ('graticule' in config.basemap && config.basemap.graticule !== undefined) {
         // Build only if needed
@@ -35,7 +37,7 @@ function buildGraticuleLayer() {
     return undefined;
 }
 
-function buildOverlays() {
+function buildOverlays(): Overlay[] {
     const config = getConfig();
     const result: Overlay[] = [];
     for (const item of config.overlays) {
@@ -82,11 +84,11 @@ export const useLayerStore = defineStore('layers', () => {
         return graticuleLayer;
     }
 
-    function setBasemapVisibility(layer: BaseLayer, visible: boolean) {
+    function setBasemapVisibility(layer: BaseLayer, visible: boolean): void {
         layer.visible = visible;
     }
 
-    function setBasemapOpacity(layer: BaseLayer, opacity: number) {
+    function setBasemapOpacity(layer: BaseLayer, opacity: number): void {
         layer.opacity = opacity;
     }
 
@@ -94,15 +96,15 @@ export const useLayerStore = defineStore('layers', () => {
         return overlays;
     }
 
-    function setOverlayVisibility(layer: Overlay, visible: boolean) {
+    function setOverlayVisibility(layer: Overlay, visible: boolean): void {
         layer.visible = visible;
     }
 
-    function setOverlayOpacity(layer: Overlay, opacity: number) {
+    function setOverlayOpacity(layer: Overlay, opacity: number): void {
         layer.opacity = opacity;
     }
 
-    function moveOverlayUp(layer: Overlay) {
+    function moveOverlayUp(layer: Overlay): void {
         const index = overlays.indexOf(layer);
         if (index > 0) {
             const current = overlays[index - 1];
@@ -111,7 +113,7 @@ export const useLayerStore = defineStore('layers', () => {
         }
     }
 
-    function moveOverlayDown(layer: Overlay) {
+    function moveOverlayDown(layer: Overlay): void {
         const index = overlays.indexOf(layer);
 
         if (index < overlays.length - 1) {

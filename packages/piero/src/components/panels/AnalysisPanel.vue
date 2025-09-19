@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { useAnalysisStore } from '@/stores/analysis';
+
     import ClippingBox from './analysis/ClippingBox.vue';
     import CrossSection from './analysis/CrossSection.vue';
     import FloodingPlane from './analysis/FloodingPlane.vue';

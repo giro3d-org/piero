@@ -1,25 +1,29 @@
-import { getConfig } from '@/config-loader';
-import { fillObject3DUserData } from '@/loaders/userData';
-import { getColorMap } from '@/utils/Configuration';
-import type { UrlOrData } from '@/utils/Fetcher';
-import Fetcher from '@/utils/Fetcher';
 import type { GetMemoryUsageContext } from '@giro3d/giro3d/core/MemoryUsage';
-import OperationCounter from '@giro3d/giro3d/core/OperationCounter';
 import type { EntityPreprocessOptions } from '@giro3d/giro3d/entities/Entity';
 import type { PointCloudOptions } from '@giro3d/giro3d/entities/PointCloud';
-import PointCloud from '@giro3d/giro3d/entities/PointCloud';
 import type {
     GetNodeDataOptions,
     PointCloudMetadata,
     PointCloudNode,
     PointCloudNodeData,
 } from '@giro3d/giro3d/sources/PointCloudSource';
+import type { BufferAttribute } from 'three';
+
+import OperationCounter from '@giro3d/giro3d/core/OperationCounter';
+import PointCloud from '@giro3d/giro3d/entities/PointCloud';
 import { PointCloudSourceBase } from '@giro3d/giro3d/sources/PointCloudSource';
 import { load } from '@loaders.gl/core';
 import { CSVLoader } from '@loaders.gl/csv';
 import { type ArrayRowTable } from '@loaders.gl/schema';
-import type { BufferAttribute } from 'three';
 import { Box3, Float32BufferAttribute, Vector3 } from 'three';
+
+import type { UrlOrData } from '@/utils/Fetcher';
+
+import { getConfig } from '@/config-loader';
+import { fillObject3DUserData } from '@/loaders/userData';
+import { getColorMap } from '@/utils/Configuration';
+import Fetcher from '@/utils/Fetcher';
+
 import type { DataProjectionMixin, UrlOrDataMixin } from '../sources/mixins';
 
 /** Parameters for {@link PointCloudSource} for creating {@link PointCloudEntity} */
@@ -33,10 +37,10 @@ export type CSVPointCloudSourceOptions = UrlOrDataMixin & DataProjectionMixin;
  * @see https://loaders.gl/docs/modules/csv/api-reference/csv-loader
  */
 export class CSVPointCloudSource extends PointCloudSourceBase {
-    readonly isCSVPointCloudSource = true as const;
-    readonly type = 'CSVPointCloudSource';
-    readonly url: UrlOrData;
-    readonly dataProjection?: string;
+    public readonly isCSVPointCloudSource = true as const;
+    public readonly type = 'CSVPointCloudSource';
+    public readonly url: UrlOrData;
+    public readonly dataProjection?: string;
 
     private readonly _opCounter = new OperationCounter();
     private _root: PointCloudNode | null = null;
@@ -46,15 +50,15 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
     private _zArray: Float32Array | null = null;
     private _localVolume: Box3 | null = null;
 
-    get progress(): number {
+    public get progress(): number {
         return this._opCounter.progress;
     }
 
-    get loading(): boolean {
+    public get loading(): boolean {
         return this._opCounter.loading;
     }
 
-    constructor(options: CSVPointCloudSourceOptions) {
+    public constructor(options: CSVPointCloudSourceOptions) {
         super();
         this.url = options.url;
         this.dataProjection = options.dataProjection;
@@ -139,7 +143,7 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
         return this;
     }
 
-    getHierarchy(): Promise<PointCloudNode> {
+    public getHierarchy(): Promise<PointCloudNode> {
         if (this._root == null) {
             throw new Error('not initialized');
         }
@@ -147,7 +151,7 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
         return Promise.resolve(this._root);
     }
 
-    getMetadata(): Promise<PointCloudMetadata> {
+    public getMetadata(): Promise<PointCloudMetadata> {
         if (this._metadata == null) {
             throw new Error('not initialized');
         }
@@ -155,7 +159,7 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
         return Promise.resolve(this._metadata);
     }
 
-    getNodeData(params: GetNodeDataOptions): Promise<PointCloudNodeData> {
+    public getNodeData(params: GetNodeDataOptions): Promise<PointCloudNodeData> {
         if (
             this._points == null ||
             this._origin == null ||
@@ -184,11 +188,11 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
         });
     }
 
-    dispose(): void {
+    public dispose(): void {
         // Nothing to dispose
     }
 
-    getMemoryUsage(context: GetMemoryUsageContext): void {
+    public getMemoryUsage(context: GetMemoryUsageContext): void {
         if (this._points != null) {
             context.objects.set(this.id, {
                 cpuMemory: this._points.byteLength,
@@ -202,9 +206,9 @@ export class CSVPointCloudSource extends PointCloudSourceBase {
  * Point cloud entity
  */
 export default class PointCloudEntity extends PointCloud {
-    readonly isPointCloudEntity = true;
+    public readonly isPointCloudEntity = true;
 
-    constructor(options: PointCloudOptions) {
+    public constructor(options: PointCloudOptions) {
         super(options);
 
         const config = getConfig();
@@ -217,7 +221,7 @@ export default class PointCloudEntity extends PointCloud {
         }
     }
 
-    async initialize(opts: EntityPreprocessOptions): Promise<void> {
+    public override async initialize(opts: EntityPreprocessOptions): Promise<void> {
         await super.initialize(opts);
 
         this.setActiveAttribute('Z');

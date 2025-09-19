@@ -1,8 +1,10 @@
 <script setup lang="ts">
-    import ModalOverlay from '@/components/ModalOverlay.vue';
+    import { ref } from 'vue';
+
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
+    import ModalOverlay from '@/components/ModalOverlay.vue';
     import BookmarkItem from '@/components/panels/BookmarkItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import ShareBookmarkModal from '@/components/panels/ShareBookmarkModal.vue';
@@ -12,7 +14,6 @@
     import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
     import Notification from '@/types/Notification';
     import Download from '@/utils/Download';
-    import { ref } from 'vue';
 
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);
@@ -22,13 +23,13 @@
     const bookmarkStore = useBookmarkStore();
     const cameraStore = useCameraStore();
 
-    function shareBookmark(bookmark: Bookmark) {
+    function shareBookmark(bookmark: Bookmark): void {
         shareUrl.value = bookmark.getUrl().toString();
         modalTitle.value = 'Share bookmark';
         showShareModal.value = true;
     }
 
-    function addBookmark() {
+    function addBookmark(): void {
         const name = window.prompt('Bookmark name', 'New bookmark');
         if (name != null) {
             const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
@@ -36,14 +37,14 @@
         }
     }
 
-    function shareCurrentView() {
+    function shareCurrentView(): void {
         const temp = new Bookmark('temp', cameraStore.getCameraPosition());
         shareUrl.value = temp.getUrl().toString();
         modalTitle.value = 'Share current view';
         showShareModal.value = true;
     }
 
-    function exportBookmarks() {
+    function exportBookmarks(): void {
         const json = [];
         for (const bookmark of bookmarkStore.getBookmarks()) {
             json.push({
@@ -54,7 +55,7 @@
         Download.downloadAsJson(json, 'bookmarks.json');
     }
 
-    async function importBookmarks(file: Blob) {
+    async function importBookmarks(file: Blob): Promise<void> {
         const str = await file.text();
         const serializedBookmarks: SerializedBookmark[] = JSON.parse(str);
 
@@ -81,13 +82,13 @@
         );
     }
 
-    async function importBookmarkFile(files: File[]) {
+    function importBookmarkFile(files: File[]): void {
         for (const file of files) {
-            importBookmarks(file);
+            void importBookmarks(file);
         }
     }
 
-    function goTo(bookmark: Bookmark) {
+    function goTo(bookmark: Bookmark): void {
         cameraStore.setCameraPosition(bookmark.camera);
     }
 </script>

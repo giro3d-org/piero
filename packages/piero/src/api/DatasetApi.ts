@@ -1,11 +1,13 @@
+import { type Component } from 'vue';
+
+import type { HighlightFn } from '@/services/Highlighter';
+import type { AttributeExtractorFn } from '@/services/Picker';
+
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
 import { registerEntityBuilder, type EntityBuilder } from '@/giro3d/EntityBuilder';
 import { registerLoader, type LoadDatasetFromFile } from '@/loaders/loader';
-import type { HighlightFn } from '@/services/Highlighter';
 import { customHighlighters } from '@/services/Highlighter';
-import type { AttributeExtractorFn } from '@/services/Picker';
 import { customAttributeExtractors } from '@/services/Picker';
-import { type Component } from 'vue';
 
 /**
  * Parameters to register a new Dataset type.
@@ -69,11 +71,11 @@ export default interface DatasetApi {
 
 /** @internal */
 export class DatasetApiImpl implements DatasetApi {
-    registerDatasetType(datasetType: string, params: DatasetRegistrationParams): void {
-        if (params.icon) {
+    public registerDatasetType(datasetType: string, params: DatasetRegistrationParams): void {
+        if (params.icon != null) {
             datasetIcons[datasetType] = params.icon;
         }
-        if (params.name) {
+        if (params.name != null) {
             datasetTitles[datasetType] = params.name;
         }
         if (params.highlight) {

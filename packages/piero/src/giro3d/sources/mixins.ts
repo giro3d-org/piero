@@ -1,5 +1,6 @@
-import type { UrlOrData } from '@/utils/Fetcher';
 import type Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+
+import type { UrlOrData } from '@/utils/Fetcher';
 
 /** Mixin configuration for sources that require a URL */
 export interface UrlMixin {

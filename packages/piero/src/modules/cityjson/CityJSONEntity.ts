@@ -1,16 +1,9 @@
-import type {
-    DataProjectionMixin,
-    FeatureProjectionMixin,
-    UrlOrDataMixin,
-} from '@/giro3d/sources/mixins';
-import { fillObject3DUserData } from '@/loaders/userData';
-import Fetcher from '@/utils/Fetcher';
-import Projections from '@/utils/Projections';
-import { isObject } from '@/utils/Types';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import type { Material, Vector2 } from 'three';
+
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import {
     CityJSONLoader as CityJSONThreeLoader,
@@ -18,8 +11,18 @@ import {
     type CityObjectsMaterial,
     type CityObjectsMesh,
 } from 'cityjson-threejs-loader';
-import type { Material, Vector2 } from 'three';
 import { DoubleSide, FrontSide, Group } from 'three';
+
+import type {
+    DataProjectionMixin,
+    FeatureProjectionMixin,
+    UrlOrDataMixin,
+} from '@/giro3d/sources/mixins';
+
+import { fillObject3DUserData } from '@/loaders/userData';
+import Fetcher from '@/utils/Fetcher';
+import Projections from '@/utils/Projections';
+import { isObject } from '@/utils/Types';
 
 /**
  * Object returned by CityJSON's `resolveIntersectionInfo`, used when picking
@@ -73,16 +76,16 @@ export default class CityJSONEntity
     extends Entity3D
     implements PickableFeatures<CityJSONFeature, CityJSONPickResult>
 {
-    readonly isCityJSONEntity = true;
-    readonly isPickableFeatures = true;
-    readonly type = 'CityJSONEntity';
+    public readonly isCityJSONEntity = true;
+    public readonly isPickableFeatures = true;
+    public override readonly type = 'CityJSONEntity';
 
-    readonly source: CityJSONSource;
+    public readonly source: CityJSONSource;
     private _availableLods: string[] | null;
     private _displayedLodIdx: number;
     private _showSemantics: boolean;
 
-    constructor(source: CityJSONSource) {
+    public constructor(source: CityJSONSource) {
         super(new Group());
         this.source = source;
         this._availableLods = null;
@@ -102,14 +105,14 @@ export default class CityJSONEntity
     }
 
     /** Array of the available Levels Of Details in this CityJSON model */
-    get availableLods(): string[] | null {
+    public get availableLods(): string[] | null {
         return this._availableLods ? [...this._availableLods] : null;
     }
     /**
      * Gets the displayed index of Level Of Details, from {@link availableLods}.
      * If `-1` or out of bounds, displays all levels.
      */
-    get displayedLodIdx(): number {
+    public get displayedLodIdx(): number {
         return this._displayedLodIdx;
     }
     /**
@@ -117,18 +120,18 @@ export default class CityJSONEntity
      * If `-1` or out of bounds, displays all levels.
      * @param lodIdx - Index from {@link availableLods}
      */
-    set displayedLodIdx(lodIdx: number) {
+    public set displayedLodIdx(lodIdx: number) {
         this._displayedLodIdx = lodIdx;
         this.traverseCityMaterials(m => (m.showLod = lodIdx));
         this.notifyChange(this.object3d);
     }
 
     /** Gets whether the theme uses semantics or not */
-    get showSemantics(): boolean {
+    public get showSemantics(): boolean {
         return this._showSemantics;
     }
     /** Sets whether the theme uses semantics or not */
-    set showSemantics(v: boolean) {
+    public set showSemantics(v: boolean) {
         this._showSemantics = v;
         this.traverseCityMaterials(m => (m.showSemantics = v));
         this.notifyChange(this.object3d);
@@ -145,16 +148,16 @@ export default class CityJSONEntity
         });
     }
 
-    async preprocess(): Promise<void> {
+    public override async preprocess(): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const json: any = await Fetcher.fetchJson(this.source.url);
 
-        return new Promise<void>(resolve => {
+        return new Promise<void>((resolve, reject) => {
             const parser = new CityJSONWorkerParser();
             const loader = new CityJSONThreeLoader(parser);
 
             parser.chunkSize = 2000;
-            parser.onComplete = async () => {
+            parser.onComplete = (): void => {
                 // FIXME: here's a code smell indicating we are not using CityJSON correctly
                 let z = 0;
                 if (
@@ -186,54 +189,62 @@ export default class CityJSONEntity
                     this.source.dataProjection ??
                     this.source.featureProjection;
 
-                const proj = await Projections.loadProjCrsIfNeeded(projection);
-                if (proj) {
-                    const coords = new Coordinates(proj, translate[0], translate[1], translate[2]);
-                    const coordsReference = coords.as(this.source.featureProjection);
-                    loader.scene.position.set(
-                        coordsReference.values[0],
-                        coordsReference.values[1],
-                        coordsReference.values[2],
-                    );
-                } else {
-                    loader.scene.position.set(translate[0], translate[1], translate[2]);
-                }
-                loader.scene.updateMatrix();
-                loader.scene.updateMatrixWorld(true);
+                Projections.loadProjCrsIfNeeded(projection)
+                    .then(proj => {
+                        if (proj) {
+                            const coords = new Coordinates(
+                                proj,
+                                translate[0],
+                                translate[1],
+                                translate[2],
+                            );
+                            const coordsReference = coords.as(this.source.featureProjection);
+                            loader.scene.position.set(
+                                coordsReference.values[0],
+                                coordsReference.values[1],
+                                coordsReference.values[2],
+                            );
+                        } else {
+                            loader.scene.position.set(translate[0], translate[1], translate[2]);
+                        }
+                        loader.scene.updateMatrix();
+                        loader.scene.updateMatrixWorld(true);
 
-                this.object3d.add(loader.scene);
+                        this.object3d.add(loader.scene);
 
-                this._availableLods = parser.lods;
+                        this._availableLods = parser.lods;
 
-                // Find the "best" LoD
-                if (this._availableLods != null && this._availableLods.length > 0) {
-                    const sortedAvailableLods = Array.from(this._availableLods);
-                    sortedAvailableLods.sort();
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    const bestLod = sortedAvailableLods.pop()!;
-                    this._displayedLodIdx = this._availableLods.indexOf(bestLod);
-                } else {
-                    this._displayedLodIdx = -1;
-                }
+                        // Find the "best" LoD
+                        if (this._availableLods != null && this._availableLods.length > 0) {
+                            const sortedAvailableLods = Array.from(this._availableLods);
+                            sortedAvailableLods.sort();
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            const bestLod = sortedAvailableLods.pop()!;
+                            this._displayedLodIdx = this._availableLods.indexOf(bestLod);
+                        } else {
+                            this._displayedLodIdx = -1;
+                        }
 
-                this.traverseCityMaterials(m => {
-                    m.showLod = this._displayedLodIdx;
-                });
+                        this.traverseCityMaterials(m => {
+                            m.showLod = this._displayedLodIdx;
+                        });
 
-                this.onObjectCreated(loader.scene);
+                        this.onObjectCreated(loader.scene);
 
-                const context = Fetcher.getContext(this.source.url);
-                fillObject3DUserData(this, { filename: context.filename });
+                        const context = Fetcher.getContext(this.source.url);
+                        fillObject3DUserData(this, { filename: context.filename });
 
-                this.notifyChange(this.object3d);
-                resolve();
+                        this.notifyChange(this.object3d);
+                        resolve();
+                    })
+                    .catch(e => reject(e as Error));
             };
 
             loader.load(json);
         });
     }
 
-    pick(canvasCoords: Vector2, options?: PickOptions): CityJSONPickResult[] {
+    public override pick(canvasCoords: Vector2, options?: PickOptions): CityJSONPickResult[] {
         return super.pick(canvasCoords, options).map(p => ({
             ...p,
             entity: this,
@@ -243,7 +254,7 @@ export default class CityJSONEntity
         }));
     }
 
-    pickFeaturesFrom(pickedResult: CityJSONPickResult): CityJSONFeature[] {
+    public pickFeaturesFrom(pickedResult: CityJSONPickResult): CityJSONFeature[] {
         const { object } = pickedResult;
         const cityjsonInfo = object.resolveIntersectionInfo(
             pickedResult,
@@ -255,6 +266,6 @@ export default class CityJSONEntity
         return result;
     }
 
-    static isCityJSONEntity = (obj: object): obj is CityJSONEntity =>
+    public static isCityJSONEntity = (obj: object): obj is CityJSONEntity =>
         isObject(obj) && (obj as CityJSONEntity).isCityJSONEntity;
 }

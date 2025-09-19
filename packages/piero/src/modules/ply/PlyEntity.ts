@@ -1,16 +1,19 @@
+import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { Color, DoubleSide, Group, Mesh, MeshLambertMaterial } from 'three';
+import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
+
 import type {
     CoordinatesMixin,
     FeatureProjectionMixin,
     UrlOrDataMixin,
 } from '@/giro3d/sources/mixins';
+
 import { fillObject3DUserData } from '@/loaders/userData';
 import Fetcher from '@/utils/Fetcher';
 import { isObject } from '@/utils/Types';
-import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import { Color, DoubleSide, Group, Mesh, MeshLambertMaterial } from 'three';
-import { PLYLoader as PLYThreeLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 
 /** Parameters for creating {@link PlyEntity} */
 export interface PlySource
@@ -32,7 +35,7 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
     public readonly isPickableFeatures = true;
     public readonly isPlyMesh = true;
 
-    pickFeaturesFrom(pickedResult: PickResult): PlyFeature[] {
+    public pickFeaturesFrom(pickedResult: PickResult): PlyFeature[] {
         if (this.geometry.hasAttribute('color') && pickedResult.face) {
             const colors = this.geometry.getAttribute('color').array;
             const face = pickedResult.face;
@@ -50,9 +53,9 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
         return [];
     }
 
-    static isPlyMesh = (obj: unknown): obj is PlyMesh =>
+    public static isPlyMesh = (obj: unknown): obj is PlyMesh =>
         isObject(obj) && (obj as PlyMesh).isPlyMesh;
-    static isPlyPickResult = (obj: unknown): obj is PickResult<PlyFeature> =>
+    public static isPlyPickResult = (obj: unknown): obj is PickResult<PlyFeature> =>
         isObject(obj) && PlyMesh.isPlyMesh((obj as PickResult<unknown>)?.object);
 }
 
@@ -60,15 +63,15 @@ export class PlyMesh extends Mesh implements PickableFeatures<PlyFeature> {
  * Entity for displaying a PLY file
  */
 export default class PlyEntity extends Entity3D {
-    readonly isPlyEntity = true;
-    readonly source: PlySource;
+    public readonly isPlyEntity = true;
+    public readonly source: PlySource;
 
-    constructor(source: PlySource) {
+    public constructor(source: PlySource) {
         super(new Group());
         this.source = source;
     }
 
-    protected async preprocess(): Promise<void> {
+    protected override async preprocess(): Promise<void> {
         const data = await Fetcher.fetchArrayBuffer(this.source.url);
 
         const position = this.source.at.as(this.source.featureProjection).toVector3();

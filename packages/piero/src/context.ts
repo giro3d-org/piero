@@ -1,4 +1,5 @@
 import type { EventDispatcher } from 'three';
+
 import type BookmarkApi from './api/BookmarkApi';
 import type DatasetApi from './api/DatasetApi';
 import type ViewApi from './api/ViewApi';

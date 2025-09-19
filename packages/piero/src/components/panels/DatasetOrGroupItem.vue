@@ -1,7 +1,8 @@
 <script setup lang="ts">
+    import type { DatasetOrGroup } from '@/types/Dataset';
+
     import DatagroupItem from '@/components/panels/DatagroupItem.vue';
     import DatasetItem from '@/components/panels/DatasetItem.vue';
-    import type { DatasetOrGroup } from '@/types/Dataset';
     import { Datagroup } from '@/types/Dataset';
 
     defineProps<{

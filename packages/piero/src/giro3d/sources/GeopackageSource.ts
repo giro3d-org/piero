@@ -1,16 +1,21 @@
-import Fetcher, { type FetchContext, type UrlOrData } from '@/utils/Fetcher';
-import type { SimpleFeature } from '@/utils/OLFeatures';
 import type Instance from '@giro3d/giro3d/core/Instance';
+
 import { load } from '@loaders.gl/core';
 import { GeoPackageLoader as GeoPackageGLLoader } from '@loaders.gl/geopackage';
 import { type GeoJSONTable, type Tables } from '@loaders.gl/schema';
-import { geojsonToOlFeatures, type VectorMeshSource } from '../entities/VectorMeshEntity';
+
+import type { SimpleFeature } from '@/utils/OLFeatures';
+
+import Fetcher, { type FetchContext, type UrlOrData } from '@/utils/Fetcher';
+
 import type {
     DataProjectionMixin,
     ElevationMixin,
     FeatureProjectionMixin,
     UrlOrDataMixin,
 } from './mixins';
+
+import { geojsonToOlFeatures, type VectorMeshSource } from '../entities/VectorMeshEntity';
 
 /**
  * Options for loading Geopackage files into a {@link VectorMeshEntity}
@@ -57,15 +62,15 @@ async function fetchGeopackage(
  * Source for loading a Geopackage file into a {@link VectorMeshEntity}
  */
 export default class GeopackageSource implements VectorMeshSource {
-    elevation?: number;
-    readonly options: GeopackageSourceParameters;
+    public elevation?: number;
+    public readonly options: GeopackageSourceParameters;
 
-    constructor(options: GeopackageSourceParameters) {
+    public constructor(options: GeopackageSourceParameters) {
         this.options = options;
         this.elevation = options.elevation;
     }
 
-    async load(instance: Instance): Promise<SimpleFeature[]> {
+    public async load(instance: Instance): Promise<SimpleFeature[]> {
         // First, get the data as a list of GeoJSON features
         const features = await fetchGeopackage(this.options.url, this.options.featureProjection);
         // Convert them into OpenLayers features
@@ -76,7 +81,7 @@ export default class GeopackageSource implements VectorMeshSource {
         return olFeatures;
     }
 
-    context(): FetchContext {
+    public context(): FetchContext {
         return Fetcher.getContext(this.options.url);
     }
 }

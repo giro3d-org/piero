@@ -1,8 +1,12 @@
 <script setup lang="ts">
-    import { useDatasetStore } from '@/stores/datasets';
     import type { Dataset } from '@/types/Dataset';
+
+    import { useDatasetStore } from '@/stores/datasets';
     import { refAndWatch } from '@/utils/Components';
+
     import type IfcEntity from './IfcEntity';
+    import type { ClassificationItem } from './IfcEntity';
+
     import IfcSubtree from './IfcSubtree.vue';
 
     const datasets = useDatasetStore();
@@ -13,7 +17,7 @@
 
     const isPreloaded = refAndWatch(props.dataset, 'isPreloaded');
 
-    function getIfcEntity() {
+    function getIfcEntity(): IfcEntity | null {
         const entity = datasets.getEntity(props.dataset);
 
         if (entity == null) {
@@ -23,7 +27,7 @@
         return entity as IfcEntity;
     }
 
-    function getClassificationRoot() {
+    function getClassificationRoot(): ClassificationItem[] | null {
         const ifcEntity = getIfcEntity();
 
         if (ifcEntity == null) {

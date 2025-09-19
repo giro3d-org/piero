@@ -1,4 +1,13 @@
 <script setup lang="ts">
+    import type Instance from '@giro3d/giro3d/core/Instance';
+
+    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+    import Extent from '@giro3d/giro3d/core/geographic/Extent';
+    import { Vector2, Vector3 } from 'three';
+    import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
+
+    import type Feature from '@/types/Feature';
+
     import { type GeocodingResult } from '@/providers/Geocoding';
     import Giro3DManager from '@/services/Giro3DManager';
     import MinimapController from '@/services/MinimapController';
@@ -6,16 +15,13 @@
     import { useCameraStore } from '@/stores/camera';
     import { useGiro3dStore } from '@/stores/giro3d';
     import { useMeasurementStore } from '@/stores/measurement';
-    import type Feature from '@/types/Feature';
-    import type Instance from '@giro3d/giro3d/core/Instance';
-    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-    import Extent from '@giro3d/giro3d/core/geographic/Extent';
-    import { Vector2, Vector3 } from 'three';
-    import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
+
+    import type { PanelType } from './components/Configuration';
+    import type { PieroContext } from './context';
+
     import { ViewApiImpl } from './api/ViewApi';
     import AlertToast from './components/AlertToast.vue';
     import AttributePanel from './components/AttributePanel.vue';
-    import type { PanelType } from './components/Configuration';
     import LoadingScreen from './components/LoadingScreen.vue';
     import MainView from './components/MainView.vue';
     import MinimapView from './components/MinimapView.vue';
@@ -25,7 +31,6 @@
     import SearchOverlay from './components/SearchOverlay.vue';
     import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
-    import type { PieroContext } from './context';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
 
     const { getContext } = defineProps<{
@@ -35,7 +40,7 @@
     const selectedTool = ref<PanelType | null>('datasets');
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
-    let mouse = new Vector2();
+    const mouse = new Vector2();
     const pickedFeature = ref<Feature | null>(null);
     const tooltip = ref<string | null>(null);
     const isLoading = ref(false);
@@ -75,7 +80,7 @@
                         if (args[0] === null) {
                             disposeMinimap();
                         } else {
-                            initializeMinimap(args[0]);
+                            void initializeMinimap(args[0]);
                         }
                         break;
                 }
@@ -111,7 +116,7 @@
         disposeGiro3DManager();
     });
 
-    function initializeGiro3DManager(instance: Instance) {
+    function initializeGiro3DManager(instance: Instance): void {
         const mainview = giro3dStore.getMainView();
         if (mainview === null) {
             throw new Error('mainview is null');
@@ -131,7 +136,7 @@
         }
     }
 
-    function disposeGiro3DManager() {
+    function disposeGiro3DManager(): void {
         if (minimap.value) {
             minimap.value.setMainInstance(null);
         }
@@ -139,18 +144,18 @@
         giro3d.value = null;
     }
 
-    function initializeMinimap(instance: Instance) {
+    function initializeMinimap(instance: Instance): void {
         minimap.value = new MinimapController(instance);
         if (giro3d.value) {
             minimap.value.setMainInstance(giro3d.value.mainInstance);
         }
     }
 
-    function disposeMinimap() {
+    function disposeMinimap(): void {
         minimap.value?.dispose();
     }
 
-    function selectPanel(key: PanelType) {
+    function selectPanel(key: PanelType): void {
         if (key === selectedTool.value) {
             selectedTool.value = null;
         } else {
@@ -158,7 +163,7 @@
         }
     }
 
-    function pick(event: MouseEvent, clicked?: boolean) {
+    function pick(event: MouseEvent, clicked?: boolean): void {
         if (giro3d.value == null || giro3d.value.mainInstance == null) {
             return;
         }
@@ -200,7 +205,7 @@
         }
     }
 
-    function updateCoordinates(mouse: Vector2) {
+    function updateCoordinates(mouse: Vector2): void {
         if (giro3d.value != null) {
             const point = giro3d.value.picker.getMouseCoordinate(giro3d.value.mainInstance, mouse);
 
@@ -212,7 +217,7 @@
         }
     }
 
-    function updateCursor(mouse: Vector2) {
+    function updateCursor(mouse: Vector2): void {
         if (giro3d.value) {
             if (
                 cameraStore.getNavigationMode() === 'position-on-map' ||
@@ -226,14 +231,14 @@
         }
     }
 
-    function onMouseMove(event: MouseEvent) {
+    function onMouseMove(event: MouseEvent): void {
         if (giro3d.value) {
             giro3d.value.mainInstance.eventToCanvasCoords(event, mouse);
             hasMovedDuringFrame = true;
         }
     }
 
-    function onPointOfInterestSelected(poi: GeocodingResult) {
+    function onPointOfInterestSelected(poi: GeocodingResult): void {
         if (!giro3d.value) {
             return;
         }
@@ -248,7 +253,7 @@
             1000,
         );
         const bbox3 = target.toBox3(poi.z, poi.z + 200);
-        giro3d.value.camera.lookTopDownAt(bbox3, false);
+        void giro3d.value.camera.lookTopDownAt(bbox3, false);
     }
 </script>
 

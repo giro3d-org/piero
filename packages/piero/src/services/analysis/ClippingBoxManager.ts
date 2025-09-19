@@ -1,8 +1,5 @@
-import { useAnalysisStore } from '@/stores/analysis';
-import { useCameraStore } from '@/stores/camera';
-import { useDatasetStore } from '@/stores/datasets';
-import type NavigationMode from '@/types/NavigationMode';
 import type Instance from '@giro3d/giro3d/core/Instance';
+
 import {
     Box3,
     Box3Helper,
@@ -15,6 +12,12 @@ import {
     Vector3,
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+
+import type NavigationMode from '@/types/NavigationMode';
+
+import { useAnalysisStore } from '@/stores/analysis';
+import { useCameraStore } from '@/stores/camera';
+import { useDatasetStore } from '@/stores/datasets';
 
 const helperMaterial = new MeshBasicMaterial({ color: 'yellow', opacity: 0.1, transparent: true });
 
@@ -31,7 +34,7 @@ export default class ClippingBoxManager {
     private readonly _cameraStore = useCameraStore();
     private readonly _datasetStore = useDatasetStore();
 
-    constructor(instance: Instance) {
+    public constructor(instance: Instance) {
         this._instance = instance;
         this._volumeHelpers = new Group();
         instance.scene.add(this._volumeHelpers);
@@ -74,7 +77,7 @@ export default class ClippingBoxManager {
         });
     }
 
-    dispose() {
+    public dispose(): void {
         this._instance.scene.remove(this._volumeHelpers);
         this.disposeClippingBox();
     }
@@ -84,7 +87,7 @@ export default class ClippingBoxManager {
      * @param center - Center of the clipping box
      * @param size - Size of the clipping box
      */
-    private createClippingBox(center: Vector3, size: Vector3) {
+    private createClippingBox(center: Vector3, size: Vector3): void {
         this._clippingBox = new Box3();
         this._clippingBox.setFromCenterAndSize(center, size);
 
@@ -161,7 +164,7 @@ export default class ClippingBoxManager {
     /**
      * Disposes of the clipping box and all helpers
      */
-    private disposeClippingBox() {
+    private disposeClippingBox(): void {
         this._transformControls?.detach();
         this._transformControls?.getHelper().removeFromParent();
         this._transformControls?.dispose();
@@ -180,7 +183,7 @@ export default class ClippingBoxManager {
      * - changing the clipping box
      * - loading a new entity
      */
-    private applyClippingPlanes() {
+    private applyClippingPlanes(): void {
         const planes = this._store.isClippingBoxEnabled() ? this.getPlanesFromBoxSides() : [];
         for (const o of this._datasetStore.getDatasets()) {
             const entity = this._datasetStore.getEntity(o);
@@ -197,7 +200,7 @@ export default class ClippingBoxManager {
     /**
      * Moves an existing clipping box, while keeping its size
      */
-    private moveClippingBox() {
+    private moveClippingBox(): void {
         if (this._store.isClippingBoxEnabled()) {
             if (this._clippingBox === null) {
                 this.createClippingBox(this._store.clippingBoxCenter, this._store.clippingBoxSize);
@@ -223,7 +226,7 @@ export default class ClippingBoxManager {
     /**
      * Updates the clipping box; required when changing its size
      */
-    private updateClippingBox() {
+    private updateClippingBox(): void {
         this.disposeClippingBox();
         if (this._store.isClippingBoxEnabled()) {
             this.createClippingBox(this._store.clippingBoxCenter, this._store.clippingBoxSize);

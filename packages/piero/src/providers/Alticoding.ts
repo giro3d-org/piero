@@ -1,6 +1,7 @@
-import type Instance from '@giro3d/giro3d/core/Instance';
 import type Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import type Instance from '@giro3d/giro3d/core/Instance';
 import type Map from '@giro3d/giro3d/entities/Map';
+
 import IgnProvider from './IgnProvider';
 
 /**
@@ -11,7 +12,8 @@ export type Alticoder = (coordinates: Coordinates[]) => Promise<void>;
 /**
  * Alticoder using {@link IgnProvider}.
  */
-export const IgnAlticoder = IgnProvider.alticode;
+export const IgnAlticoder = (coordinates: Coordinates[]): Promise<void> =>
+    IgnProvider.alticode(coordinates);
 
 /**
  * Alticoder generator using (only) the map
@@ -36,6 +38,7 @@ export const mapAlticoderGenerator = (instance: Instance): Alticoder => {
                 coords._values[2] = res.elevation;
             }
         });
+        return Promise.resolve();
     };
     return alticoder;
 };

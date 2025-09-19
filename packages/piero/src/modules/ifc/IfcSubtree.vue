@@ -1,13 +1,15 @@
 <script setup lang="ts">
+    import { MathUtils } from 'three';
+    import { ref } from 'vue';
+
+    import type IfcEntity from '@/modules/ifc/IfcEntity';
+    import type { ClassificationItem } from '@/modules/ifc/IfcEntity';
+
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
-    import type IfcEntity from '@/modules/ifc/IfcEntity';
-    import type { ClassificationItem } from '@/modules/ifc/IfcEntity';
     import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
-    import { MathUtils } from 'three';
-    import { ref } from 'vue';
 
     const props = defineProps<{
         ifcEntity: IfcEntity;
@@ -21,7 +23,7 @@
     const cameraStore = useCameraStore();
     const analysis = useAnalysisStore();
 
-    function highlight() {
+    function highlight(): void {
         highlighted.value = true;
         props.ifcEntity.clearHighlight();
         props.ifcEntity.highlightById(props.classificationElement.fragments);
@@ -29,14 +31,14 @@
         setTimeout(() => (highlighted.value = false), 2000);
     }
 
-    function zoomTo() {
+    function zoomTo(): void {
         const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
         if (bbox && !bbox.isEmpty()) {
             cameraStore.lookTopDownAt(bbox);
         }
     }
 
-    function clipTo() {
+    function clipTo(): void {
         const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
         if (bbox && !bbox.isEmpty()) {
             analysis.setClippingBox(bbox);

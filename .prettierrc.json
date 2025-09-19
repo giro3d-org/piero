@@ -4,7 +4,7 @@
     "printWidth": 100,
     "arrowParens": "avoid",
     "vueIndentScriptAndStyle": true,
-    "plugins": ["prettier-plugin-organize-imports"],
+    "plugins": [],
     "overrides": [
         {
             "files": ["*.json", "*.jsonc"],

@@ -1,6 +1,9 @@
-import Fetcher from '@/utils/Fetcher';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+
+import Fetcher from '@/utils/Fetcher';
+
 import type { GeocodingResult } from './Geocoding';
+
 import IgnProvider from './IgnProvider';
 
 export default {

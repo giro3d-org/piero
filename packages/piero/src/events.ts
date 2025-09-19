@@ -1,4 +1,5 @@
 import { EventDispatcher } from 'three';
+
 import type Bookmark from './types/Bookmark';
 import type { DatasetOrGroup } from './types/Dataset';
 

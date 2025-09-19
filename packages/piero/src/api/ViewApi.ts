@@ -8,11 +8,11 @@ export default interface ViewApi {
 export class ViewApiImpl implements ViewApi {
     private readonly _cameraController: CameraController;
 
-    constructor(params: { camera: CameraController }) {
+    public constructor(params: { camera: CameraController }) {
         this._cameraController = params.camera;
     }
 
-    getCameraController(): CameraController {
+    public getCameraController(): CameraController {
         return this._cameraController;
     }
 }

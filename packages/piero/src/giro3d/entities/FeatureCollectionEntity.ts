@@ -1,5 +1,3 @@
-import { fillObject3DUserData } from '@/loaders/userData';
-import type { FeatureCollectionDatasetConfig } from '@/types/configuration/datasets/featureCollection';
 import type {
     FeatureElevationCallback,
     FeatureExtrusionOffsetCallback,
@@ -7,14 +5,20 @@ import type {
     FeatureStyleCallback,
     FillStyle,
 } from '@giro3d/giro3d/core/FeatureTypes';
+import type Feature from 'ol/Feature';
+
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
-import type Feature from 'ol/Feature';
 import { GeoJSON } from 'ol/format';
 import { tile } from 'ol/loadingstrategy.js';
 import VectorSource from 'ol/source/Vector';
 import { createXYZ } from 'ol/tilegrid.js';
 import { Color } from 'three';
+
+import type { FeatureCollectionDatasetConfig } from '@/types/configuration/datasets/featureCollection';
+
+import { fillObject3DUserData } from '@/loaders/userData';
+
 import type { EntityBuilder } from '../EntityBuilder';
 import type { FeatureProjectionMixin } from '../sources/mixins';
 
@@ -60,7 +64,7 @@ export interface FeatureCollectionEntityOptions
  * Entity for displaying 3D buildings
  */
 export class FeatureCollectionEntity extends FeatureCollection {
-    constructor(options: FeatureCollectionEntityOptions) {
+    public constructor(options: FeatureCollectionEntityOptions) {
         const crs = options.featureProjection;
 
         let filename: string;
@@ -77,7 +81,7 @@ export class FeatureCollectionEntity extends FeatureCollection {
 
         const vectorSource = new VectorSource({
             format: new GeoJSON(),
-            url: function url(bbox) {
+            url: function url(bbox): string {
                 return `${
                     'https://data.geopf.fr/wfs/ows' +
                     '?SERVICE=WFS' +
@@ -97,7 +101,7 @@ export class FeatureCollectionEntity extends FeatureCollection {
             new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64); // Cover France by default
         const extrusionOffset =
             options.extrusionOffset ??
-            ((feature: Feature) => {
+            ((feature: Feature): number => {
                 const properties = feature.getProperties();
                 const buildingHeight = properties['hauteur'];
                 const extrusionOffset = -buildingHeight;
@@ -109,7 +113,7 @@ export class FeatureCollectionEntity extends FeatureCollection {
             });
         const style =
             options.style ??
-            ((feature: Feature) => {
+            ((feature: Feature): FeatureStyle => {
                 const properties = feature.getProperties();
                 let fillColor = '#FFFFFF';
 

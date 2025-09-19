@@ -1,8 +1,11 @@
-import { isObject } from '@/utils/Types';
 import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+
 import { EventDispatcher, MathUtils } from 'three';
+
+import { isObject } from '@/utils/Types';
+
 import type {
     DatagroupConfig,
     DatasetConfig,
@@ -40,10 +43,10 @@ export abstract class DatasetBase<
     TConfig extends DatasetOrGroupConfig,
     TEventMap extends DatasetEventMap = DatasetEventMap,
 > extends EventDispatcher<TEventMap & DatasetEventMap> {
-    readonly type: TConfig['type'];
-    readonly uuid: string;
-    readonly name: string;
-    readonly onObjectPreloaded?: OnObjectPreloaded;
+    public readonly type: TConfig['type'];
+    public readonly uuid: string;
+    public readonly name: string;
+    public readonly onObjectPreloaded?: OnObjectPreloaded;
 
     protected _parent: Datagroup | null;
     protected _visible: boolean;
@@ -51,9 +54,9 @@ export abstract class DatasetBase<
     protected _isPreloading: boolean;
     protected _isPreloaded: boolean;
 
-    readonly config: TConfig;
+    public readonly config: TConfig;
 
-    constructor(config: TConfig) {
+    public constructor(config: TConfig) {
         super();
         this.type = config.type;
         this.uuid = MathUtils.generateUUID();
@@ -68,45 +71,45 @@ export abstract class DatasetBase<
         this.config = config;
     }
 
-    get parent() {
+    public get parent(): Datagroup | null {
         return this._parent;
     }
-    set parent(v) {
+    public set parent(v: Datagroup | null) {
         this._parent = v;
     }
 
-    get isPreloading() {
+    public get isPreloading(): boolean {
         return this._isPreloading;
     }
-    set isPreloading(v) {
+    public set isPreloading(v: boolean) {
         this._isPreloading = v;
         this.dispatchEvent({ type: 'isPreloading' });
     }
-    get isPreloaded() {
+    public get isPreloaded(): boolean {
         return this._isPreloaded;
     }
-    set isPreloaded(v) {
+    public set isPreloaded(v: boolean) {
         this._isPreloaded = v;
         this.dispatchEvent({ type: 'isPreloaded' });
     }
 
-    get visible() {
+    public get visible(): boolean {
         return this._visible;
     }
-    set visible(v) {
+    public set visible(v: boolean) {
         this._visible = v;
         this.dispatchEvent({ type: 'visible' });
     }
 
-    get opacity() {
+    public get opacity(): number {
         return this._opacity;
     }
-    set opacity(v) {
+    public set opacity(v: number) {
         this._opacity = v;
         this.dispatchEvent({ type: 'opacity' });
     }
 
-    delete() {
+    public delete(): void {
         this.dispatchEvent({ type: 'delete' });
     }
 
@@ -114,16 +117,16 @@ export abstract class DatasetBase<
      * Executes the callback on this object and all descendants.
      * @param callback - Callback to execute
      */
-    abstract traverse(callback: (dataset: DatasetOrGroup) => void): void;
+    public abstract traverse(callback: (dataset: DatasetOrGroup) => void): void;
     /** Gets the leafs Dataset from this object */
-    abstract leafs(): Dataset[];
+    public abstract leafs(): Dataset[];
 
     /**
      * Gets the value of a property from this object or its ancestors.
      * @param propertyName - Name of the property
      * @returns Value
      */
-    get<K extends keyof DatasetCascadingConfig>(
+    public get<K extends keyof DatasetCascadingConfig>(
         propertyName: K,
     ): DatasetCascadingConfig[K] | undefined {
         if (
@@ -139,15 +142,15 @@ export abstract class DatasetBase<
 
 /** Dataset item */
 export class Dataset extends DatasetBase<DatasetConfig, DatasetEventMap> {
-    constructor(conf: DatasetConfig) {
+    public constructor(conf: DatasetConfig) {
         super(conf);
     }
 
-    traverse(callback: (dataset: DatasetOrGroup) => void) {
+    public traverse(callback: (dataset: DatasetOrGroup) => void): void {
         callback(this);
     }
 
-    leafs(): Dataset[] {
+    public leafs(): Dataset[] {
         return [this];
     }
 }
@@ -156,16 +159,16 @@ export class Dataset extends DatasetBase<DatasetConfig, DatasetEventMap> {
 export class Datagroup extends DatasetBase<DatagroupConfig, DatasetGroupEventMap> {
     protected _children: DatasetOrGroup[];
 
-    constructor(conf: DatagroupConfig) {
+    public constructor(conf: DatagroupConfig) {
         super(conf);
         this._children = parseDatasetConfig(conf.children, this);
         this._isPreloaded = true;
     }
 
-    get children() {
+    public get children(): DatasetOrGroup[] {
         return this._children;
     }
-    set children(items: DatasetOrGroup[]) {
+    public set children(items: DatasetOrGroup[]) {
         this._children.forEach(c => (c.parent = null));
         this._children = items;
         this._children.forEach(c => {
@@ -174,14 +177,14 @@ export class Datagroup extends DatasetBase<DatagroupConfig, DatasetGroupEventMap
         });
     }
 
-    traverse(callback: (dataset: DatasetOrGroup) => void) {
+    public traverse(callback: (dataset: DatasetOrGroup) => void): void {
         callback(this);
         this._children?.forEach(c => c.traverse(callback));
     }
-    leafs(): Dataset[] {
+    public leafs(): Dataset[] {
         return this._children.map(c => c.leafs()).flat();
     }
-    static isGroup = (obj: unknown): obj is Datagroup =>
+    public static isGroup = (obj: unknown): obj is Datagroup =>
         isObject(obj) && (obj as Datagroup).type === 'group';
 }
 

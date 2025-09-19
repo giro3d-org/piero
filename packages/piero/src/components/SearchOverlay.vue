@@ -1,9 +1,10 @@
 <script setup lang="ts">
-    import BanProvider from '@/providers/BanProvider';
-    import { type GeocodingResult } from '@/providers/Geocoding';
     // @ts-expect-error autocomplete does not provide typing
     import autoComplete from '@tarekraafat/autocomplete.js';
     import { onMounted, ref } from 'vue';
+
+    import BanProvider from '@/providers/BanProvider';
+    import { type GeocodingResult } from '@/providers/Geocoding';
 
     const inputField = ref<HTMLInputElement | null>(null);
 
@@ -16,8 +17,8 @@
             threshold: 3,
             debounce: 300, // 300ms debounce
             data: {
-                src: async (query: string) => {
-                    return await BanProvider.geocode(query);
+                src: (query: string): Promise<GeocodingResult[]> => {
+                    return BanProvider.geocode(query);
                 },
                 keys: ['label'],
             },
@@ -28,7 +29,7 @@
                 highlight: true,
             },
             // Trust what we get from the query
-            searchEngine: (query: string, record: unknown) => record,
+            searchEngine: (query: string, record: unknown): unknown => record,
         });
 
         const inputElement = inputField.value as HTMLInputElement;

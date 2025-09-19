@@ -1,7 +1,8 @@
 <script setup lang="ts">
-    import type Named from '@/types/Named';
     import { MathUtils } from 'three';
     import { ref } from 'vue';
+
+    import type Named from '@/types/Named';
 
     const props = defineProps<{
         items: Named[];
@@ -16,7 +17,7 @@
 
     const currentSelection = ref<Named | null>(props.current);
 
-    function setCurrent(index: number) {
+    function setCurrent(index: number): void {
         const item = props.items[index];
         currentSelection.value = item;
         emits('updated:current', item);

@@ -1,10 +1,12 @@
-import type { MeasureUserData } from '@/giro3d/Measure3D';
-import type { PieroShapeUserData } from '@/types/Annotation';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
 import type Shape from '@giro3d/giro3d/entities/Shape';
 import type { ShapePickResult } from '@giro3d/giro3d/entities/Shape';
+
 import { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { Color } from 'three';
+
+import type { MeasureUserData } from '@/giro3d/Measure3D';
+import type { PieroShapeUserData } from '@/types/Annotation';
 
 export type ClearHighlightFn = () => void;
 export type HighlightFn = (obj: PickResult) => ClearHighlightFn | null;
@@ -14,18 +16,18 @@ export const customHighlighters: HighlightFn[] = [];
 export default class Highlighter {
     private _clearHighlight: (() => void) | null = null;
 
-    dispose() {
+    public dispose(): void {
         this.clear();
     }
 
-    clear() {
+    public clear(): void {
         if (this._clearHighlight) {
             this._clearHighlight();
             this._clearHighlight = null;
         }
     }
 
-    private highlightShape(pick: ShapePickResult) {
+    private highlightShape(pick: ShapePickResult): void {
         const shape = pick.entity as Shape<PieroShapeUserData | MeasureUserData>;
 
         if (shape.userData.highlightable) {
@@ -33,14 +35,14 @@ export default class Highlighter {
             shape.color = shape.userData.highlightColor;
             shape.instance.notifyChange();
 
-            this._clearHighlight = () => {
+            this._clearHighlight = (): void => {
                 shape.color = previousColor;
                 shape.instance.notifyChange();
             };
         }
     }
 
-    highlightFromPick(pick: PickResult) {
+    public highlightFromPick(pick: PickResult): void {
         this.clear();
 
         if (!pick.entity) {

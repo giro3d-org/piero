@@ -3,8 +3,8 @@
         url: string;
     }>();
 
-    function copyToClipboard(url: string) {
-        navigator.clipboard.writeText(url);
+    function copyToClipboard(url: string): void {
+        void navigator.clipboard.writeText(url);
     }
 </script>
 

@@ -1,5 +1,6 @@
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 import { fetchFile } from '@loaders.gl/core';
+
 import { getPublicFolderUrl } from './Configuration';
 
 /** URL to load or Blob (drag-and-drop) */
@@ -60,7 +61,7 @@ async function toDataURL(url: UrlOrData): Promise<string> {
         } else {
             const reader = new FileReader();
             reader.addEventListener('load', () => resolve(reader.result as string), false);
-            reader.addEventListener('error', () => reject(reader.error));
+            reader.addEventListener('error', () => reject(reader.error as DOMException));
             reader.readAsDataURL(url);
         }
     });

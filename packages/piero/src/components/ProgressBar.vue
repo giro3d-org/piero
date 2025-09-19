@@ -27,7 +27,7 @@
 <script lang="ts">
     export default {
         methods: {
-            tick() {
+            tick(): void {
                 this.$forceUpdate();
             },
         },

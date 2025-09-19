@@ -1,4 +1,5 @@
 import type { Options as BingMapsOptions } from 'ol/source/BingMaps';
+
 import type { ImageSourceConfigMixin, SourceConfigBase } from './core/baseConfig';
 
 /** Bing maps source configuration */

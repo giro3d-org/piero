@@ -17,6 +17,7 @@
 
         /* Linting */
         "strict": true,
+        "noImplicitOverride": true,
 
         "paths": {
             "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly

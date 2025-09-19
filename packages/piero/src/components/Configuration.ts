@@ -1,5 +1,6 @@
-import { hasExperimentalFeature } from '@/utils/Configuration';
 import type { Component } from 'vue';
+
+import { hasExperimentalFeature } from '@/utils/Configuration';
 
 export type PanelType =
     | 'datasets'

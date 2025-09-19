@@ -1,11 +1,14 @@
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+
 import type { PieroContext } from '@/context';
 import type { EntityBuilder } from '@/giro3d/EntityBuilder';
 import type { Module } from '@/module';
 import type { AttributeExtractorFn } from '@/services/Picker';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
 import type { PLYDatasetConfig } from '@/types/configuration/datasets/ply';
+import type { Attribute, AttributesGroups } from '@/types/Feature';
+
 import { getCoordinates } from '@/utils/Configuration';
-import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+
 import PlyEntity, { PlyMesh } from './ply/PlyEntity';
 
 const build: EntityBuilder = context => {
@@ -47,9 +50,9 @@ const getAttributesFromPlyObject: AttributeExtractorFn = (
  * Loads .ply files.
  */
 export default class PLYLoader implements Module {
-    readonly name = 'PLY';
+    public readonly name = 'PLY';
 
-    initialize(context: PieroContext): Promise<void> | void {
+    public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('ply', {
             icon: 'bi-file-earmark-binary',
             name: 'PLY',

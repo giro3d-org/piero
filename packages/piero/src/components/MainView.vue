@@ -1,8 +1,9 @@
 <script setup lang="ts">
-    import { useGiro3dStore } from '@/stores/giro3d';
     import Instance from '@giro3d/giro3d/core/Instance';
     import Inspector from '@giro3d/giro3d/gui/Inspector';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
+
+    import { useGiro3dStore } from '@/stores/giro3d';
 
     const mainView = ref<HTMLDivElement | null>(null);
     const inspectorView = ref<HTMLDivElement | null>(null);

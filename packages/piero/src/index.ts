@@ -1,20 +1,20 @@
-import type { PieroContext } from '@/context';
-import createPieroApp from '@/createPieroApp';
-import type { BookmarkEvents, PieroEmptyEvent, PieroEvents, PieroGlobalEvents } from '@/events';
-import type { EntityBuilder } from '@/giro3d/EntityBuilder';
-import type { LoadDatasetFromFile } from '@/loaders/loader';
-import { fillObject3DUserData, type UserData } from '@/loaders/userData';
-import type { Module } from '@/module';
-import type { AttributeExtractorFn } from '@/services/Picker';
-import Bookmark from '@/types/Bookmark';
-import type { Configuration } from '@/types/Configuration';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
-import Fetcher from '@/utils/Fetcher';
-import Projections from '@/utils/Projections';
-
 import type BookmarkApi from '@/api/BookmarkApi';
 import type DatasetApi from '@/api/DatasetApi';
 import type ViewApi from '@/api/ViewApi';
+import type { PieroContext } from '@/context';
+import type { BookmarkEvents, PieroEmptyEvent, PieroEvents, PieroGlobalEvents } from '@/events';
+import type { EntityBuilder } from '@/giro3d/EntityBuilder';
+import type { LoadDatasetFromFile } from '@/loaders/loader';
+import type { Module } from '@/module';
+import type { AttributeExtractorFn } from '@/services/Picker';
+import type { Configuration } from '@/types/Configuration';
+import type { Attribute, AttributesGroups } from '@/types/Feature';
+
+import createPieroApp from '@/createPieroApp';
+import { fillObject3DUserData, type UserData } from '@/loaders/userData';
+import Bookmark from '@/types/Bookmark';
+import Fetcher from '@/utils/Fetcher';
+import Projections from '@/utils/Projections';
 
 import './assets/main.scss';
 
@@ -26,9 +26,11 @@ export {
     BookmarkApi,
     BookmarkEvents,
     Configuration,
+    createPieroApp,
     DatasetApi,
     EntityBuilder,
     Fetcher,
+    fillObject3DUserData,
     LoadDatasetFromFile,
     Module,
     PieroContext,
@@ -38,6 +40,4 @@ export {
     Projections,
     UserData,
     ViewApi,
-    createPieroApp,
-    fillObject3DUserData,
 };

@@ -1,13 +1,15 @@
-import LayerObject from '@/types/LayerObject';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import type { EventDispatcher } from 'three';
+
 import type {
     BasemapLayerSourceConfig,
     LayerConfig,
     LayerType,
 } from '@/types/configuration/layers';
-import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
-import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
-import type { EventDispatcher } from 'three';
+
+import LayerObject from '@/types/LayerObject';
 
 export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
 
@@ -33,11 +35,11 @@ export interface BaseLayer extends EventDispatcher {
 
 export class BaseLayerObject extends LayerObject implements BaseLayer {
     private _loading: boolean;
-    readonly type: LayerType;
-    readonly source: BasemapLayerSourceConfig;
-    readonly options: BaseLayerOptions<LayerConfig>;
+    public readonly type: LayerType;
+    public readonly source: BasemapLayerSourceConfig;
+    public readonly options: BaseLayerOptions<LayerConfig>;
 
-    constructor({ type, name, source, ...options }: LayerConfig) {
+    public constructor({ type, name, source, ...options }: LayerConfig) {
         super(name);
         this._loading = false;
         this.type = type;
@@ -45,11 +47,11 @@ export class BaseLayerObject extends LayerObject implements BaseLayer {
         this.options = options;
     }
 
-    get isLoading() {
+    public get isLoading(): boolean {
         return this._loading;
     }
 
-    set isLoading(v) {
+    public set isLoading(v: boolean) {
         this._loading = v;
     }
 }

@@ -1,7 +1,10 @@
+import Shepherd from 'shepherd.js';
+
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
+
 import { hasExperimentalFeature } from '@/utils/Configuration';
-import Shepherd from 'shepherd.js';
+
 import type CameraController from '../services/CameraController';
 
 interface TourEvent {
@@ -22,14 +25,14 @@ type Tours = {
  * Provides a guided tour of the application.
  */
 export default class TourModule implements Module {
-    readonly name = 'Tour';
+    public readonly name = 'Tour';
 
     private _camera: CameraController | null = null;
     private _cameraCallback: (() => void) | null = null;
     private _tours: Tours | null = null;
     private _context: PieroContext | null = null;
 
-    initialize(context: PieroContext): Promise<void> | void {
+    public initialize(context: PieroContext): Promise<void> | void {
         this._context = context;
         context.events.addEventListener('ready', this.start.bind(this));
     }
@@ -41,7 +44,7 @@ export default class TourModule implements Module {
         return this._tours;
     }
 
-    private start() {
+    private start(): void {
         if (!this._context) {
             throw new Error('module is not initialized');
         }
@@ -63,7 +66,7 @@ export default class TourModule implements Module {
         }
     }
 
-    private restart() {
+    private restart(): void {
         const { mainTour } = this.getTours();
         mainTour.show(0);
     }
@@ -85,11 +88,11 @@ export default class TourModule implements Module {
         });
 
         const buttonsOptions = [
-            { text: 'Next', action: () => Shepherd.activeTour?.next() },
-            { text: 'Exit', action: () => Shepherd.activeTour?.cancel(), secondary: true },
+            { text: 'Next', action: (): void => Shepherd.activeTour?.next() },
+            { text: 'Exit', action: (): void => Shepherd.activeTour?.cancel(), secondary: true },
         ];
 
-        const displayProgress = () => {
+        const displayProgress = (): void => {
             const currentStep = Shepherd.activeTour?.getCurrentStep();
             const currentStepElement = currentStep?.getElement();
             const content = currentStepElement?.querySelector('.shepherd-text');
@@ -117,7 +120,10 @@ export default class TourModule implements Module {
             content.appendChild(progress);
         };
 
-        const loadPanel = async (panelId: string, waitSelector: string) => {
+        const loadPanel = async (
+            panelId: string,
+            waitSelector: string,
+        ): Promise<Element | null> => {
             return new Promise(resolve => {
                 const link = document.getElementById(panelId);
                 if (link && !link.classList.contains('active')) {
@@ -151,19 +157,23 @@ export default class TourModule implements Module {
             buttons: [
                 {
                     text: 'Navigating',
-                    action: () => {
+                    action: (): void => {
                         Shepherd.activeTour?.complete();
                         navigatingTour.show(0);
                     },
                 },
                 {
                     text: 'Analyzing data',
-                    action: () => {
+                    action: (): void => {
                         Shepherd.activeTour?.complete();
                         analyzingTour.show(0);
                     },
                 },
-                { text: 'Exit', action: () => Shepherd.activeTour?.cancel(), secondary: true },
+                {
+                    text: 'Exit',
+                    action: (): void => Shepherd.activeTour?.cancel(),
+                    secondary: true,
+                },
             ],
             when: {
                 show: displayProgress,
@@ -194,7 +204,7 @@ export default class TourModule implements Module {
             when: {
                 show: () => {
                     let nbEvents = 0;
-                    this._cameraCallback = () => {
+                    this._cameraCallback = (): void => {
                         nbEvents += 1;
                         if (nbEvents > 2) {
                             Shepherd.activeTour?.next();
@@ -301,12 +311,16 @@ export default class TourModule implements Module {
             buttons: [
                 {
                     text: 'Analyzing data',
-                    action: () => {
+                    action: (): void => {
                         Shepherd.activeTour?.complete();
                         analyzingTour.show(0);
                     },
                 },
-                { text: 'Exit', action: () => Shepherd.activeTour?.complete(), secondary: true },
+                {
+                    text: 'Exit',
+                    action: (): void => Shepherd.activeTour?.complete(),
+                    secondary: true,
+                },
             ],
             attachTo: {
                 element: '#search-place-autocomplete',
@@ -368,21 +382,21 @@ export default class TourModule implements Module {
                 element: '#panel-container',
                 on: 'right',
             },
-            buttons: [{ text: 'Done!', action: () => Shepherd.activeTour?.complete() }],
+            buttons: [{ text: 'Done!', action: (): void => Shepherd.activeTour?.complete() }],
             beforeShowPromise: () => loadPanel('toolbar-analysis', '#panel-container .card'),
             when: {
                 show: displayProgress,
             },
         });
 
-        const markSkiptour = () => {
+        const markSkiptour = (): void => {
             const url = new URL(document.URL);
             url.searchParams.delete('tourStep');
             url.searchParams.set('tour', 'none');
             window.history.replaceState({}, '', url.toString());
         };
 
-        const markTour = (current: TourEvent) => {
+        const markTour = (current: TourEvent): void => {
             const url = new URL(document.URL);
             let tourName = 'main';
             if (current.tour.id.startsWith('navigating')) {

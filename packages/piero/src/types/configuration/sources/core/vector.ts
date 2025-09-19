@@ -1,5 +1,6 @@
-import type { VectorStyle } from '@/types/VectorStyle';
 import type { CRS } from '@/types/configuration/geographic';
+import type { VectorStyle } from '@/types/VectorStyle';
+
 import type {
     ImageSourceConfigMixin,
     SourceConfigProjectionMixin,

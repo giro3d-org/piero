@@ -1,12 +1,14 @@
 import type Instance from '@giro3d/giro3d/core/Instance';
-import EntityInspector from '@giro3d/giro3d/gui/EntityInspector';
 import type GUI from 'lil-gui';
+
+import EntityInspector from '@giro3d/giro3d/gui/EntityInspector';
+
 import type CityJSONEntity from './CityJSONEntity';
 
 export default class CityJSONEntityInspector extends EntityInspector<CityJSONEntity> {
-    availableLods: string;
+    public availableLods: string;
 
-    constructor(parentGui: GUI, instance: Instance, entity: CityJSONEntity) {
+    public constructor(parentGui: GUI, instance: Instance, entity: CityJSONEntity) {
         super(parentGui, instance, entity, { visibility: true });
 
         this.availableLods = entity.availableLods ? entity.availableLods.join('; ') : '';

@@ -33,14 +33,14 @@
     "module": "dist/index.es.js",
     "exports": {
         ".": {
+            "types": "./dist/index.d.ts",
             "import": "./dist/index.es.js",
-            "require": "./dist/index.cjs.js",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/index.cjs.js"
         },
         "./modules": {
+            "types": "./dist/modules.d.ts",
             "import": "./dist/modules.es.js",
-            "require": "./dist/modules.cjs.js",
-            "types": "./dist/modules.d.ts"
+            "require": "./dist/modules.cjs.js"
         },
         "./piero.css": "./dist/assets/style.css"
     },

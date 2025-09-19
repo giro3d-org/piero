@@ -1,26 +1,29 @@
-import Measure3D from '@/giro3d/Measure3D';
-import type Picker from '@/services/Picker';
 import type Instance from '@giro3d/giro3d/core/Instance';
+
 import { isShape } from '@giro3d/giro3d/entities/Shape';
 import { Raycaster } from 'three';
+
+import type Picker from '@/services/Picker';
+
+import Measure3D from '@/giro3d/Measure3D';
 
 export default class MeasureTool {
     private readonly _picker: Picker;
     private readonly _raycaster: Raycaster;
     private _hoverMeasurement: Measure3D | null;
 
-    constructor(picker: Picker) {
+    public constructor(picker: Picker) {
         this._picker = picker;
 
         this._raycaster = new Raycaster();
         this._hoverMeasurement = null;
     }
 
-    dispose() {
+    public dispose(): void {
         this.clean();
     }
 
-    measure(instance: Instance, event: MouseEvent) {
+    public measure(instance: Instance, event: MouseEvent): void {
         const picked = this._picker.getFirstFeatureAt(instance, event, 0, o => !isShape(o))?.at(0);
 
         if (picked && picked.normal) {
@@ -43,7 +46,7 @@ export default class MeasureTool {
             if (intersects) {
                 if (!this._hoverMeasurement) {
                     this._hoverMeasurement = new Measure3D();
-                    instance.add(this._hoverMeasurement);
+                    void instance.add(this._hoverMeasurement);
                 }
                 this._hoverMeasurement.visible = true;
                 this._hoverMeasurement.setPoints([picked.point, intersects.point]);
@@ -52,14 +55,14 @@ export default class MeasureTool {
         }
     }
 
-    clean() {
+    public clean(): void {
         if (this._hoverMeasurement) {
             this._hoverMeasurement.instance.remove(this._hoverMeasurement);
             this._hoverMeasurement = null;
         }
     }
 
-    getLastMeasurement() {
+    public getLastMeasurement(): Measure3D | undefined {
         return this._hoverMeasurement?.clone();
     }
 }

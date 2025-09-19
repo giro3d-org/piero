@@ -1,35 +1,38 @@
-import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
-import type CameraController from '@/services/CameraController';
-import type Picker from '@/services/Picker';
-import { useAnnotationStore } from '@/stores/annotations';
-import { useNotificationStore } from '@/stores/notifications';
-import type { PieroShapeUserData } from '@/types/Annotation';
-import Annotation from '@/types/Annotation';
-import Notification from '@/types/Notification';
-import Measure from '@/utils/Measure';
 import type Instance from '@giro3d/giro3d/core/Instance';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
 import type {
     SegmentLabelFormatter,
     SurfaceLabelFormatter,
     VertexLabelFormatter,
 } from '@giro3d/giro3d/entities/Shape';
-import Shape, { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import type { CreationOptions } from '@giro3d/giro3d/interactions/DrawTool';
+import type View from '@giro3d/giro3d/renderer/View';
+import type { Position } from 'geojson';
+import type { Vector2 } from 'three';
+
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
+import Shape, { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import DrawTool, {
     afterRemovePointOfRing,
     afterUpdatePointOfRing,
     inhibitHook,
     limitRemovePointHook,
 } from '@giro3d/giro3d/interactions/DrawTool';
-import type View from '@giro3d/giro3d/renderer/View';
-import type { Position } from 'geojson';
-import type { Vector2 } from 'three';
 import { MathUtils, Vector3 } from 'three';
 
-function promptTitle(defaultValue: string) {
+import type CameraController from '@/services/CameraController';
+import type Picker from '@/services/Picker';
+import type { PieroShapeUserData } from '@/types/Annotation';
+
+import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
+import { useAnnotationStore } from '@/stores/annotations';
+import { useNotificationStore } from '@/stores/notifications';
+import Annotation from '@/types/Annotation';
+import Notification from '@/types/Notification';
+import Measure from '@/utils/Measure';
+
+function promptTitle(defaultValue: string): string | null {
     return window.prompt('Annotation name', defaultValue);
 }
 
@@ -109,18 +112,22 @@ export default class AnnotationManager {
     private _editedShape: Shape<PieroShapeUserData> | null = null;
     private _editedShapePreviousPoints: Vector3[] | null = null;
 
-    constructor(instance: Instance, camera: CameraController, picker: Picker) {
+    public constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this._instance = instance;
         this._picker = picker;
         this._drawTool = new DrawTool({ instance });
 
         // FIXME this would override whatever setting is currently
         // present (depending on navigation modes)
-        this._boundOnEndDrag = () => (camera.enabled = true);
-        this._boundOnStartDrag = () => (camera.enabled = false);
+        this._boundOnEndDrag = (): void => {
+            camera.enabled = true;
+        };
+        this._boundOnStartDrag = (): void => {
+            camera.enabled = false;
+        };
 
         this._boundUpdateLabels = this.updateLabels.bind(this);
-        this._boundExitEdition = () => {
+        this._boundExitEdition = (): void => {
             this._instance.domElement.removeEventListener('contextmenu', this._boundExitEdition);
             this.stopEdition(false);
         };
@@ -159,17 +166,17 @@ export default class AnnotationManager {
                         this.drawPolygon();
                         break;
                     case 'importAnnotationFile':
-                        this.importAnnotationFile(args[0]);
+                        void this.importAnnotationFile(args[0]);
                         break;
                     case 'importAnnotationsFiles':
-                        this.importAnnotationFiles(args[0]);
+                        void this.importAnnotationFiles(args[0]);
                         break;
                 }
             });
         });
     }
 
-    private udpateLabelVisibility(show: boolean) {
+    private udpateLabelVisibility(show: boolean): void {
         this._shapes.forEach(shape => {
             switch (shape.userData.type) {
                 case 'Point':
@@ -186,7 +193,7 @@ export default class AnnotationManager {
         });
     }
 
-    private updateLabels() {
+    private updateLabels(): void {
         this._shapes.forEach(shape => {
             if (shape.visible) {
                 shape.rebuildLabels();
@@ -194,7 +201,7 @@ export default class AnnotationManager {
         });
     }
 
-    dispose() {
+    public dispose(): void {
         document.removeEventListener('keydown', this._boundOnKeyDown);
 
         this._drawTool.removeEventListener('start-drag', this._boundOnStartDrag);
@@ -206,7 +213,7 @@ export default class AnnotationManager {
         this._drawTool.dispose();
     }
 
-    private stopEdition(restoreShape: boolean) {
+    private stopEdition(restoreShape: boolean): void {
         this._drawTool.exitEditMode();
         this._isEditing = false;
         this._store.setIsUserDrawing(false);
@@ -228,14 +235,16 @@ export default class AnnotationManager {
     // Note this was directly imported from the drawtool example
     // We might want to make it part of the Shape API, but we have to think
     // about potential pitfalls as there is not a single mapping between GeoJSON and Shapes.
-    private importShapeFromGeoJSON(feature: GeoJSON.Feature): Shape<PieroShapeUserData> {
+    private async importShapeFromGeoJSON(
+        feature: GeoJSON.Feature,
+    ): Promise<Shape<PieroShapeUserData>> {
         if (feature.type !== 'Feature') {
             throw new Error('not a valid GeoJSON feature');
         }
 
         const crs = 'EPSG:4326';
 
-        const getPoint = (c: Position) => {
+        const getPoint = (c: Position): Vector3 => {
             const coord = new Coordinates(crs, c[0], c[1], c[2] ?? 0);
             return coord.as(this._instance.referenceCrs, coord).toVector3();
         };
@@ -302,12 +311,12 @@ export default class AnnotationManager {
 
         this.computeMeasurements(result);
 
-        this._instance.add(result);
+        await this._instance.add(result);
 
         return result;
     }
 
-    private onKeyDown(e: KeyboardEvent) {
+    private onKeyDown(e: KeyboardEvent): void {
         if (e.code === 'Escape') {
             this.stopEdition(true);
         }
@@ -361,7 +370,7 @@ export default class AnnotationManager {
         return results;
     }
 
-    private updateDrawing(annotation: Annotation) {
+    private updateDrawing(annotation: Annotation): void {
         annotation.object.visible = annotation.visible;
         annotation.object.traverse(o => (o.visible = annotation.visible));
         this._instance.notifyChange();
@@ -371,9 +380,9 @@ export default class AnnotationManager {
         shape: Shape<PieroShapeUserData> | null,
         type: PieroShapeUserData['type'],
         defaultName: string,
-    ) {
+    ): void {
         if (shape && !this._shapes.has(shape.id)) {
-            const userData = shape.userData as PieroShapeUserData;
+            const userData = shape.userData;
             userData.type = type;
             userData.highlightable = true;
 
@@ -413,19 +422,20 @@ export default class AnnotationManager {
         type: PieroShapeUserData['type'],
         defaultName: string,
         opts: Partial<CreationOptions>,
-    ) {
+    ): void {
         this._store.setIsUserDrawing(true);
 
-        this._drawTool[drawFn]({
+        void this._drawTool[drawFn]({
             ...this.getCreationOptions(),
             ...opts,
-        }).then(shape => {
-            this.addShape(shape as Shape<PieroShapeUserData>, type, defaultName);
-            this._store.setIsUserDrawing(false);
-        });
+        })
+            .then(shape => {
+                this.addShape(shape as Shape<PieroShapeUserData>, type, defaultName);
+            })
+            .finally(() => this._store.setIsUserDrawing(false));
     }
 
-    private drawPoint() {
+    private drawPoint(): void {
         this.draw('createPoint', 'Point', 'New point annotation', {
             vertexRadius: SHAPE_POINT_RADIUS,
             showVertexLabels: this._store.showLabels(),
@@ -434,21 +444,21 @@ export default class AnnotationManager {
         });
     }
 
-    private drawPolygon() {
+    private drawPolygon(): void {
         this.draw('createPolygon', 'Polygon', 'New polygon annotation', {
             showSurfaceLabel: this._store.showLabels(),
             surfaceLabelFormatter: areaFormatter,
         });
     }
 
-    private drawLine() {
+    private drawLine(): void {
         this.draw('createLineString', 'LineString', 'New line annotation', {
             showSegmentLabels: this._store.showLabels(),
             segmentLabelFormatter: lengthFormatter(this._instance.view),
         });
     }
 
-    pushNewAnnotation(
+    public pushNewAnnotation(
         title: string,
         shape: Shape<PieroShapeUserData>,
         properties: object = {},
@@ -461,7 +471,10 @@ export default class AnnotationManager {
         return annotation;
     }
 
-    private importAnnotation(feature: GeoJSON.Feature, skipNames: Set<string>) {
+    private async importAnnotation(
+        feature: GeoJSON.Feature,
+        skipNames: Set<string>,
+    ): Promise<boolean> {
         if (feature.properties == null || typeof feature.properties !== 'object') {
             feature.properties = {};
         }
@@ -473,12 +486,15 @@ export default class AnnotationManager {
             return false;
         }
 
-        const shape = this.importShapeFromGeoJSON(feature);
+        const shape = await this.importShapeFromGeoJSON(feature);
         this.pushNewAnnotation(feature.properties.title, shape, feature.properties);
         return true;
     }
 
-    private async importBlob(file: Blob, skipNames: Set<string>) {
+    private async importBlob(
+        file: Blob,
+        skipNames: Set<string>,
+    ): Promise<{ nbImported: number; nbSkipped: number }> {
         const str = await file.text();
         const geojson = JSON.parse(str) as GeoJSON.Feature | GeoJSON.FeatureCollection;
 
@@ -488,7 +504,8 @@ export default class AnnotationManager {
         let nbSkipped = 0;
 
         for (const feature of features) {
-            if (this.importAnnotation(feature, skipNames)) {
+            const imported = await this.importAnnotation(feature, skipNames);
+            if (imported) {
                 nbImported++;
             } else {
                 nbSkipped++;
@@ -497,7 +514,7 @@ export default class AnnotationManager {
         return { nbImported, nbSkipped };
     }
 
-    private async importAnnotationFile(file: Blob) {
+    private async importAnnotationFile(file: Blob): Promise<void> {
         const existingAnnotations = new Set(this._store.getAnnotations().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingAnnotations);
@@ -508,12 +525,13 @@ export default class AnnotationManager {
                     'success',
                 ),
             );
-        } catch (e) {
+        } catch (e: unknown) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             new Notification('Annotations', `Could not import file: ${e}`, 'warning');
         }
     }
 
-    private async importAnnotationFiles(files: File[]) {
+    private async importAnnotationFiles(files: File[]): Promise<void> {
         const promises = [];
         let nbTotalImported = 0;
         let nbTotalSkipped = 0;
@@ -554,7 +572,7 @@ export default class AnnotationManager {
         }
     }
 
-    private async editAnnotation(annotation: Annotation) {
+    private editAnnotation(annotation: Annotation): void {
         const shape = this._shapes.get(annotation.uuid);
 
         if (!shape) {
@@ -583,7 +601,7 @@ export default class AnnotationManager {
         });
     }
 
-    private deleteAnnotation(annotation: Annotation) {
+    private deleteAnnotation(annotation: Annotation): void {
         if (this._shapes.has(annotation.uuid)) {
             const shape = annotation.object;
             this._instance.remove(shape);
@@ -591,7 +609,7 @@ export default class AnnotationManager {
         }
     }
 
-    private computeMeasurements(shape: Shape<PieroShapeUserData>) {
+    private computeMeasurements(shape: Shape<PieroShapeUserData>): void {
         shape.userData.measurements = {
             minmax: Measure.getMinMaxAltitudes(shape),
         };

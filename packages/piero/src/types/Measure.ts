@@ -1,6 +1,8 @@
-import type Measure3D from '@/giro3d/Measure3D';
-import Download from '@/utils/Download';
 import { EventDispatcher, MathUtils } from 'three';
+
+import type Measure3D from '@/giro3d/Measure3D';
+
+import Download from '@/utils/Download';
 
 type MeasureEventMap = {
     visible: {
@@ -9,13 +11,13 @@ type MeasureEventMap = {
 };
 
 export default class Measure extends EventDispatcher<MeasureEventMap> {
-    readonly uuid: string;
-    readonly title: string;
+    public readonly uuid: string;
+    public readonly title: string;
     private _visible: boolean;
     private _object: Measure3D;
-    properties: object;
+    public properties: object;
 
-    constructor(title: string, object: Measure3D, properties: object = {}) {
+    public constructor(title: string, object: Measure3D, properties: object = {}) {
         super();
 
         this.title = title;
@@ -25,24 +27,24 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
         this.uuid = MathUtils.generateUUID();
     }
 
-    get visible() {
+    public get visible(): boolean {
         return this._visible;
     }
 
-    set visible(v) {
+    public set visible(v: boolean) {
         this._visible = v;
         this.dispatchEvent({ type: 'visible' });
     }
 
-    get object() {
+    public get object(): Measure3D {
         return this._object;
     }
 
-    set object(obj) {
+    public set object(obj: Measure3D) {
         this._object = obj;
     }
 
-    toGeoJSON() {
+    public toGeoJSON(): GeoJSON.Feature {
         const geojson = {
             type: 'Feature',
             id: `${Download.getBaseUrl()}#${this.uuid}`,
@@ -60,7 +62,7 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
         return geojson;
     }
 
-    static toCollection(measures: Measure[]): GeoJSON.FeatureCollection {
+    public static toCollection(measures: Measure[]): GeoJSON.FeatureCollection {
         const features = measures.map(measure => measure.toGeoJSON());
 
         return {

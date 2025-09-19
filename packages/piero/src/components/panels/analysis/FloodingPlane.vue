@@ -3,7 +3,7 @@
 
     const analysis = useAnalysisStore();
 
-    function setHeight(height: number) {
+    function setHeight(height: number): void {
         analysis.setFloodingPlaneHeight(height);
     }
 </script>

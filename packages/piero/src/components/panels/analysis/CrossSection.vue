@@ -3,17 +3,17 @@
 
     const analysis = useAnalysisStore();
 
-    function setOrientation(height: number) {
+    function setOrientation(height: number): void {
         analysis.setCrossSectionOrientation(height);
     }
 
-    function setX(x: number) {
+    function setX(x: number): void {
         const center = analysis.crossSectionCenter.clone();
         center.setX(x);
         analysis.setCrossSectionCenter(center);
     }
 
-    function setY(y: number) {
+    function setY(y: number): void {
         const center = analysis.crossSectionCenter.clone();
         center.setY(y);
         analysis.setCrossSectionCenter(center);

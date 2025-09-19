@@ -1,5 +1,7 @@
-import type { CRS } from '@/types/configuration/geographic';
 import type { GeoTIFFSourceOptions } from '@giro3d/giro3d/sources/GeoTIFFSource';
+
+import type { CRS } from '@/types/configuration/geographic';
+
 import type {
     ImageSourceConfigMixin,
     SourceConfigBase,

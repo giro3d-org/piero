@@ -1,16 +1,20 @@
+import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+
+import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+import { IfcCategoryMap } from 'openbim-components';
+
 import type { PieroContext } from '@/context';
 import type { EntityBuilder } from '@/giro3d/EntityBuilder';
 import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
 import type { IFCDatasetConfig } from '@/types/configuration/datasets/ifc';
+import type { Attribute, AttributesGroups } from '@/types/Feature';
+
 import { getCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
-import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
-import { IfcCategoryMap } from 'openbim-components';
+
 import IfcEntity, { isIFCPickResult } from './ifc/IfcEntity';
 import IfcEntityInspector from './ifc/IfcEntityInspector';
 import IfcPropertyView from './ifc/IfcPropertyView.vue';
@@ -113,9 +117,9 @@ const entityBuilder: EntityBuilder = context => {
  * Loads IFC (Industry Foundation Classes) files.
  */
 export default class IFCLoader implements Module {
-    readonly name = 'IFC';
+    public readonly name = 'IFC';
 
-    async initialize(context: PieroContext): Promise<void> {
+    public async initialize(context: PieroContext): Promise<void> {
         context.datasets.registerDatasetType('ifc', {
             name: 'IFC',
             icon: 'bi-building',

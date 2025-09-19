@@ -1,55 +1,56 @@
 <script setup lang="ts">
+    import { Vector3 } from 'three';
+    import { ref } from 'vue';
+
     import { getConfig } from '@/config-loader';
     import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
-    import { Vector3 } from 'three';
-    import { ref } from 'vue';
 
     const config = getConfig();
 
     const analysis = useAnalysisStore();
     const camera = useCameraStore();
 
-    const floatValue = (event: Event) =>
+    const floatValue = (event: Event): number =>
         Number.parseFloat((event.target as HTMLInputElement).value);
 
-    function setX(x: number) {
+    function setX(x: number): void {
         const center = analysis.clippingBoxCenter.clone();
         center.setX(x);
         analysis.setClippingBoxCenter(center);
     }
 
-    function setY(y: number) {
+    function setY(y: number): void {
         const center = analysis.clippingBoxCenter.clone();
         center.setY(y);
         analysis.setClippingBoxCenter(center);
     }
 
-    function setZ(z: number) {
+    function setZ(z: number): void {
         const center = analysis.clippingBoxCenter.clone();
         center.setZ(z);
         analysis.setClippingBoxCenter(center);
     }
 
-    function setSizeX(x: number) {
+    function setSizeX(x: number): void {
         const size = analysis.clippingBoxSize.clone();
         size.setX(x);
         analysis.setClippingBoxSize(size);
     }
 
-    function setSizeY(y: number) {
+    function setSizeY(y: number): void {
         const size = analysis.clippingBoxSize.clone();
         size.setY(y);
         analysis.setClippingBoxSize(size);
     }
 
-    function setSizeZ(z: number) {
+    function setSizeZ(z: number): void {
         const size = analysis.clippingBoxSize.clone();
         size.setZ(z);
         analysis.setClippingBoxSize(size);
     }
 
-    function setFromCamera() {
+    function setFromCamera(): void {
         const { target } = camera.getCameraPosition();
         analysis.setClippingBoxCenter(target.clone());
     }
@@ -58,12 +59,12 @@
     const floorSize = ref(config.analysis.clipping_box.floor_preset.size);
     const floorNumber = ref(config.analysis.clipping_box.floor_preset.floor);
 
-    function getFloorAltitude() {
+    function getFloorAltitude(): number {
         // Adjust Z so it's at the center of the floor (thus the +0.5)
         return floorReferenceAltitude.value + (floorNumber.value + 0.5) * floorSize.value;
     }
 
-    function presetFromFloor() {
+    function presetFromFloor(): void {
         const { target } = camera.getCameraPosition();
 
         const boxCenter = target.clone();
@@ -77,14 +78,14 @@
         analysis.setClippingBoxCenter(boxCenter);
     }
 
-    function floorUp() {
+    function floorUp(): void {
         floorNumber.value += 1;
         const center = analysis.clippingBoxCenter.clone();
         center.setZ(getFloorAltitude());
         analysis.setClippingBoxCenter(center);
     }
 
-    function floorDown() {
+    function floorDown(): void {
         floorNumber.value -= 1;
         const center = analysis.clippingBoxCenter.clone();
         center.setZ(getFloorAltitude());

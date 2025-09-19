@@ -1,14 +1,16 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+
+import { MathUtils, Plane, Vector3 } from 'three';
+
 import { useAnalysisStore } from '@/stores/analysis';
 import { useDatasetStore } from '@/stores/datasets';
-import type Instance from '@giro3d/giro3d/core/Instance';
-import { MathUtils, Plane, Vector3 } from 'three';
 
 export default class CrossSectionManager {
     private readonly _instance: Instance;
     private readonly _store = useAnalysisStore();
     private readonly _datasetStore = useDatasetStore();
 
-    constructor(instance: Instance) {
+    public constructor(instance: Instance) {
         this._instance = instance;
         this._store.$onAction(({ name, after }) => {
             after(() => {
@@ -25,11 +27,11 @@ export default class CrossSectionManager {
         this.updateCrossSection();
     }
 
-    dispose() {
+    public dispose(): void {
         // Nothing to do
     }
 
-    private updateCrossSection() {
+    private updateCrossSection(): void {
         const clippingPlanes = [];
 
         if (this._store.isCrossSectionEnabled()) {

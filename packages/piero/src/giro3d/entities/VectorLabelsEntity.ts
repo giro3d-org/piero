@@ -1,14 +1,18 @@
-import { DEFAULT_SHAPE_COLOR } from '@/constants';
-import { fillObject3DUserData } from '@/loaders/userData';
-import type { SimpleFeature, SimpleGeometryType } from '@/utils/OLFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import { getContrastColor } from '@giro3d/giro3d/utils/ColorUtils';
 import type { Coordinate } from 'ol/coordinate';
 import type { Intersection } from 'three';
+
+import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { getContrastColor } from '@giro3d/giro3d/utils/ColorUtils';
 import { Box3, Color, Group, MathUtils, Raycaster, Vector2, Vector3 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+
+import type { SimpleFeature, SimpleGeometryType } from '@/utils/OLFeatures';
+
+import { DEFAULT_SHAPE_COLOR } from '@/constants';
+import { fillObject3DUserData } from '@/loaders/userData';
+
 import type { VectorMeshSource } from './VectorMeshEntity';
 
 const tmpNDC = new Vector2();
@@ -25,7 +29,6 @@ const tmpIntersectList: Intersection[] = [];
  */
 export type LabelPickResult = PickResult & {
     isLabelPickResult: true;
-    // eslint-disable-next-line no-use-before-define
     entity: VectorLabelsEntity;
 };
 
@@ -50,20 +53,23 @@ export interface VectorLabelOptions {
  * Entity for displaying vector data as labels
  */
 export default class VectorLabelsEntity extends Entity3D {
-    readonly sources: VectorMeshSource[];
+    public readonly sources: VectorMeshSource[];
     private _labels: CSS2DObject[];
     private _textCallback: (feature: SimpleFeature, at: Vector3) => string;
     private _styleCallback?: (span: HTMLSpanElement, feature: SimpleFeature) => void;
 
-    constructor(sources: VectorMeshSource | VectorMeshSource[], options?: VectorLabelOptions) {
+    public constructor(
+        sources: VectorMeshSource | VectorMeshSource[],
+        options?: VectorLabelOptions,
+    ) {
         super(new Group());
         this.sources = Array.isArray(sources) ? sources : [sources];
         this._labels = [];
-        this._textCallback = options?.text || (() => 'P');
+        this._textCallback = options?.text || ((): string => 'P');
         this._styleCallback = options?.style;
     }
 
-    updateVisibility(): void {
+    public override updateVisibility(): void {
         // Setting the root object's visibility is not enough
         // to set the visibility of CSS2DObjects (labels).
         this.object3d.traverse(o => {
@@ -71,13 +77,13 @@ export default class VectorLabelsEntity extends Entity3D {
         });
     }
 
-    updateOpacity(): void {
+    public override updateOpacity(): void {
         // Opacity is driven by CSS, not by Threejs rendering
         const cssOpacity = `${this.opacity * 100}%`;
         this._labels.forEach(label => (label.element.style.opacity = cssOpacity));
     }
 
-    private updateStyle(span: HTMLSpanElement, feature: SimpleFeature) {
+    private updateStyle(span: HTMLSpanElement, feature: SimpleFeature): void {
         // Taken from Giro3D's Shape entity
         span.style.backgroundColor = `rgb(${sRgb.r * 255} ${sRgb.g * 255} ${sRgb.b * 255})`;
         span.style.borderWidth = '1px';
@@ -121,7 +127,7 @@ export default class VectorLabelsEntity extends Entity3D {
         return object;
     }
 
-    protected async preprocess(): Promise<void> {
+    protected override async preprocess(): Promise<void> {
         for (const source of this.sources) {
             // TODO: avoid await in the loop
             const olFeatures = await source.load(this.instance);
@@ -205,7 +211,11 @@ export default class VectorLabelsEntity extends Entity3D {
         return pickedLabel;
     }
 
-    private raycastLabel(label: CSS2DObject, raycaster: Raycaster, intersects: Intersection[]) {
+    private raycastLabel(
+        label: CSS2DObject,
+        raycaster: Raycaster,
+        intersects: Intersection[],
+    ): void {
         if (label.userData.hover === true) {
             intersects.push({
                 object: label,
@@ -215,8 +225,7 @@ export default class VectorLabelsEntity extends Entity3D {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pick(coordinates: Vector2, _options?: PickOptions): LabelPickResult[] {
+    public override pick(coordinates: Vector2, _options?: PickOptions): LabelPickResult[] {
         const normalized = this.instance.canvasToNormalizedCoords(coordinates, tmpNDC);
         const raycaster = new Raycaster();
         raycaster.setFromCamera(normalized, this.instance.view.camera);
@@ -238,7 +247,7 @@ export default class VectorLabelsEntity extends Entity3D {
         return [];
     }
 
-    getBoundingBox(): Box3 | null {
+    public override getBoundingBox(): Box3 | null {
         // For some reason (because of nested groups?), Three.js does not
         // compute correctly the bounding box of this.object3d
         const pts = this._labels.map(l => l.position);

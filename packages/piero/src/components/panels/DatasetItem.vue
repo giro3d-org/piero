@@ -1,13 +1,14 @@
 <script setup lang="ts">
-    import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
-    import SpinnerControl from '@/components/SpinnerControl.vue';
-    import VisibilityControl from '@/components/VisibilityControl.vue';
+    import type { Dataset } from '@/types/Dataset';
+
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
+    import SpinnerControl from '@/components/SpinnerControl.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
     import { useDatasetStore } from '@/stores/datasets';
-    import type { Dataset } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
 
     const store = useDatasetStore();
@@ -22,7 +23,7 @@
     const isPreloaded = refAndWatch(props.dataset, 'isPreloaded');
     const isVisible = refAndWatch(props.dataset, 'visible');
 
-    function deleteDataset() {
+    function deleteDataset(): void {
         store.remove(props.dataset);
     }
 </script>

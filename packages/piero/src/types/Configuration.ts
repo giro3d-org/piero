@@ -1,3 +1,5 @@
+import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
+
 import type { AnalysisConfig } from '@/types/configuration/analysis';
 import type { BookmarkConfig } from '@/types/configuration/bookmark';
 import type { CameraConfig, CameraConfigDeprecated } from '@/types/configuration/camera';
@@ -11,7 +13,7 @@ import type {
     OverlayVectorConfigDeprecated,
     OverlayVectorTileConfigDeprecated,
 } from '@/types/configuration/layers';
-import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
+
 import type { DatasetOrGroupConfig } from './configuration/datasets';
 import type { VectorDatasetRendering } from './configuration/datasets/vector';
 

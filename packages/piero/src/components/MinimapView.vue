@@ -1,8 +1,9 @@
 <script setup lang="ts">
-    import { useGiro3dStore } from '@/stores/giro3d';
     import Instance from '@giro3d/giro3d/core/Instance';
     import { DirectionalLight } from 'three';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
+
+    import { useGiro3dStore } from '@/stores/giro3d';
 
     const target = ref<HTMLDivElement | null>(null);
     const instance = shallowRef<Instance>();

@@ -1,13 +1,15 @@
 <script setup lang="ts">
-    import DropdownView from '@/components/DropdownView.vue';
+    import PromiseUtils from '@giro3d/giro3d/utils/PromiseUtils';
+    import { ref } from 'vue';
+
+    import type { Dataset } from '@/types/Dataset';
+
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import BarChart from '@/components/charts/BarChart.vue';
     import DoughnutChart from '@/components/charts/DoughnutChart.vue';
+    import DropdownView from '@/components/DropdownView.vue';
     import LoadingIndicator from '@/components/panels/LoadingIndicator.vue';
     import { useStatisticsStore } from '@/stores/statistics';
-    import type { Dataset } from '@/types/Dataset';
-    import PromiseUtils from '@giro3d/giro3d/utils/PromiseUtils';
-    import { ref } from 'vue';
 
     const store = useStatisticsStore();
 
@@ -15,13 +17,13 @@
     const isLoading = ref<boolean>(false);
     const showCharts = ref<boolean>(false);
 
-    function setCurrentSource(src: Dataset) {
+    function setCurrentSource(src: Dataset): void {
         source.value = src;
         isLoading.value = false;
         showCharts.value = false;
     }
 
-    async function createStatistics() {
+    async function createStatistics(): Promise<void> {
         isLoading.value = true;
         showCharts.value = false;
 

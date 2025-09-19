@@ -24,7 +24,6 @@ export type DatasetAsMeshConfig =
     | FeatureCollectionDatasetConfig
     | IFCDatasetConfig
     | PLYDatasetConfig
-    | PointCloudDatasetConfig
     | PotreePointCloudDatasetConfig
     | TiledIfcDatasetConfig
     | TiledPointCloudDatasetConfig

@@ -20,6 +20,7 @@ export type DynamicStyleCollection = Record<DynamicStyleId, Style | StyleFunctio
  *
  * Either an entry of the [Style configuration](../style.ts), or a static configuration
  */
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type VectorStyle = StaticVectorStyle | DynamicStyleId | 'default';
 
 export interface FillStyle {

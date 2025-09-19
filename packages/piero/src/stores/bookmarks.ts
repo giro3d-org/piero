@@ -1,12 +1,13 @@
-import { getConfig } from '@/config-loader';
-import { GLOBAL_EVENT_DISPATCHER } from '@/events';
-import Bookmark from '@/types/Bookmark';
-import CameraPosition from '@/types/CameraPosition';
 import { defineStore } from 'pinia';
 import { Vector3 } from 'three';
 import { computed, ref } from 'vue';
 
-function buildInitialList() {
+import { getConfig } from '@/config-loader';
+import { GLOBAL_EVENT_DISPATCHER } from '@/events';
+import Bookmark from '@/types/Bookmark';
+import CameraPosition from '@/types/CameraPosition';
+
+function buildInitialList(): Bookmark[] {
     const config = getConfig();
     const result: Bookmark[] = [];
 
@@ -32,17 +33,17 @@ export const useBookmarkStore = defineStore('bookmarks', () => {
     const bookmarks = ref<Set<Bookmark>>(new Set(buildInitialList()));
     const count = computed(() => bookmarks.value.size);
 
-    function add(bookmark: Bookmark) {
+    function add(bookmark: Bookmark): void {
         bookmarks.value.add(bookmark);
         GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'bookmark-added', value: bookmark });
     }
 
-    function remove(bookmark: Bookmark) {
+    function remove(bookmark: Bookmark): void {
         bookmarks.value.delete(bookmark);
         GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'bookmark-removed', value: bookmark });
     }
 
-    function clear() {
+    function clear(): void {
         bookmarks.value.clear();
     }
 

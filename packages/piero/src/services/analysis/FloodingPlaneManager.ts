@@ -1,7 +1,9 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+
 import type LayerManager from '@/services/LayerManager';
+
 import { useAnalysisStore } from '@/stores/analysis';
 import FloodingPlane from '@/types/FloodingPlane';
-import type Instance from '@giro3d/giro3d/core/Instance';
 
 export default class FloodingPlaneManager {
     private readonly _instance: Instance;
@@ -9,7 +11,7 @@ export default class FloodingPlaneManager {
     private readonly _store = useAnalysisStore();
     private _plane: FloodingPlane | null;
 
-    constructor(instance: Instance, layerManager: LayerManager) {
+    public constructor(instance: Instance, layerManager: LayerManager) {
         this._instance = instance;
         this._layerManager = layerManager;
         this._plane = null;
@@ -18,27 +20,27 @@ export default class FloodingPlaneManager {
             after(() => {
                 switch (name) {
                     case 'enableFloodingPlane':
-                        this.updatePlane();
+                        void this.updatePlane();
                         break;
                     case 'setFloodingPlaneHeight':
-                        this.updatePlane();
+                        void this.updatePlane();
                         break;
                 }
             });
         });
     }
 
-    dispose() {
+    public dispose(): void {
         if (this._plane) {
             this._instance.remove(this._plane.object3D);
             this._plane.dispose();
         }
     }
 
-    private updatePlane() {
+    private async updatePlane(): Promise<void> {
         if (!this._plane) {
             this._plane = new FloodingPlane();
-            this._instance.add(this._plane.object3D);
+            await this._instance.add(this._plane.object3D);
         }
         const extent = this._layerManager.extent;
         const center = extent.centerAsVector2();

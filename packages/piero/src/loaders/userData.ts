@@ -1,4 +1,5 @@
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
 import { type Object3D } from 'three';
 
 /** User data to be set on the loaded entities */

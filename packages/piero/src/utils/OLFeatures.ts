@@ -1,11 +1,11 @@
-import type { Alticoder } from '@/providers/Alticoding';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import type { PolygonOptions } from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
-import GeometryConverter from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
 import type Feature from 'ol/Feature';
-import { type FeatureLike } from 'ol/Feature';
 import type FeatureFormat from 'ol/format/Feature';
 import type { LineString } from 'ol/geom';
+
+import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import GeometryConverter from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
+import { type FeatureLike } from 'ol/Feature';
 import {
     type MultiLineString,
     type MultiPoint,
@@ -14,6 +14,9 @@ import {
     type Polygon,
 } from 'ol/geom';
 import { Clock, Group } from 'three';
+
+import type { Alticoder } from '@/providers/Alticoding';
+
 import Projections from './Projections';
 
 export type SimpleGeometryType =
@@ -98,12 +101,12 @@ function toSimpleFeatures(features: FeatureLike[]): SimpleFeature[] {
  * @param featureProjection - Output projection (typically the one used by Giro3D instance)
  * @returns Features
  */
-async function readSimpleFeatures(
+function readSimpleFeatures(
     data: string,
     format: FeatureFormat,
     dataProjection: string,
     featureProjection: string,
-): Promise<SimpleFeature[]> {
+): SimpleFeature[] {
     return toSimpleFeatures(
         format.readFeatures(data, {
             dataProjection,

@@ -1,3 +1,9 @@
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
+import { defineStore } from 'pinia';
+import { Box3 } from 'three';
+import { computed, shallowReactive } from 'vue';
+
 import { getConfig } from '@/config-loader';
 import {
     parseDatasetConfig,
@@ -5,12 +11,8 @@ import {
     type DatasetLayer,
     type DatasetOrGroup,
 } from '@/types/Dataset';
-import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import { defineStore } from 'pinia';
-import { Box3 } from 'three';
-import { computed, shallowReactive } from 'vue';
 
-function buildDatasets(root: DatasetOrGroup) {
+function buildDatasets(root: DatasetOrGroup): DatasetOrGroup {
     // We have multiple levels or shallowReactive-ness because we want to react to:
     // 1. Changes in the root properties (visible, isPreloading, etc.)
     const ds = shallowReactive(root);
