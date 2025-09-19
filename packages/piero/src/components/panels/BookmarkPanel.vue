@@ -23,25 +23,12 @@
     const bookmarkStore = useBookmarkStore();
     const cameraStore = useCameraStore();
 
-    function shareBookmark(bookmark: Bookmark): void {
-        shareUrl.value = bookmark.getUrl().toString();
-        modalTitle.value = 'Share bookmark';
-        showShareModal.value = true;
-    }
-
     function addBookmark(): void {
         const name = window.prompt('Bookmark name', 'New bookmark');
         if (name != null) {
             const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
             bookmarkStore.add(bookmark);
         }
-    }
-
-    function shareCurrentView(): void {
-        const temp = new Bookmark('temp', cameraStore.getCameraPosition());
-        shareUrl.value = temp.getUrl().toString();
-        modalTitle.value = 'Share current view';
-        showShareModal.value = true;
     }
 
     function exportBookmarks(): void {
@@ -53,6 +40,16 @@
             });
         }
         Download.downloadAsJson(json, 'bookmarks.json');
+    }
+
+    function goTo(bookmark: Bookmark): void {
+        cameraStore.setCameraPosition(bookmark.camera);
+    }
+
+    function importBookmarkFile(files: File[]): void {
+        for (const file of files) {
+            void importBookmarks(file);
+        }
     }
 
     async function importBookmarks(file: Blob): Promise<void> {
@@ -82,14 +79,17 @@
         );
     }
 
-    function importBookmarkFile(files: File[]): void {
-        for (const file of files) {
-            void importBookmarks(file);
-        }
+    function shareBookmark(bookmark: Bookmark): void {
+        shareUrl.value = bookmark.getUrl().toString();
+        modalTitle.value = 'Share bookmark';
+        showShareModal.value = true;
     }
 
-    function goTo(bookmark: Bookmark): void {
-        cameraStore.setCameraPosition(bookmark.camera);
+    function shareCurrentView(): void {
+        const temp = new Bookmark('temp', cameraStore.getCameraPosition());
+        shareUrl.value = temp.getUrl().toString();
+        modalTitle.value = 'Share current view';
+        showShareModal.value = true;
     }
 </script>
 

@@ -2,9 +2,9 @@
     import Icon from './Icon.vue';
 
     defineProps<{
-        title: string;
         icon?: string;
         text?: string;
+        title: string;
     }>();
 
     defineEmits(['click']);

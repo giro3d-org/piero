@@ -1,5 +1,5 @@
 export default interface Named {
-    value?: string;
-    name: string;
     description?: string;
+    name: string;
+    value?: string;
 }

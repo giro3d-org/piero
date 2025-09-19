@@ -19,31 +19,25 @@ const formatLength: LineLabelFormatter = values => {
     return `${lengthFormat.format(values.length)}`;
 };
 
-export type MeasureUserData = {
-    measure: Measure;
-    highlightable: true;
-    highlightColor: typeof HIGHLIGHT_MEASURE_COLOR;
-};
-
 class Measure3D extends Shape<MeasureUserData> {
     public readonly isMeasure3D = true as const;
 
     public get from(): Vector3 {
         return this.points[0];
     }
-    public get to(): Vector3 {
-        return this.points[1];
-    }
     public get length(): number {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.getLength()!;
     }
+    public get to(): Vector3 {
+        return this.points[1];
+    }
 
     public constructor() {
         super({
-            showLineLabel: true,
             color: DEFAULT_MEASURE_COLOR,
             lineLabelFormatter: formatLength,
+            showLineLabel: true,
         });
 
         this.userData.highlightable = true;
@@ -52,17 +46,23 @@ class Measure3D extends Shape<MeasureUserData> {
         this.depthTest = true;
     }
 
-    public copy(source: this): this {
-        this.setPoints([source.from, source.to]);
-        return this;
-    }
+    public static isMeasure3D = (obj: unknown): obj is Measure3D =>
+        isObject(obj) && (obj as Measure3D).isMeasure3D;
 
     public clone(): Measure3D {
         return new Measure3D().copy(this);
     }
 
-    public static isMeasure3D = (obj: unknown): obj is Measure3D =>
-        isObject(obj) && (obj as Measure3D).isMeasure3D;
+    public copy(source: this): this {
+        this.setPoints([source.from, source.to]);
+        return this;
+    }
 }
+
+export type MeasureUserData = {
+    highlightable: true;
+    highlightColor: typeof HIGHLIGHT_MEASURE_COLOR;
+    measure: Measure;
+};
 
 export default Measure3D;

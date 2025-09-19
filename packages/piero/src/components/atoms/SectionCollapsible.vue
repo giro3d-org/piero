@@ -3,9 +3,9 @@
     import { onMounted, ref } from 'vue';
 
     const props = defineProps<{
-        title: string;
         expanded?: boolean;
         iconPosition?: 'left' | 'right';
+        title: string;
     }>();
     const emit = defineEmits(['update:expanded']);
 

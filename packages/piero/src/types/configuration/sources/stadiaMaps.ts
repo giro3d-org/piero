@@ -4,6 +4,6 @@ import type { ImageSourceConfigMixin, SourceConfigBase } from './core/baseConfig
 
 /** StadiaMaps source configuration */
 export interface StadiaMapsSourceConfig
-    extends SourceConfigBase<'stadiamaps'>,
-        ImageSourceConfigMixin,
-        Pick<StadiaMapsOptions, 'layer' | 'url' | 'apiKey'> {}
+    extends ImageSourceConfigMixin,
+        Pick<StadiaMapsOptions, 'apiKey' | 'layer' | 'url'>,
+        SourceConfigBase<'stadiamaps'> {}

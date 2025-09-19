@@ -5,8 +5,17 @@ import type { Material } from 'three';
 import { GridHelper, Vector3 } from 'three';
 
 class Grid {
-    private readonly _instance: Instance;
+    public get visible(): boolean {
+        return this._grid.visible;
+    }
+    public set visible(v: boolean) {
+        this._grid.visible = v;
+        this._instance.notifyChange(this._grid);
+    }
+
     private readonly _grid: GridHelper;
+
+    private readonly _instance: Instance;
 
     public constructor(instance: Instance, extent: Extent, name: string) {
         this._instance = instance;
@@ -26,19 +35,10 @@ class Grid {
         this._grid.updateMatrixWorld();
         void this._instance.add(this._grid);
     }
-
     public dispose(): void {
         this._instance.remove(this._grid);
         this._grid.geometry.dispose();
         (this._grid.material as Material).dispose();
-    }
-
-    public get visible(): boolean {
-        return this._grid.visible;
-    }
-    public set visible(v: boolean) {
-        this._grid.visible = v;
-        this._instance.notifyChange(this._grid);
     }
 }
 

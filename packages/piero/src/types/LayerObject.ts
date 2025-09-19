@@ -1,30 +1,29 @@
 import { EventDispatcher, MathUtils } from 'three';
 
 type LayerObjectEventMap = {
-    visible: {
-        /** empty */
-    };
-    opacity: {
-        /** empty */
-    };
     delete: {
         /** empty */
     };
     isLoading: {
         /** empty */
     };
+    opacity: {
+        /** empty */
+    };
+    visible: {
+        /** empty */
+    };
 };
 
 export default abstract class LayerObject extends EventDispatcher<LayerObjectEventMap> {
-    public readonly uuid: string;
-    private _visible: boolean = false;
-    private _opacity: number = 1;
     public readonly name: string;
-
-    public constructor(name: string) {
-        super();
-        this.name = name;
-        this.uuid = MathUtils.generateUUID();
+    public readonly uuid: string;
+    public get opacity(): number {
+        return this._opacity;
+    }
+    public set opacity(v: number) {
+        this._opacity = v;
+        this.dispatchEvent({ type: 'opacity' });
     }
 
     public get visible(): boolean {
@@ -36,13 +35,14 @@ export default abstract class LayerObject extends EventDispatcher<LayerObjectEve
         this.dispatchEvent({ type: 'visible' });
     }
 
-    public get opacity(): number {
-        return this._opacity;
-    }
+    private _opacity: number = 1;
 
-    public set opacity(v: number) {
-        this._opacity = v;
-        this.dispatchEvent({ type: 'opacity' });
+    private _visible: boolean = false;
+
+    public constructor(name: string) {
+        super();
+        this.name = name;
+        this.uuid = MathUtils.generateUUID();
     }
 
     public delete(): void {

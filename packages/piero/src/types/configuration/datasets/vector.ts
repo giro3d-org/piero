@@ -7,11 +7,13 @@ import type { ShapefileSourceParameters } from '@/giro3d/sources/ShapefileSource
 
 import type { DatasetConfigBase, DatasetSourceConfigBase } from './core';
 
-export interface OlMeshSourceConfig
-    extends DatasetSourceConfigBase<'ol'>,
-        Omit<VectorMeshSourceOptions, 'featureProjection'> {
-    format: FeatureFormat;
-}
+export interface GeoJsonMeshSourceConfig
+    extends DatasetSourceConfigBase<'geojson'>,
+        Omit<VectorMeshSourceOptions, 'featureProjection'> {}
+
+export interface GeopackageMeshSourceConfig
+    extends DatasetSourceConfigBase<'geopackage'>,
+        Omit<GeopackageSourceParameters, 'featureProjection'> {}
 
 export interface GpxMeshSourceConfig
     extends DatasetSourceConfigBase<'gpx'>,
@@ -21,44 +23,42 @@ export interface KmlMeshSourceConfig
     extends DatasetSourceConfigBase<'kml'>,
         Omit<VectorMeshSourceOptions, 'featureProjection'> {}
 
-export interface GeoJsonMeshSourceConfig
-    extends DatasetSourceConfigBase<'geojson'>,
-        Omit<VectorMeshSourceOptions, 'featureProjection'> {}
-
-export interface GeopackageMeshSourceConfig
-    extends DatasetSourceConfigBase<'geopackage'>,
-        Omit<GeopackageSourceParameters, 'featureProjection'> {}
+export interface OlMeshSourceConfig
+    extends DatasetSourceConfigBase<'ol'>,
+        Omit<VectorMeshSourceOptions, 'featureProjection'> {
+    format: FeatureFormat;
+}
 
 export interface ShapefileMeshSourceConfig
     extends DatasetSourceConfigBase<'shapefile'>,
         Omit<ShapefileSourceParameters, 'featureProjection'> {}
 
-export type VectorMeshDatasetSourceConfig =
-    | GpxMeshSourceConfig
-    | KmlMeshSourceConfig
-    | GeoJsonMeshSourceConfig
-    | GeopackageMeshSourceConfig
-    | ShapefileMeshSourceConfig
-    | OlMeshSourceConfig;
-
-export interface VectorMeshDatasetConfig extends DatasetConfigBase<'vector'> {
-    source: VectorMeshDatasetSourceConfig | VectorMeshDatasetSourceConfig[];
-    rendering?: 'mesh';
-}
-
-export interface VectorShapeDatasetConfig extends DatasetConfigBase<'vector'> {
-    source: VectorMeshDatasetSourceConfig;
-    rendering: 'shape';
-}
-
-export interface VectorLabelsDatasetConfig extends DatasetConfigBase<'vector'>, VectorLabelOptions {
-    source: VectorMeshDatasetSourceConfig | VectorMeshDatasetSourceConfig[];
-    rendering: 'label';
-}
-
 export type VectorDatasetConfig =
+    | VectorLabelsDatasetConfig
     | VectorMeshDatasetConfig
-    | VectorShapeDatasetConfig
-    | VectorLabelsDatasetConfig;
+    | VectorShapeDatasetConfig;
 
 export type VectorDatasetRendering = NonNullable<VectorDatasetConfig['rendering']>;
+
+export interface VectorLabelsDatasetConfig extends DatasetConfigBase<'vector'>, VectorLabelOptions {
+    rendering: 'label';
+    source: VectorMeshDatasetSourceConfig | VectorMeshDatasetSourceConfig[];
+}
+
+export interface VectorMeshDatasetConfig extends DatasetConfigBase<'vector'> {
+    rendering?: 'mesh';
+    source: VectorMeshDatasetSourceConfig | VectorMeshDatasetSourceConfig[];
+}
+
+export type VectorMeshDatasetSourceConfig =
+    | GeoJsonMeshSourceConfig
+    | GeopackageMeshSourceConfig
+    | GpxMeshSourceConfig
+    | KmlMeshSourceConfig
+    | OlMeshSourceConfig
+    | ShapefileMeshSourceConfig;
+
+export interface VectorShapeDatasetConfig extends DatasetConfigBase<'vector'> {
+    rendering: 'shape';
+    source: VectorMeshDatasetSourceConfig;
+}

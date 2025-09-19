@@ -4,39 +4,39 @@ import type { OverlayConfig, OverlaySourceConfig } from '@/types/configuration/l
 
 import LayerObject from '@/types/LayerObject';
 
-export type OverlayOptions = Omit<OverlayConfig, 'name' | 'source'>;
-
 export interface Overlay extends EventDispatcher {
     name: string;
+    options: OverlayOptions;
     source: OverlaySourceConfig;
     uuid: string;
-    options: OverlayOptions;
 
     get isLoading(): boolean;
     set isLoading(v: boolean);
-    get visible(): boolean;
-    set visible(v: boolean);
     get opacity(): number;
     set opacity(v: number);
+    get visible(): boolean;
+    set visible(v: boolean);
 }
 
+export type OverlayOptions = Omit<OverlayConfig, 'name' | 'source'>;
+
 export class OverlayObject extends LayerObject implements Overlay {
-    private _loading: boolean;
-    public readonly source: OverlaySourceConfig;
     public readonly options: OverlayOptions;
-
-    public constructor({ name, source, ...options }: OverlayConfig) {
-        super(name);
-        this._loading = false;
-        this.source = source;
-        this.options = options;
-    }
-
+    public readonly source: OverlaySourceConfig;
     public get isLoading(): boolean {
         return this._loading;
     }
 
     public set isLoading(v: boolean) {
         this._loading = v;
+    }
+
+    private _loading: boolean;
+
+    public constructor({ name, source, ...options }: OverlayConfig) {
+        super(name);
+        this._loading = false;
+        this.source = source;
+        this.options = options;
     }
 }

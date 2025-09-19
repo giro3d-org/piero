@@ -8,15 +8,6 @@ type AltitudeResponse = {
     elevations: number[];
 };
 
-async function alticodeBatch(lngs: number[], lats: number[]): Promise<number[]> {
-    const altitude = await Fetcher.fetchJson<AltitudeResponse>(
-        `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lngs.join(
-            '|',
-        )}&lat=${lats.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
-    );
-    return altitude.elevations;
-}
-
 async function alticode(lngs: number[], lats: number[]): Promise<number[]> {
     const chunkSize = 200;
     const promises = [];
@@ -28,6 +19,15 @@ async function alticode(lngs: number[], lats: number[]): Promise<number[]> {
 
     const res = await Promise.all(promises);
     return res.flat();
+}
+
+async function alticodeBatch(lngs: number[], lats: number[]): Promise<number[]> {
+    const altitude = await Fetcher.fetchJson<AltitudeResponse>(
+        `https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json?lon=${lngs.join(
+            '|',
+        )}&lat=${lats.join('|')}&zonly=true&resource=ign_rge_alti_wld&delimiter=|&indent=false`,
+    );
+    return altitude.elevations;
 }
 
 export default {

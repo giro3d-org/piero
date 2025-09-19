@@ -10,7 +10,7 @@ import pluginVue from 'eslint-plugin-vue';
 
 export default defineConfigWithVueTs([
     {
-        ignores: ['dist/*'],
+        ignores: ['dist/*', 'packages/*/dist/*'],
     },
     pluginVue.configs['flat/essential'],
     vueTsConfigs.recommendedTypeChecked,

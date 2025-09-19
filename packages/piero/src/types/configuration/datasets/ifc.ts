@@ -3,10 +3,10 @@ import type { SourceConfigLocationMixin } from '@/types/configuration/sources/co
 
 import type { DatasetConfigBase, DatasetConfigMaskingMixin } from './core';
 
-/** IFC source configuration */
-export interface IFCDatasetSourceConfig extends UrlOrDataMixin, SourceConfigLocationMixin {}
-
 /** IFC dataset configuration */
 export interface IFCDatasetConfig extends DatasetConfigBase<'ifc'>, DatasetConfigMaskingMixin {
     source: IFCDatasetSourceConfig;
 }
+
+/** IFC source configuration */
+export interface IFCDatasetSourceConfig extends SourceConfigLocationMixin, UrlOrDataMixin {}

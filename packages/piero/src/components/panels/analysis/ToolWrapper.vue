@@ -1,10 +1,10 @@
 <script setup lang="ts">
     defineProps<{
+        collapsible: boolean;
+        expanded: boolean;
+        icon?: string;
         id: string;
         title: string;
-        expanded: boolean;
-        collapsible: boolean;
-        icon?: string;
     }>();
 
     defineEmits(['update:expanded']);

@@ -1,8 +1,8 @@
 <script setup lang="ts">
     defineProps<{
+        disabled?: boolean;
         text: string;
         title?: string;
-        disabled?: boolean;
     }>();
     defineEmits(['click']);
 </script>

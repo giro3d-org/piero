@@ -17,17 +17,17 @@ function promptTitle(defaultValue: string): string | null {
 }
 
 export default class MeasurementManager {
-    private readonly _instance: Instance;
-    private readonly _measureTool: MeasureTool;
-    private readonly _camera: CameraController;
-    private readonly _store = useMeasurementStore();
-    private readonly _notificationStore = useNotificationStore();
-    private _paused = false;
+    private readonly _boundMeasure: (e: MouseEvent) => void;
     private readonly _boundOnEscape: (e: KeyboardEvent) => void;
     private readonly _boundPause: () => void;
     private readonly _boundRestart: () => void;
-    private readonly _boundMeasure: (e: MouseEvent) => void;
     private readonly _boundSaveMeasure: (e: MouseEvent) => void;
+    private readonly _camera: CameraController;
+    private readonly _instance: Instance;
+    private readonly _measureTool: MeasureTool;
+    private readonly _notificationStore = useNotificationStore();
+    private _paused = false;
+    private readonly _store = useMeasurementStore();
 
     public constructor(instance: Instance, camera: CameraController, picker: Picker) {
         this._instance = instance;
@@ -46,23 +46,23 @@ export default class MeasurementManager {
         this._boundOnEscape = this.onEscape.bind(this);
         document.addEventListener('keydown', this._boundOnEscape);
 
-        this._store.$onAction(({ name, args, after }) => {
+        this._store.$onAction(({ after, args, name }) => {
             after(() => {
                 switch (name) {
-                    case 'start':
-                        this.startMeasuring();
-                        break;
                     case 'end':
                         this.stopMeasuring();
-                        break;
-                    case 'remove':
-                        this.deleteMeasure(args[0]);
                         break;
                     case 'importMeasureFile':
                         void this.importMeasureFile(args[0]);
                         break;
                     case 'importMeasureFiles':
                         void this.importMeasureFiles(args[0]);
+                        break;
+                    case 'remove':
+                        this.deleteMeasure(args[0]);
+                        break;
+                    case 'start':
+                        this.startMeasuring();
                         break;
                 }
             });
@@ -86,12 +86,6 @@ export default class MeasurementManager {
         this._measureTool.dispose();
     }
 
-    private onEscape(e: KeyboardEvent): void {
-        if (e.code === 'Escape' && this._store.isUserMeasuring()) {
-            this.stopMeasuring();
-        }
-    }
-
     public startMeasuring(): void {
         this._store.setIsUserMeasuring(true);
     }
@@ -100,49 +94,6 @@ export default class MeasurementManager {
         this._store.setIsUserMeasuring(false);
         this._measureTool.clean();
         this._instance.notifyChange();
-    }
-
-    private measure(event: MouseEvent): void {
-        if (!this._paused && this._store.isUserMeasuring()) {
-            void this._measureTool.measure(this._instance, event);
-        }
-    }
-
-    private saveMeasure(): void {
-        if (!this._paused && this._store.isUserMeasuring()) {
-            const measurement = this._measureTool.getLastMeasurement();
-            if (measurement && !Number.isNaN(measurement.length)) {
-                let title = 'New measurement';
-                if (this._store.hasMeasure(title)) {
-                    for (let i = 1; i < 1000; i += 1) {
-                        title = `New measurement (${i})`;
-                        if (!this._store.hasMeasure(title)) {
-                            break;
-                        }
-                    }
-                    if (this._store.hasMeasure(title)) {
-                        title = 'Achieved unlocked: 1000 measurements with default name';
-                    }
-                }
-                const name = promptTitle(title);
-                if (name != null) {
-                    void this.pushNewMeasure(name, measurement);
-                }
-            }
-        }
-    }
-
-    private async pushNewMeasure(
-        title: string,
-        measurement: Measure3D,
-        properties: object = {},
-    ): Promise<void> {
-        await this._instance.add(measurement);
-        const measure = new Measure(title, measurement, properties);
-        measurement.userData.measure = measure;
-        measure.addEventListener('visible', () => this.updateMeasure(measure));
-        this._store.add(measure);
-        this._instance.notifyChange(measurement);
     }
 
     public updateMeasure(measure: Measure): void {
@@ -154,6 +105,29 @@ export default class MeasurementManager {
     private deleteMeasure(measure: Measure): void {
         this._instance.remove(measure.object);
         this._instance.notifyChange();
+    }
+
+    private async importBlob(
+        file: Blob,
+        skipNames: Set<string>,
+    ): Promise<{ nbImported: number; nbSkipped: number }> {
+        const str = await file.text();
+        const geojson = JSON.parse(str) as GeoJSON.Feature | GeoJSON.FeatureCollection;
+
+        const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
+
+        let nbImported = 0;
+        let nbSkipped = 0;
+
+        for (const feature of features) {
+            const imported = await this.importMeasure(feature, skipNames);
+            if (imported) {
+                nbImported++;
+            } else {
+                nbSkipped++;
+            }
+        }
+        return { nbImported, nbSkipped };
     }
 
     private async importMeasure(
@@ -183,29 +157,6 @@ export default class MeasurementManager {
         await this.pushNewMeasure(feature.properties?.title, o, feature.properties);
 
         return true;
-    }
-
-    private async importBlob(
-        file: Blob,
-        skipNames: Set<string>,
-    ): Promise<{ nbImported: number; nbSkipped: number }> {
-        const str = await file.text();
-        const geojson = JSON.parse(str) as GeoJSON.Feature | GeoJSON.FeatureCollection;
-
-        const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
-
-        let nbImported = 0;
-        let nbSkipped = 0;
-
-        for (const feature of features) {
-            const imported = await this.importMeasure(feature, skipNames);
-            if (imported) {
-                nbImported++;
-            } else {
-                nbSkipped++;
-            }
-        }
-        return { nbImported, nbSkipped };
     }
 
     private async importMeasureFile(file: Blob): Promise<void> {
@@ -263,6 +214,55 @@ export default class MeasurementManager {
                     'success',
                 ),
             );
+        }
+    }
+
+    private measure(event: MouseEvent): void {
+        if (!this._paused && this._store.isUserMeasuring()) {
+            void this._measureTool.measure(this._instance, event);
+        }
+    }
+
+    private onEscape(e: KeyboardEvent): void {
+        if (e.code === 'Escape' && this._store.isUserMeasuring()) {
+            this.stopMeasuring();
+        }
+    }
+
+    private async pushNewMeasure(
+        title: string,
+        measurement: Measure3D,
+        properties: object = {},
+    ): Promise<void> {
+        await this._instance.add(measurement);
+        const measure = new Measure(title, measurement, properties);
+        measurement.userData.measure = measure;
+        measure.addEventListener('visible', () => this.updateMeasure(measure));
+        this._store.add(measure);
+        this._instance.notifyChange(measurement);
+    }
+
+    private saveMeasure(): void {
+        if (!this._paused && this._store.isUserMeasuring()) {
+            const measurement = this._measureTool.getLastMeasurement();
+            if (measurement && !Number.isNaN(measurement.length)) {
+                let title = 'New measurement';
+                if (this._store.hasMeasure(title)) {
+                    for (let i = 1; i < 1000; i += 1) {
+                        title = `New measurement (${i})`;
+                        if (!this._store.hasMeasure(title)) {
+                            break;
+                        }
+                    }
+                    if (this._store.hasMeasure(title)) {
+                        title = 'Achieved unlocked: 1000 measurements with default name';
+                    }
+                }
+                const name = promptTitle(title);
+                if (name != null) {
+                    void this.pushNewMeasure(name, measurement);
+                }
+            }
         }
     }
 }

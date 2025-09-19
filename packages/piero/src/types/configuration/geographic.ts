@@ -7,9 +7,19 @@
  */
 export type CRS = string;
 
-export interface Vec2 {
-    x: number;
-    y: number;
+/**
+ * Extent
+ *
+ * If the CRS is not provided, we use `default_crs`
+ *
+ * @example `{ crs: 'EPSG:2154', west: -111629.52, east: 1275028.84, south: 5976033.79, north: 7230161.64 }`
+ */
+export interface GeoExtent {
+    crs?: string;
+    east: number;
+    north: number;
+    south: number;
+    west: number;
 }
 
 /**
@@ -23,12 +33,6 @@ export interface GeoVec2 extends Vec2 {
     crs?: CRS;
 }
 
-export interface Vec3 {
-    x: number;
-    y: number;
-    z: number;
-}
-
 /**
  * 3D Position
  *
@@ -40,17 +44,13 @@ export interface GeoVec3 extends Vec3 {
     crs?: CRS;
 }
 
-/**
- * Extent
- *
- * If the CRS is not provided, we use `default_crs`
- *
- * @example `{ crs: 'EPSG:2154', west: -111629.52, east: 1275028.84, south: 5976033.79, north: 7230161.64 }`
- */
-export interface GeoExtent {
-    crs?: string;
-    west: number;
-    east: number;
-    south: number;
-    north: number;
+export interface Vec2 {
+    x: number;
+    y: number;
+}
+
+export interface Vec3 {
+    x: number;
+    y: number;
+    z: number;
 }

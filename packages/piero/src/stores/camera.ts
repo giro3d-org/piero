@@ -66,20 +66,20 @@ export const useCameraStore = defineStore('camera', () => {
 
     /** Moves the camera to look to an object from top-down with a smooth transition */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function lookTopDownAt(obj: Box3 | Object3D | Entity3D): void {
+    function lookTopDownAt(obj: Box3 | Entity3D | Object3D): void {
         // Nothing to do, rely on action listeners.
     }
 
     return {
-        getCameraPosition,
         getCamera3dPosition,
-        setCameraPosition,
-        setCurrentPosition,
+        getCameraPosition,
         getNavigationMode,
         getNavigationModeRef,
-        setNavigationMode,
         isUserInteracting,
-        setIsUserInteracting,
         lookTopDownAt,
+        setCameraPosition,
+        setCurrentPosition,
+        setIsUserInteracting,
+        setNavigationMode,
     };
 });

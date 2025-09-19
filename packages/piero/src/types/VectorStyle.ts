@@ -1,30 +1,28 @@
 import type { Style } from 'ol/style';
 import type { StyleFunction } from 'ol/style/Style';
 
+export type DynamicStyleCollection = Record<DynamicStyleId, Style | StyleFunction>;
+
+export type DynamicStyleId = string;
+
+export interface FillStyle {
+    color: string;
+}
+
+export interface PointStyle {
+    fill: FillStyle;
+    radius: number;
+    stroke: StrokeStyle;
+}
+
 /** Static vector style */
 export interface StaticVectorStyle {
     /** Fill style (for polygons) */
     fill?: FillStyle;
-    /** Stroke style (for lines and polygons) */
-    stroke?: StrokeStyle;
     /** Point style (for points) */
     point?: PointStyle;
-}
-
-export type DynamicStyleId = string;
-
-export type DynamicStyleCollection = Record<DynamicStyleId, Style | StyleFunction>;
-
-/**
- * Vector style.
- *
- * Either an entry of the [Style configuration](../style.ts), or a static configuration
- */
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-export type VectorStyle = StaticVectorStyle | DynamicStyleId | 'default';
-
-export interface FillStyle {
-    color: string;
+    /** Stroke style (for lines and polygons) */
+    stroke?: StrokeStyle;
 }
 
 export interface StrokeStyle {
@@ -32,8 +30,10 @@ export interface StrokeStyle {
     width: number;
 }
 
-export interface PointStyle {
-    radius: number;
-    stroke: StrokeStyle;
-    fill: FillStyle;
-}
+/**
+ * Vector style.
+ *
+ * Either an entry of the [Style configuration](../style.ts), or a static configuration
+ */
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+export type VectorStyle = 'default' | DynamicStyleId | StaticVectorStyle;

@@ -4,7 +4,16 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import { Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
 
 class Plane {
+    public get visible(): boolean {
+        return this._plane.visible;
+    }
+    public set visible(v: boolean) {
+        this._plane.visible = v;
+        this._instance.notifyChange(this._plane);
+    }
+
     private readonly _instance: Instance;
+
     private readonly _plane: Mesh<PlaneGeometry, MeshBasicMaterial>;
 
     public constructor(instance: Instance, extent: Extent, name: string) {
@@ -22,19 +31,10 @@ class Plane {
         this._plane.updateMatrixWorld();
         void this._instance.add(this._plane);
     }
-
     public dispose(): void {
         this._instance.remove(this._plane);
         this._plane.geometry.dispose();
         this._plane.material.dispose();
-    }
-
-    public get visible(): boolean {
-        return this._plane.visible;
-    }
-    public set visible(v: boolean) {
-        this._plane.visible = v;
-        this._instance.notifyChange(this._plane);
     }
 }
 

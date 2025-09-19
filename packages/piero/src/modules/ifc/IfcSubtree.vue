@@ -12,8 +12,8 @@
     import { useCameraStore } from '@/stores/camera';
 
     const props = defineProps<{
-        ifcEntity: IfcEntity;
         classificationElement: ClassificationItem;
+        ifcEntity: IfcEntity;
     }>();
 
     const id = MathUtils.generateUUID();
@@ -22,6 +22,14 @@
     const highlighted = ref(false);
     const cameraStore = useCameraStore();
     const analysis = useAnalysisStore();
+
+    function clipTo(): void {
+        const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
+        if (bbox && !bbox.isEmpty()) {
+            analysis.setClippingBox(bbox);
+            analysis.enableClippingBox(true);
+        }
+    }
 
     function highlight(): void {
         highlighted.value = true;
@@ -35,14 +43,6 @@
         const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
         if (bbox && !bbox.isEmpty()) {
             cameraStore.lookTopDownAt(bbox);
-        }
-    }
-
-    function clipTo(): void {
-        const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
-        if (bbox && !bbox.isEmpty()) {
-            analysis.setClippingBox(bbox);
-            analysis.enableClippingBox(true);
         }
     }
 </script>

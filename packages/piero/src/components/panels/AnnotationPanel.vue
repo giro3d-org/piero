@@ -25,14 +25,6 @@
         annotations.setAnnotationMode(newMode);
     });
 
-    function setCurrentMode(src: Named | null): void {
-        annotationMode.value = src?.value as AnnotationMode;
-    }
-
-    function goTo(annotation: Annotation): void {
-        cameraStore.lookTopDownAt(annotation.object);
-    }
-
     function downloadAnnotation(annotation: Annotation): void {
         const geojson = annotation.toGeoJSON();
         Download.downloadAsJson(geojson, `annotation-${annotation.title}.json`);
@@ -43,8 +35,16 @@
         Download.downloadAsJson(geojson, 'annotations.json');
     }
 
+    function goTo(annotation: Annotation): void {
+        cameraStore.lookTopDownAt(annotation.object);
+    }
+
     function importAnnotationFile(files: File[]): void {
         annotations.importAnnotationsFiles(files);
+    }
+
+    function setCurrentMode(src: Named | null): void {
+        annotationMode.value = src?.value as AnnotationMode;
     }
 </script>
 

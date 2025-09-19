@@ -9,19 +9,19 @@ import Fetcher from './utils/Fetcher';
 let currentConfiguration: Readonly<Configuration> | null = null;
 let dynamicStyles: DynamicStyleCollection = {};
 
-export function getDynamicStyles(): DynamicStyleCollection {
-    return dynamicStyles;
-}
-
-export function setDynamicStyles(styles: DynamicStyleCollection): void {
-    dynamicStyles = styles;
-}
-
 export function getConfig(): Readonly<Configuration> {
     if (!currentConfiguration) {
         throw new Error('No configuration loaded');
     }
     return currentConfiguration;
+}
+
+export function getDynamicStyles(): DynamicStyleCollection {
+    return dynamicStyles;
+}
+
+export async function loadRemoteConfiguration(url: string): Promise<Configuration> {
+    return await Fetcher.fetchJson<Configuration>(url);
 }
 
 export async function setConfiguration(newConfiguration: Configuration): Promise<void> {
@@ -60,6 +60,6 @@ export async function setConfiguration(newConfiguration: Configuration): Promise
     return Promise.resolve();
 }
 
-export async function loadRemoteConfiguration(url: string): Promise<Configuration> {
-    return await Fetcher.fetchJson<Configuration>(url);
+export function setDynamicStyles(styles: DynamicStyleCollection): void {
+    dynamicStyles = styles;
 }

@@ -16,11 +16,11 @@ import CityJSONEntityInspector from './cityjson/CityJSONEntityInspector';
 export const loader: LoadDatasetFromFile = context => {
     return {
         name: context.filename,
-        visible: true,
-        type: 'cityjson',
         source: {
             url: context.file,
         },
+        type: 'cityjson',
+        visible: true,
     } satisfies CityJSONDatasetConfig;
 };
 
@@ -73,12 +73,12 @@ export default class CityJSONLoader implements Module {
 
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('cityjson', {
-            name: 'CityJSON',
-            icon: 'bi-buildings',
-            fileExtensions: ['cityjson', 'city.json'],
-            loader,
-            entityBuilder,
             attributeExtractor: getAttributesFromCityObject,
+            entityBuilder,
+            fileExtensions: ['cityjson', 'city.json'],
+            icon: 'bi-buildings',
+            loader,
+            name: 'CityJSON',
         });
 
         EntityPanel.registerInspector('CityJSONEntity', CityJSONEntityInspector);

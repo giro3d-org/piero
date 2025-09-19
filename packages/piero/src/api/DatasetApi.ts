@@ -4,8 +4,8 @@ import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
 
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
-import { registerEntityBuilder, type EntityBuilder } from '@/giro3d/EntityBuilder';
-import { registerLoader, type LoadDatasetFromFile } from '@/loaders/loader';
+import { type EntityBuilder, registerEntityBuilder } from '@/giro3d/EntityBuilder';
+import { type LoadDatasetFromFile, registerLoader } from '@/loaders/loader';
 import { customHighlighters } from '@/services/Highlighter';
 import { customAttributeExtractors } from '@/services/Picker';
 
@@ -14,15 +14,13 @@ import { customAttributeExtractors } from '@/services/Picker';
  */
 export type DatasetRegistrationParams = {
     /**
-     * The dataset display name.
-     * @example 'IFC
+     * Custom function to extract attribute from a picked object.
      */
-    name?: string;
+    attributeExtractor?: AttributeExtractorFn;
     /**
-     * The optional icon to use
-     * @example 'bi-building'
+     * The function to build an entity from a dataset.
      */
-    icon?: string;
+    entityBuilder: EntityBuilder;
     /**
      * The list of supported extensions (without the leading dot). When a file with a supported extension is imported,
      * the appropriate loader will be used. If undefined, this dataset cannot be imported
@@ -31,43 +29,28 @@ export type DatasetRegistrationParams = {
      */
     fileExtensions?: string[];
     /**
+     * Custom highlighter for this dataset.
+     */
+    highlight?: HighlightFn;
+    /**
+     * The optional icon to use
+     * @example 'bi-building'
+     */
+    icon?: string;
+    /**
      * The function to load a dataset from a file, if supported.
      */
     loader?: LoadDatasetFromFile;
     /**
-     * The function to build an entity from a dataset.
+     * The dataset display name.
+     * @example 'IFC
      */
-    entityBuilder: EntityBuilder;
+    name?: string;
     /**
      * An optional custom property view.
      */
     propertyView?: Component;
-    /**
-     * Custom function to extract attribute from a picked object.
-     */
-    attributeExtractor?: AttributeExtractorFn;
-    /**
-     * Custom highlighter for this dataset.
-     */
-    highlight?: HighlightFn;
 };
-
-/**
- * APIs to manipulate datasets.
- */
-export default interface DatasetApi {
-    /**
-     * Register a new dataset type.
-     */
-    registerDatasetType(
-        /**
-         * The unique key to identify this dataset type.
-         * @example 'ifc'
-         */
-        key: string,
-        params: DatasetRegistrationParams,
-    ): void;
-}
 
 /** @internal */
 export class DatasetApiImpl implements DatasetApi {
@@ -104,4 +87,21 @@ export class DatasetApiImpl implements DatasetApi {
             customAttributeExtractors.push(params.attributeExtractor);
         }
     }
+}
+
+/**
+ * APIs to manipulate datasets.
+ */
+export default interface DatasetApi {
+    /**
+     * Register a new dataset type.
+     */
+    registerDatasetType(
+        /**
+         * The unique key to identify this dataset type.
+         * @example 'ifc'
+         */
+        key: string,
+        params: DatasetRegistrationParams,
+    ): void;
 }

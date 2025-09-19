@@ -8,8 +8,8 @@
     import EmptyIndicator from './EmptyIndicator.vue';
 
     const props = defineProps<{
-        visible: boolean;
         annotation: Annotation;
+        visible: boolean;
     }>();
 
     defineEmits(['edit', 'stop-edit', 'delete', 'download', 'update:visible', 'zoom']);

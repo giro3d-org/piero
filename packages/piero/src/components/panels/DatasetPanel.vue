@@ -18,13 +18,6 @@
     const analysis = useAnalysisStore();
     const layers = useLayerStore();
 
-    function zoomOnDataset(dataset: DatasetOrGroup): void {
-        const box = datasets.getBoundingBox(dataset);
-        if (!box?.isEmpty()) {
-            camera.lookTopDownAt(box);
-        }
-    }
-
     function clipToDataset(dataset: DatasetOrGroup): void {
         const box = datasets.getBoundingBox(dataset);
         if (!box?.isEmpty()) {
@@ -42,6 +35,13 @@
     function importDatasetFromUrl(): void {
         const url = document.getElementById('dataset-import-url') as HTMLInputElement;
         datasets.importFromFile(url.value);
+    }
+
+    function zoomOnDataset(dataset: DatasetOrGroup): void {
+        const box = datasets.getBoundingBox(dataset);
+        if (!box?.isEmpty()) {
+            camera.lookTopDownAt(box);
+        }
     }
 </script>
 

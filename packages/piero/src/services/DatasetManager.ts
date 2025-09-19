@@ -36,27 +36,27 @@ const datasetSupportsMeshes = (obj: Dataset): obj is Dataset & DatasetBase<Datas
     isObject(obj) && !datasetSupportsOverlay(obj);
 
 export default class DatasetManager {
+    private readonly _axisGrids: Map<string, AxisGrid> = new Map();
+    private readonly _entities: Map<string, Entity3D> = new Map();
     private readonly _instance: Instance;
     private readonly _layerManager: LayerManager;
-    private readonly _entities: Map<string, Entity3D> = new Map();
-    private readonly _overlays: Map<string, DatasetLayer> = new Map();
-    private readonly _axisGrids: Map<string, AxisGrid> = new Map();
     private readonly _masks: Map<string, MaskLayer> = new Map();
-    private readonly _store = useDatasetStore();
     private readonly _notifications = useNotificationStore();
+    private readonly _overlays: Map<string, DatasetLayer> = new Map();
+    private readonly _store = useDatasetStore();
 
     public constructor(instance: Instance, layerManager: LayerManager) {
         this._instance = instance;
         this._layerManager = layerManager;
 
-        this._store.$onAction(({ name, args, after }) => {
+        this._store.$onAction(({ after, args, name }) => {
             after(() => {
                 switch (name) {
-                    case 'remove':
-                        this.deleteDataset(args[0]);
-                        break;
                     case 'importFromFile':
                         void this.importFromFile(args[0]);
+                        break;
+                    case 'remove':
+                        this.deleteDataset(args[0]);
                         break;
                     case 'setVisible':
                         void this.onVisibilityChanged(args[0], args[1]);
@@ -89,41 +89,25 @@ export default class DatasetManager {
         }
 
         const grid = new AxisGrid({
+            style: {
+                color: new Color('orange'),
+                fontSize: 12,
+                numberFormat: Intl.NumberFormat('fr'),
+            },
             ticks: {
                 x: 50,
                 y: 50,
                 z: 50,
             },
-            style: {
-                color: new Color('orange'),
-                numberFormat: Intl.NumberFormat('fr'),
-                fontSize: 12,
-            },
             volume: {
-                floor: box.min.z - 10,
                 ceiling: box.max.z + 10,
                 extent: Extent.fromBox3(this._instance.referenceCrs, box).withMargin(20, 20),
+                floor: box.min.z - 10,
             },
         });
         grid.name = `AxisGrid-${dataset.uuid}`;
         await this._instance.add(grid);
         this._axisGrids.set(dataset.uuid, grid);
-    }
-
-    private deleteGrid(dataset: DatasetOrGroup): void {
-        const grid = this._axisGrids.get(dataset.uuid);
-        if (grid) {
-            this._instance.remove(grid);
-        }
-        this._axisGrids.delete(dataset.uuid);
-    }
-
-    private async onToggleGrid(dataset: DatasetOrGroup): Promise<void> {
-        if (this._axisGrids.has(dataset.uuid)) {
-            this.deleteGrid(dataset);
-        } else {
-            await this.createGrid(dataset);
-        }
     }
 
     private async createMask(dataset: DatasetOrGroup): Promise<void> {
@@ -171,6 +155,32 @@ export default class DatasetManager {
         this._masks.set(dataset.uuid, mask);
     }
 
+    private deleteDataset(dataset: DatasetOrGroup): void {
+        this.deleteGrid(dataset);
+        this.deleteMask(dataset);
+
+        const entity = this._entities.get(dataset.uuid);
+        if (entity) {
+            this._instance.remove(entity);
+            this._instance.notifyChange();
+        }
+
+        const layer = this._overlays.get(dataset.uuid);
+        if (layer) {
+            this._layerManager.removeBasemapLayer(layer);
+        }
+
+        GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'dataset-removed', value: dataset });
+    }
+
+    private deleteGrid(dataset: DatasetOrGroup): void {
+        const grid = this._axisGrids.get(dataset.uuid);
+        if (grid) {
+            this._instance.remove(grid);
+        }
+        this._axisGrids.delete(dataset.uuid);
+    }
+
     private deleteMask(dataset: DatasetOrGroup): void {
         const mask = this._masks.get(dataset.uuid);
         if (mask) {
@@ -181,37 +191,6 @@ export default class DatasetManager {
             });
         }
         this._masks.delete(dataset.uuid);
-    }
-
-    private async onToggleMask(dataset: DatasetOrGroup): Promise<void> {
-        if (this._masks.has(dataset.uuid)) {
-            this.deleteMask(dataset);
-        } else {
-            await this.createMask(dataset);
-        }
-    }
-
-    private async onVisibilityChanged(
-        dataset: DatasetOrGroup,
-        newVisibility: boolean,
-    ): Promise<void> {
-        try {
-            dataset.visible = newVisibility;
-            if (!dataset.isPreloaded && newVisibility) {
-                await this.preloadDataset(dataset);
-            }
-            await this.updateDataset(dataset);
-            if (Datagroup.isGroup(dataset)) {
-                dataset.children.forEach(ds => void this.onVisibilityChanged(ds, newVisibility));
-            }
-        } catch (_e) {
-            dataset.visible = false;
-        }
-
-        GLOBAL_EVENT_DISPATCHER.dispatchEvent({
-            type: 'dataset-visibility-changed',
-            value: dataset,
-        });
     }
 
     private async importFromFile(file: File | string): Promise<void> {
@@ -243,47 +222,6 @@ export default class DatasetManager {
         GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'dataset-added', value: dataset });
     }
 
-    private async updateDataset(dataset: DatasetOrGroup): Promise<void> {
-        const entity = this._entities.get(dataset.uuid);
-        if (entity) {
-            entity.visible = dataset.visible;
-            if (
-                dataset.visible &&
-                'isMaskingBasemap' in dataset.config &&
-                dataset.config.isMaskingBasemap === true
-            ) {
-                await this.createMask(dataset);
-            } else if (!dataset.visible && this._masks.has(dataset.uuid)) {
-                this.deleteMask(dataset);
-            }
-            this._instance.notifyChange(entity);
-        }
-
-        const layer = this._overlays.get(dataset.uuid);
-        if (layer) {
-            layer.visible = dataset.visible;
-            this._layerManager.notify(layer);
-        }
-    }
-
-    private deleteDataset(dataset: DatasetOrGroup): void {
-        this.deleteGrid(dataset);
-        this.deleteMask(dataset);
-
-        const entity = this._entities.get(dataset.uuid);
-        if (entity) {
-            this._instance.remove(entity);
-            this._instance.notifyChange();
-        }
-
-        const layer = this._overlays.get(dataset.uuid);
-        if (layer) {
-            this._layerManager.removeBasemapLayer(layer);
-        }
-
-        GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'dataset-removed', value: dataset });
-    }
-
     private onDatasetPreloaded(dataset: DatasetOrGroup, entity: Entity3D): void {
         dataset.isPreloaded = true;
         dataset.isPreloading = false;
@@ -300,6 +238,45 @@ export default class DatasetManager {
         dataset.isPreloading = false;
 
         this._store.attachLayer(dataset, layer);
+    }
+
+    private async onToggleGrid(dataset: DatasetOrGroup): Promise<void> {
+        if (this._axisGrids.has(dataset.uuid)) {
+            this.deleteGrid(dataset);
+        } else {
+            await this.createGrid(dataset);
+        }
+    }
+
+    private async onToggleMask(dataset: DatasetOrGroup): Promise<void> {
+        if (this._masks.has(dataset.uuid)) {
+            this.deleteMask(dataset);
+        } else {
+            await this.createMask(dataset);
+        }
+    }
+
+    private async onVisibilityChanged(
+        dataset: DatasetOrGroup,
+        newVisibility: boolean,
+    ): Promise<void> {
+        try {
+            dataset.visible = newVisibility;
+            if (!dataset.isPreloaded && newVisibility) {
+                await this.preloadDataset(dataset);
+            }
+            await this.updateDataset(dataset);
+            if (Datagroup.isGroup(dataset)) {
+                dataset.children.forEach(ds => void this.onVisibilityChanged(ds, newVisibility));
+            }
+        } catch (_e) {
+            dataset.visible = false;
+        }
+
+        GLOBAL_EVENT_DISPATCHER.dispatchEvent({
+            type: 'dataset-visibility-changed',
+            value: dataset,
+        });
     }
 
     private async preloadDataset(dataset: DatasetOrGroup): Promise<DatasetOrGroup> {
@@ -348,5 +325,28 @@ export default class DatasetManager {
         }
 
         return dataset;
+    }
+
+    private async updateDataset(dataset: DatasetOrGroup): Promise<void> {
+        const entity = this._entities.get(dataset.uuid);
+        if (entity) {
+            entity.visible = dataset.visible;
+            if (
+                dataset.visible &&
+                'isMaskingBasemap' in dataset.config &&
+                dataset.config.isMaskingBasemap === true
+            ) {
+                await this.createMask(dataset);
+            } else if (!dataset.visible && this._masks.has(dataset.uuid)) {
+                this.deleteMask(dataset);
+            }
+            this._instance.notifyChange(entity);
+        }
+
+        const layer = this._overlays.get(dataset.uuid);
+        if (layer) {
+            layer.visible = dataset.visible;
+            this._layerManager.notify(layer);
+        }
     }
 }

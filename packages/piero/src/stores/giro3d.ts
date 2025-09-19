@@ -89,19 +89,19 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     function getDefaultBasemapOptions(): Omit<MapConstructorOptions, 'extent'> {
         const config = getConfig();
         const opts: Omit<MapConstructorOptions, 'extent'> = {
-            lighting: config.basemap.lighting ?? {
-                enabled: true,
-                elevationLayersOnly: true,
-            },
-            contourLines: config.basemap.contourLines,
-            graticule: config.basemap.graticule,
-            colorimetry: config.basemap.colorimetry,
-            side: config.basemap.side ?? FrontSide,
-            terrain: config.basemap.terrain,
             backgroundColor: config.basemap.backgroundColor ?? 'white',
             backgroundOpacity: config.basemap.backgroundOpacity,
-            showOutline: config.basemap.showOutline,
+            colorimetry: config.basemap.colorimetry,
+            contourLines: config.basemap.contourLines,
             elevationRange: config.basemap.elevationRange,
+            graticule: config.basemap.graticule,
+            lighting: config.basemap.lighting ?? {
+                elevationLayersOnly: true,
+                enabled: true,
+            },
+            showOutline: config.basemap.showOutline,
+            side: config.basemap.side ?? FrontSide,
+            terrain: config.basemap.terrain,
         };
         return opts;
     }
@@ -151,17 +151,17 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     return {
-        getMainView,
-        setMainView,
-        getMinimapView,
-        setMinimapView,
-        getInspector,
-        setInspector,
-        getDefaultCameraPosition,
-        getDefaultCameraLookAt,
-        getDefaultBasemapOptions,
-        getDefaultBasemapExtent,
         getCRS,
+        getDefaultBasemapExtent,
+        getDefaultBasemapOptions,
+        getDefaultCameraLookAt,
+        getDefaultCameraPosition,
+        getInspector,
+        getMainView,
+        getMinimapView,
         notifyChange,
+        setInspector,
+        setMainView,
+        setMinimapView,
     };
 });

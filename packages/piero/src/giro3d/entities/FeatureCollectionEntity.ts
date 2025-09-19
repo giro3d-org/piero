@@ -27,15 +27,13 @@ type FeatureCollectionConstructorOptions = ConstructorParameters<typeof FeatureC
 
 /** Options for {@link FeatureCollectionEntity} */
 export interface FeatureCollectionEntityOptions
-    extends Required<FeatureProjectionMixin>,
-        Partial<
+    extends Partial<
             Pick<
                 FeatureCollectionConstructorOptions,
-                'extent' | 'minLevel' | 'maxLevel' | 'ignoreZ'
+                'extent' | 'ignoreZ' | 'maxLevel' | 'minLevel'
             >
-        > {
-    /** Source to use */
-    source: 'bdtopo';
+        >,
+        Required<FeatureProjectionMixin> {
     /**
      * Set the elevation of the features received from the source.
      * It can be a constant for every feature, or a callback.
@@ -43,14 +41,16 @@ export interface FeatureCollectionEntityOptions
      * from the properties of the feature.
      * Requires {@link _ignoreZ} to be `false`.
      */
-    elevation?: number | FeatureElevationCallback;
+    elevation?: FeatureElevationCallback | number;
     /**
      * If set, this will cause 2D features to be extruded of the corresponding amount.
      * If a single value is given, it will be used for all the vertices of every feature.
      * If an array is given, each extruded vertex will use the corresponding value.
      * If a callback is given, it allows to extrude each feature individually.
      */
-    extrusionOffset?: number | FeatureExtrusionOffsetCallback;
+    extrusionOffset?: FeatureExtrusionOffsetCallback | number;
+    /** Source to use */
+    source: 'bdtopo';
     /**
      * An style or a callback returning a style to style the individual features.
      * If an object is used, the informations it contains will be used to style every
@@ -81,6 +81,7 @@ export class FeatureCollectionEntity extends FeatureCollection {
 
         const vectorSource = new VectorSource({
             format: new GeoJSON(),
+            strategy: tile(createXYZ({ tileSize: 512 })),
             url: function url(bbox): string {
                 return `${
                     'https://data.geopf.fr/wfs/ows' +
@@ -94,7 +95,6 @@ export class FeatureCollectionEntity extends FeatureCollection {
                     '&bbox='
                 }${bbox.join(',')},${crs}`;
             },
-            strategy: tile(createXYZ({ tileSize: 512 })),
         });
         const extent =
             options.extent ??
@@ -118,29 +118,29 @@ export class FeatureCollectionEntity extends FeatureCollection {
                 let fillColor = '#FFFFFF';
 
                 switch (properties.usage_1) {
-                    case 'Industriel':
-                        fillColor = '#f0bb41';
-                        break;
                     case 'Agricole':
                         fillColor = '#96ff0d';
-                        break;
-                    case 'Religieux':
-                        fillColor = '#41b5f0';
-                        break;
-                    case 'Sportif':
-                        fillColor = '#ff0d45';
-                        break;
-                    case 'Résidentiel':
-                        fillColor = '#cec8be';
                         break;
                     case 'Commercial et services':
                         fillColor = '#d8ffd4';
                         break;
+                    case 'Industriel':
+                        fillColor = '#f0bb41';
+                        break;
+                    case 'Religieux':
+                        fillColor = '#41b5f0';
+                        break;
+                    case 'Résidentiel':
+                        fillColor = '#cec8be';
+                        break;
+                    case 'Sportif':
+                        fillColor = '#ff0d45';
+                        break;
                 }
 
                 const fill: FillStyle = {
-                    shading: true,
                     color: new Color(fillColor),
+                    shading: true,
                 };
 
                 return {
@@ -153,12 +153,12 @@ export class FeatureCollectionEntity extends FeatureCollection {
             });
 
         const parentOptions: ConstructorParameters<typeof FeatureCollection>[0] = {
-            source: vectorSource,
             extent,
             extrusionOffset,
-            style,
-            minLevel: options.minLevel ?? 11,
             maxLevel: options.maxLevel ?? 11,
+            minLevel: options.minLevel ?? 11,
+            source: vectorSource,
+            style,
         };
 
         super(parentOptions);

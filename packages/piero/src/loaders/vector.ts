@@ -13,8 +13,8 @@ import type { LoadDatasetFromFile } from './loader';
 const loadOverlay: LoadDatasetFromFile<ColorLayerDatasetConfig> = context => {
     let fileType: LayerSourceConfig['type'];
     switch (context.extension) {
-        case 'json':
         case 'geojson':
+        case 'json':
             fileType = 'geojson';
             break;
         case 'gpx':
@@ -29,24 +29,27 @@ const loadOverlay: LoadDatasetFromFile<ColorLayerDatasetConfig> = context => {
 
     return {
         name: context.filename,
-        visible: true,
-        type: 'colorLayer',
         source: {
+            style: 'default',
             type: fileType,
             url: context.file,
-            style: 'default',
         },
+        type: 'colorLayer',
+        visible: true,
     } satisfies ColorLayerDatasetConfig;
 };
 
 const loadMesh: LoadDatasetFromFile<
-    VectorMeshDatasetConfig | VectorShapeDatasetConfig | VectorLabelsDatasetConfig
+    VectorLabelsDatasetConfig | VectorMeshDatasetConfig | VectorShapeDatasetConfig
 > = context => {
     let fileType: VectorMeshDatasetSourceConfig['type'];
     switch (context.extension) {
-        case 'json':
         case 'geojson':
+        case 'json':
             fileType = 'geojson';
+            break;
+        case 'gpkg':
+            fileType = 'geopackage';
             break;
         case 'gpx':
             fileType = 'gpx';
@@ -54,33 +57,30 @@ const loadMesh: LoadDatasetFromFile<
         case 'kml':
             fileType = 'kml';
             break;
-        case 'gpkg':
-            fileType = 'geopackage';
-            break;
         default:
             throw new Error(`File extension '${context.extension}' not supported`);
     }
 
     return {
         name: context.filename,
-        visible: true,
-        type: 'vector',
         rendering: context.configuration.importedVectorDatasetRendering as VectorDatasetRendering,
         source: {
-            type: fileType,
-            url: context.file,
             fetchElevation: context.configuration.importedMeshDatasetFetchElevation ?? true,
             fetchElevationFast:
                 context.configuration.importedMeshDatasetFetchElevationFast ?? false,
+            type: fileType,
+            url: context.file,
         },
-    } satisfies VectorMeshDatasetConfig | VectorShapeDatasetConfig | VectorLabelsDatasetConfig;
+        type: 'vector',
+        visible: true,
+    } satisfies VectorLabelsDatasetConfig | VectorMeshDatasetConfig | VectorShapeDatasetConfig;
 };
 
 export const load: LoadDatasetFromFile<
+    | ColorLayerDatasetConfig
+    | VectorLabelsDatasetConfig
     | VectorMeshDatasetConfig
     | VectorShapeDatasetConfig
-    | VectorLabelsDatasetConfig
-    | ColorLayerDatasetConfig
 > = context => {
     if (context.configuration.importedVectorDatasetRendering === 'overlay') {
         return loadOverlay(context);

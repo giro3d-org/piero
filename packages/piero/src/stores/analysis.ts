@@ -131,32 +131,32 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     return {
-        floodingPlaneHeight,
-        enableFloodingPlane,
-        isFloodingPlaneEnabled,
-        setFloodingPlaneHeight,
-
-        crossSectionOrientation,
-        crossSectionCenter,
-        enableCrossSection,
-        isCrossSectionEnabled,
-        setCrossSectionOrientation,
-        setCrossSectionCenter,
-
         clippingBoxCenter,
         clippingBoxSize,
-        enableClippingBox,
-        isClippingBoxEnabled,
-        setClippingBoxCenter,
-        setClippingBoxSize,
-        setClippingBox,
-        getClippingBox,
-        displayClippingBoxHelper,
-        isClippingBoxHelperDisplayed,
-        setClippingBoxInverted,
-        isClippingBoxInverted,
+        crossSectionCenter,
+        crossSectionOrientation,
 
-        isStatisticsEnabled,
+        displayClippingBoxHelper,
+        enableClippingBox,
+        enableCrossSection,
+        enableFloodingPlane,
         enableStatistics,
+        floodingPlaneHeight,
+
+        getClippingBox,
+        isClippingBoxEnabled,
+        isClippingBoxHelperDisplayed,
+        isClippingBoxInverted,
+        isCrossSectionEnabled,
+        isFloodingPlaneEnabled,
+        isStatisticsEnabled,
+        setClippingBox,
+        setClippingBoxCenter,
+        setClippingBoxInverted,
+        setClippingBoxSize,
+        setCrossSectionCenter,
+
+        setCrossSectionOrientation,
+        setFloodingPlaneHeight,
     };
 });

@@ -13,9 +13,9 @@
 
     onMounted(() => {
         instance.value = new Instance({
-            target: mainView.value as HTMLDivElement,
-            crs: store.getCRS(),
             backgroundColor: null,
+            crs: store.getCRS(),
+            target: mainView.value as HTMLDivElement,
         });
         store.setMainView(instance.value);
 

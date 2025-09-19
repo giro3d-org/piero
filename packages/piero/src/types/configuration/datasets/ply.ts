@@ -3,12 +3,12 @@ import type { SourceConfigLocationMixin } from '@/types/configuration/sources/co
 
 import type { DatasetConfigBase } from './core';
 
-/** PLY source configuration */
-export interface PLYDatasetSourceConfig
-    extends UrlOrDataMixin,
-        Required<SourceConfigLocationMixin> {}
-
 /** PLY dataset configuration */
 export interface PLYDatasetConfig extends DatasetConfigBase<'ply'> {
     source: PLYDatasetSourceConfig;
 }
+
+/** PLY source configuration */
+export interface PLYDatasetSourceConfig
+    extends Required<SourceConfigLocationMixin>,
+        UrlOrDataMixin {}

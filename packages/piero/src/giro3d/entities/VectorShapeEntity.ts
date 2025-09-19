@@ -17,10 +17,10 @@ export default class VectorShapeEntity extends Shape {
     public constructor(source: VectorMeshSource) {
         super({
             color: DEFAULT_SHAPE_COLOR,
-            vertexRadius: SHAPE_POINT_RADIUS,
-            showVertexLabels: true,
             showLine: true,
+            showVertexLabels: true,
             showVertices: true,
+            vertexRadius: SHAPE_POINT_RADIUS,
         });
         this.source = source;
     }
@@ -38,24 +38,6 @@ export default class VectorShapeEntity extends Shape {
             const type = geometry.getType() as SimpleGeometryType;
 
             switch (type) {
-                case 'Point':
-                    this.showVertexLabels = true;
-                    this.showLine = false;
-                    this.showVertices = true;
-                    this.showSegmentLabels = false;
-                    this.showSurface = false;
-                    this.showSurfaceLabel = false;
-                    this.setPoints([getPoint(geometry.getCoordinates() as Coordinate)]);
-                    break;
-                case 'MultiPoint':
-                    this.showVertexLabels = true;
-                    this.showLine = false;
-                    this.showVertices = true;
-                    this.showSegmentLabels = false;
-                    this.showSurface = false;
-                    this.showSurfaceLabel = false;
-                    this.setPoints((geometry.getCoordinates() as Coordinate[]).map(getPoint));
-                    break;
                 case 'LineString':
                     this.showVertexLabels = false;
                     this.showLine = true;
@@ -74,14 +56,14 @@ export default class VectorShapeEntity extends Shape {
                     this.showSurfaceLabel = false;
                     this.setPoints((geometry.getCoordinates() as Coordinate[][])[0].map(getPoint));
                     break;
-                case 'Polygon':
-                    this.showVertexLabels = false;
-                    this.showLine = true;
+                case 'MultiPoint':
+                    this.showVertexLabels = true;
+                    this.showLine = false;
                     this.showVertices = true;
                     this.showSegmentLabels = false;
-                    this.showSurface = true;
-                    this.showSurfaceLabel = true;
-                    this.setPoints((geometry.getCoordinates() as Coordinate[][])[0].map(getPoint));
+                    this.showSurface = false;
+                    this.showSurfaceLabel = false;
+                    this.setPoints((geometry.getCoordinates() as Coordinate[]).map(getPoint));
                     break;
                 case 'MultiPolygon':
                     this.showVertexLabels = false;
@@ -93,6 +75,24 @@ export default class VectorShapeEntity extends Shape {
                     this.setPoints(
                         (geometry.getCoordinates() as Coordinate[][][])[0][0].map(getPoint),
                     );
+                    break;
+                case 'Point':
+                    this.showVertexLabels = true;
+                    this.showLine = false;
+                    this.showVertices = true;
+                    this.showSegmentLabels = false;
+                    this.showSurface = false;
+                    this.showSurfaceLabel = false;
+                    this.setPoints([getPoint(geometry.getCoordinates() as Coordinate)]);
+                    break;
+                case 'Polygon':
+                    this.showVertexLabels = false;
+                    this.showLine = true;
+                    this.showVertices = true;
+                    this.showSegmentLabels = false;
+                    this.showSurface = true;
+                    this.showSurfaceLabel = true;
+                    this.setPoints((geometry.getCoordinates() as Coordinate[][])[0].map(getPoint));
                     break;
                 default:
                     throw new Error(

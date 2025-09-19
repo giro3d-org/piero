@@ -19,165 +19,6 @@ import type { Alticoder } from '@/providers/Alticoding';
 
 import Projections from './Projections';
 
-export type SimpleGeometryType =
-    | 'Point'
-    | 'MultiPoint'
-    | 'LineString'
-    | 'MultiLineString'
-    | 'Polygon'
-    | 'MultiPolygon';
-
-export type SimpleGeometry =
-    | Point
-    | MultiPoint
-    | LineString
-    | MultiLineString
-    | Polygon
-    | MultiPolygon;
-
-export type SimpleFeature = Feature<SimpleGeometry>;
-
-/**
- * Converts data into OpenLayers features
- *
- * @param data - Data
- * @param format - OpenLayers format
- * @param dataProjection - Projection used in the data (by default EPSG:4326)
- * @param featureProjection - Output projection (typically the one used by Giro3D instance)
- * @returns Features
- */
-async function readFeatures(
-    data: string,
-    format: FeatureFormat,
-    dataProjection: string | undefined,
-    featureProjection: string,
-): Promise<FeatureLike[]> {
-    const projIn = await Projections.loadProjCrsIfNeeded(dataProjection ?? 'EPSG:4326');
-
-    return format.readFeatures(data, {
-        dataProjection: projIn,
-        featureProjection,
-    });
-}
-
-/**
- * Filters features read by {@link readFeatures} into {@link SimpleFeature} usable by `OlFeature2Mesh`.
- * Unsupported features are simply ignored and filtered-out.
- *
- * @param features - Features
- * @returns Simple features
- */
-function toSimpleFeatures(features: FeatureLike[]): SimpleFeature[] {
-    return features.filter(feature => {
-        if ('getType' in feature) {
-            // Render feature, ignore
-            return false;
-        }
-        const geomType = feature.getGeometry()?.getType();
-        if (
-            geomType == null ||
-            ![
-                'Point',
-                'MultiPoint',
-                'LineString',
-                'MultiLineString',
-                'Polygon',
-                'MultiPolygon',
-            ].includes(geomType)
-        ) {
-            return false;
-        }
-
-        return true;
-    }) as SimpleFeature[];
-}
-
-/**
- * Converts data into OpenLayers features
- *
- * @param data - Data
- * @param format - OpenLayers format
- * @param dataProjection - Projection used in the data (by default EPSG:4326)
- * @param featureProjection - Output projection (typically the one used by Giro3D instance)
- * @returns Features
- */
-function readSimpleFeatures(
-    data: string,
-    format: FeatureFormat,
-    dataProjection: string,
-    featureProjection: string,
-): SimpleFeature[] {
-    return toSimpleFeatures(
-        format.readFeatures(data, {
-            dataProjection,
-            featureProjection,
-        }),
-    );
-}
-
-function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataValue: number): void {
-    for (const feature of features) {
-        const geom = feature.getGeometry();
-        if (geom == null) {
-            continue;
-        }
-
-        const stride = geom.getStride();
-        const coordinates = geom.getFlatCoordinates();
-        if (stride >= 3 && coordinates[2] != null && coordinates[2] !== noDataValue) {
-            // Feature already has altitude, skip
-            continue;
-        }
-
-        switch (geom.getType()) {
-            case 'Point': {
-                const g = geom as Point;
-                const c = g.getCoordinates();
-                c[2] = altitude;
-                g.setCoordinates(c);
-                break;
-            }
-            case 'MultiPoint':
-            case 'LineString': {
-                const g = geom as MultiPoint | LineString;
-                const c = g.getCoordinates();
-                for (let i = 0; i < c.length; i += 1) {
-                    c[i][2] = altitude;
-                }
-                g.setCoordinates(c);
-                break;
-            }
-            case 'MultiLineString':
-            case 'Polygon': {
-                const g = geom as MultiLineString | Polygon;
-                const c = g.getCoordinates();
-                for (let i = 0; i < c.length; i += 1) {
-                    for (let j = 0; j < c[i].length; j += 1) {
-                        c[i][j][2] = altitude;
-                    }
-                }
-                g.setCoordinates(c);
-                break;
-            }
-            case 'MultiPolygon': {
-                const g = geom as MultiPolygon;
-                const c = g.getCoordinates();
-                for (let i = 0; i < c.length; i += 1) {
-                    for (let j = 0; j < c[i].length; j += 1) {
-                        for (let m = 0; m < c[i][j].length; m += 1) {
-                            c[i][j][m][2] = altitude;
-                        }
-                    }
-                }
-                g.setCoordinates(c);
-                break;
-            }
-            default:
-            // do nothing
-        }
-    }
-}
-
 async function fetchZCoordinates(
     features: SimpleFeature[],
     featureProjection: string,
@@ -235,16 +76,9 @@ async function fetchZCoordinates(
         }
 
         switch (geom.getType()) {
-            case 'Point': {
-                const g = geom as Point;
-                const c = g.getCoordinates();
-                c[2] = featureCoordinates[0].values[2] + offset;
-                g.setCoordinates(c);
-                break;
-            }
-            case 'MultiPoint':
-            case 'LineString': {
-                const g = geom as MultiPoint | LineString;
+            case 'LineString':
+            case 'MultiPoint': {
+                const g = geom as LineString | MultiPoint;
                 const c = g.getCoordinates();
                 for (let i = 0; i < c.length; i += 1) {
                     c[i][2] = featureCoordinates[i].values[2] + offset;
@@ -281,6 +115,13 @@ async function fetchZCoordinates(
                 g.setCoordinates(c);
                 break;
             }
+            case 'Point': {
+                const g = geom as Point;
+                const c = g.getCoordinates();
+                c[2] = featureCoordinates[0].values[2] + offset;
+                g.setCoordinates(c);
+                break;
+            }
             default:
             // do nothing
         }
@@ -288,6 +129,115 @@ async function fetchZCoordinates(
 
     console.debug(`Fetched all missing altitudes in ${clock.getElapsedTime()}s`);
     clock.stop();
+}
+
+function fillZCoordinates(features: SimpleFeature[], altitude: number, noDataValue: number): void {
+    for (const feature of features) {
+        const geom = feature.getGeometry();
+        if (geom == null) {
+            continue;
+        }
+
+        const stride = geom.getStride();
+        const coordinates = geom.getFlatCoordinates();
+        if (stride >= 3 && coordinates[2] != null && coordinates[2] !== noDataValue) {
+            // Feature already has altitude, skip
+            continue;
+        }
+
+        switch (geom.getType()) {
+            case 'LineString':
+            case 'MultiPoint': {
+                const g = geom as LineString | MultiPoint;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    c[i][2] = altitude;
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiLineString':
+            case 'Polygon': {
+                const g = geom as MultiLineString | Polygon;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    for (let j = 0; j < c[i].length; j += 1) {
+                        c[i][j][2] = altitude;
+                    }
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'MultiPolygon': {
+                const g = geom as MultiPolygon;
+                const c = g.getCoordinates();
+                for (let i = 0; i < c.length; i += 1) {
+                    for (let j = 0; j < c[i].length; j += 1) {
+                        for (let m = 0; m < c[i][j].length; m += 1) {
+                            c[i][j][m][2] = altitude;
+                        }
+                    }
+                }
+                g.setCoordinates(c);
+                break;
+            }
+            case 'Point': {
+                const g = geom as Point;
+                const c = g.getCoordinates();
+                c[2] = altitude;
+                g.setCoordinates(c);
+                break;
+            }
+            default:
+            // do nothing
+        }
+    }
+}
+
+/**
+ * Converts data into OpenLayers features
+ *
+ * @param data - Data
+ * @param format - OpenLayers format
+ * @param dataProjection - Projection used in the data (by default EPSG:4326)
+ * @param featureProjection - Output projection (typically the one used by Giro3D instance)
+ * @returns Features
+ */
+async function readFeatures(
+    data: string,
+    format: FeatureFormat,
+    dataProjection: string | undefined,
+    featureProjection: string,
+): Promise<FeatureLike[]> {
+    const projIn = await Projections.loadProjCrsIfNeeded(dataProjection ?? 'EPSG:4326');
+
+    return format.readFeatures(data, {
+        dataProjection: projIn,
+        featureProjection,
+    });
+}
+
+/**
+ * Converts data into OpenLayers features
+ *
+ * @param data - Data
+ * @param format - OpenLayers format
+ * @param dataProjection - Projection used in the data (by default EPSG:4326)
+ * @param featureProjection - Output projection (typically the one used by Giro3D instance)
+ * @returns Features
+ */
+function readSimpleFeatures(
+    data: string,
+    format: FeatureFormat,
+    dataProjection: string,
+    featureProjection: string,
+): SimpleFeature[] {
+    return toSimpleFeatures(
+        format.readFeatures(data, {
+            dataProjection,
+            featureProjection,
+        }),
+    );
 }
 
 /**
@@ -311,23 +261,23 @@ function toMeshes(olFeatures: SimpleFeature[], polygonOptions?: PolygonOptions):
             let mesh;
 
             switch (type) {
-                case 'Point':
-                    mesh = converter.build(geometry as Point);
-                    break;
                 case 'LineString':
                     mesh = converter.build(geometry as LineString);
-                    break;
-                case 'Polygon':
-                    mesh = converter.build(geometry as Polygon, polygonOptions);
-                    break;
-                case 'MultiPoint':
-                    mesh = converter.build(geometry as MultiPoint);
                     break;
                 case 'MultiLineString':
                     mesh = converter.build(geometry as MultiLineString);
                     break;
+                case 'MultiPoint':
+                    mesh = converter.build(geometry as MultiPoint);
+                    break;
                 case 'MultiPolygon':
                     mesh = converter.build(geometry as MultiPolygon, polygonOptions);
+                    break;
+                case 'Point':
+                    mesh = converter.build(geometry as Point);
+                    break;
+                case 'Polygon':
+                    mesh = converter.build(geometry as Polygon, polygonOptions);
                     break;
                 default:
                     console.warn(`Unsupported type ${type}`);
@@ -354,11 +304,61 @@ function toMeshes(olFeatures: SimpleFeature[], polygonOptions?: PolygonOptions):
     return root;
 }
 
+/**
+ * Filters features read by {@link readFeatures} into {@link SimpleFeature} usable by `OlFeature2Mesh`.
+ * Unsupported features are simply ignored and filtered-out.
+ *
+ * @param features - Features
+ * @returns Simple features
+ */
+function toSimpleFeatures(features: FeatureLike[]): SimpleFeature[] {
+    return features.filter(feature => {
+        if ('getType' in feature) {
+            // Render feature, ignore
+            return false;
+        }
+        const geomType = feature.getGeometry()?.getType();
+        if (
+            geomType == null ||
+            ![
+                'LineString',
+                'MultiLineString',
+                'MultiPoint',
+                'MultiPolygon',
+                'Point',
+                'Polygon',
+            ].includes(geomType)
+        ) {
+            return false;
+        }
+
+        return true;
+    }) as SimpleFeature[];
+}
+
+export type SimpleFeature = Feature<SimpleGeometry>;
+
+export type SimpleGeometry =
+    | LineString
+    | MultiLineString
+    | MultiPoint
+    | MultiPolygon
+    | Point
+    | Polygon;
+
+export type SimpleGeometryType =
+    | 'LineString'
+    | 'MultiLineString'
+    | 'MultiPoint'
+    | 'MultiPolygon'
+    | 'Point'
+    | 'Polygon';
+
 export default {
-    readFeatures,
-    readSimpleFeatures,
-    toSimpleFeatures,
     fetchZCoordinates,
     fillZCoordinates,
+    readFeatures,
+    readSimpleFeatures,
     toMeshes,
+    toSimpleFeatures,
 };

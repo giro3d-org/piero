@@ -11,47 +11,47 @@ import type {
 
 import LayerObject from '@/types/LayerObject';
 
-export type BasemapLayer = ElevationLayer | ColorLayer | MaskLayer;
-
-export type BaseLayerOptions<TLayerType extends LayerConfig> = Omit<
-    TLayerType,
-    'type' | 'name' | 'source'
->;
-
 export interface BaseLayer extends EventDispatcher {
     name: string;
-    type: LayerType;
-    source: BasemapLayerSourceConfig;
-    uuid: string;
     options: BaseLayerOptions<LayerConfig>;
+    source: BasemapLayerSourceConfig;
+    type: LayerType;
+    uuid: string;
 
     get isLoading(): boolean;
     set isLoading(v: boolean);
-    get visible(): boolean;
-    set visible(v: boolean);
     get opacity(): number;
     set opacity(v: number);
+    get visible(): boolean;
+    set visible(v: boolean);
 }
 
+export type BaseLayerOptions<TLayerType extends LayerConfig> = Omit<
+    TLayerType,
+    'name' | 'source' | 'type'
+>;
+
+export type BasemapLayer = ColorLayer | ElevationLayer | MaskLayer;
+
 export class BaseLayerObject extends LayerObject implements BaseLayer {
-    private _loading: boolean;
-    public readonly type: LayerType;
-    public readonly source: BasemapLayerSourceConfig;
     public readonly options: BaseLayerOptions<LayerConfig>;
-
-    public constructor({ type, name, source, ...options }: LayerConfig) {
-        super(name);
-        this._loading = false;
-        this.type = type;
-        this.source = source;
-        this.options = options;
-    }
-
+    public readonly source: BasemapLayerSourceConfig;
+    public readonly type: LayerType;
     public get isLoading(): boolean {
         return this._loading;
     }
 
     public set isLoading(v: boolean) {
         this._loading = v;
+    }
+
+    private _loading: boolean;
+
+    public constructor({ name, source, type, ...options }: LayerConfig) {
+        super(name);
+        this._loading = false;
+        this.type = type;
+        this.source = source;
+        this.options = options;
     }
 }

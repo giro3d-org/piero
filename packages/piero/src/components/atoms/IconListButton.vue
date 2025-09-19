@@ -2,8 +2,8 @@
     import ButtonWithIcon from './ButtonWithIcon.vue';
 
     defineProps<{
-        title: string;
         icon: string;
+        title: string;
     }>();
 
     defineEmits(['click']);

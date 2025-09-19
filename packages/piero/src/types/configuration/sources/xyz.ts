@@ -7,10 +7,10 @@ import type { TiledImageSourceConfigMixin } from './core/tiled';
 
 /** XYZ source configuration */
 export interface XYZSourceConfig
-    extends SourceConfigBase<'xyz'>,
-        TiledImageSourceConfigMixin,
+    extends Pick<XYZOptions, 'url' | 'urls'>,
+        SourceConfigBase<'xyz'>,
         SourceConfigProjectionMixin,
-        Pick<XYZOptions, 'url' | 'urls'> {
+        TiledImageSourceConfigMixin {
     /** @deprecated Use {@link dataProjection} instead, will be removed in 24.10 */
     projection?: CRS;
 }

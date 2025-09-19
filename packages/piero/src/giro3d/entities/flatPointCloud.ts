@@ -18,11 +18,6 @@ export const build: EntityBuilder = context => {
     let source: PointCloudSource;
 
     switch (cfg.source.type) {
-        case 'csv':
-            source = new CSVPointCloudSource({
-                ...cfg.source,
-            });
-            break;
         case 'copc':
             source = new COPCSource({
                 url:
@@ -34,6 +29,11 @@ export const build: EntityBuilder = context => {
                               const buf = await slice.arrayBuffer();
                               return new Uint8Array(buf);
                           },
+            });
+            break;
+        case 'csv':
+            source = new CSVPointCloudSource({
+                ...cfg.source,
             });
             break;
         case 'las':

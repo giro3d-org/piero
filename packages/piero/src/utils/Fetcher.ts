@@ -3,28 +3,6 @@ import { fetchFile } from '@loaders.gl/core';
 
 import { getPublicFolderUrl } from './Configuration';
 
-/** URL to load or Blob (drag-and-drop) */
-export type UrlOrData = string | Blob;
-/** URL to load, or Response (already loaded), or Blob (drag-and-drop) */
-export type UrlOrFetchedData = string | Response | Blob;
-
-/**
- * Info on a file.
- * Inspired by loaders.gl LoaderContext
- */
-export interface FetchContext {
-    /** Full URL of the resource (without query string) */
-    baseUrl: string;
-    /** Query string (beginning with the leading `?` character) */
-    queryString?: string;
-    /** Directory name (`baseUrl` up to the filename) */
-    dirname: string;
-    /** Filename */
-    filename: string;
-    /** File extension */
-    fileext?: string;
-}
-
 /**
  * Checks a host is parsable and starts with `http(s)://`.
  * This is useful when passing hosts to Giro3D's HttpConfiguration.
@@ -34,6 +12,16 @@ export interface FetchContext {
  */
 function checkAbsoluteHost(host: string): boolean {
     return URL.canParse(host) && (host.startsWith('http://') || host.startsWith('https://'));
+}
+/**
+ * Fetches a url, Blob-like object and returns an ArrayBuffer object
+ * @param url - URL or Blob-like object
+ * @param fetchOptions - fetch options
+ * @returns ArrayBuffer
+ */
+async function fetchArrayBuffer(url: UrlOrData, fetchOptions?: RequestInit): Promise<ArrayBuffer> {
+    const f = await fetchInternal(url, fetchOptions);
+    return f.arrayBuffer();
 }
 
 /**
@@ -54,41 +42,6 @@ function fetchInternal(urlOrData: UrlOrData, fetchOptions?: RequestInit): Promis
     return fetchFile(urlOrData, fetchOptions);
 }
 
-async function toDataURL(url: UrlOrData): Promise<string> {
-    return new Promise((resolve, reject) => {
-        if (typeof url === 'string') {
-            return getPublicFolderUrl(url);
-        } else {
-            const reader = new FileReader();
-            reader.addEventListener('load', () => resolve(reader.result as string), false);
-            reader.addEventListener('error', () => reject(reader.error as DOMException));
-            reader.readAsDataURL(url);
-        }
-    });
-}
-
-/**
- * Fetches a url, Blob-like object and returns an ArrayBuffer object
- * @param url - URL or Blob-like object
- * @param fetchOptions - fetch options
- * @returns ArrayBuffer
- */
-async function fetchArrayBuffer(url: UrlOrData, fetchOptions?: RequestInit): Promise<ArrayBuffer> {
-    const f = await fetchInternal(url, fetchOptions);
-    return f.arrayBuffer();
-}
-
-/**
- * Fetches a url or Blob-like object and returns the content as a string
- * @param url - URL or Blob-like object
- * @param fetchOptions - fetch options
- * @returns Content as string
- */
-async function fetchText(url: UrlOrData, fetchOptions?: RequestInit): Promise<string> {
-    const f = await fetchInternal(url, fetchOptions);
-    return f.text();
-}
-
 /**
  * Fetches a url or Blob-like object and returns the content as a JSON object
  * @param params - URL or Blob-like object
@@ -103,6 +56,17 @@ async function fetchJson<T extends object = object>(
     const f = await fetchInternal(url, fetchOptions);
     const json: T = await f.json();
     return json;
+}
+
+/**
+ * Fetches a url or Blob-like object and returns the content as a string
+ * @param url - URL or Blob-like object
+ * @param fetchOptions - fetch options
+ * @returns Content as string
+ */
+async function fetchText(url: UrlOrData, fetchOptions?: RequestInit): Promise<string> {
+    const f = await fetchInternal(url, fetchOptions);
+    return f.text();
 }
 
 /**
@@ -140,19 +104,55 @@ function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
 
     return {
         baseUrl,
-        queryString,
-        filename,
-        fileext: filename?.split('.').at(-1),
         dirname,
+        fileext: filename?.split('.').at(-1),
+        filename,
+        queryString,
     };
 }
+
+async function toDataURL(url: UrlOrData): Promise<string> {
+    return new Promise((resolve, reject) => {
+        if (typeof url === 'string') {
+            return getPublicFolderUrl(url);
+        } else {
+            const reader = new FileReader();
+            reader.addEventListener('load', () => resolve(reader.result as string), false);
+            reader.addEventListener('error', () => reject(reader.error as DOMException));
+            reader.readAsDataURL(url);
+        }
+    });
+}
+
+/**
+ * Info on a file.
+ * Inspired by loaders.gl LoaderContext
+ */
+export interface FetchContext {
+    /** Full URL of the resource (without query string) */
+    baseUrl: string;
+    /** Directory name (`baseUrl` up to the filename) */
+    dirname: string;
+    /** File extension */
+    fileext?: string;
+    /** Filename */
+    filename: string;
+    /** Query string (beginning with the leading `?` character) */
+    queryString?: string;
+}
+
+/** URL to load or Blob (drag-and-drop) */
+export type UrlOrData = Blob | string;
+
+/** URL to load, or Response (already loaded), or Blob (drag-and-drop) */
+export type UrlOrFetchedData = Blob | Response | string;
 
 export default {
     checkAbsoluteHost,
     fetch: fetchInternal,
     fetchArrayBuffer,
-    fetchText,
     fetchJson,
+    fetchText,
     getContext,
     toDataURL,
 };

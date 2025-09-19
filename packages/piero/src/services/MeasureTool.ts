@@ -8,9 +8,9 @@ import type Picker from '@/services/Picker';
 import Measure3D from '@/giro3d/Measure3D';
 
 export default class MeasureTool {
+    private _hoverMeasurement: Measure3D | null;
     private readonly _picker: Picker;
     private readonly _raycaster: Raycaster;
-    private _hoverMeasurement: Measure3D | null;
 
     public constructor(picker: Picker) {
         this._picker = picker;
@@ -19,8 +19,19 @@ export default class MeasureTool {
         this._hoverMeasurement = null;
     }
 
+    public clean(): void {
+        if (this._hoverMeasurement) {
+            this._hoverMeasurement.instance.remove(this._hoverMeasurement);
+            this._hoverMeasurement = null;
+        }
+    }
+
     public dispose(): void {
         this.clean();
+    }
+
+    public getLastMeasurement(): Measure3D | undefined {
+        return this._hoverMeasurement?.clone();
     }
 
     public measure(instance: Instance, event: MouseEvent): void {
@@ -53,16 +64,5 @@ export default class MeasureTool {
                 instance.notifyChange(this._hoverMeasurement);
             }
         }
-    }
-
-    public clean(): void {
-        if (this._hoverMeasurement) {
-            this._hoverMeasurement.instance.remove(this._hoverMeasurement);
-            this._hoverMeasurement = null;
-        }
-    }
-
-    public getLastMeasurement(): Measure3D | undefined {
-        return this._hoverMeasurement?.clone();
     }
 }

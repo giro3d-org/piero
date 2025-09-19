@@ -1,11 +1,11 @@
 <script setup lang="ts">
     const props = defineProps<{
-        /** mime-type */
-        type?: string;
         /** url */
         href: string;
         /** title */
         title: string;
+        /** mime-type */
+        type?: string;
     }>();
 </script>
 

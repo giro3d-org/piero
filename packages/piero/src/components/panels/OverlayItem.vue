@@ -7,9 +7,9 @@
     import VisibilityControl from '@/components/VisibilityControl.vue';
 
     defineProps<{
-        visible: boolean;
         name: string;
         opacity: number;
+        visible: boolean;
     }>();
     defineEmits(['update:visible', 'update:opacity', 'update:move-up', 'update:move-down', 'zoom']);
 </script>

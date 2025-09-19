@@ -11,9 +11,9 @@
 
     onMounted(() => {
         instance.value = new Instance({
-            target: target.value as HTMLDivElement,
-            crs: 'EPSG:3857',
             backgroundColor: 0xcccccc,
+            crs: 'EPSG:3857',
+            target: target.value as HTMLDivElement,
         });
         // Workaround for a bug that would trigger a three.js error
         // when it attempts to set the uniform value for directional lights

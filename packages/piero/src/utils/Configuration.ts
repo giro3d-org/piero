@@ -12,20 +12,6 @@ import { getConfig } from '@/config-loader';
 
 import Download from './Download';
 
-export function getPublicFolderUrl(url: string): string {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        // url is absolute
-        return url;
-    }
-
-    return new URL(url, Download.getBaseUrl()).toString();
-}
-
-export function hasExperimentalFeature(feature: ExperimentalFeatures): boolean {
-    const config = getConfig();
-    return config.enabled_features?.includes(feature) ?? false;
-}
-
 export function getColorMap(config: ColorMapConfig): ColorMap {
     const colors = chroma
         .scale(config.ramp)
@@ -38,8 +24,8 @@ export function getColorMap(config: ColorMapConfig): ColorMap {
     return new ColorMap({ colors, ...config });
 }
 
-export function getCoordinates(geovec3: GeoVec3): Coordinates;
 export function getCoordinates(): undefined;
+export function getCoordinates(geovec3: GeoVec3): Coordinates;
 export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined;
 export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined {
     const config = getConfig();
@@ -53,12 +39,24 @@ export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined {
         : undefined;
 }
 
-export function getExtent(extent: GeoExtent): Extent;
 export function getExtent(): undefined;
+export function getExtent(extent: GeoExtent): Extent;
 export function getExtent(extent?: GeoExtent): Extent | undefined;
 export function getExtent(extent?: GeoExtent): Extent | undefined {
     const config = getConfig();
     return extent
         ? new Extent(extent.crs ?? config.default_crs, extent).as(config.default_crs)
         : undefined;
+}
+export function getPublicFolderUrl(url: string): string {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        // url is absolute
+        return url;
+    }
+
+    return new URL(url, Download.getBaseUrl()).toString();
+}
+export function hasExperimentalFeature(feature: ExperimentalFeatures): boolean {
+    const config = getConfig();
+    return config.enabled_features?.includes(feature) ?? false;
 }

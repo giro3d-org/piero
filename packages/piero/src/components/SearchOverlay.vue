@@ -12,22 +12,22 @@
 
     onMounted(() => {
         new autoComplete({
-            selector: '#search-place-autocomplete',
-            placeHolder: 'Search places...',
-            threshold: 3,
-            debounce: 300, // 300ms debounce
             data: {
+                keys: ['label'],
                 src: (query: string): Promise<GeocodingResult[]> => {
                     return BanProvider.geocode(query);
                 },
-                keys: ['label'],
+            },
+            debounce: 300, // 300ms debounce
+            placeHolder: 'Search places...',
+            resultItem: {
+                highlight: true,
             },
             resultsList: {
                 noResults: true,
             },
-            resultItem: {
-                highlight: true,
-            },
+            selector: '#search-place-autocomplete',
+            threshold: 3,
             // Trust what we get from the query
             searchEngine: (query: string, record: unknown): unknown => record,
         });

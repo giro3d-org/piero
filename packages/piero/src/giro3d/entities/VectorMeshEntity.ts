@@ -26,10 +26,10 @@ import type {
 
 /** Source for {@link VectorMeshEntity} */
 export interface VectorMeshSourceOptions
-    extends UrlOrDataMixin,
-        DataProjectionMixin,
+    extends DataProjectionMixin,
+        ElevationMixin,
         Required<FeatureProjectionMixin>,
-        ElevationMixin {}
+        UrlOrDataMixin {}
 
 const geojsonFormat = new GeoJSONFormat();
 const gpxFormat = new GPXFormat();
@@ -44,33 +44,87 @@ export const defaultParameters: Required<ExtractOptional<VectorMeshSourceOptions
     noDataValue: 0,
 };
 
-/**
- * Converts a GeoJSON object into a list of GeoJSON features
- * @param json - GeoJSON object
- * @returns Array of GeoJSON features
- */
-export function toGeoJSONFeatures(json: GeoJSON.GeoJSON): GeoJSON.Feature[] {
-    switch (json.type) {
-        case 'Feature':
-            return [json];
-        case 'FeatureCollection':
-            return json.features;
-        case 'GeometryCollection': {
-            const features: GeoJSON.Feature[] = json.geometries.map(geometry => ({
-                type: 'Feature',
-                geometry,
-                properties: {},
-            }));
-            return features;
-        }
-        default: {
-            const feature: GeoJSON.Feature = {
-                type: 'Feature',
-                geometry: json,
-                properties: {},
-            };
-            return [feature];
-        }
+/** Interface to implement for a new source for {@link VectorMeshEntity} */
+export interface VectorMeshSource {
+    /** Elevation of the features */
+    elevation?: number;
+    /** No data value for elevation */
+    noDataValue?: number;
+    /** Context of the data */
+    context(): FetchContext;
+    /** Loads the features. Will be called only once */
+    load(instance: Instance): Promise<SimpleFeature[]>;
+}
+
+/** GeoJSON source */
+export class GeoJsonMeshSource implements VectorMeshSource {
+    public elevation?: number;
+    public readonly options: VectorMeshSourceOptions;
+
+    public constructor(options: VectorMeshSourceOptions) {
+        this.options = options;
+        this.elevation = options.elevation;
+    }
+
+    public context(): FetchContext {
+        return Fetcher.getContext(this.options.url);
+    }
+
+    public async load(instance: Instance): Promise<SimpleFeature[]> {
+        // TODO: For some historical (?) reason we are not using bare OL
+        // parsing, and we are using toGeoJSONFeatures instead. Not sure
+        // why we were doing this in the first place, maybe we can remove
+        // this now.
+
+        // First, get the data as GeoJSON
+        const json = await Fetcher.fetchJson<GeoJSON.GeoJSON>(this.options.url);
+
+        // Convert them into a list of GeoJSON features
+        const features = toGeoJSONFeatures(json);
+
+        // Convert them into OpenLayers features
+        const olFeatures = await geojsonToOlFeatures(instance, features, this.options);
+        return olFeatures;
+    }
+}
+
+/** OpenLayers-based source */
+export class OlMeshSource implements VectorMeshSource {
+    public elevation?: number;
+    /** OL Feature format */
+    public readonly format: FeatureFormat;
+    public noDataValue?: number;
+    public readonly options: VectorMeshSourceOptions;
+
+    public constructor(format: FeatureFormat, options: VectorMeshSourceOptions) {
+        this.format = format;
+        this.options = options;
+        this.elevation = options.elevation;
+        this.noDataValue = options.noDataValue;
+    }
+
+    public context(): FetchContext {
+        return Fetcher.getContext(this.options.url);
+    }
+
+    public async load(instance: Instance): Promise<SimpleFeature[]> {
+        const text = await Fetcher.fetchText(this.options.url);
+        const features = await toOlFeatures(instance, text, this.format, this.options);
+        return features;
+    }
+}
+
+/** GPX source */
+export class GpxMeshSource extends OlMeshSource {
+    public constructor(options: VectorMeshSourceOptions) {
+        super(gpxFormat, options);
+    }
+}
+
+/** KML source */
+export class KmlMeshSource extends OlMeshSource {
+    public constructor(options: VectorMeshSourceOptions) {
+        super(kmlFormat, options);
     }
 }
 
@@ -120,6 +174,61 @@ export async function geojsonToOlFeatures(
 }
 
 /**
+ * Converts {@link SimpleFeature}s into a Three.js `Group`.
+ * Assumes features are already in the correct CRS.
+ * If Z-coordinates are missing in the features (`null` or equal to `noDataValue`),
+ * they are filled at `options?.elevation` or at `defaultElevation`.
+ *
+ * @param features - Features to convert
+ * @param options - GeometryConverter options
+ * @param defaultElevation - Default elevation if not provided via options
+ * @param noDataValue - Value considered as no data for filling Z.
+ * @returns Group containing all meshes for all features
+ */
+export function olFeaturestoGroup(
+    features: SimpleFeature[],
+    options?: PolygonOptions,
+    defaultElevation = defaultParameters.elevation,
+    noDataValue = defaultParameters.noDataValue,
+): Group {
+    const elevation =
+        (Array.isArray(options?.elevation) ? options.elevation[0] : options?.elevation) ??
+        defaultElevation;
+    OLFeatures.fillZCoordinates(features, elevation, noDataValue);
+    return OLFeatures.toMeshes(features, options);
+}
+
+/**
+ * Converts a GeoJSON object into a list of GeoJSON features
+ * @param json - GeoJSON object
+ * @returns Array of GeoJSON features
+ */
+export function toGeoJSONFeatures(json: GeoJSON.GeoJSON): GeoJSON.Feature[] {
+    switch (json.type) {
+        case 'Feature':
+            return [json];
+        case 'FeatureCollection':
+            return json.features;
+        case 'GeometryCollection': {
+            const features: GeoJSON.Feature[] = json.geometries.map(geometry => ({
+                geometry,
+                properties: {},
+                type: 'Feature',
+            }));
+            return features;
+        }
+        default: {
+            const feature: GeoJSON.Feature = {
+                geometry: json,
+                properties: {},
+                type: 'Feature',
+            };
+            return [feature];
+        }
+    }
+}
+
+/**
  * Converts loaded data into OpenLayers {@link SimpleFeature}s.
  * Will handle reprojection if needed.
  * Will fetch elevation if `parameters.fetchElevation` is `true`.
@@ -159,115 +268,6 @@ export async function toOlFeatures(
         );
     }
     return olFeatures;
-}
-
-/**
- * Converts {@link SimpleFeature}s into a Three.js `Group`.
- * Assumes features are already in the correct CRS.
- * If Z-coordinates are missing in the features (`null` or equal to `noDataValue`),
- * they are filled at `options?.elevation` or at `defaultElevation`.
- *
- * @param features - Features to convert
- * @param options - GeometryConverter options
- * @param defaultElevation - Default elevation if not provided via options
- * @param noDataValue - Value considered as no data for filling Z.
- * @returns Group containing all meshes for all features
- */
-export function olFeaturestoGroup(
-    features: SimpleFeature[],
-    options?: PolygonOptions,
-    defaultElevation = defaultParameters.elevation,
-    noDataValue = defaultParameters.noDataValue,
-): Group {
-    const elevation =
-        (Array.isArray(options?.elevation) ? options.elevation[0] : options?.elevation) ??
-        defaultElevation;
-    OLFeatures.fillZCoordinates(features, elevation, noDataValue);
-    return OLFeatures.toMeshes(features, options);
-}
-
-/** Interface to implement for a new source for {@link VectorMeshEntity} */
-export interface VectorMeshSource {
-    /** Elevation of the features */
-    elevation?: number;
-    /** No data value for elevation */
-    noDataValue?: number;
-    /** Loads the features. Will be called only once */
-    load(instance: Instance): Promise<SimpleFeature[]>;
-    /** Context of the data */
-    context(): FetchContext;
-}
-
-/** OpenLayers-based source */
-export class OlMeshSource implements VectorMeshSource {
-    public elevation?: number;
-    public noDataValue?: number;
-    /** OL Feature format */
-    public readonly format: FeatureFormat;
-    public readonly options: VectorMeshSourceOptions;
-
-    public constructor(format: FeatureFormat, options: VectorMeshSourceOptions) {
-        this.format = format;
-        this.options = options;
-        this.elevation = options.elevation;
-        this.noDataValue = options.noDataValue;
-    }
-
-    public async load(instance: Instance): Promise<SimpleFeature[]> {
-        const text = await Fetcher.fetchText(this.options.url);
-        const features = await toOlFeatures(instance, text, this.format, this.options);
-        return features;
-    }
-
-    public context(): FetchContext {
-        return Fetcher.getContext(this.options.url);
-    }
-}
-
-/** GPX source */
-export class GpxMeshSource extends OlMeshSource {
-    public constructor(options: VectorMeshSourceOptions) {
-        super(gpxFormat, options);
-    }
-}
-
-/** KML source */
-export class KmlMeshSource extends OlMeshSource {
-    public constructor(options: VectorMeshSourceOptions) {
-        super(kmlFormat, options);
-    }
-}
-
-/** GeoJSON source */
-export class GeoJsonMeshSource implements VectorMeshSource {
-    public elevation?: number;
-    public readonly options: VectorMeshSourceOptions;
-
-    public constructor(options: VectorMeshSourceOptions) {
-        this.options = options;
-        this.elevation = options.elevation;
-    }
-
-    public async load(instance: Instance): Promise<SimpleFeature[]> {
-        // TODO: For some historical (?) reason we are not using bare OL
-        // parsing, and we are using toGeoJSONFeatures instead. Not sure
-        // why we were doing this in the first place, maybe we can remove
-        // this now.
-
-        // First, get the data as GeoJSON
-        const json = await Fetcher.fetchJson<GeoJSON.GeoJSON>(this.options.url);
-
-        // Convert them into a list of GeoJSON features
-        const features = toGeoJSONFeatures(json);
-
-        // Convert them into OpenLayers features
-        const olFeatures = await geojsonToOlFeatures(instance, features, this.options);
-        return olFeatures;
-    }
-
-    public context(): FetchContext {
-        return Fetcher.getContext(this.options.url);
-    }
 }
 
 /** Entity for displaying vector data as meshes */

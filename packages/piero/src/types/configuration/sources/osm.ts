@@ -4,6 +4,6 @@ import type { ImageSourceConfigMixin, SourceConfigBase } from './core/baseConfig
 
 /** OSM source configuration */
 export interface OSMSourceConfig
-    extends SourceConfigBase<'osm'>,
-        ImageSourceConfigMixin,
-        Pick<OSMOptions, 'url'> {}
+    extends ImageSourceConfigMixin,
+        Pick<OSMOptions, 'url'>,
+        SourceConfigBase<'osm'> {}

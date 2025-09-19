@@ -8,7 +8,7 @@ export interface UserData {
     filename?: string | null;
 }
 
-export function fillObject3DUserData(root: Object3D | Entity3D, userData: UserData): void {
+export function fillObject3DUserData(root: Entity3D | Object3D, userData: UserData): void {
     const obj3d = (root as Entity3D).isEntity3D ? (root as Entity3D).object3d : root;
     if (!('dataset' in obj3d.userData)) {
         obj3d.userData.dataset = {};

@@ -6,13 +6,8 @@ import CameraPosition from './CameraPosition';
 
 type BookmarkJson = {
     camera: [number, number, number];
-    target: [number, number, number];
     focalOffset: [number, number, number];
-};
-
-export type SerializedBookmark = {
-    title: string;
-    url: string;
+    target: [number, number, number];
 };
 
 export type BookmarkEventMap = {
@@ -24,40 +19,19 @@ export type BookmarkEventMap = {
     };
 };
 
+export type SerializedBookmark = {
+    title: string;
+    url: string;
+};
+
 export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
-    public readonly name: string;
     public readonly camera: CameraPosition;
+    public readonly name: string;
 
     public constructor(name: string, camera: CameraPosition) {
         super();
         this.name = name;
         this.camera = camera;
-    }
-
-    public delete(): void {
-        this.dispatchEvent({ type: 'delete' });
-    }
-
-    public goTo(): void {
-        this.dispatchEvent({ type: 'goto' });
-    }
-
-    public getUrl(): URL {
-        const base = Download.getBaseUrl() + '?';
-        const cam = this.camera;
-        const json: BookmarkJson = {
-            camera: [cam.camera.x, cam.camera.y, cam.camera.z],
-            target: [cam.target.x, cam.target.y, cam.target.z],
-            focalOffset: [cam.focalOffset.x, cam.focalOffset.y, cam.focalOffset.z],
-        };
-
-        const url = new URL(base);
-        const params = url.searchParams;
-
-        params.set('tour', 'none');
-        params.set('view', JSON.stringify(json));
-
-        return url;
     }
 
     public static new(name: string, urlString: string): Bookmark {
@@ -79,5 +53,31 @@ export default class Bookmark extends EventDispatcher<BookmarkEventMap> {
         const cameraPosition = new CameraPosition(camera, target, focalOffset);
 
         return new Bookmark(name, cameraPosition);
+    }
+
+    public delete(): void {
+        this.dispatchEvent({ type: 'delete' });
+    }
+
+    public getUrl(): URL {
+        const base = Download.getBaseUrl() + '?';
+        const cam = this.camera;
+        const json: BookmarkJson = {
+            camera: [cam.camera.x, cam.camera.y, cam.camera.z],
+            focalOffset: [cam.focalOffset.x, cam.focalOffset.y, cam.focalOffset.z],
+            target: [cam.target.x, cam.target.y, cam.target.z],
+        };
+
+        const url = new URL(base);
+        const params = url.searchParams;
+
+        params.set('tour', 'none');
+        params.set('view', JSON.stringify(json));
+
+        return url;
+    }
+
+    public goTo(): void {
+        this.dispatchEvent({ type: 'goto' });
     }
 }

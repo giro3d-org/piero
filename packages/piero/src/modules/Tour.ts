@@ -16,9 +16,9 @@ interface TourEvent {
 }
 
 type Tours = {
+    readonly analyzingTour: Shepherd.Tour;
     readonly mainTour: Shepherd.Tour;
     readonly navigatingTour: Shepherd.Tour;
-    readonly analyzingTour: Shepherd.Tour;
 };
 
 /**
@@ -29,67 +29,33 @@ export default class TourModule implements Module {
 
     private _camera: CameraController | null = null;
     private _cameraCallback: (() => void) | null = null;
-    private _tours: Tours | null = null;
     private _context: PieroContext | null = null;
+    private _tours: Tours | null = null;
 
     public initialize(context: PieroContext): Promise<void> | void {
         this._context = context;
         context.events.addEventListener('ready', this.start.bind(this));
     }
 
-    private getTours(): Tours {
-        if (!this._tours) {
-            this._tours = this.buildTours();
-        }
-        return this._tours;
-    }
-
-    private start(): void {
-        if (!this._context) {
-            throw new Error('module is not initialized');
-        }
-
-        const { mainTour, analyzingTour, navigatingTour } = this.getTours();
-        this._camera = this._context.view.getCameraController();
-
-        const url = new URL(document.URL);
-        const tour = url.searchParams.get('tour') ?? 'main';
-        if (tour !== 'none') {
-            const tourStep = url.searchParams.get('tourStep') ?? 0;
-            if (tour === 'navigating') {
-                navigatingTour.show(tourStep);
-            } else if (tour === 'analyzing') {
-                analyzingTour.show(tourStep);
-            } else {
-                mainTour.show(tourStep);
-            }
-        }
-    }
-
-    private restart(): void {
-        const { mainTour } = this.getTours();
-        mainTour.show(0);
-    }
-
     private buildTours(): Tours {
         const camera = this._camera as CameraController;
 
         const mainTour = new Shepherd.Tour({
-            useModalOverlay: true,
             tourName: 'main',
+            useModalOverlay: true,
         });
         const navigatingTour = new Shepherd.Tour({
-            useModalOverlay: true,
             tourName: 'navigating',
+            useModalOverlay: true,
         });
         const analyzingTour = new Shepherd.Tour({
-            useModalOverlay: true,
             tourName: 'analyzing',
+            useModalOverlay: true,
         });
 
         const buttonsOptions = [
-            { text: 'Next', action: (): void => Shepherd.activeTour?.next() },
-            { text: 'Exit', action: (): void => Shepherd.activeTour?.cancel(), secondary: true },
+            { action: (): void => Shepherd.activeTour?.next(), text: 'Next' },
+            { action: (): void => Shepherd.activeTour?.cancel(), secondary: true, text: 'Exit' },
         ];
 
         const displayProgress = (): void => {
@@ -150,58 +116,64 @@ export default class TourModule implements Module {
         };
 
         mainTour.addStep({
-            id: 'example-step',
-            title: 'Welcome!',
-            text: '<p>Welcome to <strong>Piero</strong>, the Giro3D application.<br/>We can guide you through the different features.</p>',
-            cancelIcon: { enabled: true, label: 'Exit tutorial' },
             buttons: [
                 {
-                    text: 'Navigating',
                     action: (): void => {
                         Shepherd.activeTour?.complete();
                         navigatingTour.show(0);
                     },
+                    text: 'Navigating',
                 },
                 {
-                    text: 'Analyzing data',
                     action: (): void => {
                         Shepherd.activeTour?.complete();
                         analyzingTour.show(0);
                     },
+                    text: 'Analyzing data',
                 },
                 {
-                    text: 'Exit',
                     action: (): void => Shepherd.activeTour?.cancel(),
                     secondary: true,
+                    text: 'Exit',
                 },
             ],
+            cancelIcon: { enabled: true, label: 'Exit tutorial' },
+            id: 'example-step',
+            text: '<p>Welcome to <strong>Piero</strong>, the Giro3D application.<br/>We can guide you through the different features.</p>',
+            title: 'Welcome!',
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
+            attachTo: {
+                element: '#main-view',
+                on: 'bottom',
+            },
+            buttons: buttonsOptions,
             id: 'view',
             text: '<p>This is the <b>main view</b>.</p><p>Giro3D natively supports a broad range of data sources, from 2D raster and vector data, to 3D point clouds and tilesets.</p><p>Piero adds support for CityJSON and IFC files.</p>',
-            buttons: buttonsOptions,
-            attachTo: {
-                element: '#main-view',
-                on: 'bottom',
-            },
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'navigate',
-            text: '<p>This application integrates <a href="https://github.com/yomotsu/camera-controls">camera-controls</a>, a camera control for three.js.</p><p><b>Click</b> to move the camera. <b>Right-click</b> to rotate around a point. <b>Scroll</b> to zoom in or out.</p>',
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#main-view',
                 on: 'bottom',
             },
+            buttons: buttonsOptions,
+            id: 'navigate',
+            text: '<p>This application integrates <a href="https://github.com/yomotsu/camera-controls">camera-controls</a>, a camera control for three.js.</p><p><b>Click</b> to move the camera. <b>Right-click</b> to rotate around a point. <b>Scroll</b> to zoom in or out.</p>',
             when: {
+                hide: () => {
+                    if (this._cameraCallback) {
+                        camera.removeEventListener('interaction-end', this._cameraCallback);
+                    }
+                    this._cameraCallback = null;
+                },
                 show: () => {
                     let nbEvents = 0;
                     this._cameraCallback = (): void => {
@@ -213,147 +185,141 @@ export default class TourModule implements Module {
                     camera.addEventListener('interaction-end', this._cameraCallback);
                     displayProgress();
                 },
-                hide: () => {
-                    if (this._cameraCallback) {
-                        camera.removeEventListener('interaction-end', this._cameraCallback);
-                    }
-                    this._cameraCallback = null;
-                },
             },
         });
 
         navigatingTour.addStep({
-            id: 'toolbar-layers',
-            text: '<p>Giro3D supports multiple datasets.</p><p>You can toggle datasets as you wish with the <b>Datasets</b> panel.</p>',
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#toolbar',
                 on: 'right',
             },
             beforeShowPromise: () => loadPanel('toolbar-datasets', '#datasets-drop-zone'),
+            buttons: buttonsOptions,
+            id: 'toolbar-layers',
+            text: '<p>Giro3D supports multiple datasets.</p><p>You can toggle datasets as you wish with the <b>Datasets</b> panel.</p>',
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'basemaps',
-            text: '<p><b>Basemaps</b> are color and elevation layers that make the basic shape and aspect of the <b>Map</b>.</p>',
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#basemap-list',
                 on: 'right',
             },
             beforeShowPromise: () => loadPanel('toolbar-datasets', '#datasets-drop-zone'),
+            buttons: buttonsOptions,
+            id: 'basemaps',
+            text: '<p><b>Basemaps</b> are color and elevation layers that make the basic shape and aspect of the <b>Map</b>.</p>',
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'overlays',
-            text: '<p><b>Overlays</b> are vector layers in various formats (WFS, GML, GeoJSON...).</p>',
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#overlay-list',
                 on: 'right',
             },
             beforeShowPromise: () => loadPanel('toolbar-datasets', '#datasets-drop-zone'),
+            buttons: buttonsOptions,
+            id: 'overlays',
+            text: '<p><b>Overlays</b> are vector layers in various formats (WFS, GML, GeoJSON...).</p>',
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'layers',
-            text: "<p>The <b>Datasets</b> panel contains all 3D objects in the scene.</><p>You can toggle their visibility and delete them.<p><p>Most objects leverage Giro3D's adaptive resolution to optimize their display.</p>",
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#dataset-list',
                 on: 'right',
             },
             beforeShowPromise: () => loadPanel('toolbar-datasets', '#datasets-drop-zone'),
+            buttons: buttonsOptions,
+            id: 'layers',
+            text: "<p>The <b>Datasets</b> panel contains all 3D objects in the scene.</><p>You can toggle their visibility and delete them.<p><p>Most objects leverage Giro3D's adaptive resolution to optimize their display.</p>",
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'adddata',
-            text: "<p>You can add your own data from your computer by <b>dragging the file</b> into this page.</p><p>While you won't benefit from Giro3D's tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.</p><p>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.</p>",
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#datasets-drop-zone',
                 on: 'right',
             },
             beforeShowPromise: () => loadPanel('toolbar-datasets', '#datasets-drop-zone'),
+            buttons: buttonsOptions,
+            id: 'adddata',
+            text: "<p>You can add your own data from your computer by <b>dragging the file</b> into this page.</p><p>While you won't benefit from Giro3D's tiling mechanism, this can be a great way to quickly visualize datasets up to 100MB.</p><p>This application supports CityJSONs, IFCs, LAS/LAZs, CSV pointclouds, and simple GeoJSON features.</p>",
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'attributes',
-            text: '<p>By clicking on any feature on the map, you can see its <strong>Attribute table</strong>. Clickable features display a cursor when hovered.</p>',
-            buttons: buttonsOptions,
             attachTo: {
                 element: '#main-view',
                 on: 'bottom',
             },
+            buttons: buttonsOptions,
+            id: 'attributes',
+            text: '<p>By clicking on any feature on the map, you can see its <strong>Attribute table</strong>. Clickable features display a cursor when hovered.</p>',
             when: {
                 show: displayProgress,
             },
         });
 
         navigatingTour.addStep({
-            id: 'widgets',
-            text: 'Giro3D is highly extensible. Here we added a widget to search and navigate to locations based on the French address database.',
-            buttons: [
-                {
-                    text: 'Analyzing data',
-                    action: (): void => {
-                        Shepherd.activeTour?.complete();
-                        analyzingTour.show(0);
-                    },
-                },
-                {
-                    text: 'Exit',
-                    action: (): void => Shepherd.activeTour?.complete(),
-                    secondary: true,
-                },
-            ],
             attachTo: {
                 element: '#search-place-autocomplete',
                 on: 'bottom',
             },
+            buttons: [
+                {
+                    action: (): void => {
+                        Shepherd.activeTour?.complete();
+                        analyzingTour.show(0);
+                    },
+                    text: 'Analyzing data',
+                },
+                {
+                    action: (): void => Shepherd.activeTour?.complete(),
+                    secondary: true,
+                    text: 'Exit',
+                },
+            ],
+            id: 'widgets',
+            text: 'Giro3D is highly extensible. Here we added a widget to search and navigate to locations based on the French address database.',
             when: {
                 show: displayProgress,
             },
         });
 
         analyzingTour.addStep({
+            attachTo: {
+                element: '#annotations-fieldset',
+                on: 'right',
+            },
+            beforeShowPromise: () => loadPanel('toolbar-annotations', '#annotations-fieldset'),
+            buttons: buttonsOptions,
             id: 'annotation',
             text: '<p>You can <strong>annotate</strong> any data displayed using Giro3D native tools.<br>Select the <strong>geometry</strong> of your annotation, and <strong>click</strong> on the scene to add points. <strong>Right-click</strong> to end the shape.</p>',
-            buttons: buttonsOptions,
-            attachTo: {
-                element: '#annotations-fieldset',
-                on: 'right',
-            },
-            beforeShowPromise: () => loadPanel('toolbar-annotations', '#annotations-fieldset'),
             when: {
                 show: displayProgress,
             },
         });
 
         analyzingTour.addStep({
-            id: 'annotations',
-            text: 'You can download your annotations as GeoJSON files. You can also upload your own by dragging them into this panel.',
             attachTo: {
                 element: '#annotations-fieldset',
                 on: 'right',
             },
-            buttons: buttonsOptions,
             beforeShowPromise: () => loadPanel('toolbar-annotations', '#annotations-fieldset'),
+            buttons: buttonsOptions,
+            id: 'annotations',
+            text: 'You can download your annotations as GeoJSON files. You can also upload your own by dragging them into this panel.',
             when: {
                 show: displayProgress,
             },
@@ -361,14 +327,14 @@ export default class TourModule implements Module {
 
         if (hasExperimentalFeature('measurements')) {
             analyzingTour.addStep({
-                id: 'measurements',
-                text: 'You can add <strong>measurements</strong> to easily get distances betwween objects.<br>Once started, moving the mouse will display the measure. <strong>Click</strong> to save the measurement. <strong>Right-click</strong> to end.',
                 attachTo: {
                     element: '#panel-container',
                     on: 'right',
                 },
-                buttons: buttonsOptions,
                 beforeShowPromise: () => loadPanel('toolbar-measures', '#measures-fieldset'),
+                buttons: buttonsOptions,
+                id: 'measurements',
+                text: 'You can add <strong>measurements</strong> to easily get distances betwween objects.<br>Once started, moving the mouse will display the measure. <strong>Click</strong> to save the measurement. <strong>Right-click</strong> to end.',
                 when: {
                     show: displayProgress,
                 },
@@ -376,14 +342,14 @@ export default class TourModule implements Module {
         }
 
         analyzingTour.addStep({
-            id: 'analysis',
-            text: "In the <strong>Analysis</strong> panel you'll find some advanced analysis tools.",
             attachTo: {
                 element: '#panel-container',
                 on: 'right',
             },
-            buttons: [{ text: 'Done!', action: (): void => Shepherd.activeTour?.complete() }],
             beforeShowPromise: () => loadPanel('toolbar-analysis', '#panel-container .card'),
+            buttons: [{ action: (): void => Shepherd.activeTour?.complete(), text: 'Done!' }],
+            id: 'analysis',
+            text: "In the <strong>Analysis</strong> panel you'll find some advanced analysis tools.",
             when: {
                 show: displayProgress,
             },
@@ -421,6 +387,40 @@ export default class TourModule implements Module {
         analyzingTour.on('complete', markSkiptour);
         analyzingTour.on('show', markTour);
 
-        return { mainTour, analyzingTour, navigatingTour };
+        return { analyzingTour, mainTour, navigatingTour };
+    }
+
+    private getTours(): Tours {
+        if (!this._tours) {
+            this._tours = this.buildTours();
+        }
+        return this._tours;
+    }
+
+    private restart(): void {
+        const { mainTour } = this.getTours();
+        mainTour.show(0);
+    }
+
+    private start(): void {
+        if (!this._context) {
+            throw new Error('module is not initialized');
+        }
+
+        const { analyzingTour, mainTour, navigatingTour } = this.getTours();
+        this._camera = this._context.view.getCameraController();
+
+        const url = new URL(document.URL);
+        const tour = url.searchParams.get('tour') ?? 'main';
+        if (tour !== 'none') {
+            const tourStep = url.searchParams.get('tourStep') ?? 0;
+            if (tour === 'navigating') {
+                navigatingTour.show(tourStep);
+            } else if (tour === 'analyzing') {
+                analyzingTour.show(tourStep);
+            } else {
+                mainTour.show(tourStep);
+            }
+        }
     }
 }

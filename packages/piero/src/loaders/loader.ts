@@ -8,45 +8,31 @@ import * as csv from './csv';
 import * as las from './las';
 import * as vector from './vector';
 
-export type LoaderContext = {
-    file: File | string;
-    extension: string;
-    filename: string;
-    configuration: Configuration;
-};
-
 export type LoadDatasetFromFile<O extends DatasetConfigImportable = DatasetConfigImportable> = (
     context: LoaderContext,
 ) => O;
 
+export type LoaderContext = {
+    configuration: Configuration;
+    extension: string;
+    file: File | string;
+    filename: string;
+};
+
 const loaders: Record<string, LoadDatasetFromFile> = {
     csv: csv.load,
     dsv: csv.load,
-    tsv: csv.load,
-
     'geo.json': vector.load,
+
     geojson: vector.load,
-    gpx: vector.load,
     gpkg: vector.load,
+    gpx: vector.load,
     kml: vector.load,
-
     las: las.load,
+
     laz: las.load,
+    tsv: csv.load,
 };
-
-/**
- * Registers a custom loader for a specific file extension.
- * If a loader for the same extension exists, it is replaced by the new one.
- * @param fileExtension - The file extension, without the dot.
- * @param loader - The loader to use.
- */
-export function registerLoader(fileExtension: string, loader: LoadDatasetFromFile): void {
-    if (loaders[fileExtension] != null) {
-        console.warn(`replacing loader for file extension '.${fileExtension}'`);
-    }
-
-    loaders[fileExtension] = loader;
-}
 
 /**
  * Gets the filename and extension from a File or URL
@@ -73,10 +59,10 @@ function getLoaderContext(fileOrUrl: File | string, config: Configuration): Load
         }
 
         return {
-            file: fileOrUrl,
-            filename,
             configuration: config,
             extension,
+            file: fileOrUrl,
+            filename,
         };
     }
 
@@ -91,26 +77,11 @@ function getLoaderContext(fileOrUrl: File | string, config: Configuration): Load
     }
 
     return {
-        file: fileOrUrl,
-        filename: fileOrUrl.name,
         configuration: config,
         extension,
+        file: fileOrUrl,
+        filename: fileOrUrl.name,
     };
-}
-
-function selectLoader(filename: string): LoadDatasetFromFile | null {
-    const keys = Object.keys(loaders);
-
-    for (const key of keys) {
-        // Note that we use suffix-based checking rather than pure file extensions because
-        // some files have "double" extensions, such as ".geo.json", or ".copc.laz",
-        // where technically the extension is just ".json" or ".laz".
-        if (filename.endsWith(key)) {
-            return loaders[key];
-        }
-    }
-
-    return null;
 }
 
 /**
@@ -136,6 +107,35 @@ async function importFile(
 
     // Reserve promise usage for future (e.g. autodetecting format based on content, etc.)
     return Promise.resolve(new Dataset(datasetConfig));
+}
+
+function selectLoader(filename: string): LoadDatasetFromFile | null {
+    const keys = Object.keys(loaders);
+
+    for (const key of keys) {
+        // Note that we use suffix-based checking rather than pure file extensions because
+        // some files have "double" extensions, such as ".geo.json", or ".copc.laz",
+        // where technically the extension is just ".json" or ".laz".
+        if (filename.endsWith(key)) {
+            return loaders[key];
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Registers a custom loader for a specific file extension.
+ * If a loader for the same extension exists, it is replaced by the new one.
+ * @param fileExtension - The file extension, without the dot.
+ * @param loader - The loader to use.
+ */
+export function registerLoader(fileExtension: string, loader: LoadDatasetFromFile): void {
+    if (loaders[fileExtension] != null) {
+        console.warn(`replacing loader for file extension '.${fileExtension}'`);
+    }
+
+    loaders[fileExtension] = loader;
 }
 
 export default {

@@ -18,7 +18,7 @@
 
     const notificationStore = useNotificationStore();
 
-    notificationStore.$onAction(({ name, args }) => {
+    notificationStore.$onAction(({ args, name }) => {
         switch (name) {
             case 'push':
                 showNotification(args[0]);
@@ -26,39 +26,39 @@
         }
     });
 
-    function getStyle(): string {
-        if (notification.value == null) {
-            return 'text-bg-success';
-        }
-
-        switch (notification.value.level) {
-            case 'info':
-                return 'text-bg-secondary';
-            case 'warning':
-                return 'text-bg-warning';
-            case 'error':
-                return 'text-bg-danger';
-            case 'success':
-                return 'text-bg-success';
-            default:
-                return 'text-bg-success';
-        }
-    }
-
     function getIcon(): string {
         if (notification.value == null) {
             return 'text-bg-success';
         }
 
         switch (notification.value.level) {
-            case 'info':
-                return 'bi-check-circle-fill';
-            case 'warning':
-                return 'bi-exclamation-triangle-fill';
             case 'error':
                 return 'bi-exclamation-circle-fill';
+            case 'info':
+                return 'bi-check-circle-fill';
             case 'success':
                 return 'bi-check-lg';
+            case 'warning':
+                return 'bi-exclamation-triangle-fill';
+            default:
+                return 'text-bg-success';
+        }
+    }
+
+    function getStyle(): string {
+        if (notification.value == null) {
+            return 'text-bg-success';
+        }
+
+        switch (notification.value.level) {
+            case 'error':
+                return 'text-bg-danger';
+            case 'info':
+                return 'text-bg-secondary';
+            case 'success':
+                return 'text-bg-success';
+            case 'warning':
+                return 'text-bg-warning';
             default:
                 return 'text-bg-success';
         }
