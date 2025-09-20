@@ -145,7 +145,7 @@ const libConfig = defineConfig(e => {
             minify: isProduction,
 
             rollupOptions: {
-                external: ['vue', '@giro3d/giro3d', 'three', 'ol'],
+                external: [/node_modules/],
                 output: {
                     assetFileNames: 'assets/[name][extname]',
                     chunkFileNames: '[name].[format].js',
