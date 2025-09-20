@@ -92,12 +92,6 @@ export const commonConfig = defineConfig(env => {
             'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(commitHash),
             'import.meta.env.VITE_HEADERS': metaEnv.VITE_HEADERS,
         },
-        optimizeDeps: {
-            // We have an issue with the cityjson-three-loader which can be resolved by not optimizing it
-            // however it depends on earcut which _has_ to be optimized (because giro3d also depends on it)
-            exclude: ['cityjson-threejs-loader'],
-            include: ['earcut'],
-        },
         plugins: [
             vue(),
             nodePolyfills({

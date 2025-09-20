@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "paths": {
+            // FIXME Temporary hack to be able to use non-exported types
+            "@giro3d/piero/src/*": ["../piero/src/*"]
+        }
+    },
+    "include": ["src", "../../env.d.ts", "../piero/src"]
+}

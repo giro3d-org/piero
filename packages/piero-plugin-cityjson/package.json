@@ -1,11 +1,12 @@
 {
-    "name": "@giro3d/piero",
+    "name": "@giro3d/piero-plugin-cityjson",
     "type": "module",
     "version": "25.10.0-beta.16",
-    "description": "A web application for 3D geospatial data visualization, powered by Giro3D",
+    "description": "Load CityJSON datasets in Piero",
     "keywords": [
         "front-end",
         "web",
+        "cityjson",
         "framework",
         "webgl",
         "webgl2",
@@ -36,13 +37,7 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.es.js",
             "require": "./dist/index.cjs.js"
-        },
-        "./modules": {
-            "types": "./dist/modules.d.ts",
-            "import": "./dist/modules.es.js",
-            "require": "./dist/modules.cjs.js"
-        },
-        "./piero.css": "./dist/assets/piero.css"
+        }
     },
     "files": [
         "dist"
@@ -69,31 +64,10 @@
         "package-library": "npm run build-library && npm pack"
     },
     "peerDependencies": {
-        "vue": "^3.4.20",
-        "@giro3d/giro3d": "^0.43.0",
-        "ol": "^9.2.4",
+        "@giro3d/piero": "*",
         "three": "^0.170.0"
     },
     "dependencies": {
-        "@loaders.gl/core": "^4.1.1",
-        "@loaders.gl/csv": "^4.1.1",
-        "@loaders.gl/geopackage": "^4.1.1",
-        "@loaders.gl/las": "^4.1.1",
-        "@loaders.gl/shapefile": "^4.1.1",
-        "@popperjs/core": "^2.11.8",
-        "@tarekraafat/autocomplete.js": "^10.2.7",
-        "openbim-components": "1.1.5",
-        "web-ifc": "^0.0.44",
-        "bootstrap": "^5.3.3",
-        "bootstrap-icons": "^1.11.3",
-        "camera-controls": "^2.10.1",
-        "chart.js": "^3.9.1",
-        "chroma-js": "^2.4.2",
-        "d3-dsv": "^1.2.0",
-        "font-gis": "^1.0.5",
-        "pinia": "^2.1.7",
-        "proj4": "^2.9.0",
-        "shepherd.js": "^11.2.0",
-        "regenerator-runtime": "^0.14.1"
+        "cityjson-threejs-loader": "github:cityjson/cityjson-threejs-loader"
     }
 }

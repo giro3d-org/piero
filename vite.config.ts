@@ -51,6 +51,9 @@ const appConfig = defineConfig(() => {
         resolve: {
             alias: {
                 '@giro3d/piero': fileURLToPath(new URL('./packages/piero/src', import.meta.url)),
+                '@giro3d/piero-plugin-cityjson': fileURLToPath(
+                    new URL('./packages/piero-plugin-cityjson/src', import.meta.url),
+                ),
             },
         },
         root,

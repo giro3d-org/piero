@@ -22,10 +22,14 @@
         "paths": {
             "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly
             "@giro3d/piero/*": ["./packages/piero/src/*"],
-            "@/*": ["./packages/piero/src/*"]
+            "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/src"]
         }
     },
     "exclude": ["node_modules", "**/dist"],
-    "include": ["*.ts"],
-    "references": [{ "path": "./tsconfig.node.json" }, { "path": "./packages/piero/tsconfig.json" }]
+    "include": ["*.ts", "build"],
+    "references": [
+        { "path": "./tsconfig.node.json" },
+        { "path": "./packages/piero/tsconfig.json" },
+        { "path": "./packages/piero-plugin-cityjson/tsconfig.json" }
+    ]
 }
