@@ -142,7 +142,7 @@ const libConfig = defineConfig(e => {
                 formats: ['es', 'cjs'],
                 name: 'piero',
             },
-            minify: isProduction,
+            minify: isProduction ? 'esbuild' : false,
 
             rollupOptions: {
                 external: [/node_modules/],
