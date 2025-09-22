@@ -5,6 +5,7 @@ import { Dataset } from '@/types/Dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 
 import * as csv from './csv';
+import * as geotiff from './geotiff';
 import * as las from './las';
 import * as vector from './vector';
 
@@ -23,14 +24,14 @@ const loaders: Record<string, LoadDatasetFromFile> = {
     csv: csv.load,
     dsv: csv.load,
     'geo.json': vector.load,
-
     geojson: vector.load,
     gpkg: vector.load,
     gpx: vector.load,
     kml: vector.load,
     las: las.load,
-
     laz: las.load,
+    tif: geotiff.load,
+    tiff: geotiff.load,
     tsv: csv.load,
 };
 
