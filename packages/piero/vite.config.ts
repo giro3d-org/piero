@@ -159,7 +159,7 @@ const libConfig = defineConfig(e => {
                 },
             },
 
-            sourcemap: !isProduction,
+            sourcemap: isProduction,
         },
         plugins: [
             dts({
