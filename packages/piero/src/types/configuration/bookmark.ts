@@ -1,17 +1,13 @@
-import type { Vec3 } from '@/types/configuration/geographic';
+import z from 'zod';
 
-/**
- * Bookmark configuration.
- *
- * The easiest way to define a bookmark is actually to set it in the app, export it and copy the values from the JSON file.
- */
-export interface BookmarkConfig {
-    /** Focal offset of the camera */
-    focalOffset: Vec3;
-    /** 3D position of the camera, in `default_crs` */
-    position: Vec3;
-    /** 3D position of the camera target, in `default_crs` */
-    target: Vec3;
+import { LookAt } from './LookAt';
+
+export const Bookmark = z.object({
+    /** The camera position */
+    lookAt: LookAt,
     /** Name of the bookmark displayed in the UI */
-    title: string;
-}
+    title: z.string().nonempty(),
+});
+
+export type Bookmark = z.infer<typeof Bookmark>;
+z.globalRegistry.add(Bookmark, { id: 'Bookmark' });

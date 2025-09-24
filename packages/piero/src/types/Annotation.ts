@@ -5,6 +5,8 @@ import { EventDispatcher, MathUtils } from 'three';
 
 import Download from '@/utils/Download';
 
+import type { AnnotationType } from './configuration/annotation';
+
 type AnnotationEventMap = {
     isEditing: EmptyEvent;
     visible: EmptyEvent;
@@ -23,20 +25,24 @@ export type PieroShapeUserData = {
         minmax: [number, number];
         perimeter?: number | null;
     };
-    type: 'LineString' | 'MultiPoint' | 'Point' | 'Polygon';
+    type: AnnotationType;
 };
 
 export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     public properties: object;
     public readonly title: string;
+    public readonly type: AnnotationType;
     public readonly uuid: string;
+
     public get isEditing(): boolean {
         return this._isEditing;
     }
+
     public set isEditing(v: boolean) {
         this._isEditing = v;
         this.dispatchEvent({ type: 'isEditing' });
     }
+
     public get object(): Shape<PieroShapeUserData> {
         return this._object();
     }
@@ -59,10 +65,12 @@ export default class Annotation extends EventDispatcher<AnnotationEventMap> {
     public constructor(
         title: string,
         object: () => Shape<PieroShapeUserData>,
+        type: AnnotationType,
         properties: object = {},
     ) {
         super();
 
+        this.type = type;
         this.title = title;
         this._visible = true;
         this._isEditing = false;

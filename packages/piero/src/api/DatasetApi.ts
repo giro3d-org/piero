@@ -1,12 +1,19 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
+import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+
 import { type Component } from 'vue';
 
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
 import type { DatasetStore } from '@/stores/datasets';
+import type { Dataset } from '@/types/configuration/Dataset';
 import type { DatasetOrGroup } from '@/types/Dataset';
 
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
-import { type EntityBuilder, registerEntityBuilder } from '@/giro3d/EntityBuilder';
+import { registerBuilder } from '@/giro3d/DatasetBuilder';
 import { type LoadDatasetFromFile, registerLoader } from '@/loaders/loader';
 import { customHighlighters } from '@/services/Highlighter';
 import { customAttributeExtractors } from '@/services/Picker';
@@ -38,6 +45,18 @@ export type DatasetActionRegistrationParams = {
     title: string;
 };
 
+export interface DatasetBuildContext {
+    dataset: Dataset;
+    instance: Instance;
+}
+
+export type DatasetBuilder = (context: DatasetBuildContext) => Promise<DatasetBuildResult>;
+
+export interface DatasetBuildResult {
+    entities?: Entity3D[];
+    layers?: (ColorLayer | ElevationLayer | MaskLayer)[];
+}
+
 /**
  * Parameters to register a new Dataset type.
  */
@@ -49,7 +68,7 @@ export type DatasetRegistrationParams = {
     /**
      * The function to build an entity from a dataset.
      */
-    entityBuilder: EntityBuilder;
+    builder: DatasetBuilder;
     /**
      * The list of supported extensions (without the leading dot). When a file with a supported extension is imported,
      * the appropriate loader will be used. If undefined, this dataset cannot be imported
@@ -100,7 +119,7 @@ export class DatasetApiImpl implements DatasetApi {
             customHighlighters.push(params.highlight);
         }
 
-        registerEntityBuilder(datasetType, params.entityBuilder);
+        registerBuilder(datasetType, params.builder);
 
         if (params.fileExtensions) {
             if (params.loader == null) {

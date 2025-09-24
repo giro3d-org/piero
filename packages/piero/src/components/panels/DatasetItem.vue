@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { Dataset } from '@/types/Dataset';
+    import { MathUtils } from 'three';
 
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
@@ -9,6 +9,7 @@
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { useDatasetStore } from '@/stores/datasets';
+    import { type Dataset, DatasetState } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
 
     const store = useDatasetStore();
@@ -19,50 +20,71 @@
 
     defineEmits(['zoom', 'clipTo', 'update:toggle-grid', 'update:toggle-mask', 'update:visible']);
 
-    const isPreloading = refAndWatch(props.dataset, 'isPreloading');
-    const isPreloaded = refAndWatch(props.dataset, 'isPreloaded');
-    const isVisible = refAndWatch(props.dataset, 'visible');
+    const state = refAndWatch(props.dataset, 'state');
+    const isVisible = refAndWatch(props.dataset, 'visibleSelf');
 
     function deleteDataset(): void {
         store.remove(props.dataset);
     }
+
+    const id = MathUtils.generateUUID();
+    const target = `#${id}`;
 </script>
 
 <template>
     <div class="d-flex">
-        <IconList class="me-1 text-body-tertiary">
+        <IconListButton
+            v-if="!propertyViews.has(dataset.type) || state !== DatasetState.Loaded"
+            style="opacity: 0%"
+            title="Expand group"
+            icon="bi-chevron-down"
+            data-bs-toggle="collapse"
+            class="me-1"
+            :data-bs-target="target"
+            :aria-controls="id"
+            aria-expanded="false"
+        />
+        <IconListButton
+            v-if="propertyViews.has(dataset.type) && state === DatasetState.Loaded"
+            title="Show dataset properties"
+            icon="bi-chevron-down"
+            data-bs-toggle="collapse"
+            class="me-1"
+            :data-bs-target="`#properties-${dataset.uuid}`"
+            :aria-controls="`properties-${dataset.uuid}`"
+            aria-expanded="false"
+        />
+        <VisibilityControl
+            :visible="isVisible"
+            @update:visible="v => $emit('update:visible', dataset, v)"
+        />
+        <IconList class="text-body-tertiary">
             <Icon
                 :icon="datasetIcons[dataset.type] ?? 'bi-file-earmark-x'"
                 :title="datasetTitles[dataset.type] ?? 'Unknown'"
             />
         </IconList>
-        <VisibilityControl
-            :visible="isVisible"
-            @update:visible="v => $emit('update:visible', dataset, v)"
-        />
         <ListLabelButton
             class="label"
-            :disabled="!isVisible || !isPreloaded"
+            :disabled="!isVisible || state !== DatasetState.Loaded"
             :text="dataset.name"
             :title="`Zoom to ${dataset.name}`"
             @click="$emit('zoom', dataset)"
         />
         <IconList class="ms-1">
-            <div v-if="isPreloading" class="icon spinner d-inline-block">
+            <div v-if="state === DatasetState.Loading" class="icon spinner d-inline-block me-1">
                 <SpinnerControl title="Loading..." />
             </div>
-            <IconListButton
-                v-if="propertyViews.has(dataset.type) && isPreloaded"
-                title="Show dataset properties"
-                icon="bi-card-list"
-                data-bs-toggle="collapse"
-                :data-bs-target="`#collapse-${dataset.uuid}`"
-                :aria-controls="`collapse-${dataset.uuid}`"
-                aria-expanded="false"
-            />
+            <div v-if="state === DatasetState.Failed" class="d-inline-block">
+                <Icon
+                    class="text-secondary me-1"
+                    icon="bi-exclamation-triangle-fill"
+                    title="Failed to load"
+                />
+            </div>
             <IconListButton
                 v-if="
-                    isPreloaded &&
+                    state === DatasetState.Loaded &&
                     (('canMaskBasemap' in dataset.config && dataset.config.canMaskBasemap) ||
                         ('isMaskingBasemap' in dataset.config && dataset.config.isMaskingBasemap))
                 "
@@ -72,7 +94,10 @@
             />
 
             <IconListButton
-                v-for="action in store.getCustomActions(dataset, { isVisible, isPreloaded })"
+                v-for="action in store.getCustomActions(dataset, {
+                    isVisible,
+                    isPreloaded: state === DatasetState.Loaded,
+                })"
                 :key="action.title"
                 :title="action.title"
                 :icon="action.icon"
@@ -80,7 +105,7 @@
             />
 
             <IconListButton
-                v-if="isPreloaded"
+                v-if="state === DatasetState.Loaded"
                 title="Toggle 3D grid"
                 icon="bi-box"
                 @click="$emit('update:toggle-grid', dataset)"
@@ -91,8 +116,8 @@
     <!-- Property view -->
     <div
         v-if="propertyViews.has(dataset.type)"
-        class="collapse m-2"
-        :id="`collapse-${dataset.uuid}`"
+        class="collapse m-2 ms-4 p-2 border rounded"
+        :id="`properties-${dataset.uuid}`"
     >
         <component :is="propertyViews.get(dataset.type)" :dataset="dataset"></component>
     </div>

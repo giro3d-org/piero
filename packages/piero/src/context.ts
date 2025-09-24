@@ -8,7 +8,7 @@ import type NotificationApi from './api/NotificationApi';
 import type ViewApi from './api/ViewApi';
 import type WidgetApi from './api/WidgetApi';
 import type { PieroEvents } from './events';
-import type { Configuration } from './types/Configuration';
+import type { Configuration } from './types/configuration/Configuration';
 
 /**
  * Piero context.

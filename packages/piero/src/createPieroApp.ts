@@ -3,9 +3,9 @@ import { createApp } from 'vue';
 
 import type { PieroContext } from './context';
 import type { Module } from './module';
-import type { Configuration } from './types/Configuration';
 
 import './assets/main.scss';
+import type { Configuration } from './types/configuration/Configuration';
 import type { DynamicStyleCollection } from './types/VectorStyle';
 
 import { AnalysisApiImpl } from './api/AnalysisApi';
@@ -15,7 +15,7 @@ import { NotificationApiImpl } from './api/NotificationApi';
 import { SearchApiImpl } from './api/SearchApi';
 import { WidgetApiImpl } from './api/WidgetApi';
 import App from './App.vue';
-import { loadRemoteConfiguration, setConfiguration, setDynamicStyles } from './config-loader';
+import { loadRemoteConfiguration, setConfiguration, setDynamicStyles } from './configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from './events';
 import { useAnalysisStore } from './stores/analysis';
 import { useBookmarkStore } from './stores/bookmarks';

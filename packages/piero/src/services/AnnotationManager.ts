@@ -7,7 +7,7 @@ import type {
 } from '@giro3d/giro3d/entities/Shape';
 import type { CreationOptions } from '@giro3d/giro3d/interactions/DrawTool';
 import type View from '@giro3d/giro3d/renderer/View';
-import type { Position } from 'geojson';
+import type { Geometry, Position } from 'geojson';
 import type { Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
@@ -24,11 +24,14 @@ import { MathUtils, Vector3 } from 'three';
 import type CameraController from '@/services/CameraController';
 import type Picker from '@/services/Picker';
 import type { PieroShapeUserData } from '@/types/Annotation';
+import type { AnnotationType } from '@/types/configuration/annotation';
 
+import { getConfig } from '@/configurationLoader';
 import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Annotation from '@/types/Annotation';
+import { toGiro3DCoordinates } from '@/types/configuration/coordinate';
 import Notification from '@/types/Notification';
 import Measure from '@/utils/Measure';
 
@@ -54,6 +57,21 @@ const areaFormatter: SurfaceLabelFormatter = values => {
 
 const tmpStart = new Vector3();
 const tmpEnd = new Vector3();
+
+function getAnnoationTypeFromGeoJSONGeometry(geom: Geometry): AnnotationType {
+    switch (geom.type) {
+        case 'LineString':
+            return 'linestring';
+        case 'MultiPoint':
+            return 'multipoint';
+        case 'Point':
+            return 'point';
+        case 'Polygon':
+            return 'polygon';
+        default:
+            throw new Error('invalid annotation geometry');
+    }
+}
 
 const lengthFormatter: (view: View) => SegmentLabelFormatter = (view: View) => values => {
     const { camera } = view;
@@ -174,6 +192,8 @@ export default class AnnotationManager {
                 }
             });
         });
+
+        this.loadAnnotationsFromConfiguration();
     }
 
     public dispose(): void {
@@ -190,10 +210,11 @@ export default class AnnotationManager {
 
     public pushNewAnnotation(
         title: string,
+        type: AnnotationType,
         shape: Shape<PieroShapeUserData>,
         properties: object = {},
     ): Annotation {
-        const annotation = new Annotation(title, () => shape, properties);
+        const annotation = new Annotation(title, () => shape, type, properties);
         shape.userData.annotation = annotation;
         annotation.addEventListener('visible', () => this.updateDrawing(annotation));
         this._store.add(annotation);
@@ -226,8 +247,7 @@ export default class AnnotationManager {
             const name = promptTitle(title);
             if (name != null) {
                 this.computeMeasurements(shape);
-                const annotation = this.pushNewAnnotation(name, shape);
-
+                const annotation = this.pushNewAnnotation(name, type, shape);
                 this._shapes.set(annotation.uuid, shape);
             } else {
                 this._instance.remove(shape);
@@ -240,12 +260,72 @@ export default class AnnotationManager {
             minmax: Measure.getMinMaxAltitudes(shape),
         };
 
-        if (shape.userData.type === 'Polygon' || shape.userData.type === 'LineString') {
+        if (shape.userData.type === 'polygon' || shape.userData.type === 'linestring') {
             shape.userData.measurements.perimeter = shape.getLength();
         }
-        if (shape.userData.type === 'Polygon') {
+        if (shape.userData.type === 'polygon') {
             shape.userData.measurements.area = shape.getArea();
         }
+    }
+
+    private createLineStringShape(points: Vector3[]): Shape<PieroShapeUserData> {
+        const result = new Shape<PieroShapeUserData>({
+            beforeRemovePoint: limitRemovePointHook(2),
+            color: DEFAULT_SHAPE_COLOR,
+            segmentLabelFormatter: lengthFormatter(this._instance.view),
+            showLine: true,
+            showSegmentLabels: true,
+            showVertexLabels: false,
+            showVertices: true,
+        });
+        result.setPoints(points);
+        return result;
+    }
+
+    private createMultiPointShape(points: Vector3[]): Shape<PieroShapeUserData> {
+        const result = new Shape<PieroShapeUserData>({
+            beforeRemovePoint: limitRemovePointHook(1),
+            color: DEFAULT_SHAPE_COLOR,
+            showLine: false,
+            showVertexLabels: true,
+            showVertices: true,
+            vertexLabelFormatter: pointFormatter,
+            vertexRadius: SHAPE_POINT_RADIUS,
+        });
+        result.setPoints(points);
+        return result;
+    }
+
+    private createPointShape(point: Vector3): Shape<PieroShapeUserData> {
+        const result = new Shape<PieroShapeUserData>({
+            beforeRemovePoint: inhibitHook,
+            color: DEFAULT_SHAPE_COLOR,
+            showLine: false,
+            showVertexLabels: true,
+            showVertices: true,
+            vertexLabelFormatter: pointFormatter,
+            vertexRadius: SHAPE_POINT_RADIUS,
+        });
+        result.setPoints([point]);
+
+        return result;
+    }
+
+    private createPolygonShape(points: Vector3[]): Shape<PieroShapeUserData> {
+        const result = new Shape<PieroShapeUserData>({
+            afterRemovePoint: afterRemovePointOfRing,
+            afterUpdatePoint: afterUpdatePointOfRing,
+            beforeRemovePoint: limitRemovePointHook(4), // We take into account the doubled first/last point
+            color: DEFAULT_SHAPE_COLOR,
+            showLine: true,
+            showSurface: true,
+            showSurfaceLabel: true,
+            showVertexLabels: false,
+            showVertices: true,
+            surfaceLabelFormatter: areaFormatter,
+        });
+        result.setPoints(points);
+        return result;
     }
 
     private deleteAnnotation(annotation: Annotation): void {
@@ -275,14 +355,14 @@ export default class AnnotationManager {
     }
 
     private drawLine(): void {
-        this.draw('createLineString', 'LineString', 'New line annotation', {
+        this.draw('createLineString', 'linestring', 'New line annotation', {
             segmentLabelFormatter: lengthFormatter(this._instance.view),
             showSegmentLabels: this._store.showLabels(),
         });
     }
 
     private drawPoint(): void {
-        this.draw('createPoint', 'Point', 'New point annotation', {
+        this.draw('createPoint', 'point', 'New point annotation', {
             borderWidth: 3,
             showVertexLabels: this._store.showLabels(),
             vertexLabelFormatter: pointFormatter,
@@ -291,7 +371,7 @@ export default class AnnotationManager {
     }
 
     private drawPolygon(): void {
-        this.draw('createPolygon', 'Polygon', 'New polygon annotation', {
+        this.draw('createPolygon', 'polygon', 'New polygon annotation', {
             showSurfaceLabel: this._store.showLabels(),
             surfaceLabelFormatter: areaFormatter,
         });
@@ -358,7 +438,8 @@ export default class AnnotationManager {
         }
 
         const shape = await this.importShapeFromGeoJSON(feature);
-        this.pushNewAnnotation(feature.properties.title, shape, feature.properties);
+        const type = getAnnoationTypeFromGeoJSONGeometry(feature.geometry);
+        this.pushNewAnnotation(feature.properties.title, type, shape, feature.properties);
         return true;
     }
 
@@ -464,55 +545,16 @@ export default class AnnotationManager {
 
         switch (feature.geometry.type) {
             case 'LineString':
-                result = new Shape<PieroShapeUserData>({
-                    beforeRemovePoint: limitRemovePointHook(2),
-                    color: DEFAULT_SHAPE_COLOR,
-                    segmentLabelFormatter: lengthFormatter(this._instance.view),
-                    showLine: true,
-                    showSegmentLabels: true,
-                    showVertexLabels: false,
-                    showVertices: true,
-                });
-                result.setPoints(feature.geometry.coordinates.map(getPoint));
+                result = this.createLineStringShape(feature.geometry.coordinates.map(getPoint));
                 break;
             case 'MultiPoint':
-                result = new Shape<PieroShapeUserData>({
-                    beforeRemovePoint: limitRemovePointHook(1),
-                    color: DEFAULT_SHAPE_COLOR,
-                    showLine: false,
-                    showVertexLabels: true,
-                    showVertices: true,
-                    vertexLabelFormatter: pointFormatter,
-                    vertexRadius: SHAPE_POINT_RADIUS,
-                });
-                result.setPoints(feature.geometry.coordinates.map(getPoint));
+                result = this.createMultiPointShape(feature.geometry.coordinates.map(getPoint));
                 break;
             case 'Point':
-                result = new Shape<PieroShapeUserData>({
-                    beforeRemovePoint: inhibitHook,
-                    color: DEFAULT_SHAPE_COLOR,
-                    showLine: false,
-                    showVertexLabels: true,
-                    showVertices: true,
-                    vertexLabelFormatter: pointFormatter,
-                    vertexRadius: SHAPE_POINT_RADIUS,
-                });
-                result.setPoints([getPoint(feature.geometry.coordinates)]);
+                result = this.createPointShape(getPoint(feature.geometry.coordinates));
                 break;
             case 'Polygon':
-                result = new Shape<PieroShapeUserData>({
-                    afterRemovePoint: afterRemovePointOfRing,
-                    afterUpdatePoint: afterUpdatePointOfRing,
-                    beforeRemovePoint: limitRemovePointHook(4), // We take into account the doubled first/last point
-                    color: DEFAULT_SHAPE_COLOR,
-                    showLine: true,
-                    showSurface: true,
-                    showSurfaceLabel: true,
-                    showVertexLabels: false,
-                    showVertices: true,
-                    surfaceLabelFormatter: areaFormatter,
-                });
-                result.setPoints(feature.geometry.coordinates[0].map(getPoint));
+                result = this.createPolygonShape(feature.geometry.coordinates[0].map(getPoint));
                 break;
             default:
                 throw new Error(
@@ -525,6 +567,52 @@ export default class AnnotationManager {
         await this._instance.add(result);
 
         return result;
+    }
+
+    // private async importAnnotation(
+    //     feature: GeoJSON.Feature,
+    //     skipNames: Set<string>,
+    // ): Promise<boolean> {
+    //     if (feature.properties == null || typeof feature.properties !== 'object') {
+    //         feature.properties = {};
+    //     }
+    //     if (feature.properties.title == null) {
+    //         feature.properties.title = MathUtils.generateUUID();
+    //     }
+
+    //     if (skipNames.has(feature.properties.title)) {
+    //         return false;
+    //     }
+
+    //     const shape = await this.importShapeFromGeoJSON(feature);
+    //     this.pushNewAnnotation(feature.properties.title, shape, feature.properties);
+    //     return true;
+    // }
+
+    private loadAnnotationsFromConfiguration(): void {
+        const config = getConfig();
+
+        for (const conf of config.annotations) {
+            const name = conf.title;
+
+            switch (conf.type) {
+                case 'point':
+                    const coord = toGiro3DCoordinates(conf.coordinate, config.scene.crs)
+                        .as(config.scene.crs)
+                        .toVector3();
+                    const shape = this.createPointShape(coord);
+                    shape.userData.type = 'point';
+
+                    this.computeMeasurements(shape);
+                    this.pushNewAnnotation(name, 'point', shape);
+                    this._instance.add(shape).catch(console.error);
+                    break;
+                default:
+                    // TODO
+                    console.warn('not implemented');
+                    break;
+            }
+        }
     }
 
     private onKeyDown(e: KeyboardEvent): void {
@@ -594,14 +682,14 @@ export default class AnnotationManager {
     private udpateLabelVisibility(show: boolean): void {
         this._shapes.forEach(shape => {
             switch (shape.userData.type) {
-                case 'LineString':
+                case 'linestring':
                     shape.showSegmentLabels = show;
                     break;
-                case 'MultiPoint':
-                case 'Point':
+                case 'multipoint':
+                case 'point':
                     shape.showVertexLabels = show;
                     break;
-                case 'Polygon':
+                case 'polygon':
                     shape.showSurfaceLabel = show;
                     break;
             }

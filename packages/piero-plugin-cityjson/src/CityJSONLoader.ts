@@ -3,44 +3,46 @@ import type {
     Attribute,
     AttributeExtractorFn,
     AttributesGroups,
-    EntityBuilder,
+    DatasetBuilder,
     LoadDatasetFromFile,
     Module,
     PieroContext,
 } from '@giro3d/piero';
-// TODO this is a hack because currently the configuration is not modular,
-// so we cheat and import types directly from the source. However we would like this configuration
-// to be part of this module in the future.
-import type { CityJSONDatasetConfig } from '@giro3d/piero/src/types/configuration/datasets/cityjson';
+import type z from 'zod';
 
 import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+import { configuration } from '@giro3d/piero';
 
 import CityJSONEntity, { isCityJSONPickResult } from './CityJSONEntity';
 import CityJSONEntityInspector from './CityJSONEntityInspector';
 
+const CityJSONDataset = configuration.Dataset.extend({
+    url: configuration.Url,
+});
+type CityJSONDataset = z.infer<typeof CityJSONDataset>;
+
 export const loader: LoadDatasetFromFile = context => {
-    return {
+    const result = {
         name: context.filename,
-        source: {
-            url: context.file,
-        },
         type: 'cityjson',
+        url: typeof context.file === 'string' ? context.file : URL.createObjectURL(context.file),
         visible: true,
-    } satisfies CityJSONDatasetConfig;
+    } satisfies CityJSONDataset;
+
+    return Promise.resolve(result);
 };
 
-export const entityBuilder: EntityBuilder = context => {
-    const cfg = context.dataset.config as unknown as CityJSONDatasetConfig;
-    // FIXME since we are importing types directly, this causes issues related
-    // to path resolution for files (since the main packages uses the @/ alias to resolve modules).
-    // when the configuration has been modularized this should not be a problem.
-    // @ts-expect-error typing issue
+export const builder: DatasetBuilder = context => {
+    const cfg = CityJSONDataset.parse(context.dataset);
+
     const entity = new CityJSONEntity({
-        ...cfg.source,
         featureProjection: context.instance.referenceCrs,
+        url: cfg.url,
     });
 
-    return Promise.resolve(entity);
+    return Promise.resolve({
+        entities: [entity],
+    });
 };
 
 const getAttributesFromCityObject: AttributeExtractorFn = (
@@ -79,13 +81,13 @@ const getAttributesFromCityObject: AttributeExtractorFn = (
 };
 
 export default class CityJSONLoader implements Module {
-    public readonly id = 'plugin-cityjson-loader';
+    public readonly id = 'plugin-loader-cityjson';
     public readonly name = 'CityJSON';
 
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('cityjson', {
             attributeExtractor: getAttributesFromCityObject,
-            entityBuilder,
+            builder,
             fileExtensions: ['cityjson', 'city.json'],
             icon: 'bi-buildings',
             loader,

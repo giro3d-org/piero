@@ -27,7 +27,7 @@ export default class Measure extends EventDispatcher<MeasureEventMap> {
 
     public set visible(v: boolean) {
         this._visible = v;
-        this.dispatchEvent({ type: 'visible' });
+        this.dispatchEvent({ type: 'visibleSelf' });
     }
 
     private _object: Measure3D;

@@ -1,5 +1,11 @@
+<script setup lang="ts">
+    defineProps<{
+        indentation?: string;
+    }>();
+</script>
+
 <template>
-    <ul class="list-group list-group-flush border-start">
+    <ul class="list-group list-group-flush">
         <slot></slot>
     </ul>
 </template>
@@ -8,7 +14,7 @@
     :slotted(li.list-group-item) {
         padding-top: 0;
         padding-bottom: 0;
-        margin-left: 0.25rem;
+        margin-left: 1rem;
         padding-left: 0;
         padding-right: 0;
     }

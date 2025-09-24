@@ -1,17 +1,17 @@
+import type Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import { defineStore } from 'pinia';
-import { FrontSide } from 'three';
+import { DoubleSide } from 'three';
 import { shallowRef } from 'vue';
 
-import type { CameraConfigDeprecated } from '@/types/configuration/camera';
+import type { LookAt } from '@/types/configuration/LookAt';
 
-import { getConfig } from '@/config-loader';
-import { getExtent } from '@/utils/Configuration';
+import { getConfig } from '@/configurationLoader';
+import { toGiro3DExtent } from '@/types/configuration/extent';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
@@ -35,106 +35,45 @@ export const useGiro3dStore = defineStore('giro3d', () => {
 
     function getDefaultCameraPosition(): Coordinates {
         const config = getConfig();
-        const conf = config.camera;
-        if (Array.isArray(conf.position)) {
-            console.warn(
-                'Configuration is using an array for camera.position, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information. This will be removed in release v24.7.',
-            );
-            return new Coordinates(
-                'EPSG:4326',
-                conf.position[0],
-                conf.position[1],
-                (conf as CameraConfigDeprecated).altitude,
-            ).as(config.default_crs);
-        }
+        const conf = config.scene.camera;
 
-        if (!('z' in conf.position)) {
-            console.warn(
-                'Configuration is using a 2D object for camera.position, you should switch to a 3D object; see https://gitlab.com/giro3d/piero/-/issues/38 for more information. This will be removed in release v24.7.',
-            );
-        }
-
-        return new Coordinates(
-            conf.position.crs ?? config.default_crs,
-            conf.position.x,
-            conf.position.y,
-            'z' in conf.position ? conf.position.z : (conf as CameraConfigDeprecated).altitude,
-        ).as(config.default_crs);
+        return new Coordinates('EPSG:4326', conf.longitude, conf.latitude, conf.altitude).as(
+            config.scene.crs,
+        );
     }
 
-    function getDefaultCameraLookAt(): Coordinates {
+    function getDefaultLookAt(): LookAt {
         const config = getConfig();
-        if ('lookAt' in config.camera && config.camera.lookAt) {
-            return new Coordinates(
-                config.camera.lookAt.crs ?? config.default_crs,
-                config.camera.lookAt.x,
-                config.camera.lookAt.y,
-                config.camera.lookAt.z,
-            ).as(config.default_crs);
-        }
 
-        const mapExtent = getDefaultBasemapExtent();
-        return mapExtent.center();
+        return config.scene.camera;
     }
 
     function getDefaultBasemapOptions(): Omit<MapConstructorOptions, 'extent'> {
-        const config = getConfig();
         const opts: Omit<MapConstructorOptions, 'extent'> = {
-            backgroundColor: config.basemap.backgroundColor ?? 'white',
-            backgroundOpacity: config.basemap.backgroundOpacity,
-            colorimetry: config.basemap.colorimetry,
-            contourLines: config.basemap.contourLines,
-            elevationRange: config.basemap.elevationRange,
-            graticule: config.basemap.graticule,
-            lighting: config.basemap.lighting ?? {
+            backgroundColor: 'white',
+            lighting: {
                 elevationLayersOnly: true,
                 enabled: true,
             },
-            showOutline: config.basemap.showOutline,
-            side: config.basemap.side ?? FrontSide,
-            terrain: config.basemap.terrain,
+            side: DoubleSide,
+            terrain: {
+                enabled: true,
+            },
         };
         return opts;
     }
 
     function getDefaultBasemapExtent(): Extent {
         const config = getConfig();
-        if (config.basemap.extent) {
-            return getExtent(config.basemap.extent);
-        }
 
-        console.warn(
-            'Configuration is using basemap.center/basemap.size, you should switch to extent. This will be removed in release v24.10.',
-        );
+        const input = config.scene.basemap.extent;
 
-        const size = config.basemap.size;
-        const center = config.basemap.center;
-        if (size == null || center == null) {
-            throw new Error('basemap.center and basemap.size need to be defined');
-        }
-
-        let centerLocal: Coordinates;
-        if (Array.isArray(center)) {
-            console.warn(
-                'Configuration is using an array for basemap.center, you should switch to an object; see https://gitlab.com/giro3d/piero/-/issues/24 for more information. This will be removed in release v24.7.',
-            );
-            centerLocal = new Coordinates('EPSG:4326', center[0], center[1], 0);
-        } else {
-            centerLocal = new Coordinates(center.crs ?? config.default_crs, center.x, center.y, 0);
-        }
-        centerLocal = centerLocal.as(config.default_crs);
-
-        return Extent.fromCenterAndSize(
-            config.default_crs,
-            { x: centerLocal.x, y: centerLocal.y },
-            size[0],
-            size[1],
-        );
+        return toGiro3DExtent(input, config.scene.crs);
     }
 
     function getCRS(): string {
         const config = getConfig();
-        return config.default_crs;
+        return config.scene.crs;
     }
 
     function notifyChange(): void {
@@ -145,8 +84,8 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         getCRS,
         getDefaultBasemapExtent,
         getDefaultBasemapOptions,
-        getDefaultCameraLookAt,
         getDefaultCameraPosition,
+        getDefaultLookAt,
         getInspector,
         getMainView,
         notifyChange,

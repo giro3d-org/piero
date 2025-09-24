@@ -65,15 +65,6 @@
         padding-top: 0.5rem;
     }
 
-    input {
-        height: 30pt;
-        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .autocomplete {
-        width: 100%;
-    }
-
     .result {
         border-top: 1px solid #eee;
         padding: 16px;

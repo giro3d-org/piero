@@ -33,7 +33,7 @@
             >
         </h5>
         <div class="content">
-            <DatasetPanel v-if="selected === 'datasets'" />
+            <DatasetPanel v-if="selected === 'data'" />
             <AboutPanel v-if="selected === 'about'" />
             <BookmarkPanel v-if="selected === 'bookmarks'" />
             <AnalysisPanel v-if="selected === 'analysis'" />

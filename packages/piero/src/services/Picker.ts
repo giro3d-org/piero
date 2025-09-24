@@ -15,17 +15,15 @@ import { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { type Feature as OLFeature } from 'ol';
 import { Box3, type Object3D, Vector3 } from 'three';
 
-import type ClippingBoxAnalysis from '@/modules/ClippingBoxAnalysis';
+import type ClippingBoxAnalysis from '@/modules/analysis/ClippingBox';
 import type Annotation from '@/types/Annotation';
 import type { PieroShapeUserData } from '@/types/Annotation';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 
 import Measure3D from '@/giro3d/Measure3D';
-import { moduleId as clippingBoxModuleId } from '@/modules/ClippingBoxAnalysis';
+import { moduleId as clippingBoxModuleId } from '@/modules/analysis/ClippingBox';
 import { useModuleStore } from '@/stores/modules';
 import Feature from '@/types/Feature';
-
-import { GRID_NAME, PLANE_NAME } from './LayerManager';
 
 export type AttributeExtractorFn<T extends PickResult = PickResult> = (
     pickResult: T,
@@ -200,12 +198,7 @@ export default class Picker {
         radius = 1,
         filterOnObjects?: (obj: Entity | Object3D) => boolean,
     ): PickResult[] | null {
-        let where = instance.getObjects(
-            o =>
-                isMap(o) !== true &&
-                (o as Object3D).name !== PLANE_NAME &&
-                (o as Object3D).name !== GRID_NAME,
-        );
+        let where = instance.getObjects(o => isMap(o) !== true);
         if (filterOnObjects) {
             where = where.filter(filterOnObjects);
         }
@@ -223,12 +216,7 @@ export default class Picker {
     }
 
     public hasFeature(instance: Instance, mouse: Vector2): boolean {
-        const where = instance.getObjects(
-            o =>
-                (o as Giro3DMap).isMap !== true &&
-                (o as Object3D).name !== PLANE_NAME &&
-                (o as Object3D).name !== GRID_NAME,
-        );
+        const where = instance.getObjects(o => (o as Giro3DMap).isMap !== true);
 
         const picked = instance
             .pickObjectsAt(mouse, {

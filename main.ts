@@ -1,19 +1,6 @@
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
-import {
-    CoordinatesSearch,
-    DownloadDataset,
-    FloodingPlaneAnalysis,
-    FrenchBanGeocoder,
-    IFCLoader,
-    OpenLayersMinimap,
-    PLYLoader,
-    PostProcessEntities,
-    PotreeLoader,
-    Tour,
-} from '@giro3d/piero/modules';
-import ClippingBoxAnalysis from '@giro3d/piero/modules/ClippingBoxAnalysis';
-import CrossSectionAnalysis from '@giro3d/piero/modules/CrossSectionAnalysis';
+import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
 import DefaultConfig from './config';
 import styles from './styles';
@@ -41,25 +28,41 @@ function start(): Promise<void> {
     // performance and bundle size.
     const modules = [
         // Misc modules
-        new Tour(),
-        new DownloadDataset(),
-        new OpenLayersMinimap(),
-        new PostProcessEntities(),
+        new misc.Tour(),
+        new misc.DownloadDataset(),
+        new misc.PostProcessEntities(),
+        new misc.OpenLayersMinimap(),
+        new misc.Graticule(),
 
-        // Data loaders
-        new IFCLoader(),
+        // Built-in data loaders
+        new loaders.LASLoader(),
+        new loaders.KMLLoader(),
+        new loaders.GPXLoader(),
+        new loaders.GeoJSONLoader(),
+        new loaders.IFCLoader(),
+        new loaders.OSMLoader(),
+        new loaders.TMSLoader(),
+        new loaders.WMSLoader(),
+        new loaders.WMTSLoader(),
+        new loaders.GeoTIFFLoader(),
+        new loaders.Tiles3DLoader(),
+
+        // Non-standard loaders
+        new loaders.MapboxLoader(),
+        new loaders.PotreeLoader(),
+        new loaders.BDTopoLoader(),
+
+        // Data loaders provided by external packages
         new CityJSONLoader(),
-        new PLYLoader(),
-        new PotreeLoader(),
 
         // Analysis tools
-        new FloodingPlaneAnalysis(),
-        new CrossSectionAnalysis(),
-        new ClippingBoxAnalysis(),
+        new analysis.FloodingPlane(),
+        // new analysis.ClippingBox(),
+        new analysis.CrossSection(),
 
         // Search
-        new FrenchBanGeocoder(),
-        new CoordinatesSearch(),
+        new search.CoordinatesSearch(),
+        new search.FrenchBanGeocoder(),
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param

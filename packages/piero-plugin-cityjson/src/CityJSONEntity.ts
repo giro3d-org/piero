@@ -1,12 +1,7 @@
 import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-// FIXME stop importing from source
-import type {
-    DataProjectionMixin,
-    FeatureProjectionMixin,
-    UrlOrDataMixin,
-} from '@giro3d/piero/src/giro3d/sources/mixins';
+import type { CrsName } from '@giro3d/piero/src/types/configuration/crs';
 import type { Material, Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
@@ -63,10 +58,11 @@ export const isCityJSONPickResult = (obj: unknown): obj is CityJSONPickResult =>
 /**
  * Source interface for {@link CityJSONEntity}
  */
-export interface CityJSONSource
-    extends DataProjectionMixin,
-        Required<FeatureProjectionMixin>,
-        UrlOrDataMixin {}
+export interface CityJSONSource {
+    dataProjection?: CrsName;
+    featureProjection?: CrsName;
+    url: string;
+}
 
 /**
  * Entity for displaying a CityJSON file
@@ -210,7 +206,7 @@ export default class CityJSONEntity
                             translate[1],
                             translate[2],
                         );
-                        const coordsReference = coords.as(this.source.featureProjection);
+                        const coordsReference = coords.as(projection);
                         loader.scene.position.set(
                             coordsReference.values[0],
                             coordsReference.values[1],

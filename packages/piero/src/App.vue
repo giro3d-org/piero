@@ -34,7 +34,7 @@
         getContext: () => PieroContext;
     }>();
 
-    const selectedTool = ref<PanelType | null>('datasets');
+    const selectedTool = ref<PanelType | null>(null);
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
     const mouse = new Vector2();
@@ -121,6 +121,7 @@
         });
 
         getContext().view = new ViewApiImpl({
+            basemap: giro3d.value.layerManager.getBasemap(),
             camera: giro3d.value.camera,
             instance: giro3d.value.mainInstance,
             sceneCursorManager: giro3d.value.sceneCursorManager,

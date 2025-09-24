@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import SwitchToggle from './SwitchToggle.vue';
+    import CheckboxToggle from './CheckboxToggle.vue';
 
     defineProps<{
         visible: boolean;
@@ -8,7 +8,7 @@
 </script>
 
 <template>
-    <SwitchToggle :model-value="visible" @update:model-value="v => $emit('update:visible', v)" />
+    <CheckboxToggle :model-value="visible" @update:model-value="v => $emit('update:visible', v)" />
 </template>
 
 <style scoped>
