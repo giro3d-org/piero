@@ -1,5 +1,6 @@
 import { createPieroApp } from '@giro3d/piero';
-import { CityJSONLoader, IFCLoader, PLYLoader, PotreeLoader, Tour } from '@giro3d/piero/modules';
+import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
+import { IFCLoader, PLYLoader, PotreeLoader, Tour } from '@giro3d/piero/modules';
 
 import DefaultConfig from './config';
 import styles from './styles';

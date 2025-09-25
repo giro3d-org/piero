@@ -1,17 +1,22 @@
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type {
+    Attribute,
+    AttributeExtractorFn,
+    AttributesGroups,
+    EntityBuilder,
+    LoadDatasetFromFile,
+    Module,
+    PieroContext,
+} from '@giro3d/piero';
+// TODO this is a hack because currently the configuration is not modular,
+// so we cheat and import types directly from the source. However we would like this configuration
+// to be part of this module in the future.
+import type { CityJSONDatasetConfig } from '@giro3d/piero/src/types/configuration/datasets/cityjson';
 
 import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
 
-import type { PieroContext } from '@/context';
-import type { EntityBuilder } from '@/giro3d/EntityBuilder';
-import type { LoadDatasetFromFile } from '@/loaders/loader';
-import type { Module } from '@/module';
-import type { AttributeExtractorFn } from '@/services/Picker';
-import type { CityJSONDatasetConfig } from '@/types/configuration/datasets/cityjson';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
-
-import CityJSONEntity, { isCityJSONPickResult } from './cityjson/CityJSONEntity';
-import CityJSONEntityInspector from './cityjson/CityJSONEntityInspector';
+import CityJSONEntity, { isCityJSONPickResult } from './CityJSONEntity';
+import CityJSONEntityInspector from './CityJSONEntityInspector';
 
 export const loader: LoadDatasetFromFile = context => {
     return {
@@ -26,6 +31,10 @@ export const loader: LoadDatasetFromFile = context => {
 
 export const entityBuilder: EntityBuilder = context => {
     const cfg = context.dataset.config as unknown as CityJSONDatasetConfig;
+    // FIXME since we are importing types directly, this causes issues related
+    // to path resolution for files (since the main packages uses the @/ alias to resolve modules).
+    // when the configuration has been modularized this should not be a problem.
+    // @ts-expect-error typing issue
     const entity = new CityJSONEntity({
         ...cfg.source,
         featureProjection: context.instance.referenceCrs,
@@ -43,11 +52,12 @@ const getAttributesFromCityObject: AttributeExtractorFn = (
     }
 
     const feature = pickResult.features?.at(0);
-    if (!feature) {
+
+    if (feature == null) {
         return;
     }
 
-    if (!attributesGroups.has('CityJSON')) {
+    if (attributesGroups.has('CityJSON') === false) {
         attributesGroups.set('CityJSON', []);
     }
     const cityjsonAttributes = attributesGroups.get('CityJSON') as Attribute[];

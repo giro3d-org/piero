@@ -1,10 +1,17 @@
 import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+// FIXME stop importing from source
+import type {
+    DataProjectionMixin,
+    FeatureProjectionMixin,
+    UrlOrDataMixin,
+} from '@giro3d/piero/src/giro3d/sources/mixins';
 import type { Material, Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { Fetcher, fillObject3DUserData, Projections } from '@giro3d/piero';
 import {
     CityJSONLoader as CityJSONThreeLoader,
     CityJSONWorkerParser,
@@ -13,16 +20,8 @@ import {
 } from 'cityjson-threejs-loader';
 import { DoubleSide, FrontSide, Group } from 'three';
 
-import type {
-    DataProjectionMixin,
-    FeatureProjectionMixin,
-    UrlOrDataMixin,
-} from '@/giro3d/sources/mixins';
-
-import { fillObject3DUserData } from '@/loaders/userData';
-import Fetcher from '@/utils/Fetcher';
-import Projections from '@/utils/Projections';
-import { isObject } from '@/utils/Types';
+// FIXME this is copied from the @giro3d/piero package, we should find a way to share it
+export const isObject = (obj: unknown): obj is object => obj != null && typeof obj === 'object';
 
 /**
  * Feature returned when picking on CityJSON objects
@@ -205,22 +204,19 @@ export default class CityJSONEntity
 
                 Projections.loadProjCrsIfNeeded(projection)
                     .then(proj => {
-                        if (proj) {
-                            const coords = new Coordinates(
-                                proj,
-                                translate[0],
-                                translate[1],
-                                translate[2],
-                            );
-                            const coordsReference = coords.as(this.source.featureProjection);
-                            loader.scene.position.set(
-                                coordsReference.values[0],
-                                coordsReference.values[1],
-                                coordsReference.values[2],
-                            );
-                        } else {
-                            loader.scene.position.set(translate[0], translate[1], translate[2]);
-                        }
+                        const coords = new Coordinates(
+                            proj,
+                            translate[0],
+                            translate[1],
+                            translate[2],
+                        );
+                        const coordsReference = coords.as(this.source.featureProjection);
+                        loader.scene.position.set(
+                            coordsReference.values[0],
+                            coordsReference.values[1],
+                            coordsReference.values[2],
+                        );
+
                         loader.scene.updateMatrix();
                         loader.scene.updateMatrixWorld(true);
 
