@@ -67,6 +67,6 @@ publish_packages:
     script:
         - channel="$(node build/get-version-tag.mjs packages ${CI_COMMIT_TAG})"
         - npm config set -- '//registry.npmjs.org/:_authToken' "${NPM_AUTH_TOKEN}"
-        - for dir in packages/*; do npm publish $dir --access public --tag ${channel}; done;
+        - for dir in packages/*; do npm publish ./$dir --access public --tag ${channel}; done;
     rules:
         - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $publish_packages_tag'
