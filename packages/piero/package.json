@@ -42,7 +42,7 @@
             "import": "./dist/modules.es.js",
             "require": "./dist/modules.cjs.js"
         },
-        "./piero.css": "./dist/assets/style.css"
+        "./piero.css": "./dist/assets/piero.css"
     },
     "files": [
         "dist"

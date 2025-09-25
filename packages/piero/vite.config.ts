@@ -142,10 +142,10 @@ const libConfig = defineConfig(e => {
                 formats: ['es', 'cjs'],
                 name: 'piero',
             },
-            minify: isProduction,
+            minify: isProduction ? 'esbuild' : false,
 
             rollupOptions: {
-                external: ['vue', '@giro3d/giro3d', 'three', 'ol'],
+                external: [/node_modules/],
                 output: {
                     assetFileNames: 'assets/[name][extname]',
                     chunkFileNames: '[name].[format].js',
@@ -159,7 +159,7 @@ const libConfig = defineConfig(e => {
                 },
             },
 
-            sourcemap: !isProduction,
+            sourcemap: isProduction,
         },
         plugins: [
             dts({

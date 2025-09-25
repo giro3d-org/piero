@@ -4,7 +4,7 @@ import { CityJSONLoader, IFCLoader, PLYLoader, PotreeLoader, Tour } from '@giro3
 import DefaultConfig from './config';
 import styles from './styles';
 
-async function start(): Promise<void> {
+function start(): Promise<void> {
     // The base URL will be used to resolve all relative URLs, (e.g URLs that points to the public/ folder)
     const baseUrl = import.meta.env.PROD ? import.meta.env.BASE_URL : 'http://localhost:8080/';
 

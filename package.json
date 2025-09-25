@@ -3,7 +3,6 @@
     "type": "module",
     "version": "25.10.0",
     "workspaces": [
-        "./",
         "packages/piero"
     ],
     "private": true,

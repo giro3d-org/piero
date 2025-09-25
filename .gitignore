@@ -26,3 +26,5 @@ public/geojson
 public/ifc
 public/ply
 public/shp
+
+.DS_Store
