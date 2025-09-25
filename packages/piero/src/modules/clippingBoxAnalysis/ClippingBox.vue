@@ -3,12 +3,13 @@
     import { ref } from 'vue';
 
     import { getConfig } from '@/config-loader';
-    import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
+
+    import { useClippingBoxStore } from './store';
 
     const config = getConfig();
 
-    const analysis = useAnalysisStore();
+    const store = useClippingBoxStore();
     const camera = useCameraStore();
 
     const floatValue = (event: Event): number =>
@@ -16,43 +17,43 @@
 
     function setFromCamera(): void {
         const { target } = camera.getCameraPosition();
-        analysis.setClippingBoxCenter(target.clone());
+        store.setCenter(target.clone());
     }
 
     function setSizeX(x: number): void {
-        const size = analysis.clippingBoxSize.clone();
+        const size = store.size.clone();
         size.setX(x);
-        analysis.setClippingBoxSize(size);
+        store.setSize(size);
     }
 
     function setSizeY(y: number): void {
-        const size = analysis.clippingBoxSize.clone();
+        const size = store.size.clone();
         size.setY(y);
-        analysis.setClippingBoxSize(size);
+        store.setSize(size);
     }
 
     function setSizeZ(z: number): void {
-        const size = analysis.clippingBoxSize.clone();
+        const size = store.size.clone();
         size.setZ(z);
-        analysis.setClippingBoxSize(size);
+        store.setSize(size);
     }
 
     function setX(x: number): void {
-        const center = analysis.clippingBoxCenter.clone();
+        const center = store.center.clone();
         center.setX(x);
-        analysis.setClippingBoxCenter(center);
+        store.setCenter(center);
     }
 
     function setY(y: number): void {
-        const center = analysis.clippingBoxCenter.clone();
+        const center = store.center.clone();
         center.setY(y);
-        analysis.setClippingBoxCenter(center);
+        store.setCenter(center);
     }
 
     function setZ(z: number): void {
-        const center = analysis.clippingBoxCenter.clone();
+        const center = store.center.clone();
         center.setZ(z);
-        analysis.setClippingBoxCenter(center);
+        store.setCenter(center);
     }
 
     const floorReferenceAltitude = ref(config.analysis.clipping_box.floor_preset.altitude);
@@ -61,16 +62,16 @@
 
     function floorDown(): void {
         floorNumber.value -= 1;
-        const center = analysis.clippingBoxCenter.clone();
+        const center = store.center.clone();
         center.setZ(getFloorAltitude());
-        analysis.setClippingBoxCenter(center);
+        store.setCenter(center);
     }
 
     function floorUp(): void {
         floorNumber.value += 1;
-        const center = analysis.clippingBoxCenter.clone();
+        const center = store.center.clone();
         center.setZ(getFloorAltitude());
-        analysis.setClippingBoxCenter(center);
+        store.setCenter(center);
     }
 
     function getFloorAltitude(): number {
@@ -88,8 +89,8 @@
         // It's a bit nicer than using the whole extent when using the 3D helper
         const boxSize = new Vector3(1000, 1000, floorSize.value);
 
-        analysis.setClippingBoxSize(boxSize);
-        analysis.setClippingBoxCenter(boxCenter);
+        store.setSize(boxSize);
+        store.setCenter(boxCenter);
     }
 </script>
 
@@ -99,11 +100,25 @@
             <div class="form-check form-switch">
                 <input
                     class="form-check-input"
-                    :checked="analysis.isClippingBoxInverted()"
+                    :checked="store.enable"
+                    type="checkbox"
+                    role="switch"
+                    id="enable-clippingbox"
+                    @input="store.setEnabled(!store.enable)"
+                />
+                <label class="form-check-label" for="enable-clippingbox">Enable clipping box</label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="form-check form-switch">
+                <input
+                    class="form-check-input"
+                    :checked="store.invert"
                     type="checkbox"
                     role="switch"
                     id="invert-clippingbox"
-                    @input="analysis.setClippingBoxInverted(!analysis.isClippingBoxInverted())"
+                    @input="store.setInverted(!store.invert)"
                 />
                 <label class="form-check-label" for="invert-clippingbox">Invert clipping box</label>
             </div>
@@ -113,13 +128,11 @@
             <div class="form-check form-switch">
                 <input
                     class="form-check-input"
-                    :checked="analysis.isClippingBoxHelperDisplayed()"
+                    :checked="store.displayHelper"
                     type="checkbox"
                     role="switch"
                     id="enable-clippingbox-helper"
-                    @input="
-                        analysis.displayClippingBoxHelper(!analysis.isClippingBoxHelperDisplayed())
-                    "
+                    @input="store.setDisplayHelper(!store.displayHelper)"
                 />
                 <label class="form-check-label" for="enable-clippingbox-helper"
                     >Show 3D helper</label
@@ -162,21 +175,21 @@
                                 type="number"
                                 class="form-control"
                                 id="plane-center-x"
-                                :value="analysis.clippingBoxCenter.x"
+                                :value="store.center.x"
                                 @input="event => setX(floatValue(event))"
                             />
                             <input
                                 type="number"
                                 class="form-control"
                                 id="plane-center-y"
-                                :value="analysis.clippingBoxCenter.y"
+                                :value="store.center.y"
                                 @input="event => setY(floatValue(event))"
                             />
                             <input
                                 type="number"
                                 class="form-control"
                                 id="plane-center-z"
-                                :value="analysis.clippingBoxCenter.z"
+                                :value="store.center.z"
                                 @input="event => setZ(floatValue(event))"
                             />
                         </div>
@@ -188,7 +201,7 @@
                                 class="form-control"
                                 id="plane-size-x"
                                 min="1"
-                                :value="analysis.clippingBoxSize.x"
+                                :value="store.size.x"
                                 @input="event => setSizeX(floatValue(event))"
                             />
                             <input
@@ -196,7 +209,7 @@
                                 class="form-control"
                                 id="plane-size-y"
                                 min="1"
-                                :value="analysis.clippingBoxSize.y"
+                                :value="store.size.y"
                                 @input="event => setSizeY(floatValue(event))"
                             />
                             <input
@@ -204,7 +217,7 @@
                                 class="form-control"
                                 id="plane-size-z"
                                 min="1"
-                                :value="analysis.clippingBoxSize.z"
+                                :value="store.size.z"
                                 @input="event => setSizeZ(floatValue(event))"
                             />
                         </div>

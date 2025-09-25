@@ -1,6 +1,14 @@
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
-import { IFCLoader, PLYLoader, PotreeLoader, Tour } from '@giro3d/piero/modules';
+import {
+    FloodingPlaneAnalysis,
+    IFCLoader,
+    PLYLoader,
+    PotreeLoader,
+    Tour,
+} from '@giro3d/piero/modules';
+import ClippingBoxAnalysis from '@giro3d/piero/modules/ClippingBoxAnalysis';
+import CrossSectionAnalysis from '@giro3d/piero/modules/CrossSectionAnalysis';
 
 import DefaultConfig from './config';
 import styles from './styles';
@@ -15,11 +23,19 @@ function start(): Promise<void> {
     // you will want to select as few modules as possible for the best
     // performance and bundle size.
     const modules = [
+        // Misc modules
         new Tour(),
+
+        // Data loaders
         new IFCLoader(),
         new CityJSONLoader(),
         new PLYLoader(),
         new PotreeLoader(),
+
+        // Analysis tools
+        new FloodingPlaneAnalysis(),
+        new CrossSectionAnalysis(),
+        new ClippingBoxAnalysis(),
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param

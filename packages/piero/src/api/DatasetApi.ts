@@ -2,12 +2,37 @@ import { type Component } from 'vue';
 
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
+import type { DatasetStore } from '@/stores/datasets';
+import type { DatasetOrGroup } from '@/types/Dataset';
 
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
 import { type EntityBuilder, registerEntityBuilder } from '@/giro3d/EntityBuilder';
 import { type LoadDatasetFromFile, registerLoader } from '@/loaders/loader';
 import { customHighlighters } from '@/services/Highlighter';
 import { customAttributeExtractors } from '@/services/Picker';
+
+export type DatasetActionRegistrationParams = {
+    /**
+     * The action to execute on the dataset.
+     */
+    action: (dataset: DatasetOrGroup) => void;
+    /**
+     * The icon to display for the action.
+     */
+    icon: string;
+    /**
+     * If true, the action becomes available only when the dataset is loaded.
+     */
+    mustBeLoaded?: boolean;
+    /**
+     * A predicate to filter on which datasets this action applies. By default it applies to all datasets.
+     */
+    predicate?: (dataset: DatasetOrGroup) => boolean;
+    /**
+     * The title of the button.
+     */
+    title: string;
+};
 
 /**
  * Parameters to register a new Dataset type.
@@ -54,6 +79,12 @@ export type DatasetRegistrationParams = {
 
 /** @internal */
 export class DatasetApiImpl implements DatasetApi {
+    public constructor(private readonly store: DatasetStore) {}
+
+    public registerDatasetAction(params: DatasetActionRegistrationParams): void {
+        this.store.registerCustomAction(params);
+    }
+
     public registerDatasetType(datasetType: string, params: DatasetRegistrationParams): void {
         if (params.icon != null) {
             datasetIcons[datasetType] = params.icon;
@@ -93,6 +124,7 @@ export class DatasetApiImpl implements DatasetApi {
  * APIs to manipulate datasets.
  */
 export default interface DatasetApi {
+    registerDatasetAction(params: DatasetActionRegistrationParams): void;
     /**
      * Register a new dataset type.
      */

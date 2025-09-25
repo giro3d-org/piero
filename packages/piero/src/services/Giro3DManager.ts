@@ -4,7 +4,6 @@ import type { Object3D } from 'three';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
-import AnalysisManager from '@/services/AnalysisManager';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
 import DatasetManager from '@/services/DatasetManager';
@@ -63,7 +62,6 @@ type Giro3DManagerEventMap = {
 export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap> {
     public readonly ambientLight: AmbientLight;
 
-    public readonly analysisManager: AnalysisManager;
     public readonly annotationManager: AnnotationManager;
     public readonly camera: CameraController;
     public readonly datasetManager: DatasetManager;
@@ -92,7 +90,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.layerManager = new LayerManager(this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance, this.layerManager);
         this.annotationManager = new AnnotationManager(this.mainInstance, this.camera, this.picker);
-        this.analysisManager = new AnalysisManager(this.mainInstance, this.layerManager);
         this.highlighter = new Highlighter();
         this.picker = new Picker();
         this.measurementManager = new MeasurementManager(
@@ -134,7 +131,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.scene.remove(this.ambientLight);
         this.measurementManager.dispose();
         this.highlighter.dispose();
-        this.analysisManager.dispose();
         this.annotationManager.dispose();
         this.layerManager.dispose();
         this.camera.dispose();

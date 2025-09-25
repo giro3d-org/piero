@@ -8,23 +8,13 @@
     import BasemapItem from '@/components/panels/BasemapItem.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
     import OverlayItem from '@/components/panels/OverlayItem.vue';
-    import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
     import { useLayerStore } from '@/stores/layers';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
-    const analysis = useAnalysisStore();
     const layers = useLayerStore();
-
-    function clipToDataset(dataset: DatasetOrGroup): void {
-        const box = datasets.getBoundingBox(dataset);
-        if (!box?.isEmpty()) {
-            analysis.setClippingBox(box);
-            analysis.enableClippingBox(true);
-        }
-    }
 
     function importDataset(files: File[]): void {
         for (const file of files) {
@@ -111,7 +101,6 @@
                         :dataset="dataset"
                         @updated="$forceUpdate()"
                         @zoom="ds => zoomOnDataset(ds)"
-                        @clip-to="ds => clipToDataset(ds)"
                         @update:toggle-grid="ds => datasets.toggleGrid(ds)"
                         @update:toggle-mask="ds => datasets.toggleMask(ds)"
                         @update:visible="(ds, v) => datasets.setVisible(ds, v)"

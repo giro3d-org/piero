@@ -1,5 +1,6 @@
 import type { EventDispatcher } from 'three';
 
+import type AnalysisApi from './api/AnalysisApi';
 import type BookmarkApi from './api/BookmarkApi';
 import type DatasetApi from './api/DatasetApi';
 import type ViewApi from './api/ViewApi';
@@ -10,6 +11,8 @@ import type { Configuration } from './types/Configuration';
  * Piero context.
  */
 export interface PieroContext {
+    analysis: AnalysisApi;
+
     /**
      * The base URL of the application.
      */

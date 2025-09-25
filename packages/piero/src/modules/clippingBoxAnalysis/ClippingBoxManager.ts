@@ -1,5 +1,3 @@
-import type Instance from '@giro3d/giro3d/core/Instance';
-
 import {
     Box3,
     Box3Helper,
@@ -13,73 +11,55 @@ import {
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
+import type { PieroContext } from '@/context';
+import type { DatasetOrGroup } from '@/types/Dataset';
 import type NavigationMode from '@/types/NavigationMode';
 
-import { useAnalysisStore } from '@/stores/analysis';
 import { useCameraStore } from '@/stores/camera';
 import { useDatasetStore } from '@/stores/datasets';
+
+import { useClippingBoxStore } from './store';
 
 const helperMaterial = new MeshBasicMaterial({ color: 'yellow', opacity: 0.1, transparent: true });
 
 export default class ClippingBoxManager {
     private readonly _cameraStore = useCameraStore();
-    private _clippingBox: Box3 | null;
-    private _clippingBoxHelper: Box3Helper | null;
-    private _clippingBoxMesh: Mesh | null;
+    private _clippingBox: Box3 | null = null;
+    private _clippingBoxHelper: Box3Helper | null = null;
+    private _clippingBoxMesh: Mesh | null = null;
     private readonly _datasetStore = useDatasetStore();
-    private readonly _instance: Instance;
-    private _previousTransformControls: NavigationMode;
 
-    private readonly _store = useAnalysisStore();
-    private _transformControls: TransformControls | null;
-    private readonly _volumeHelpers: Group;
+    private _previousTransformControls: NavigationMode = this._cameraStore.getNavigationMode();
+    private readonly _store = useClippingBoxStore();
+    private _transformControls: TransformControls | null = null;
 
-    public constructor(instance: Instance) {
-        this._instance = instance;
-        this._volumeHelpers = new Group();
-        instance.scene.add(this._volumeHelpers);
+    private readonly _volumeHelpers: Group = new Group();
 
-        this._clippingBox = null;
-        this._clippingBoxHelper = null;
-        this._clippingBoxMesh = null;
-        this._transformControls = null;
-        this._previousTransformControls = this._cameraStore.getNavigationMode();
+    public constructor(private readonly context: PieroContext) {
+        context.events.addEventListener('ready', this.initialize.bind(this));
+    }
 
-        this._store.$onAction(({ after, name }) => {
-            after(() => {
-                switch (name) {
-                    case 'displayClippingBoxHelper':
-                    case 'enableClippingBox':
-                    case 'setClippingBox':
-                    case 'setClippingBoxSize':
-                        // Need to recreate the whole box
-                        this.updateClippingBox();
-                        break;
-                    case 'setClippingBoxCenter':
-                        // We can simply move the existing box
-                        this.moveClippingBox();
-                        break;
-                    case 'setClippingBoxInverted':
-                        this.applyClippingPlanes();
-                        break;
-                }
-            });
-        });
-
-        this._datasetStore.$onAction(({ after, name }) => {
-            after(() => {
-                switch (name) {
-                    case 'attachEntity':
-                        this.applyClippingPlanes();
-                        break;
-                }
-            });
-        });
+    public clipToDataset(dataset: DatasetOrGroup): void {
+        const box = this._datasetStore.getBoundingBox(dataset);
+        if (!box?.isEmpty()) {
+            this.setClippingBox(box);
+        }
     }
 
     public dispose(): void {
-        this._instance.scene.remove(this._volumeHelpers);
+        this.context.view.getInstance().scene.remove(this._volumeHelpers);
         this.disposeClippingBox();
+    }
+
+    public isClippingBoxEnabled(): boolean {
+        return this._store.enable;
+    }
+
+    public setClippingBox(box: Box3): void {
+        if (!box.isEmpty()) {
+            this._store.setClippingBox(box);
+            this._store.setEnabled(true);
+        }
     }
 
     /**
@@ -89,15 +69,15 @@ export default class ClippingBoxManager {
      * - loading a new entity
      */
     private applyClippingPlanes(): void {
-        const planes = this._store.isClippingBoxEnabled() ? this.getPlanesFromBoxSides() : [];
+        const planes = this._store.enable ? this.getPlanesFromBoxSides() : [];
         for (const o of this._datasetStore.getDatasets()) {
             const entity = this._datasetStore.getEntity(o);
             if (entity) {
                 entity.clippingPlanes = planes;
                 entity.traverseMaterials(mat => {
-                    mat.clipIntersection = this._store.isClippingBoxInverted();
+                    mat.clipIntersection = this._store.invert;
                 });
-                this._instance.notifyChange(entity);
+                this.context.view.getInstance().notifyChange(entity);
             }
         }
     }
@@ -111,7 +91,9 @@ export default class ClippingBoxManager {
         this._clippingBox = new Box3();
         this._clippingBox.setFromCenterAndSize(center, size);
 
-        if (this._store.isClippingBoxHelperDisplayed()) {
+        const instance = this.context.view.getInstance();
+
+        if (this._store.displayHelper) {
             // First, let's create the helpers for the box itself
             const boxGeometry = new BoxGeometry(size.x, size.y, size.z);
             this._clippingBoxMesh = new Mesh(boxGeometry, helperMaterial);
@@ -123,8 +105,8 @@ export default class ClippingBoxManager {
 
             // Now let's add some controls to move the box
             this._transformControls = new TransformControls(
-                this._instance.view.camera,
-                this._instance.domElement,
+                instance.view.camera,
+                instance.domElement,
             );
             this._transformControls.addEventListener('change', () => {
                 if (
@@ -134,7 +116,7 @@ export default class ClippingBoxManager {
                     return;
                 }
                 // If the change came from the control, let's move the box
-                this._store.clippingBoxCenter.copy(this._clippingBoxMesh.position);
+                this._store.center.copy(this._clippingBoxMesh.position);
                 this.moveClippingBox();
             });
             this._transformControls.addEventListener('dragging-changed', event => {
@@ -154,8 +136,8 @@ export default class ClippingBoxManager {
             this._volumeHelpers.add(this._clippingBoxMesh);
             this._transformControls.attach(this._clippingBoxMesh);
             this._transformControls.getHelper().updateMatrixWorld();
-            this._instance.scene.add(this._transformControls.getHelper());
-            this._instance.notifyChange();
+            instance.scene.add(this._transformControls.getHelper());
+            instance.notifyChange();
         }
     }
 
@@ -172,7 +154,7 @@ export default class ClippingBoxManager {
         this._clippingBoxHelper?.removeFromParent();
         this._clippingBoxHelper?.dispose();
 
-        this._instance.notifyChange();
+        this.context.view.getInstance().notifyChange();
     }
 
     private getPlanesFromBoxSides(): Plane[] {
@@ -190,34 +172,76 @@ export default class ClippingBoxManager {
         result.push(new Plane(new Vector3(0, +1, 0), -this._clippingBox.min.y));
         result.push(new Plane(new Vector3(0, -1, 0), +this._clippingBox.max.y));
 
-        if (this._store.isClippingBoxInverted()) {
+        if (this._store.invert) {
             result.forEach(plane => plane.negate());
         }
 
         return result;
     }
 
+    private initialize(): void {
+        const instance = this.context.view.getInstance();
+
+        instance.scene.add(this._volumeHelpers);
+
+        this._clippingBox = null;
+        this._clippingBoxHelper = null;
+        this._clippingBoxMesh = null;
+        this._transformControls = null;
+        this._previousTransformControls = this._cameraStore.getNavigationMode();
+
+        this._store.$onAction(({ after, name }) => {
+            after(() => {
+                switch (name) {
+                    case 'setCenter':
+                        // We can simply move the existing box
+                        this.moveClippingBox();
+                        break;
+                    case 'setClippingBox':
+                    case 'setDisplayHelper':
+                    case 'setEnabled':
+                    case 'setSize':
+                        // Need to recreate the whole box
+                        this.updateClippingBox();
+                        break;
+                    case 'setInverted':
+                        this.applyClippingPlanes();
+                        break;
+                }
+            });
+        });
+
+        this._datasetStore.$onAction(({ after, name }) => {
+            after(() => {
+                switch (name) {
+                    case 'attachEntity':
+                        this.applyClippingPlanes();
+                        break;
+                }
+            });
+        });
+    }
+
     /**
      * Moves an existing clipping box, while keeping its size
      */
     private moveClippingBox(): void {
-        if (this._store.isClippingBoxEnabled()) {
+        const instance = this.context.view.getInstance();
+
+        if (this._store.enable) {
             if (this._clippingBox === null) {
-                this.createClippingBox(this._store.clippingBoxCenter, this._store.clippingBoxSize);
+                this.createClippingBox(this._store.center, this._store.size);
             }
 
-            this._clippingBox?.setFromCenterAndSize(
-                this._store.clippingBoxCenter,
-                this._store.clippingBoxSize,
-            );
+            this._clippingBox?.setFromCenterAndSize(this._store.center, this._store.size);
 
-            if (this._store.isClippingBoxHelperDisplayed()) {
-                this._clippingBoxMesh?.position.copy(this._store.clippingBoxCenter);
+            if (this._store.displayHelper) {
+                this._clippingBoxMesh?.position.copy(this._store.center);
                 this._clippingBoxMesh?.updateMatrixWorld();
                 this._clippingBoxHelper?.updateMatrixWorld();
                 this._transformControls?.getHelper().updateMatrixWorld();
-                this._instance.notifyChange(this._volumeHelpers);
-                this._instance.notifyChange(this._transformControls);
+                instance.notifyChange(this._volumeHelpers);
+                instance.notifyChange(this._transformControls);
             }
         }
         this.applyClippingPlanes();
@@ -228,8 +252,8 @@ export default class ClippingBoxManager {
      */
     private updateClippingBox(): void {
         this.disposeClippingBox();
-        if (this._store.isClippingBoxEnabled()) {
-            this.createClippingBox(this._store.clippingBoxCenter, this._store.clippingBoxSize);
+        if (this._store.enable) {
+            this.createClippingBox(this._store.center, this._store.size);
         }
         this.applyClippingPlanes();
     }
