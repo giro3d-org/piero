@@ -6,7 +6,7 @@ import { commonConfig } from './packages/piero/vite.config';
 
 let commitHash = 'unknown';
 try {
-    commitHash = child_process.execSync('git describe --tags --always').toString();
+    commitHash = child_process.execSync('git describe --tags --match "app-v*" --always').toString();
 } catch {
     // Ignore
 }

@@ -21,7 +21,9 @@ type PackageJson = {
 
 let commitHash = 'unknown';
 try {
-    commitHash = child_process.execSync('git describe --tags --always').toString();
+    commitHash = child_process
+        .execSync('git describe --tags --match "packages-v*" --always')
+        .toString();
 } catch {
     // Ignore
 }
