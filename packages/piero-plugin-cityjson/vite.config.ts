@@ -1,6 +1,8 @@
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import child_process from 'child_process';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
+import { nodeExternals } from 'rollup-plugin-node-externals';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
@@ -33,23 +35,12 @@ const config = defineConfig(e => {
             minify: isProduction ? 'esbuild' : false,
 
             rollupOptions: {
-                external: (id): boolean => {
-                    // We bundle the cityjson library directly since it makes uses of workers.
-                    if (id.includes('cityjson-threejs-loader')) {
-                        return false;
-                    }
-
-                    if (id.includes('packages/piero/dist')) {
-                        return true;
-                    }
-
-                    return id.includes('node_modules');
-                },
                 output: {
                     entryFileNames: ({ name }): string => {
                         return `${name}.[format].js`;
                     },
                 },
+                preserveSymlinks: true,
             },
 
             sourcemap: isProduction,
@@ -61,6 +52,11 @@ const config = defineConfig(e => {
             include: ['earcut'],
         },
         plugins: [
+            nodeExternals({
+                // We bundle the cityjson library directly since it makes uses of workers.
+                exclude: ['cityjson-threejs-loader'],
+            }),
+            nodeResolve(),
             inlineWorker(),
             dts({
                 insertTypesEntry: true, // generates an entrypoint .d.ts

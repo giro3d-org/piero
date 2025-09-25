@@ -1,8 +1,10 @@
+import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue';
 import child_process from 'child_process';
 import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
+import { nodeExternals } from 'rollup-plugin-node-externals';
 import { defineConfig, loadEnv, mergeConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -141,7 +143,6 @@ const libConfig = defineConfig(e => {
             minify: isProduction ? 'esbuild' : false,
 
             rollupOptions: {
-                external: [/node_modules/],
                 output: {
                     assetFileNames: 'assets/[name][extname]',
                     chunkFileNames: '[name].[format].js',
@@ -153,11 +154,14 @@ const libConfig = defineConfig(e => {
                         vue: 'Vue',
                     },
                 },
+                preserveSymlinks: true,
             },
 
             sourcemap: isProduction,
         },
         plugins: [
+            nodeExternals(),
+            nodeResolve(),
             dts({
                 insertTypesEntry: true, // generates an entrypoint .d.ts
             }),
