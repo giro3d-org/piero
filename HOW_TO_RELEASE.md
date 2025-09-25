@@ -38,3 +38,31 @@ Create a branch `release/XX.YY` where `XX.YY` is the release version number (e.g
 
 - open a MR on the repo with these changes
 - once merged, tag the commit on main branch (Don't forget the `v` prefix)
+
+## Publishing packages
+
+Piero is both an app and a set of libraries (under the `packages/` folder). The libraries are published under [semantic versioning](https://semver.org/) (contrary to the app that uses [calendar versioning](https://calver.org/).)
+
+Packages are automatically published whenever a git tag is created that matches the naming convention for packages: `packages-v1.2.3`, where `1.2.3` is the version of the packages.
+
+> [!warning]
+> All packages must have exactly the same version (lockstep). This is enforced by the CI/CD with the `get-version-tag.mjs` script.
+
+> [!note]
+> Package version can be a prerelease, e.g `packages-v1.2.3-beta.1`. In that case NPM packages are published under the appropriate [dist-tag](https://docs.npmjs.com/adding-dist-tags-to-packages):
+>
+> - `latest` for stable packages
+> - alpha
+> - beta
+> - rc
+
+> [!tip]
+> To set the version of all packages at once, use the `npm version --workspaces` command:
+>
+> ```shell
+> $ npm version --workspaces 1.2.3-beta.1
+> @giro3d/piero
+> v1.2.3-beta.1
+> @giro3d/piero-plugin-cityjson
+> v1.2.3-beta.1
+> ```
