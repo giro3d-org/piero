@@ -18,6 +18,10 @@ async function inlineWorkers(
 
     if (matches.length > 0) {
         for (const match of matches) {
+            if (!match.includes('new URL(')) {
+                // False positive (for example a worker that already uses URL.createObjectURL())
+                continue;
+            }
             const url = match[0].match(workerUrl);
 
             if (url == null) {
