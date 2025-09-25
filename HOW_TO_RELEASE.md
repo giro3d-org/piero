@@ -39,6 +39,13 @@ Create a branch `release/XX.YY` where `XX.YY` is the release version number (e.g
 - open a MR on the repo with these changes
 - once merged, tag the commit on main branch (Don't forget the `v` prefix)
 
+## Deploying the app on piero.giro3d.org
+
+The app is automatically deployed whenever a git tag is created that matches the naming convention for the app: `app-v25.10.0` pattern, where `25.10.0` is the [calendar version](https://calver.org/) of the app.
+
+> [!warning]
+> The git tag must have the same version as the root `package.json`. If the git package version is `25.10.0`, then the git tag _must_ be `app-v25.10.0`.
+
 ## Publishing packages
 
 Piero is both an app and a set of libraries (under the `packages/` folder). The libraries are published under [semantic versioning](https://semver.org/) (contrary to the app that uses [calendar versioning](https://calver.org/).)

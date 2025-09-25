@@ -12,8 +12,7 @@ stages:
 
 variables:
     publish_packages_tag: '/^packages-v([0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.\d+)?)$/'
-    version_stable_release: '/^v([0-9]+)\.([0-9]+)\.([0-9]+)$/'
-    version_pre_release: '/^v[0-9]+\.[0-9]+\.[0-9]+\-(alpha|beta|rc)\.[0-9]+$/'
+    publish_app_tag: '/^app-v([0-9]+)\.([0-9]+)\.([0-9]+)$/'
 
 # Run pipelines on MR, tags and push on 'main'
 workflow:
@@ -40,7 +39,7 @@ build:
 pages:
     stage: publish
     rules:
-        - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $version_stable_release
+        - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $publish_app_tag
           variables:
               ENVIRONMENT_NAME: $CI_COMMIT_TAG
         - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web") && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
