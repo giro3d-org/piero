@@ -95,9 +95,5 @@
         "regenerator-runtime": "^0.14.1",
         "shepherd.js": "^11.2.0",
         "web-ifc": "^0.0.44"
-    },
-    "devDependencies": {
-        "@types/semver": "^7.7.1",
-        "semver": "^7.7.2"
     }
 }
