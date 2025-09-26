@@ -1,7 +1,7 @@
 {
     "name": "@giro3d/piero-plugin-cityjson",
     "type": "module",
-    "version": "1.0.0-beta.0",
+    "version": "1.0.0-beta.1",
     "description": "Load CityJSON datasets in Piero",
     "keywords": [
         "front-end",
@@ -65,6 +65,7 @@
     },
     "peerDependencies": {
         "@giro3d/piero": "*",
+        "@giro3d/giro3d": "^0.43.0",
         "three": "^0.170.0"
     },
     "dependencies": {
