@@ -79,6 +79,7 @@ const getAttributesFromCityObject: AttributeExtractorFn = (
 };
 
 export default class CityJSONLoader implements Module {
+    public readonly id = 'plugin-cityjson-loader';
     public readonly name = 'CityJSON';
 
     public initialize(context: PieroContext): Promise<void> | void {

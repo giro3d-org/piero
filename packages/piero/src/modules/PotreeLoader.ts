@@ -26,6 +26,7 @@ const entityBuilder: EntityBuilder = context => {
  * Loads [Potree](https://potree.github.io/) datasets.
  */
 export default class PotreeLoader implements Module {
+    public readonly id = 'builtin-potree-loader';
     public readonly name = 'Potree';
 
     public initialize(context: PieroContext): Promise<void> | void {

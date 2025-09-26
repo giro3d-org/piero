@@ -2,6 +2,10 @@ import type { PieroContext } from './context';
 
 export interface Module {
     /**
+     * The unique ID of the module.
+     */
+    id: string;
+    /**
      * The readable name of the module.
      */
     name: string;

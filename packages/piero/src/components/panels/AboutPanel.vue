@@ -117,7 +117,7 @@
         <p>Loaded modules:</p>
         <ul>
             <li v-for="module in modules" :key="module.name">
-                {{ module.name }}
+                <code>{{ module.id }}</code>
             </li>
         </ul>
         <hr />
