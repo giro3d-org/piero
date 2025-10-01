@@ -21,9 +21,9 @@ export type DatasetActionRegistrationParams = {
      */
     icon: string;
     /**
-     * If true, the action becomes available only when the dataset is loaded.
+     * If true, the action becomes available only when the dataset is visible.
      */
-    mustBeLoaded?: boolean;
+    mustBeVisible?: boolean;
     /**
      * A predicate to filter on which datasets this action applies. By default it applies to all datasets.
      */

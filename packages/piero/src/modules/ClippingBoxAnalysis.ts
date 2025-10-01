@@ -44,7 +44,7 @@ export default class ClippingBoxAnalysis implements Module {
         context.datasets.registerDatasetAction({
             action: dataset => manager.clipToDataset(dataset),
             icon: 'bi-bounding-box',
-            mustBeLoaded: true,
+            mustBeVisible: true,
             title: 'Clip to',
         });
 

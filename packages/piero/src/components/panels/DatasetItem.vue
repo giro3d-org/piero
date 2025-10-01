@@ -73,7 +73,7 @@
 
             <IconListButton
                 :v-if="isPreloaded"
-                v-for="action in store.getCustomActions(dataset, isPreloaded)"
+                v-for="action in store.getCustomActions(dataset, { isVisible })"
                 :key="action.title"
                 :title="action.title"
                 :icon="action.icon"

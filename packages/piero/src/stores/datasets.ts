@@ -16,7 +16,7 @@ import {
 } from '@/types/Dataset';
 
 type DatasetAction = DatasetActionRegistrationParams & {
-    mustBeLoaded: boolean;
+    mustBeVisible: boolean;
 };
 
 function buildDatasets(root: DatasetOrGroup): DatasetOrGroup {
@@ -49,7 +49,7 @@ export const useDatasetStore = defineStore('datasets', () => {
             ...customActions.value,
             {
                 ...params,
-                mustBeLoaded: params.mustBeLoaded ?? false,
+                mustBeVisible: params.mustBeVisible ?? false,
             },
         ];
     }
@@ -145,7 +145,10 @@ export const useDatasetStore = defineStore('datasets', () => {
         // Nothing to do, rely on action listeners.
     }
 
-    function getCustomActions(dataset: DatasetOrGroup, isLoaded: boolean): DatasetAction[] {
+    function getCustomActions(
+        dataset: DatasetOrGroup,
+        params: { isVisible: boolean },
+    ): DatasetAction[] {
         const actions = customActions.value;
 
         return actions.filter(item => {
@@ -153,7 +156,7 @@ export const useDatasetStore = defineStore('datasets', () => {
                 return false;
             }
 
-            if (item.mustBeLoaded && !isLoaded) {
+            if (item.mustBeVisible && !params.isVisible) {
                 return false;
             }
 
