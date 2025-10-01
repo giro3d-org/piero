@@ -16,6 +16,8 @@ import Bookmark from '@/types/Bookmark';
 import Fetcher from '@/utils/Fetcher';
 import Projections from '@/utils/Projections';
 
+import type Notification from './types/Notification';
+
 import './assets/main.scss';
 
 export {
@@ -33,6 +35,7 @@ export {
     fillObject3DUserData,
     LoadDatasetFromFile,
     Module,
+    Notification,
     PieroContext,
     PieroEmptyEvent,
     PieroEvents,

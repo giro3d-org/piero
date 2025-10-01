@@ -11,3 +11,5 @@ export const useNotificationStore = defineStore('notifications', () => {
 
     return { push };
 });
+
+export type NotificationStore = ReturnType<typeof useNotificationStore>;
