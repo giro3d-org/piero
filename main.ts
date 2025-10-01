@@ -1,6 +1,7 @@
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import {
+    DownloadDataset,
     FloodingPlaneAnalysis,
     IFCLoader,
     PLYLoader,
@@ -25,6 +26,7 @@ function start(): Promise<void> {
     const modules = [
         // Misc modules
         new Tour(),
+        new DownloadDataset(),
 
         // Data loaders
         new IFCLoader(),
