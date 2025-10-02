@@ -149,7 +149,7 @@
     }
 
     function initializeMinimap(instance: Instance): void {
-        minimap.value = new MinimapController(instance);
+        minimap.value = new MinimapController(instance, getContext().view);
         if (giro3d.value) {
             minimap.value.setMainInstance(giro3d.value.mainInstance);
         }

@@ -9,6 +9,8 @@ import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js';
 import OSM from 'ol/source/OSM';
 import { Vector2, Vector3 } from 'three';
 
+import type ViewApi from '@/api/ViewApi';
+
 import Viewbox from '@/types/Viewbox';
 
 const DEFAULT_EXTENT = new Extent(
@@ -35,11 +37,13 @@ export default class MinimapController {
     private _boundUpdateViewbox: () => void;
     private _mainInstance: Instance | null;
     private readonly _minimapInstance: Instance;
+    private readonly _viewApi: ViewApi;
     private readonly _viewbox: Viewbox;
 
-    public constructor(instance: Instance) {
+    public constructor(instance: Instance, viewApi: ViewApi) {
         this._mainInstance = null;
         this._minimapInstance = instance;
+        this._viewApi = viewApi;
 
         this._viewbox = new Viewbox();
 
