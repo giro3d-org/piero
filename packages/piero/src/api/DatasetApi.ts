@@ -21,6 +21,10 @@ export type DatasetActionRegistrationParams = {
      */
     icon: string;
     /**
+     * If true, the action becomes available only when the dataset is pre-loaded.
+     */
+    mustBePreloaded?: boolean;
+    /**
      * If true, the action becomes available only when the dataset is visible.
      */
     mustBeVisible?: boolean;

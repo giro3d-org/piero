@@ -16,6 +16,7 @@ import {
 } from '@/types/Dataset';
 
 type DatasetAction = DatasetActionRegistrationParams & {
+    mustBePreloaded: boolean;
     mustBeVisible: boolean;
 };
 
@@ -49,6 +50,7 @@ export const useDatasetStore = defineStore('datasets', () => {
             ...customActions.value,
             {
                 ...params,
+                mustBePreloaded: params.mustBePreloaded ?? false,
                 mustBeVisible: params.mustBeVisible ?? false,
             },
         ];
@@ -147,7 +149,7 @@ export const useDatasetStore = defineStore('datasets', () => {
 
     function getCustomActions(
         dataset: DatasetOrGroup,
-        params: { isVisible: boolean },
+        params: { isPreloaded: boolean; isVisible: boolean },
     ): DatasetAction[] {
         const actions = customActions.value;
 
@@ -157,6 +159,10 @@ export const useDatasetStore = defineStore('datasets', () => {
             }
 
             if (item.mustBeVisible && !params.isVisible) {
+                return false;
+            }
+
+            if (item.mustBePreloaded && !params.isPreloaded) {
                 return false;
             }
 
