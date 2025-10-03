@@ -14,23 +14,8 @@ type AnalysisTool = {
     name: string;
 };
 
-type ToolState = {
-    expanded: boolean;
-};
-
 export const useAnalysisStore = defineStore('analysis', () => {
     const _tools: Ref<AnalysisTool[]> = ref([]);
-    const _toolStates = ref<Record<AnalysisTool['id'], ToolState>>({});
-
-    const _enableStatistics = ref(false);
-
-    function enableStatistics(enable: boolean): void {
-        _enableStatistics.value = enable;
-    }
-
-    function isStatisticsEnabled(): boolean {
-        return _enableStatistics.value;
-    }
 
     function registerTool(tool: AnalysisToolRegistrationParams): void {
         const item: AnalysisTool = {
@@ -42,22 +27,6 @@ export const useAnalysisStore = defineStore('analysis', () => {
         };
 
         _tools.value.push(item);
-
-        const newStates = {
-            ..._toolStates.value,
-        };
-
-        newStates[item.id] = { expanded: false };
-
-        _toolStates.value = newStates;
-    }
-
-    function expandTool(id: AnalysisTool['id'], enabled: boolean): void {
-        _toolStates.value[id].expanded = enabled;
-    }
-
-    function isToolExpanded(id: AnalysisTool['id']): boolean {
-        return _toolStates.value[id].expanded;
     }
 
     function getTools(): AnalysisTool[] {
@@ -65,12 +34,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     return {
-        enableStatistics,
-        expandTool,
-
         getTools,
-        isStatisticsEnabled,
-        isToolExpanded,
         registerTool,
     };
 });

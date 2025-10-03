@@ -14,9 +14,7 @@
             :key="item.id"
             :title="item.name"
             :icon="item.icon"
-            :expanded="analysis.isToolExpanded(item.id)"
             :collapsible="item.collapsible"
-            @update:expanded="x => analysis.expandTool(item.id, x)"
         >
             <component :is="item.component" />
         </ToolWrapper>
