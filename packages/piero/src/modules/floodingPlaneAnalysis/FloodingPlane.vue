@@ -1,14 +1,25 @@
 <script setup lang="ts">
-    import { useAnalysisStore } from '@/stores/analysis';
+    import SwitchToggle from '@/components/SwitchToggle.vue';
 
-    const analysis = useAnalysisStore();
+    import { useFloodingPlaneStore } from './store';
+
+    const store = useFloodingPlaneStore();
 
     function setHeight(height: number): void {
-        analysis.setFloodingPlaneHeight(height);
+        store.setHeight(height);
     }
 </script>
 
 <template>
+    <div class="input-group mb-3">
+        <SwitchToggle
+            v-bind:model-value="store.enable"
+            v-on:update:model-value="v => store.setEnabled(v)"
+            id="flooding-plane-enable"
+            title="foo"
+        />
+        <label for="flooding-plane-enable" class="form-label">Enable flooding plane</label>
+    </div>
     <div class="input-group mb-3">
         <label for="flooding-altitude-range" class="form-label">Altitude</label>
         <input
@@ -19,7 +30,7 @@
             min="0"
             step="0.1"
             max="500"
-            :value="analysis.floodingPlaneHeight"
+            :value="store.getHeight()"
             @input="event => setHeight(Number.parseFloat((event.target as HTMLInputElement).value))"
         />
         <div class="input-group mb-3">
@@ -28,7 +39,7 @@
                 class="form-control"
                 id="flooding-altitude-number"
                 step="0.1"
-                :value="analysis.floodingPlaneHeight"
+                :value="store.getHeight()"
                 @input="
                     event => setHeight(Number.parseFloat((event.target as HTMLInputElement).value))
                 "

@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { shallowRef } from 'vue';
 
 import type { Module } from '@/module';
 
 export const useModuleStore = defineStore('modules', () => {
-    const loadedModules = ref<Module[]>([]);
+    const loadedModules = shallowRef<Module[]>([]);
 
     function setLoadedModules(modules: Module[]): void {
         loadedModules.value = modules;
@@ -14,5 +14,17 @@ export const useModuleStore = defineStore('modules', () => {
         return loadedModules.value;
     }
 
-    return { getLoadedModules, setLoadedModules };
+    function getModule<T extends Module>(id: Module['id']): T | null {
+        for (const module of loadedModules.value) {
+            if (module.id === id) {
+                return module as T;
+            }
+        }
+
+        return null;
+    }
+
+    return { getLoadedModules, getModule, setLoadedModules };
 });
+
+export type ModuleStore = ReturnType<typeof useModuleStore>;

@@ -141,7 +141,10 @@
             }
         });
 
-        getContext().view = new ViewApiImpl({ camera: giro3d.value.camera });
+        getContext().view = new ViewApiImpl({
+            camera: giro3d.value.camera,
+            instance: giro3d.value.mainInstance,
+        });
 
         if (minimap.value) {
             minimap.value.setMainInstance(instance);

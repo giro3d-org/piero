@@ -50,6 +50,7 @@ const getAttributesFromPlyObject: AttributeExtractorFn = (
  * Loads .ply files.
  */
 export default class PLYLoader implements Module {
+    public readonly id = 'builtin-ply-loader';
     public readonly name = 'PLY';
 
     public initialize(context: PieroContext): Promise<void> | void {

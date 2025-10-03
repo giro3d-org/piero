@@ -1,8 +1,11 @@
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { Ref } from 'vue';
 
 import { defineStore } from 'pinia';
 import { Box3 } from 'three';
-import { computed, shallowReactive } from 'vue';
+import { computed, ref, shallowReactive } from 'vue';
+
+import type { DatasetActionRegistrationParams } from '@/api';
 
 import { getConfig } from '@/config-loader';
 import {
@@ -11,6 +14,11 @@ import {
     type DatasetOrGroup,
     parseDatasetConfig,
 } from '@/types/Dataset';
+
+type DatasetAction = DatasetActionRegistrationParams & {
+    mustBePreloaded: boolean;
+    mustBeVisible: boolean;
+};
 
 function buildDatasets(root: DatasetOrGroup): DatasetOrGroup {
     // We have multiple levels or shallowReactive-ness because we want to react to:
@@ -34,6 +42,19 @@ export const useDatasetStore = defineStore('datasets', () => {
 
     const entities: Map<string, Entity3D> = new Map();
     const layers: Map<string, DatasetLayer> = new Map();
+
+    const customActions: Ref<DatasetAction[]> = ref([]);
+
+    function registerCustomAction(params: DatasetActionRegistrationParams): void {
+        customActions.value = [
+            ...customActions.value,
+            {
+                ...params,
+                mustBePreloaded: params.mustBePreloaded ?? false,
+                mustBeVisible: params.mustBeVisible ?? false,
+            },
+        ];
+    }
 
     /** Get hierarchy of datasets & groups */
     function getTree(): DatasetOrGroup[] {
@@ -126,20 +147,47 @@ export const useDatasetStore = defineStore('datasets', () => {
         // Nothing to do, rely on action listeners.
     }
 
+    function getCustomActions(
+        dataset: DatasetOrGroup,
+        params: { isPreloaded: boolean; isVisible: boolean },
+    ): DatasetAction[] {
+        const actions = customActions.value;
+
+        return actions.filter(item => {
+            if (item.predicate != null && !item.predicate(dataset)) {
+                return false;
+            }
+
+            if (item.mustBeVisible && !params.isVisible) {
+                return false;
+            }
+
+            if (item.mustBePreloaded && !params.isPreloaded) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
     return {
         add,
         attachEntity,
         attachLayer,
         count,
         getBoundingBox,
+        getCustomActions,
         getDatasets,
         getEntity,
         getLayer,
         getTree,
         importFromFile,
+        registerCustomAction,
         remove,
         setVisible,
         toggleGrid,
         toggleMask,
     };
 });
+
+export type DatasetStore = ReturnType<typeof useDatasetStore>;

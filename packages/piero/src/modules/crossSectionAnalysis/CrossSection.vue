@@ -1,27 +1,39 @@
 <script setup lang="ts">
-    import { useAnalysisStore } from '@/stores/analysis';
+    import SwitchToggle from '@/components/SwitchToggle.vue';
 
-    const analysis = useAnalysisStore();
+    import { useCrossSectionStore } from './store';
 
-    function setOrientation(height: number): void {
-        analysis.setCrossSectionOrientation(height);
+    const store = useCrossSectionStore();
+
+    function setOrientation(orientation: number): void {
+        store.setOrientation(orientation);
     }
 
     function setX(x: number): void {
-        const center = analysis.crossSectionCenter.clone();
+        const center = store.center.clone();
         center.setX(x);
-        analysis.setCrossSectionCenter(center);
+        store.setCenter(center);
     }
 
     function setY(y: number): void {
-        const center = analysis.crossSectionCenter.clone();
+        const center = store.center.clone();
         center.setY(y);
-        analysis.setCrossSectionCenter(center);
+        store.setCenter(center);
     }
 </script>
 
 <template>
     <div>
+        <div class="input-group mb-3">
+            <SwitchToggle
+                v-bind:model-value="store.enable"
+                v-on:update:model-value="v => store.setEnabled(v)"
+                id="cross-section-enable"
+                title="foo"
+            />
+            <label for="cross-section-enable" class="form-label">Enable cross section</label>
+        </div>
+
         <div class="input-group mb-3">
             <label for="plane-orientation-range" class="form-label"
                 >Plane orientation (0-360°)</label
@@ -34,37 +46,35 @@
                 min="0"
                 step="0.1"
                 max="360"
-                :value="analysis.crossSectionOrientation"
+                :value="store.orientation"
                 @input="
                     event =>
                         setOrientation(Number.parseFloat((event.target as HTMLInputElement).value))
                 "
             />
-            <div class="input-group mb-3">
-                <input
-                    type="number"
-                    class="form-control"
-                    id="plane-orientation-number"
-                    step="0.1"
-                    :value="analysis.crossSectionOrientation"
-                    @input="
-                        event =>
-                            setOrientation(
-                                Number.parseFloat((event.target as HTMLInputElement).value),
-                            )
-                    "
-                />
-            </div>
+        </div>
+        <div class="input-group mb-3">
+            <input
+                type="number"
+                class="form-control"
+                id="plane-orientation-number"
+                step="0.1"
+                :value="store.orientation"
+                @input="
+                    event =>
+                        setOrientation(Number.parseFloat((event.target as HTMLInputElement).value))
+                "
+            />
         </div>
         <hr />
-        <div class="input-group mb-3">
+        <div class="input-group">
             <label class="form-label">Center (x, y)</label>
-            <div class="input-group mb-3">
+            <div class="input-group">
                 <input
                     type="number"
                     class="form-control"
                     id="plane-center-x"
-                    :value="analysis.crossSectionCenter.x"
+                    :value="store.center.x"
                     @input="
                         event => setX(Number.parseFloat((event.target as HTMLInputElement).value))
                     "
@@ -73,7 +83,7 @@
                     type="number"
                     class="form-control"
                     id="plane-center-y"
-                    :value="analysis.crossSectionCenter.y"
+                    :value="store.center.y"
                     @input="
                         event => setY(Number.parseFloat((event.target as HTMLInputElement).value))
                     "

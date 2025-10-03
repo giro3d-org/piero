@@ -70,12 +70,15 @@
                 icon="bi-mask"
                 @click="$emit('update:toggle-mask', dataset)"
             />
+
             <IconListButton
-                v-if="isPreloaded"
-                title="Clip to"
-                icon="bi-bounding-box"
-                @click="$emit('clipTo', dataset)"
+                v-for="action in store.getCustomActions(dataset, { isVisible, isPreloaded })"
+                :key="action.title"
+                :title="action.title"
+                :icon="action.icon"
+                @click="action.action(dataset)"
             />
+
             <IconListButton
                 v-if="isPreloaded"
                 title="Toggle 3D grid"

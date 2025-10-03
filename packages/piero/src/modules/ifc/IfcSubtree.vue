@@ -8,8 +8,12 @@
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
-    import { useAnalysisStore } from '@/stores/analysis';
     import { useCameraStore } from '@/stores/camera';
+    import { useModuleStore } from '@/stores/modules';
+
+    import type ClippingBoxAnalysis from '../ClippingBoxAnalysis';
+
+    import { moduleId } from '../ClippingBoxAnalysis';
 
     const props = defineProps<{
         classificationElement: ClassificationItem;
@@ -21,13 +25,19 @@
 
     const highlighted = ref(false);
     const cameraStore = useCameraStore();
-    const analysis = useAnalysisStore();
+    const moduleStore = useModuleStore();
+
+    const clippingBoxModule = moduleStore.getModule<ClippingBoxAnalysis>(moduleId);
 
     function clipTo(): void {
+        if (clippingBoxModule == null) {
+            console.warn('Cannot clip IFC element, ClippingBoxAnalysis module is not present');
+            return;
+        }
+
         const bbox = props.ifcEntity.getBoundingBoxById(props.classificationElement.fragments);
         if (bbox && !bbox.isEmpty()) {
-            analysis.setClippingBox(bbox);
-            analysis.enableClippingBox(true);
+            clippingBoxModule.setClippingBox(bbox);
         }
     }
 
@@ -77,7 +87,12 @@
             />
             <IconList class="ms-1">
                 <IconListButton title="Highlight" icon="bi-highlighter" @click="highlight" />
-                <IconListButton title="Clip to" icon="bi-bounding-box" @click="clipTo" />
+                <IconListButton
+                    v-if="clippingBoxModule != null"
+                    title="Clip to"
+                    icon="bi-bounding-box"
+                    @click="clipTo"
+                />
             </IconList>
         </div>
         <div v-if="classificationElement.children.length > 0" :id="id" class="collapse show">

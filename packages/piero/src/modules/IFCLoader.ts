@@ -117,6 +117,7 @@ const entityBuilder: EntityBuilder = context => {
  * Loads IFC (Industry Foundation Classes) files.
  */
 export default class IFCLoader implements Module {
+    public readonly id = 'builtin-ifc-loader';
     public readonly name = 'IFC';
 
     public async initialize(context: PieroContext): Promise<void> {

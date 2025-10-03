@@ -1,8 +1,6 @@
 import { Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
 
-const DEFAULT_HEIGHT = 170;
-
-export default class FloodingPlane {
+export default class FloodingPlaneObject {
     public geometry: PlaneGeometry;
     public material: MeshBasicMaterial;
     public object3D: Mesh<PlaneGeometry, MeshBasicMaterial>;
@@ -30,7 +28,7 @@ export default class FloodingPlane {
         this.object3D = new Mesh(this.geometry, this.material);
         this.object3D.renderOrder = 2;
         this.visible = false;
-        this._height = DEFAULT_HEIGHT;
+        this._height = 0;
     }
 
     public dispose(): void {

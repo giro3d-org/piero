@@ -25,6 +25,7 @@ type Tours = {
  * Provides a guided tour of the application.
  */
 export default class TourModule implements Module {
+    public readonly id = 'builtin-tour';
     public readonly name = 'Tour';
 
     private _camera: CameraController | null = null;

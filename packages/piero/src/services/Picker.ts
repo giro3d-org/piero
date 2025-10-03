@@ -15,12 +15,14 @@ import { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import { type Feature as OLFeature } from 'ol';
 import { Box3, type Object3D, Vector3 } from 'three';
 
+import type ClippingBoxAnalysis from '@/modules/ClippingBoxAnalysis';
 import type Annotation from '@/types/Annotation';
 import type { PieroShapeUserData } from '@/types/Annotation';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 
 import Measure3D from '@/giro3d/Measure3D';
-import { useAnalysisStore } from '@/stores/analysis';
+import { moduleId as clippingBoxModuleId } from '@/modules/ClippingBoxAnalysis';
+import { useModuleStore } from '@/stores/modules';
 import Feature from '@/types/Feature';
 
 import { GRID_NAME, PLANE_NAME } from './LayerManager';
@@ -44,7 +46,7 @@ function comparePickResults(a: PickResult, b: PickResult): number {
 }
 
 export default class Picker {
-    private readonly _analysisStore = useAnalysisStore();
+    private readonly _moduleStore = useModuleStore();
 
     public getFeatureFromPickedObject(pickedObject: PickResult): Feature | null {
         const { entity, features, object } = pickedObject;
@@ -253,9 +255,12 @@ export default class Picker {
     }
 
     protected filterPick(instance: Instance, result: PickResult): boolean {
-        if (this._analysisStore.isClippingBoxEnabled()) {
-            const containsPoint = this._analysisStore.getClippingBox().containsPoint(result.point);
-            if (this._analysisStore.isClippingBoxInverted()) {
+        const clippingBoxModule =
+            this._moduleStore.getModule<ClippingBoxAnalysis>(clippingBoxModuleId);
+
+        if (clippingBoxModule != null && clippingBoxModule.isClippingBoxEnabled()) {
+            const containsPoint = clippingBoxModule.getClippingBox().containsPoint(result.point);
+            if (clippingBoxModule.isClippingBoxInverted()) {
                 if (containsPoint) {
                     return false;
                 }
