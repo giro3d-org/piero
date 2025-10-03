@@ -11,26 +11,28 @@
 </script>
 
 <template>
-    <div class="card">
-        <h5 class="card-header">
-            <div class="form-check form-switch d-flex">
-                <input
-                    class="form-check-input"
-                    :checked="expanded"
-                    :disabled="!collapsible"
-                    type="checkbox"
-                    role="switch"
-                    :id="`enable-${id}`"
-                    @input="$emit('update:expanded', !expanded)"
-                />
-                <label class="form-check-label flex-fill" :for="`enable-${id}`">
-                    <i v-if="icon" class="bi icon" :class="icon"></i>
-                    {{ title }}
-                </label>
+    <div class="accordion-item" :id="id">
+        <h2 class="accordion-header">
+            <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="`#${id}-collapse`"
+                aria-expanded="false"
+                :aria-controls="`${id}-collapse`"
+            >
+                <i v-if="icon" class="bi icon" :class="icon"></i>
+                {{ title }}
+            </button>
+        </h2>
+        <div
+            :id="`${id}-collapse`"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accordionExample"
+        >
+            <div class="accordion-body">
+                <slot></slot>
             </div>
-        </h5>
-        <div class="card-body" v-if="expanded">
-            <slot></slot>
         </div>
     </div>
 </template>

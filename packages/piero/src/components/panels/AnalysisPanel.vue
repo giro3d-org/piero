@@ -7,9 +7,8 @@
 </script>
 
 <template>
-    <div>
+    <div class="accordion" id="analysis-accordion">
         <ToolWrapper
-            class="tool"
             v-for="item in analysis.getTools()"
             :id="item.id"
             :key="item.id"
@@ -21,19 +20,12 @@
         >
             <component :is="item.component" />
         </ToolWrapper>
-
-        <div v-if="analysis.getTools().length === 0" class="warning">
-            No analysis tool registered.
-        </div>
     </div>
+
+    <div v-if="analysis.getTools().length === 0" class="warning">No analysis tool registered.</div>
 </template>
 
 <style scoped>
-    .tool {
-        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-        margin-top: 1rem;
-    }
-
     .warning {
         justify-content: center;
         text-align: center;
