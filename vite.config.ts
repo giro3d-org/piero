@@ -1,5 +1,7 @@
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import child_process from 'child_process';
 import { fileURLToPath, URL } from 'node:url';
+import { nodeExternals } from 'rollup-plugin-node-externals';
 import { defineConfig, mergeConfig } from 'vite';
 
 import { commonConfig } from './packages/piero/vite.config';
@@ -48,6 +50,14 @@ const appConfig = defineConfig(() => {
                 },
             },
         },
+        optimizeDeps: {
+            // We have an issue with the cityjson-three-loader with Workers when optimized
+            // (see https://gitlab.com/giro3d/piero/-/issues/98)
+            // however it depends on earcut which _has_ to be optimized (because giro3d also depends on it)
+            exclude: ['cityjson-threejs-loader'],
+            include: ['earcut'],
+        },
+        plugins: [nodeExternals(), nodeResolve()],
         resolve: {
             alias: {
                 '@giro3d/piero': fileURLToPath(new URL('./packages/piero/src', import.meta.url)),
