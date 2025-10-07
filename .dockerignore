@@ -1,0 +1,31 @@
+# NPM
+node_modules
+.parcel-cache
+dist
+packages/**/*.tgz
+Dockerfile
+
+# Env
+.env.local
+
+# App config
+config.ts
+styles.ts
+
+# App apidoc
+apidoc/
+
+# IFC
+public/web-ifc.wasm
+
+# LazPerf
+public/laz-perf.wasm
+
+# We should stop putting data in there
+public/cityjson
+public/geojson
+public/ifc
+public/ply
+public/shp
+
+.DS_Store

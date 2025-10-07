@@ -102,7 +102,21 @@ The **clipping box** tool let you partially hide objects, so you can see through
 
 ## Run your own Piero
 
-### Setup
+### Using Docker 🐋
+
+Piero can be ran as a Docker container with minimal configuration. In the root directory of Piero, run the following commands:
+
+```shell
+docker build -t piero:latest . --build-arg BASE_URL=http://localhost:8080
+docker run -p 8080:80 piero:latest
+```
+
+Then open your browser at <http://localhost:8080>.
+
+> [!note]
+> To deploy Piero on a server, set the value of `BASE_URL` to the URL of your server. For example, if you are deploying Piero at <https://example.com/piero>, use `--build-arg BASE_URL=https://example.com/piero`.
+
+### Building from souce
 
 You'll simply need to checkout this application and edit the configuration.
 
@@ -130,7 +144,7 @@ On compatible platforms, you can use the `init.sh` script to initialize the conf
 
 If you want to learn more about the configuration, head up to [its documentation](./CONFIGURATION.md).
 
-### Run
+#### Run
 
 Run the app with `npm run start`: it should be available at <http://localhost:8080/>.
 
@@ -140,7 +154,7 @@ To deploy the app, simply build it; the static web application will be available
 npm run build -- --base https://mydomain.com/piero
 ```
 
-### Tagged version vs. main
+#### Tagged version vs. main
 
 The `main` branch of Piero features the latest version of the application, while tagged versions are published [every quarter or so](https://gitlab.com/giro3d/piero/-/milestones). The [changelog](./CHANGELOG.md) of tagged versions is available once versions are published. For upcoming releases, head up to the corresponding [GitLab milestone](https://gitlab.com/giro3d/piero/-/milestones).
 
