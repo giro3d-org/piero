@@ -1,10 +1,11 @@
-image: node:lts-alpine
-before_script:
-    - cp config.ts.sample config.ts
-    - cp styles.ts.sample styles.ts
-    - apk update
-    - apk add git
-    - npm install --force
+default:
+    image: node:lts-alpine
+    before_script:
+        - cp config.ts.sample config.ts
+        - cp styles.ts.sample styles.ts
+        - apk update
+        - apk add git
+        - npm install --force
 
 stages:
     - build
