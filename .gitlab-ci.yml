@@ -37,6 +37,18 @@ build:
     script:
         - npm run build
 
+build-docker-image:
+    variables:
+        DOCKER_TLS_CERTDIR: '/certs'
+    image: docker:latest
+    services:
+        - docker:dind
+    before_script:
+        - docker info
+    stage: build
+    script:
+        - docker build -t piero:latest .
+
 pages:
     stage: publish
     rules:
