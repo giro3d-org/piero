@@ -16,7 +16,7 @@ function downloadBlob(object: Blob | MediaSource, filename: string): void {
     URL.revokeObjectURL(blobUrl);
 }
 
-let baseUrl = import.meta.env.PROD ? import.meta.env.BASE_URL : undefined;
+let baseUrl: string | undefined = undefined;
 
 function getBaseUrl(fallback: string = 'http://localhost:8080/'): string {
     const url = baseUrl ?? fallback;

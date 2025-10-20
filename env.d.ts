@@ -49,8 +49,9 @@ interface ImportMetaEnv {
     readonly VITE_HEADERS?: Record<string, Record<string, string>>;
 
     //// Region: Vite configuration
-    readonly BASE_URL: string;
     readonly PROD: boolean;
+    readonly VITE_APP_TITLE: string;
+    readonly VITE_BASE_URL: string;
 
     //// Region: About configuration
     readonly VITE_DEPENDENCIES: Record<string, DependencyInfo>;
