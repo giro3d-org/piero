@@ -14,9 +14,21 @@ import CrossSectionAnalysis from '@giro3d/piero/modules/CrossSectionAnalysis';
 import DefaultConfig from './config';
 import styles from './styles';
 
+class Environment {
+    public readonly baseUrl: string;
+    public readonly title: string;
+
+    public constructor() {
+        this.baseUrl = import.meta.env.VITE_BASE_URL;
+        this.title = import.meta.env.VITE_APP_TITLE;
+    }
+}
+
 function start(): Promise<void> {
-    // The base URL will be used to resolve all relative URLs, (e.g URLs that points to the public/ folder)
-    const baseUrl = import.meta.env.PROD ? import.meta.env.BASE_URL : 'http://localhost:8080/';
+    // Load the environment variables.
+    const env = new Environment();
+
+    document.title = env.title;
 
     // The list of all optional modules we want to use.
     // Since this is the default Piero app, we load all the modules
@@ -49,7 +61,7 @@ function start(): Promise<void> {
 
     // We are now ready to instantiate Piero on the #app DOM element of our webpage.
     return createPieroApp({
-        baseUrl,
+        baseUrl: env.baseUrl,
         configuration,
         container: '#app',
         dynamicStyles: styles,

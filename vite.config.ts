@@ -20,6 +20,11 @@ const appConfig = defineConfig(() => {
     const root = __dirname + '/';
 
     return {
+        // Use a relative base so that the application is portable
+        // (it can be deployed from anywhere). This is especially
+        // useful when deploying from the docker image.
+        base: './',
+
         build: {
             lib: false,
 

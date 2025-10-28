@@ -102,7 +102,24 @@ The **clipping box** tool let you partially hide objects, so you can see through
 
 ## Run your own Piero
 
-### Setup
+### Using Docker 🐋
+
+Piero can be ran as a Docker container with minimal configuration. In the root directory of Piero, run the following commands:
+
+```shell
+docker build -t piero:latest .
+docker run -e PIERO_BASE_URL=http://localhost:8080 -e PIERO_APP_TITLE="Hello from Piero!" -p 8080:80 piero:latest
+```
+
+Then open your browser at <http://localhost:8080>.
+
+> [!note]
+> To deploy Piero on a production server, you must set the value of `PIERO_BASE_URL` to the URL of your server. For example, if you are deploying Piero at <https://example.com/piero>, use `-e PIERO_BASE_URL=https://example.com/piero`. Otherwise, the default value of <http://example.com> will be used.
+
+> [!note]
+> The `PIERO_APP_TITLE` variable is not mandatory, but is useful to change the title of the webpage.
+
+### Building from source
 
 You'll simply need to checkout this application and edit the configuration.
 
@@ -123,24 +140,35 @@ On compatible platforms, you can use the `init.sh` script to initialize the conf
     `--force` is required until issue #87 gets resolved.
 
 2. Copy the default app configuration
+
     ```sh
      cp config.ts.sample config.ts
      cp styles.ts.sample styles.ts
     ```
 
+3. Create the `.env.local` file to provide environment variables, and set the appropriate values for your app.
+
+    | variable          | Description                                                                                | Default value           |
+    | ----------------- | ------------------------------------------------------------------------------------------ | ----------------------- |
+    | `PIERO_BASE_URL`  | The URL of your server where the app is deployed, for example: <https://example.com/piero> | `http://localhost:8080` |
+    | `PIERO_APP_TITLE` | The title of your app                                                                      | `"Piero"`               |
+
+    > [!tip]
+    > Use the `.env` file as a template for `.env.local`.
+
 If you want to learn more about the configuration, head up to [its documentation](./CONFIGURATION.md).
 
-### Run
+#### Run
 
 Run the app with `npm run start`: it should be available at <http://localhost:8080/>.
 
 To deploy the app, simply build it; the static web application will be available in the `dist` folder - it can then be copied to your server:
 
 ```bash
-npm run build -- --base https://mydomain.com/piero
+npm run build
 ```
 
-### Tagged version vs. main
+#### Tagged version vs. main
 
 The `main` branch of Piero features the latest version of the application, while tagged versions are published [every quarter or so](https://gitlab.com/giro3d/piero/-/milestones). The [changelog](./CHANGELOG.md) of tagged versions is available once versions are published. For upcoming releases, head up to the corresponding [GitLab milestone](https://gitlab.com/giro3d/piero/-/milestones).
 
