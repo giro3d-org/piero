@@ -12,6 +12,15 @@ export const build: EntityBuilder = context => {
         ...cfg.source,
         url: getPublicFolderUrl(cfg.source.url),
     });
+    // Hide some elements that don't bring visual value
+    entity.addEventListener('object-created', evt => {
+        const scene = evt.obj;
+        scene.traverse(obj => {
+            if (obj.userData?.class === 'IfcSpace') {
+                obj.visible = false;
+            }
+        });
+    });
 
     return Promise.resolve(entity);
 };
