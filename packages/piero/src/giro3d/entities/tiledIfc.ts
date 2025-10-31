@@ -1,17 +1,9 @@
-import type { TiledIfcDatasetConfig } from '@/types/configuration/datasets/tiledIfc';
-
-import { getPublicFolderUrl } from '@/utils/Configuration';
-
 import type { EntityBuilder } from '../EntityBuilder';
 
-import Tiles3dEntity from './Tiles3dEntity';
+import * as tiledGeom from './tiledGeom';
 
-export const build: EntityBuilder = context => {
-    const cfg = context.dataset.config as TiledIfcDatasetConfig;
-    const entity = new Tiles3dEntity({
-        ...cfg.source,
-        url: getPublicFolderUrl(cfg.source.url),
-    });
+export const build: EntityBuilder = async context => {
+    const entity = await tiledGeom.build(context);
     // Hide some elements that don't bring visual value
     entity.addEventListener('object-created', evt => {
         const scene = evt.obj;
@@ -21,6 +13,5 @@ export const build: EntityBuilder = context => {
             }
         });
     });
-
-    return Promise.resolve(entity);
+    return entity;
 };

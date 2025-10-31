@@ -8,6 +8,7 @@ import type { Dataset, DatasetBase } from '@/types/Dataset';
 // have a N to one mapping (N dataset types map to a single entity type)
 import * as featureCollection from './entities/FeatureCollectionEntity';
 import * as flatPointCloud from './entities/flatPointCloud';
+import * as tiledGeom from './entities/tiledGeom';
 import * as tiledIfc from './entities/tiledIfc';
 import * as tiledPointCloud from './entities/TiledPointCloudEntity';
 import * as vector from './entities/vector';
@@ -19,6 +20,7 @@ const builders: Record<string, EntityBuilder> = {
     featureCollection: featureCollection.build,
     flatPointcloud: flatPointCloud.build,
     pointcloud: tiledPointCloud.build,
+    tiledGeom: tiledGeom.build,
     tiledIfc: tiledIfc.build,
     vector: vector.build,
 };

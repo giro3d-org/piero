@@ -48,6 +48,7 @@ export const datasetIcons: Record<DatasetType, string> = {
     featureCollection: 'bi-buildings',
     maskLayer: 'fg-hex-map',
     pointcloud: 'fg-multipoint',
+    tiledGeom: 'bi-building',
     tiledIfc: 'bi-building',
     vector: 'fg-polygon-pt',
 };
@@ -58,6 +59,7 @@ export const datasetTitles: Record<DatasetType, string> = {
     featureCollection: 'Feature Collection',
     maskLayer: 'Mask Layer',
     pointcloud: 'Point Cloud',
-    tiledIfc: 'IFC',
+    tiledGeom: 'Tiled Geometry',
+    tiledIfc: 'Tiled IFC',
     vector: 'Vector',
 };

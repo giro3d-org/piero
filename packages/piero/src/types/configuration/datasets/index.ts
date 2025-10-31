@@ -10,6 +10,7 @@ import type {
 import type { PLYDatasetConfig } from './ply';
 import type { PointCloudDatasetConfig } from './pointCloud';
 import type { PotreePointCloudDatasetConfig } from './potreePointCloud';
+import type { TiledGeomDatasetConfig } from './tiledGeom';
 import type { TiledIfcDatasetConfig } from './tiledIfc';
 import type { TiledPointCloudDatasetConfig } from './tiledPointCloud';
 import type {
@@ -39,6 +40,7 @@ export type DatasetAsMeshConfig =
     | PLYDatasetConfig
     | PointCloudDatasetConfig
     | PotreePointCloudDatasetConfig
+    | TiledGeomDatasetConfig
     | TiledIfcDatasetConfig
     | TiledPointCloudDatasetConfig
     | VectorLabelsDatasetConfig
