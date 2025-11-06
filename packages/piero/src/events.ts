@@ -24,13 +24,20 @@ export type PayloadEvent<T> = { value: T };
  */
 export type PieroEmptyEvent = unknown;
 
-export type PieroEvents = BookmarkEvents & DatasetEvents & PieroGlobalEvents;
+export type PieroEvents = BookmarkEvents & DatasetEvents & PieroGlobalEvents & ViewEvents;
 
 export interface PieroGlobalEvents {
     /**
      * Raised when the application has finished loading.
      */
     ready: PieroEmptyEvent;
+}
+
+export interface ViewEvents {
+    /**
+     * Raised when the main view has been updated.
+     */
+    updated: PieroEmptyEvent;
 }
 
 export const GLOBAL_EVENT_DISPATCHER = new EventDispatcher<PieroEvents>();

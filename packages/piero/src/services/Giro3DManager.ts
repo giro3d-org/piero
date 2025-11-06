@@ -4,6 +4,7 @@ import type { Object3D } from 'three';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
+import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
 import DatasetManager from '@/services/DatasetManager';
@@ -169,5 +170,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         camera.near = 2;
 
         this.dispatchEvent({ type: 'update' });
+        GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'updated' });
     }
 }
