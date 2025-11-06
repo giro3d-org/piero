@@ -81,7 +81,7 @@
         "@loaders.gl/las": "^4.1.1",
         "@loaders.gl/shapefile": "^4.1.1",
         "@popperjs/core": "^2.11.8",
-        "@tarekraafat/autocomplete.js": "^10.2.7",
+        "@trevoreyre/autocomplete-vue": "^3.0.3",
         "bootstrap": "^5.3.3",
         "bootstrap-icons": "^1.11.3",
         "camera-controls": "^2.10.1",
