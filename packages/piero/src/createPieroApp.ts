@@ -12,6 +12,7 @@ import { AnalysisApiImpl } from './api/AnalysisApi';
 import { BookmarkApiImpl } from './api/BookmarkApi';
 import { DatasetApiImpl } from './api/DatasetApi';
 import { NotificationApiImpl } from './api/NotificationApi';
+import { WidgetApiImpl } from './api/WidgetApi';
 import App from './App.vue';
 import { loadRemoteConfiguration, setConfiguration, setDynamicStyles } from './config-loader';
 import { GLOBAL_EVENT_DISPATCHER } from './events';
@@ -20,6 +21,7 @@ import { useBookmarkStore } from './stores/bookmarks';
 import { useDatasetStore } from './stores/datasets';
 import { useModuleStore } from './stores/modules';
 import { useNotificationStore } from './stores/notifications';
+import { useWidgetStore } from './stores/widgets';
 import Download from './utils/Download';
 
 async function resolveConfiguration(params: AppParameters): Promise<Configuration> {
@@ -99,6 +101,7 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
         datasets: new DatasetApiImpl(useDatasetStore(pinia)),
         events: GLOBAL_EVENT_DISPATCHER,
         notifications: new NotificationApiImpl(useNotificationStore(pinia)),
+        widgets: new WidgetApiImpl(useWidgetStore(pinia)),
     };
 
     const readyContext = context as PieroContext;

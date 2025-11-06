@@ -32,6 +32,7 @@
     import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
+    import { useWidgetStore } from './stores/widgets';
 
     const { getContext } = defineProps<{
         getContext: () => PieroContext;
@@ -51,6 +52,7 @@
     const cameraStore = useCameraStore();
     const annotationStore = useAnnotationStore();
     const measurementStore = useMeasurementStore();
+    const widgetStore = useWidgetStore();
 
     const giro3d = shallowRef<Giro3DManager | null>(null);
     const minimap = shallowRef<MinimapController | null>(null);
@@ -295,6 +297,14 @@
     <SearchOverlay id="address-search" class="search" @update:poi="onPointOfInterestSelected" />
     <NavigationButtons class="navigation-buttons" />
     <AlertToast />
+
+    <div
+        v-for="(widget, index) in widgetStore.getWidgets()"
+        :key="index"
+        :id="`widget-${widget.id}`"
+    >
+        <component :context="getContext()" :is="widget.component"></component>
+    </div>
 </template>
 
 <style scoped>
