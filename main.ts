@@ -4,6 +4,7 @@ import {
     DownloadDataset,
     FloodingPlaneAnalysis,
     IFCLoader,
+    OpenLayersMinimap,
     PLYLoader,
     PotreeLoader,
     Tour,
@@ -39,6 +40,7 @@ function start(): Promise<void> {
         // Misc modules
         new Tour(),
         new DownloadDataset(),
+        new OpenLayersMinimap(),
 
         // Data loaders
         new IFCLoader(),
