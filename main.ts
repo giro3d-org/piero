@@ -3,6 +3,7 @@ import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import {
     DownloadDataset,
     FloodingPlaneAnalysis,
+    FrenchBanGeocoder,
     IFCLoader,
     OpenLayersMinimap,
     PLYLoader,
@@ -54,6 +55,9 @@ function start(): Promise<void> {
         new FloodingPlaneAnalysis(),
         new CrossSectionAnalysis(),
         new ClippingBoxAnalysis(),
+
+        // Search
+        new FrenchBanGeocoder(),
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param

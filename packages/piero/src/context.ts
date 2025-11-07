@@ -1,5 +1,6 @@
 import type { EventDispatcher } from 'three';
 
+import type { SearchApi } from './api';
 import type AnalysisApi from './api/AnalysisApi';
 import type BookmarkApi from './api/BookmarkApi';
 import type DatasetApi from './api/DatasetApi';
@@ -44,6 +45,11 @@ export interface PieroContext {
      * Notification related functions.
      */
     notifications: NotificationApi;
+
+    /**
+     * Search related functions.
+     */
+    search: SearchApi;
 
     /**
      * 3D View related functions.

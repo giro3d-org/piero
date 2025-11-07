@@ -2,6 +2,7 @@ import ClippingBoxAnalysis from './ClippingBoxAnalysis';
 import CrossSectionAnalysis from './CrossSectionAnalysis';
 import DownloadDataset from './DownloadDataset';
 import FloodingPlaneAnalysis from './FloodingPlaneAnalysis';
+import FrenchBanGeocoder from './geocoding/FrenchBanGeocoder';
 import IFCLoader from './IFCLoader';
 import OpenLayersMinimap from './OpenLayersMinimap';
 import PLYLoader from './PLYLoader';
@@ -14,6 +15,7 @@ export {
     CrossSectionAnalysis,
     DownloadDataset,
     FloodingPlaneAnalysis,
+    FrenchBanGeocoder,
     IFCLoader,
     OpenLayersMinimap,
     PLYLoader,
