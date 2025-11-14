@@ -1,6 +1,4 @@
 <script setup lang="ts">
-    import type Instance from '@giro3d/giro3d/core/Instance';
-
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import Extent from '@giro3d/giro3d/core/geographic/Extent';
     import { Vector2, Vector3 } from 'three';
@@ -10,7 +8,6 @@
 
     import { type GeocodingResult } from '@/providers/Geocoding';
     import Giro3DManager from '@/services/Giro3DManager';
-    import MinimapController from '@/services/MinimapController';
     import { useAnnotationStore } from '@/stores/annotations';
     import { useCameraStore } from '@/stores/camera';
     import { useGiro3dStore } from '@/stores/giro3d';
@@ -24,7 +21,6 @@
     import AttributePanel from './components/AttributePanel.vue';
     import LoadingScreen from './components/LoadingScreen.vue';
     import MainView from './components/MainView.vue';
-    import MinimapView from './components/MinimapView.vue';
     import NavigationButtons from './components/NavigationButtons.vue';
     import PanelContainer from './components/PanelContainer.vue';
     import ProgressBar from './components/ProgressBar.vue';
@@ -32,6 +28,7 @@
     import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
+    import { useWidgetStore } from './stores/widgets';
 
     const { getContext } = defineProps<{
         getContext: () => PieroContext;
@@ -51,19 +48,15 @@
     const cameraStore = useCameraStore();
     const annotationStore = useAnnotationStore();
     const measurementStore = useMeasurementStore();
+    const widgetStore = useWidgetStore();
 
     const giro3d = shallowRef<Giro3DManager | null>(null);
-    const minimap = shallowRef<MinimapController | null>(null);
     const debounce = ref<NodeJS.Timeout | number | string | undefined>();
 
     onMounted(() => {
         const mainview = giro3dStore.getMainView();
-        const minimapView = giro3dStore.getMinimapView();
         if (mainview) {
-            initializeGiro3DManager(mainview);
-        }
-        if (minimapView) {
-            initializeMinimap(minimapView);
+            initializeGiro3DManager();
         }
 
         giro3dStore.$onAction(({ after, args, name }) => {
@@ -73,14 +66,7 @@
                         if (args[0] === null) {
                             disposeGiro3DManager();
                         } else {
-                            initializeGiro3DManager(args[0]);
-                        }
-                        break;
-                    case 'setMinimapView':
-                        if (args[0] === null) {
-                            disposeMinimap();
-                        } else {
-                            void initializeMinimap(args[0]);
+                            initializeGiro3DManager();
                         }
                         break;
                 }
@@ -112,23 +98,15 @@
             clearInterval(debounce.value);
             debounce.value = undefined;
         }
-        disposeMinimap();
         disposeGiro3DManager();
     });
 
     function disposeGiro3DManager(): void {
-        if (minimap.value) {
-            minimap.value.setMainInstance(null);
-        }
         giro3d.value?.dispose();
         giro3d.value = null;
     }
 
-    function disposeMinimap(): void {
-        minimap.value?.dispose();
-    }
-
-    function initializeGiro3DManager(instance: Instance): void {
+    function initializeGiro3DManager(): void {
         const mainview = giro3dStore.getMainView();
         if (mainview === null) {
             throw new Error('mainview is null');
@@ -145,17 +123,6 @@
             camera: giro3d.value.camera,
             instance: giro3d.value.mainInstance,
         });
-
-        if (minimap.value) {
-            minimap.value.setMainInstance(instance);
-        }
-    }
-
-    function initializeMinimap(instance: Instance): void {
-        minimap.value = new MinimapController(instance);
-        if (giro3d.value) {
-            minimap.value.setMainInstance(giro3d.value.mainInstance);
-        }
     }
 
     function onMouseMove(event: MouseEvent): void {
@@ -289,12 +256,19 @@
         class="component toolbar"
         v-on:selected="v => selectPanel(v)"
     />
-    <MinimapView class="component minimap" />
     <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
     <ProgressBar :progress="progress" class="loading-indicator" />
     <SearchOverlay id="address-search" class="search" @update:poi="onPointOfInterestSelected" />
     <NavigationButtons class="navigation-buttons" />
     <AlertToast />
+
+    <div
+        v-for="(widget, index) in widgetStore.getWidgets()"
+        :key="index"
+        :id="`widget-${widget.id}`"
+    >
+        <component :context="getContext()" :is="widget.component"></component>
+    </div>
 </template>
 
 <style scoped>
@@ -373,14 +347,5 @@
         /* background-color: rgb(250, 250, 250); */
         top: 0;
         left: 0;
-    }
-
-    .minimap {
-        width: 10rem;
-        height: 10rem;
-        position: absolute;
-        margin: 0.5rem;
-        top: 0;
-        right: 0;
     }
 </style>

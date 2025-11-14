@@ -15,7 +15,6 @@ import { getExtent } from '@/utils/Configuration';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
-    const minimapView = shallowRef<Instance | null>(null);
     const inspector = shallowRef<Inspector | null>(null);
 
     function getMainView(): Instance | null {
@@ -24,14 +23,6 @@ export const useGiro3dStore = defineStore('giro3d', () => {
 
     function setMainView(instance: Instance | null): void {
         mainView.value = instance;
-    }
-
-    function getMinimapView(): Instance | null {
-        return minimapView.value;
-    }
-
-    function setMinimapView(instance: Instance | null): void {
-        minimapView.value = instance;
     }
 
     function getInspector(): Inspector | null {
@@ -158,10 +149,8 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         getDefaultCameraPosition,
         getInspector,
         getMainView,
-        getMinimapView,
         notifyChange,
         setInspector,
         setMainView,
-        setMinimapView,
     };
 });

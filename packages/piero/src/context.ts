@@ -5,6 +5,7 @@ import type BookmarkApi from './api/BookmarkApi';
 import type DatasetApi from './api/DatasetApi';
 import type NotificationApi from './api/NotificationApi';
 import type ViewApi from './api/ViewApi';
+import type WidgetApi from './api/WidgetApi';
 import type { PieroEvents } from './events';
 import type { Configuration } from './types/Configuration';
 
@@ -48,4 +49,9 @@ export interface PieroContext {
      * 3D View related functions.
      */
     view: ViewApi;
+
+    /**
+     * Widget API.
+     */
+    widgets: WidgetApi;
 }
