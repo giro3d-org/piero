@@ -6,6 +6,7 @@ import {
     IFCLoader,
     OpenLayersMinimap,
     PLYLoader,
+    PostProcessEntities,
     PotreeLoader,
     Tour,
 } from '@giro3d/piero/modules';
@@ -41,6 +42,7 @@ function start(): Promise<void> {
         new Tour(),
         new DownloadDataset(),
         new OpenLayersMinimap(),
+        new PostProcessEntities(),
 
         // Data loaders
         new IFCLoader(),
