@@ -1,6 +1,7 @@
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import {
+    CoordinatesSearch,
     DownloadDataset,
     FloodingPlaneAnalysis,
     FrenchBanGeocoder,
@@ -58,6 +59,7 @@ function start(): Promise<void> {
 
         // Search
         new FrenchBanGeocoder(),
+        new CoordinatesSearch(),
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param
