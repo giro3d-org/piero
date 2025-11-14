@@ -1,66 +1,49 @@
 <script setup lang="ts">
-    // @ts-expect-error autocomplete does not provide typing
-    import autoComplete from '@tarekraafat/autocomplete.js';
-    import { onMounted, ref } from 'vue';
+    // @ts-expect-error autocomplete-vue does not provide typing
+    import Autocomplete from '@trevoreyre/autocomplete-vue';
 
+    import Icon from '@/components/atoms/Icon.vue';
     import BanProvider from '@/providers/BanProvider';
     import { type GeocodingResult } from '@/providers/Geocoding';
 
-    const inputField = ref<HTMLInputElement | null>(null);
-
     const emits = defineEmits(['update:poi']);
 
-    onMounted(() => {
-        new autoComplete({
-            data: {
-                keys: ['label'],
-                src: (query: string): Promise<GeocodingResult[]> => {
-                    return BanProvider.geocode(query);
-                },
-            },
-            debounce: 300, // 300ms debounce
-            placeHolder: 'Search places...',
-            resultItem: {
-                highlight: true,
-            },
-            resultsList: {
-                noResults: true,
-            },
-            selector: '#search-place-autocomplete',
-            threshold: 3,
-            // Trust what we get from the query
-            searchEngine: (query: string, record: unknown): unknown => record,
-        });
+    function getResultValue(result: GeocodingResult): string {
+        return result.label;
+    }
 
-        const inputElement = inputField.value as HTMLInputElement;
+    function search(query: string): Promise<GeocodingResult[]> {
+        if (query.length < 3) {
+            return Promise.resolve([]);
+        }
+        return BanProvider.geocode(query);
+    }
 
-        inputElement.addEventListener('selection', (event: Event) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const poi = (event as any).detail.selection.value as GeocodingResult;
-
-            emits('update:poi', poi);
-        });
-    });
+    function submitResult(result: GeocodingResult): void {
+        emits('update:poi', result);
+    }
 </script>
 
 <template>
     <div class="main">
-        <div class="input-group" id="address-search">
-            <input
-                ref="inputField"
-                id="search-place-autocomplete"
-                class="rounded-pill form-control"
-                type="search"
-                dir="ltr"
-                placeholder="Search places..."
-                spellcheck="false"
-                autocorrect="off"
-                autocomplete="off"
-                autocapitalize="off"
-                maxlength="2048"
-                tabindex="1"
-            />
-        </div>
+        <autocomplete
+            :debounceTime="500"
+            :search="search"
+            :getResultValue="getResultValue"
+            @submit="submitResult"
+            id="search-place-autocomplete"
+            placeholder="Search..."
+        >
+            <template #result="{ result, props }">
+                <li v-bind="props" class="autocomplete-result result">
+                    <div class="result-label">
+                        <span class="result-type"><Icon icon="fg-poi" title="Location" /></span>
+                        <span>{{ result.label }}</span>
+                    </div>
+                    <div class="wiki-snippet" :v-html="result.snippet"></div>
+                </li>
+            </template>
+        </autocomplete>
     </div>
 </template>
 
@@ -72,5 +55,28 @@
     input {
         height: 30pt;
         box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .autocomplete {
+        width: 100%;
+    }
+
+    .result {
+        border-top: 1px solid #eee;
+        padding: 16px;
+        background: transparent;
+    }
+
+    .result:hover {
+        background: lightgray;
+    }
+
+    .result-type {
+        padding-left: 5pt;
+        padding-right: 6pt;
+    }
+
+    .result-label {
+        font-size: 14px;
     }
 </style>

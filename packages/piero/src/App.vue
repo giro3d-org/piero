@@ -310,7 +310,7 @@
         position: absolute;
         top: 0;
         left: calc(50% - 20rem / 2);
-        width: 20rem;
+        width: 25rem;
     }
 
     .loading-indicator {
