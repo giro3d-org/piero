@@ -2,25 +2,37 @@
     // @ts-expect-error autocomplete-vue does not provide typing
     import Autocomplete from '@trevoreyre/autocomplete-vue';
 
+    import type { SearchResult } from '@/api';
+
     import Icon from '@/components/atoms/Icon.vue';
-    import BanProvider from '@/providers/BanProvider';
-    import { type GeocodingResult } from '@/providers/Geocoding';
+    import { useSearchStore } from '@/stores/search';
 
-    const emits = defineEmits(['update:poi']);
+    const emits = defineEmits<{
+        resultSelected: [value: SearchResult];
+    }>();
 
-    function getResultValue(result: GeocodingResult): string {
+    const store = useSearchStore();
+
+    function getResultValue(result: SearchResult): string {
         return result.label;
     }
 
-    function search(query: string): Promise<GeocodingResult[]> {
+    async function search(query: string): Promise<SearchResult[]> {
         if (query.length < 3) {
             return Promise.resolve([]);
         }
-        return BanProvider.geocode(query);
+
+        const providers = store.getProviders();
+
+        const promises = providers.map(p => p.search(query));
+
+        const allResults = await Promise.all(promises);
+
+        return allResults.flatMap(x => x);
     }
 
-    function submitResult(result: GeocodingResult): void {
-        emits('update:poi', result);
+    function submitResult(result: SearchResult): void {
+        emits('resultSelected', result);
     }
 </script>
 
@@ -39,6 +51,7 @@
                     <div class="result-label">
                         <span class="result-type"><Icon icon="fg-poi" title="Location" /></span>
                         <span>{{ result.label }}</span>
+                        <p class="provider">{{ result.provider.name }}</p>
                     </div>
                     <div class="wiki-snippet" :v-html="result.snippet"></div>
                 </li>
@@ -65,6 +78,12 @@
         border-top: 1px solid #eee;
         padding: 16px;
         background: transparent;
+    }
+
+    .provider {
+        font-size: 12px;
+        opacity: 60%;
+        margin: 0;
     }
 
     .result:hover {

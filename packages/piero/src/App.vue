@@ -1,12 +1,10 @@
 <script setup lang="ts">
-    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import Extent from '@giro3d/giro3d/core/geographic/Extent';
     import { Vector2, Vector3 } from 'three';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
     import type Feature from '@/types/Feature';
 
-    import { type GeocodingResult } from '@/providers/Geocoding';
     import Giro3DManager from '@/services/Giro3DManager';
     import { useAnnotationStore } from '@/stores/annotations';
     import { useCameraStore } from '@/stores/camera';
@@ -16,6 +14,7 @@
     import type { PanelType } from './components/Configuration';
     import type { PieroContext } from './context';
 
+    import { isLocationSearchResult, type SearchResult } from './api/SearchApi';
     import { ViewApiImpl } from './api/ViewApi';
     import AlertToast from './components/AlertToast.vue';
     import AttributePanel from './components/AttributePanel.vue';
@@ -132,22 +131,24 @@
         }
     }
 
-    function onPointOfInterestSelected(poi: GeocodingResult): void {
+    function onSearchResultSelected(result: SearchResult): void {
         if (!giro3d.value) {
             return;
         }
-        const instance = giro3d.value.mainInstance;
-        const poiCoordinates = new Coordinates(poi.crs, poi.x, poi.y, poi.z).as(
-            instance.referenceCrs,
-        );
-        const target = Extent.fromCenterAndSize(
-            poiCoordinates.crs,
-            poiCoordinates.toVector2(),
-            1000,
-            1000,
-        );
-        const bbox3 = target.toBox3(poi.z, poi.z + 200);
-        void giro3d.value.camera.lookTopDownAt(bbox3, false);
+
+        if (isLocationSearchResult(result)) {
+            const instance = giro3d.value.mainInstance;
+            const poiCoordinates = result.coordinates.as(instance.referenceCrs);
+            const target = Extent.fromCenterAndSize(
+                poiCoordinates.crs,
+                poiCoordinates.toVector2(),
+                1000,
+                1000,
+            );
+
+            const bbox3 = target.toBox3(poiCoordinates.z, poiCoordinates.z + 200);
+            void giro3d.value.camera.lookTopDownAt(bbox3, false);
+        }
     }
 
     function pick(event: MouseEvent, clicked?: boolean): void {
@@ -258,7 +259,7 @@
     />
     <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
     <ProgressBar :progress="progress" class="loading-indicator" />
-    <SearchOverlay id="address-search" class="search" @update:poi="onPointOfInterestSelected" />
+    <SearchOverlay id="address-search" class="search" @result-selected="onSearchResultSelected" />
     <NavigationButtons class="navigation-buttons" />
     <AlertToast />
 
