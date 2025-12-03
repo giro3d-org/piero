@@ -28,6 +28,16 @@
         <label for="cross-section-enable" class="form-check-label">Enable cross section</label>
     </div>
 
+    <div class="input-group">
+        <SwitchToggle
+            v-bind:model-value="store.showHelper"
+            v-on:update:model-value="v => store.setShowHelper(v)"
+            id="cross-section-helper-enable"
+            title="Show plane helper"
+        />
+        <label for="cross-section-helper-enable" class="form-check-label">Show plane helper</label>
+    </div>
+
     <div class="input-group my-3">
         <label for="plane-orientation-range" class="form-check-label"
             >Plane orientation (0-360°)</label

@@ -6,9 +6,11 @@ import { MathUtils, Plane, Vector3 } from 'three';
 
 import type { PieroContext } from '@/context';
 
+import CrossSectionHelper from './CrossSectionHelper';
 import { useCrossSectionStore } from './store';
 
 export default class CrossSectionManager {
+    private _helper?: CrossSectionHelper;
     private _instance?: Instance;
     private readonly _store = useCrossSectionStore();
 
@@ -33,7 +35,10 @@ export default class CrossSectionManager {
                         case 'setCenter':
                         case 'setEnabled':
                         case 'setOrientation':
+                        case 'setShowHelper':
                             this.updateCrossSection();
+                            this.updateHelper();
+                            this.showHelper(this._store.showHelper);
                             break;
                     }
                 });
@@ -45,6 +50,18 @@ export default class CrossSectionManager {
 
     public dispose(): void {
         // Nothing to do
+    }
+
+    private showHelper(show: boolean): void {
+        if (show && this._helper == null && this._instance) {
+            this._helper = new CrossSectionHelper();
+            this._instance.add(this._helper).catch(console.error);
+        }
+        if (this._helper) {
+            this._helper.visible = show;
+        }
+
+        this.updateHelper();
     }
 
     private updateCrossSection(): void {
@@ -78,5 +95,15 @@ export default class CrossSectionManager {
         }
 
         instance.notifyChange();
+    }
+
+    private updateHelper(): void {
+        this._helper?.position.copy(this._store.center);
+        this._helper?.updateMatrixWorld(true);
+        this._helper?.setRotationFromAxisAngle(
+            new Vector3(0, 0, 1),
+            MathUtils.degToRad(this._store.orientation),
+        );
+        this._instance?.notifyChange();
     }
 }

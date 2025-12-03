@@ -12,6 +12,7 @@ export const useCrossSectionStore = defineStore('crossSection', () => {
     const cursorManager = shallowRef<SceneCursorManager>();
     const center = ref(new Vector3(0, 0, 0));
     const enable = ref(false);
+    const showHelper = ref(false);
 
     function setEnabled(v: boolean): void {
         enable.value = v;
@@ -23,6 +24,10 @@ export const useCrossSectionStore = defineStore('crossSection', () => {
 
     function setCenter(v: Vector3): void {
         center.value = v;
+    }
+
+    function setShowHelper(v: boolean): void {
+        showHelper.value = v;
     }
 
     function setInstance(v: Instance): void {
@@ -44,6 +49,8 @@ export const useCrossSectionStore = defineStore('crossSection', () => {
         setEnabled,
         setInstance,
         setOrientation,
+        setShowHelper,
+        showHelper,
     };
 });
 
