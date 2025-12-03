@@ -6,6 +6,14 @@ type Link = {
     type?: string;
 };
 
+export function nonNull<T>(obj: T | null | undefined): T {
+    if (obj == null) {
+        throw new Error('non null assertion failed');
+    }
+
+    return obj;
+}
+
 export const isObject = (obj: unknown): obj is object => obj != null && typeof obj === 'object';
 
 export const isLink = (obj: unknown): obj is Link => isObject(obj) && 'href' in obj;
