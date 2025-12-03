@@ -1,3 +1,5 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { isEntity3D } from '@giro3d/giro3d/entities/Entity3D';
 import { MathUtils, Plane, Vector3 } from 'three';
@@ -7,13 +9,16 @@ import type { PieroContext } from '@/context';
 import { useCrossSectionStore } from './store';
 
 export default class CrossSectionManager {
+    private _instance?: Instance;
     private readonly _store = useCrossSectionStore();
 
     public constructor(private readonly context: PieroContext) {
         context.events.addEventListener('ready', () => {
+            this._instance = context.view.getInstance();
             const defaultCrs = context.configuration.default_crs;
             const config = context.configuration.analysis.cross_section;
 
+            this._store.setInstance(context.view.getInstance());
             this._store.setOrientation(config.orientation);
             const pivot = config.pivot;
             const pivotLocal = new Coordinates(pivot.crs ?? defaultCrs, pivot.x, pivot.y, 0).as(
