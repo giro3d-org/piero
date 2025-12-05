@@ -18,6 +18,7 @@ export default class CrossSectionManager {
             const defaultCrs = context.configuration.default_crs;
             const config = context.configuration.analysis.cross_section;
 
+            this._store.setCursorManager(context.view.getSceneCursorManager());
             this._store.setInstance(context.view.getInstance());
             this._store.setOrientation(config.orientation);
             const pivot = config.pivot;

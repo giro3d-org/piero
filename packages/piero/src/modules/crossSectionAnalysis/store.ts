@@ -2,11 +2,14 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 
 import { defineStore } from 'pinia';
 import { Vector3 } from 'three';
-import { ref } from 'vue';
+import { ref, shallowRef } from 'vue';
+
+import type SceneCursorManager from '@/services/SceneCursorManager';
 
 export const useCrossSectionStore = defineStore('crossSection', () => {
     const orientation = ref(0);
-    const instance = ref<Instance>();
+    const instance = shallowRef<Instance>();
+    const cursorManager = shallowRef<SceneCursorManager>();
     const center = ref(new Vector3(0, 0, 0));
     const enable = ref(false);
 
@@ -26,12 +29,18 @@ export const useCrossSectionStore = defineStore('crossSection', () => {
         instance.value = v;
     }
 
+    function setCursorManager(v: SceneCursorManager): void {
+        cursorManager.value = v;
+    }
+
     return {
         center,
+        cursorManager,
         enable,
         instance,
         orientation,
         setCenter,
+        setCursorManager,
         setEnabled,
         setInstance,
         setOrientation,

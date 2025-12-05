@@ -57,11 +57,25 @@
         const instance = nonNull(props.instance);
 
         isPicking.value = true;
-        instance.domElement.style.cursor = 'crosshair';
 
-        const listener = (e: MouseEvent): void => {
-            instance.domElement.style.cursor = 'auto';
-            instance.domElement.removeEventListener('click', listener);
+        const onMouseMove = (e: MouseEvent): void => {
+            const mouse = instance.eventToCanvasCoords(e, tempVec2);
+            const p = picker.getObjectsAt(instance, mouse)?.at(0)?.point;
+
+            if (p) {
+                x.value = p.x;
+                y.value = p.y;
+                z.value = p.z;
+
+                props.cursorManager?.setCursor('location');
+                props.cursorManager?.setCursorLocation(p);
+            }
+        };
+
+        const onClick = (e: MouseEvent): void => {
+            props.cursorManager?.setCursor(null);
+            instance.domElement.removeEventListener('click', onClick);
+            instance.domElement.removeEventListener('mousemove', onMouseMove);
             isPicking.value = false;
 
             const mouse = instance.eventToCanvasCoords(e, tempVec2);
@@ -76,7 +90,8 @@
             }
         };
 
-        instance.domElement.addEventListener('click', listener);
+        instance.domElement.addEventListener('mousemove', onMouseMove);
+        instance.domElement.addEventListener('click', onClick);
     };
 
     function setX(v: number): void {

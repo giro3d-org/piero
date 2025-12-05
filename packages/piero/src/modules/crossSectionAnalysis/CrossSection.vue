@@ -64,6 +64,7 @@
         :initial-value="store.center"
         v-if="store.instance != null"
         :instance="store.instance"
+        :cursor-manager="store.cursorManager"
         @update:coordinates="onCenterUpdated"
     />
 </template>
