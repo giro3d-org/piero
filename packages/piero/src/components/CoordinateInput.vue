@@ -3,7 +3,6 @@
     import type { Vector3 } from 'three';
 
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-    import { Vector2 } from 'three';
     import { ref } from 'vue';
 
     import type SceneCursorManager from '@/services/SceneCursorManager';
@@ -53,14 +52,12 @@
     };
 
     const pickCoordinate = (): void => {
-        const tempVec2 = new Vector2();
         const instance = nonNull(props.instance);
 
         isPicking.value = true;
 
         const onMouseMove = (e: MouseEvent): void => {
-            const mouse = instance.eventToCanvasCoords(e, tempVec2);
-            const p = picker.getObjectsAt(instance, mouse)?.at(0)?.point;
+            const p = picker.getFirstFeatureAt(instance, e)?.at(0)?.point;
 
             if (p) {
                 x.value = p.x;
@@ -78,8 +75,7 @@
             instance.domElement.removeEventListener('mousemove', onMouseMove);
             isPicking.value = false;
 
-            const mouse = instance.eventToCanvasCoords(e, tempVec2);
-            const p = picker.getObjectsAt(instance, mouse)?.at(0)?.point;
+            const p = picker.getFirstFeatureAt(instance, e)?.at(0)?.point;
 
             if (p) {
                 x.value = p.x;
