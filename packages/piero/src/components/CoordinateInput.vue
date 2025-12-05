@@ -6,11 +6,14 @@
     import { Vector2 } from 'three';
     import { ref } from 'vue';
 
+    import type SceneCursorManager from '@/services/SceneCursorManager';
+
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import Picker from '@/services/Picker';
     import { nonNull } from '@/utils/Types';
 
     const props = defineProps<{
+        cursorManager?: SceneCursorManager;
         /**
          * The initial value of the coordinates.
          * @defaultValue `(0, 0, 0)`

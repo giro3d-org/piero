@@ -15,6 +15,8 @@ import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
 import Fetcher from '@/utils/Fetcher';
 
+import SceneCursorManager from './SceneCursorManager';
+
 if (import.meta.env.VITE_HEADERS) {
     for (const [host, header] of Object.entries(import.meta.env.VITE_HEADERS)) {
         if (!Fetcher.checkAbsoluteHost(host)) {
@@ -72,6 +74,7 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
     public readonly mainInstance: Instance;
     public readonly measurementManager: MeasurementManager;
     public readonly picker: Picker;
+    public readonly sceneCursorManager: SceneCursorManager;
     private readonly _boundOnFrameEnd: () => void;
 
     private readonly _store = useGiro3dStore();
@@ -82,7 +85,8 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance = instance;
 
         this.picker = new Picker();
-        this.camera = new CameraController(this.mainInstance, this.picker);
+        this.sceneCursorManager = new SceneCursorManager(instance);
+        this.camera = new CameraController(this.mainInstance, this.picker, this.sceneCursorManager);
 
         const position = this._store.getDefaultCameraPosition();
         const lookAt = this._store.getDefaultCameraLookAt();

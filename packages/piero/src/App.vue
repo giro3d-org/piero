@@ -121,6 +121,7 @@
         getContext().view = new ViewApiImpl({
             camera: giro3d.value.camera,
             instance: giro3d.value.mainInstance,
+            sceneCursorManager: giro3d.value.sceneCursorManager,
         });
     }
 
@@ -217,6 +218,7 @@
         if (giro3d.value) {
             if (
                 cameraStore.getNavigationMode() === 'position-on-map' ||
+                cameraStore.getNavigationMode() === 'orbit' ||
                 annotationStore.isUserDrawing() ||
                 measurementStore.isUserMeasuring()
             ) {
