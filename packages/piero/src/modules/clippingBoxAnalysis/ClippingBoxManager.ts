@@ -215,7 +215,9 @@ export default class ClippingBoxManager {
             after(() => {
                 switch (name) {
                     case 'attachEntity':
-                        this.applyClippingPlanes();
+                        if (this._store.enable) {
+                            this.applyClippingPlanes();
+                        }
                         break;
                 }
             });
