@@ -48,8 +48,7 @@ a[aria-expanded='true'] .icon i::before,
     transform: $accordion-icon-transform;
 }
 
-#orbit-helper,
-#position-on-map-helper {
+.scene-cursor {
     border-radius: 50%;
     border-width: 2px;
     border-style: solid;

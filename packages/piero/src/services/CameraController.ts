@@ -21,7 +21,6 @@ import {
     Vector3,
     Vector4,
 } from 'three';
-import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
 import type NavigationMode from '@/types/NavigationMode';
 
@@ -31,6 +30,7 @@ import { useGiro3dStore } from '@/stores/giro3d';
 import CameraPosition from '@/types/CameraPosition';
 
 import type Picker from './Picker';
+import type SceneCursorManager from './SceneCursorManager';
 
 CameraControls.install({
     THREE: {
@@ -56,6 +56,8 @@ type CameraControllerEventMap = {
     };
 };
 
+const tmpVec3 = new Vector3();
+
 /**
  * Wraps Camera-controls into Giro3D
  */
@@ -77,14 +79,12 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private _boundPositionOnMapOnMouseMove: ((e: MouseEvent) => void) | null;
     private _cameraControlsInspector: CameraControlsInspector | null;
     private readonly _clock: Clock;
+    private readonly _cursorManager: SceneCursorManager;
     private readonly _giro3dStore = useGiro3dStore();
     private readonly _instance: Instance;
     private readonly _orbitControls: CameraControls;
-    private readonly _orbitHelper: CSS2DObject;
     private readonly _picker: Picker;
     private readonly _pickObjectsAt: (e: MouseEvent) => PickResult | null;
-
-    private readonly _positionOnMapHelper: CSS2DObject;
 
     private readonly _store = useCameraStore();
 
@@ -94,34 +94,15 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
      * @param instance - Giro3D instance
      * @param picker - Picker
      */
-    public constructor(instance: Instance, picker: Picker) {
+    public constructor(instance: Instance, picker: Picker, cursorManager: SceneCursorManager) {
         super();
         this._instance = instance;
         this._picker = picker;
+        this._cursorManager = cursorManager;
         this._orbitControls = new CameraControls(
             this._instance.view.camera,
             this._instance.domElement,
         );
-
-        const orbitHelperElement = document.createElement('div');
-        orbitHelperElement.className = 'helper';
-        orbitHelperElement.id = 'orbit-helper';
-        const orbitHelperElementIcon = document.createElement('i');
-        orbitHelperElementIcon.className = 'bi bi-mouse2-fill text-dark shadow';
-        orbitHelperElement.append(orbitHelperElementIcon);
-
-        this._orbitHelper = new CSS2DObject(orbitHelperElement);
-        void this._instance.add(this._orbitHelper);
-
-        const positionOnMapElement = document.createElement('div');
-        positionOnMapElement.className = 'helper';
-        positionOnMapElement.id = 'position-on-map-helper';
-        const positionOnMapElementIcon = document.createElement('i');
-        positionOnMapElementIcon.className = 'fg-position-man text-dark shadow';
-        positionOnMapElement.append(positionOnMapElementIcon);
-
-        this._positionOnMapHelper = new CSS2DObject(positionOnMapElement);
-        void this._instance.add(this._positionOnMapHelper);
 
         this._cameraControlsInspector = null;
 
@@ -178,9 +159,6 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         this._disablePositionOnMap();
         this.disposeOrbitControls();
-
-        this._instance.remove(this._positionOnMapHelper);
-        this._instance.remove(this._orbitHelper);
     }
 
     /**
@@ -389,13 +367,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             }
             this._boundPositionOnMapOnContextMenu = null;
 
-            this._positionOnMapHelper.visible = false;
-            this._instance.domElement.style.cursor = 'auto';
+            this._cursorManager.setCursor(null);
             this._instance.notifyChange();
         }
     }
 
     private _enablePositionOnMap(): void {
+        this._cursorManager.setCursor('street');
         this._boundPositionOnMapOnClick = this.onPositionOnMapClick.bind(this);
         this._boundPositionOnMapOnMouseMove = this.onPositionOnMapMouseMove.bind(this);
         this._boundPositionOnMapOnContextMenu = this.onPositionOnMapContextMenu.bind(this);
@@ -535,10 +513,9 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private onPositionOnMapMouseMove(e: MouseEvent): void {
         const picked = this._picker.getMapAt(this._instance, e);
         this._instance.domElement.style.cursor = picked ? 'none' : 'auto';
-        this._positionOnMapHelper.visible = picked != null;
+        this._cursorManager.setCursor(picked != null ? 'street' : null);
         if (picked) {
-            this._positionOnMapHelper.position.copy(picked.point);
-            this._positionOnMapHelper.updateMatrixWorld();
+            this._cursorManager.setCursorLocation(picked.point);
         }
         this._instance.notifyChange();
     }
@@ -548,17 +525,15 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             return;
         }
 
+        this._cursorManager.setCursor('orbit');
         const picked = this._pickObjectsAt(e);
         if (picked) {
-            this._orbitHelper.visible = true;
-            this._orbitHelper.position.copy(picked.point);
-            this._orbitHelper.updateMatrixWorld();
+            this._cursorManager.setCursorLocation(picked.point);
             this._orbitControls.setOrbitPoint(picked.point.x, picked.point.y, picked.point.z);
         } else {
             // We didn't pick anything, we'll orbit around the target
-            this._orbitHelper.visible = true;
-            this._orbitControls.getTarget(this._orbitHelper.position);
-            this._orbitHelper.updateMatrixWorld();
+            const cursorLocation = this._orbitControls.getTarget(tmpVec3);
+            this._cursorManager.setCursorLocation(cursorLocation);
         }
     }
 
@@ -677,7 +652,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             return;
         }
 
-        this._orbitHelper.visible = false;
+        this._cursorManager.setCursor(null);
         this._instance.notifyChange();
     }
 

@@ -1,19 +1,28 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { isEntity3D } from '@giro3d/giro3d/entities/Entity3D';
 import { MathUtils, Plane, Vector3 } from 'three';
 
 import type { PieroContext } from '@/context';
 
+import CrossSectionHelper from './CrossSectionHelper';
 import { useCrossSectionStore } from './store';
 
 export default class CrossSectionManager {
+    private _clippingPlanes: Plane[] | null = null;
+    private _helper?: CrossSectionHelper;
+    private _instance?: Instance;
     private readonly _store = useCrossSectionStore();
 
     public constructor(private readonly context: PieroContext) {
         context.events.addEventListener('ready', () => {
+            this._instance = context.view.getInstance();
             const defaultCrs = context.configuration.default_crs;
             const config = context.configuration.analysis.cross_section;
 
+            this._store.setCursorManager(context.view.getSceneCursorManager());
+            this._store.setInstance(context.view.getInstance());
             this._store.setOrientation(config.orientation);
             const pivot = config.pivot;
             const pivotLocal = new Coordinates(pivot.crs ?? defaultCrs, pivot.x, pivot.y, 0).as(
@@ -21,19 +30,26 @@ export default class CrossSectionManager {
             );
             this._store.setCenter(pivotLocal.toVector3());
 
+            this._instance.addEventListener('entity-added', this.updateCrossSection.bind(this));
+
             this._store.$onAction(({ after, name }) => {
                 after(() => {
                     switch (name) {
                         case 'setCenter':
                         case 'setEnabled':
                         case 'setOrientation':
+                        case 'setShowHelper':
                             this.updateCrossSection();
+                            this.updateHelper();
+                            this.showHelper(this._store.showHelper);
                             break;
                     }
                 });
             });
 
             this.updateCrossSection();
+            this.updateHelper();
+            this.showHelper(this._store.showHelper);
         });
     }
 
@@ -41,10 +57,26 @@ export default class CrossSectionManager {
         // Nothing to do
     }
 
-    private updateCrossSection(): void {
-        const clippingPlanes = [];
+    private createHelperIfNecessary(): void {
+        if (this._store.showHelper && this._helper == null && this._instance) {
+            this._helper = new CrossSectionHelper();
+            this._instance.add(this._helper).catch(console.error);
+        }
+    }
 
+    private showHelper(show: boolean): void {
+        this.createHelperIfNecessary();
+
+        if (this._helper) {
+            this._helper.visible = show;
+        }
+
+        this.updateHelper();
+    }
+
+    private updateCrossSection(): void {
         if (this._store.enable) {
+            const clippingPlanes = [];
             const radians = MathUtils.DEG2RAD * this._store.orientation;
             const cos = Math.cos(radians);
             const sin = Math.sin(radians);
@@ -54,23 +86,35 @@ export default class CrossSectionManager {
             const distance = new Plane(normal, 0).distanceToPoint(this._store.center);
             const plane = new Plane(normal, -distance);
             clippingPlanes.push(plane);
+            this._clippingPlanes = clippingPlanes;
+        } else {
+            this._clippingPlanes = null;
         }
 
+        this.updateEntities();
+    }
+
+    private updateEntities(): void {
         const instance = this.context.view.getInstance();
 
-        instance.renderer.clippingPlanes = clippingPlanes;
-        for (const entity of this.context.view.getInstance().getEntities()) {
+        for (const entity of instance.getEntities()) {
             if (isEntity3D(entity)) {
-                // Make sure entities know clipping planes are updated so
-                // they can optimize their rendering
-                // See https://gitlab.com/giro3d/piero/-/merge_requests/82
-                entity.dispatchEvent({
-                    clippingPlanes: clippingPlanes,
-                    type: 'clippingPlanes-property-changed',
-                });
+                entity.clippingPlanes = this._clippingPlanes;
             }
         }
 
         instance.notifyChange();
+    }
+
+    private updateHelper(): void {
+        this.createHelperIfNecessary();
+
+        this._helper?.position.copy(this._store.center);
+        this._helper?.updateMatrixWorld(true);
+        this._helper?.setRotationFromAxisAngle(
+            new Vector3(0, 0, 1),
+            MathUtils.degToRad(this._store.orientation),
+        );
+        this._instance?.notifyChange();
     }
 }
