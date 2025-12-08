@@ -1,15 +1,11 @@
-import { AxesHelper, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry } from 'three';
+import { ArrowHelper, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, Vector3 } from 'three';
 
 export default class CrossSectionHelper extends Object3D {
-    private _axes: AxesHelper;
-
     public constructor() {
         super();
 
-        this._axes = new AxesHelper(100);
-        this.add(this._axes);
         const plane = new Mesh(
-            new PlaneGeometry(50, 100, 5, 10),
+            new PlaneGeometry(50, 100, 1, 10),
             new MeshBasicMaterial({
                 color: '#6bf904',
                 depthTest: false,
@@ -17,9 +13,11 @@ export default class CrossSectionHelper extends Object3D {
                 wireframe: true,
             }),
         );
+        const arrow = new ArrowHelper(new Vector3(0, 1, 0), new Vector3(0, 0, 0), 200);
         plane.renderOrder = 999;
         plane.rotateY(Math.PI / 2);
         this.add(plane);
+        this.add(arrow);
 
         this.updateMatrixWorld(true);
     }

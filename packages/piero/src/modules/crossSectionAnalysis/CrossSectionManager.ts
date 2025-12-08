@@ -48,6 +48,8 @@ export default class CrossSectionManager {
             });
 
             this.updateCrossSection();
+            this.updateHelper();
+            this.showHelper(this._store.showHelper);
         });
     }
 
@@ -55,11 +57,16 @@ export default class CrossSectionManager {
         // Nothing to do
     }
 
-    private showHelper(show: boolean): void {
-        if (show && this._helper == null && this._instance) {
+    private createHelperIfNecessary(): void {
+        if (this._store.showHelper && this._helper == null && this._instance) {
             this._helper = new CrossSectionHelper();
             this._instance.add(this._helper).catch(console.error);
         }
+    }
+
+    private showHelper(show: boolean): void {
+        this.createHelperIfNecessary();
+
         if (this._helper) {
             this._helper.visible = show;
         }
@@ -100,6 +107,8 @@ export default class CrossSectionManager {
     }
 
     private updateHelper(): void {
+        this.createHelperIfNecessary();
+
         this._helper?.position.copy(this._store.center);
         this._helper?.updateMatrixWorld(true);
         this._helper?.setRotationFromAxisAngle(
