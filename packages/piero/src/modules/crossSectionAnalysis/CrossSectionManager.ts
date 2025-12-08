@@ -10,6 +10,7 @@ import CrossSectionHelper from './CrossSectionHelper';
 import { useCrossSectionStore } from './store';
 
 export default class CrossSectionManager {
+    private _clippingPlanes: Plane[] | null = null;
     private _helper?: CrossSectionHelper;
     private _instance?: Instance;
     private readonly _store = useCrossSectionStore();
@@ -28,6 +29,8 @@ export default class CrossSectionManager {
                 defaultCrs,
             );
             this._store.setCenter(pivotLocal.toVector3());
+
+            this._instance.addEventListener('entity-added', this.updateCrossSection.bind(this));
 
             this._store.$onAction(({ after, name }) => {
                 after(() => {
@@ -65,9 +68,8 @@ export default class CrossSectionManager {
     }
 
     private updateCrossSection(): void {
-        const clippingPlanes = [];
-
         if (this._store.enable) {
+            const clippingPlanes = [];
             const radians = MathUtils.DEG2RAD * this._store.orientation;
             const cos = Math.cos(radians);
             const sin = Math.sin(radians);
@@ -77,20 +79,20 @@ export default class CrossSectionManager {
             const distance = new Plane(normal, 0).distanceToPoint(this._store.center);
             const plane = new Plane(normal, -distance);
             clippingPlanes.push(plane);
+            this._clippingPlanes = clippingPlanes;
+        } else {
+            this._clippingPlanes = null;
         }
 
+        this.updateEntities();
+    }
+
+    private updateEntities(): void {
         const instance = this.context.view.getInstance();
 
-        instance.renderer.clippingPlanes = clippingPlanes;
-        for (const entity of this.context.view.getInstance().getEntities()) {
+        for (const entity of instance.getEntities()) {
             if (isEntity3D(entity)) {
-                // Make sure entities know clipping planes are updated so
-                // they can optimize their rendering
-                // See https://gitlab.com/giro3d/piero/-/merge_requests/82
-                entity.dispatchEvent({
-                    clippingPlanes: clippingPlanes,
-                    type: 'clippingPlanes-property-changed',
-                });
+                entity.clippingPlanes = this._clippingPlanes;
             }
         }
 

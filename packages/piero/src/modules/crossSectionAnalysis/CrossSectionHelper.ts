@@ -21,10 +21,6 @@ export default class CrossSectionHelper extends Object3D {
         plane.rotateY(Math.PI / 2);
         this.add(plane);
 
-        // To avoid being clipped by the clipping plane itself
-        plane.translateZ(1);
-        this._axes.translateZ(1);
-
         this.updateMatrixWorld(true);
     }
 }
