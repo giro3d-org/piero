@@ -51,6 +51,7 @@
         "lint-staged": "^16.1.2",
         "markdownlint": "^0.38.0",
         "markdownlint-cli": "^0.45.0",
+        "ol-mapbox-style": "^13.1.1",
         "prettier": "^3.2.5",
         "rollup-plugin-node-externals": "^8.1.1",
         "sass": "^1.89.2",
