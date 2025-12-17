@@ -12,6 +12,7 @@
     import { useDatasetStore } from '@/stores/datasets';
 
     import DatasetParameters from './DatasetParameters.vue';
+    import EmptyIndicator from './EmptyIndicator.vue';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
@@ -52,7 +53,7 @@
     </div>
 
     <div v-if="showParameters == null" class="d-flex flex-column h-100">
-        <div class="flex-fill overflow-auto">
+        <div v-if="datasets.count > 0" class="flex-fill overflow-auto">
             <!-- The margin counteracts the indentation for the root element -->
             <CompactList style="margin-left: -1rem">
                 <DatasetOrGroupItem
@@ -66,6 +67,7 @@
                 />
             </CompactList>
         </div>
+        <div v-else class="flex-fill"><EmptyIndicator text="No datasets" /></div>
 
         <ButtonArea>
             <div class="input-group mb-3">
