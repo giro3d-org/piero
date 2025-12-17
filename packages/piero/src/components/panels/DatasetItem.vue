@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { MathUtils } from 'three';
+    import { ref } from 'vue';
 
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
@@ -29,10 +30,16 @@
 
     const id = MathUtils.generateUUID();
     const target = `#${id}`;
+
+    const hovered = ref(false);
 </script>
 
 <template>
-    <div class="d-flex">
+    <div
+        class="d-flex entry-row"
+        v-on:mouseenter="() => (hovered = true)"
+        v-on:mouseleave="() => (hovered = false)"
+    >
         <IconListButton
             v-if="!propertyViews.has(dataset.type) || state !== DatasetState.Loaded"
             style="opacity: 0%"
@@ -82,35 +89,44 @@
                     title="Failed to load"
                 />
             </div>
-            <IconListButton
-                v-if="
-                    state === DatasetState.Loaded &&
-                    (('canMaskBasemap' in dataset.config && dataset.config.canMaskBasemap) ||
-                        ('isMaskingBasemap' in dataset.config && dataset.config.isMaskingBasemap))
-                "
-                title="Toggle basemap masking"
-                icon="bi-mask"
-                @click="$emit('update:toggle-mask', dataset)"
-            />
 
-            <IconListButton
-                v-for="action in store.getCustomActions(dataset, {
-                    isVisible,
-                    isPreloaded: state === DatasetState.Loaded,
-                })"
-                :key="action.title"
-                :title="action.title"
-                :icon="action.icon"
-                @click="action.action(dataset)"
-            />
+            <!-- Action buttons -->
+            <div v-if="hovered">
+                <IconListButton
+                    v-if="
+                        state === DatasetState.Loaded &&
+                        (('canMaskBasemap' in dataset.config && dataset.config.canMaskBasemap) ||
+                            ('isMaskingBasemap' in dataset.config &&
+                                dataset.config.isMaskingBasemap))
+                    "
+                    title="Toggle basemap masking"
+                    icon="bi-mask"
+                    @click="$emit('update:toggle-mask', dataset)"
+                />
 
-            <IconListButton
-                v-if="state === DatasetState.Loaded"
-                title="Toggle 3D grid"
-                icon="bi-box"
-                @click="$emit('update:toggle-grid', dataset)"
-            />
-            <IconListButton title="Delete this dataset" icon="bi-trash" @click="deleteDataset" />
+                <IconListButton
+                    v-for="action in store.getCustomActions(dataset, {
+                        isVisible,
+                        isPreloaded: state === DatasetState.Loaded,
+                    })"
+                    :key="action.title"
+                    :title="action.title"
+                    :icon="action.icon"
+                    @click="action.action(dataset)"
+                />
+
+                <IconListButton
+                    v-if="state === DatasetState.Loaded"
+                    title="Toggle 3D grid"
+                    icon="bi-box"
+                    @click="$emit('update:toggle-grid', dataset)"
+                />
+                <IconListButton
+                    title="Delete this dataset"
+                    icon="bi-trash"
+                    @click="deleteDataset"
+                />
+            </div>
         </IconList>
     </div>
     <!-- Property view -->
@@ -126,5 +142,10 @@
 <style scoped>
     .label {
         min-width: 50%;
+    }
+
+    .entry-row:hover {
+        font-weight: bold !important;
+        background-color: rgba(0, 136, 82, 0.05);
     }
 </style>
