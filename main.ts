@@ -28,6 +28,7 @@ function start(): Promise<void> {
     // performance and bundle size.
     const modules = [
         // Misc modules
+        new misc.Attribution(),
         new misc.Tour(),
         new misc.DownloadDataset(),
         new misc.PostProcessEntities(),

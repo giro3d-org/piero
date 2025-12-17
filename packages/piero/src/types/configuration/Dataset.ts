@@ -1,6 +1,7 @@
 import z from 'zod';
 
 export type Dataset = Record<string, unknown> & {
+    attribution?: string;
     name: string;
     opacity?: number;
     type: string;
@@ -30,5 +31,9 @@ export const Dataset = z.looseObject({
      * @defaultValue false
      */
     visible: z.boolean().default(false).optional(),
+    /**
+     * The dataset attribution.
+     */
+    attribution: z.string().optional(),
 });
 z.globalRegistry.add(Dataset, { id: 'Dataset' });

@@ -274,12 +274,14 @@
     <NavigationButtons class="navigation-buttons" />
     <AlertToast />
 
-    <div
-        v-for="(widget, index) in widgetStore.getWidgets()"
-        :key="index"
-        :id="`widget-${widget.id}`"
-    >
-        <component :context="getContext()" :is="widget.component"></component>
+    <div class="widgets">
+        <div
+            v-for="(widget, index) in widgetStore.getWidgets()"
+            :key="index"
+            :id="`widget-${widget.id}`"
+        >
+            <component :context="getContext()" :is="widget.component"></component>
+        </div>
     </div>
 </template>
 
@@ -343,6 +345,19 @@
         z-index: 1;
     }
 
+    .widgets {
+        pointer-events: none;
+        position: absolute;
+        left: 3.5rem;
+        top: 0;
+        height: 100vh;
+        width: calc(100% - 3.5rem);
+    }
+
+    .widgets > div {
+        pointer-events: all;
+    }
+
     .mainview {
         position: absolute;
         /* background-color: cadetblue; */
@@ -356,7 +371,6 @@
         width: 3.5rem;
         height: 100vh;
         position: absolute;
-        /* background-color: rgb(250, 250, 250); */
         top: 0;
         left: 0;
     }

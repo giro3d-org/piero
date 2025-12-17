@@ -85,6 +85,10 @@ export const useDatasetStore = defineStore('datasets', () => {
         return leafs.value;
     }
 
+    function getVisibleDatasets(): Dataset[] {
+        return leafs.value.filter(ds => ds.visible && !Datagroup.isGroup(ds));
+    }
+
     /** Adds a dataset at the end of the tree */
     function add(ds: DatasetOrGroup): DatasetOrGroup {
         const dataset = shallowReactive(ds);
@@ -202,12 +206,14 @@ export const useDatasetStore = defineStore('datasets', () => {
         attachEntities,
         attachLayers,
         count,
+        datasets,
         getBoundingBox,
         getCustomActions,
         getDatasets,
         getEntities,
         getLayers,
         getTree,
+        getVisibleDatasets,
         importFromFile,
         registerCustomAction,
         remove,
