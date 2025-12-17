@@ -1,7 +1,8 @@
 <script setup lang="ts">
     import { Vector3 } from 'three';
+    import { ref } from 'vue';
 
-    import type { DatasetOrGroup } from '@/types/Dataset';
+    import type { Dataset, DatasetOrGroup } from '@/types/Dataset';
 
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
@@ -10,8 +11,11 @@
     import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
 
+    import DatasetParameters from './DatasetParameters.vue';
+
     const datasets = useDatasetStore();
     const camera = useCameraStore();
+    const showParameters = ref<Dataset>();
 
     function importDataset(files: File[]): void {
         for (const file of files) {
@@ -22,6 +26,10 @@
     function importDatasetFromUrl(): void {
         const url = document.getElementById('dataset-import-url') as HTMLInputElement;
         datasets.importFromFile(url.value);
+    }
+
+    function showParams(ds: Dataset): void {
+        showParameters.value = ds;
     }
 
     function zoomOnDataset(dataset: DatasetOrGroup): void {
@@ -36,7 +44,14 @@
 </script>
 
 <template>
-    <div class="d-flex flex-column h-100">
+    <div v-if="showParameters != null" class="d-flex flex-column h-100">
+        <DatasetParameters
+            @back-to-datasets="showParameters = undefined"
+            :dataset="showParameters"
+        />
+    </div>
+
+    <div v-if="showParameters == null" class="d-flex flex-column h-100">
         <div class="flex-fill overflow-auto">
             <!-- The margin counteracts the indentation for the root element -->
             <CompactList style="margin-left: -1rem">
@@ -46,8 +61,7 @@
                     :dataset="dataset"
                     @updated="$forceUpdate()"
                     @zoom="ds => zoomOnDataset(ds)"
-                    @update:toggle-grid="ds => datasets.toggleGrid(ds)"
-                    @update:toggle-mask="ds => datasets.toggleMask(ds)"
+                    @show-parameters="ds => showParams(ds)"
                     @update:visible="(ds, v) => datasets.setVisible(ds, v)"
                 />
             </CompactList>

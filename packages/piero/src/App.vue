@@ -341,7 +341,8 @@
         position: absolute;
         height: 100vh;
         left: 3.5rem;
-        width: 27rem;
+        max-width: 30rem;
+        min-width: 20rem;
         z-index: 1;
     }
 

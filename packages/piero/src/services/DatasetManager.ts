@@ -50,6 +50,9 @@ export default class DatasetManager {
                     case 'remove':
                         this.deleteDataset(args[0]);
                         break;
+                    case 'setOpacity':
+                        void this.onOpacityChanged(args[0], args[1]);
+                        break;
                     case 'setVisible':
                         void this.onVisibilityChanged(args[0], args[1]);
                         break;
@@ -244,6 +247,20 @@ export default class DatasetManager {
         GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'dataset-added', value: dataset });
     }
 
+    private async onOpacityChanged(dataset: Dataset, opacity: number): Promise<void> {
+        try {
+            dataset.opacity = opacity;
+            await this.updateDataset(dataset);
+        } catch (e) {
+            console.warn(e);
+        }
+
+        GLOBAL_EVENT_DISPATCHER.dispatchEvent({
+            type: 'dataset-opacity-changed',
+            value: dataset,
+        });
+    }
+
     private async onToggleGrid(dataset: DatasetOrGroup): Promise<void> {
         if (this._axisGrids.has(dataset.uuid)) {
             this.deleteGrid(dataset);
@@ -259,7 +276,6 @@ export default class DatasetManager {
             await this.createMask(dataset);
         }
     }
-
     private async onVisibilityChanged(
         dataset: DatasetOrGroup,
         newVisibility: boolean,
@@ -319,6 +335,7 @@ export default class DatasetManager {
         if (entities) {
             for (const entity of entities) {
                 entity.visible = dataset.visible;
+                entity.opacity = dataset.opacity;
                 if (
                     dataset.visibleSelf &&
                     'isMaskingBasemap' in dataset.config &&
@@ -336,6 +353,7 @@ export default class DatasetManager {
         if (layers) {
             for (const layer of layers) {
                 this._layerManager.setLayerVisibility(layer, dataset.visible);
+                this._layerManager.setLayerOpacity(layer, dataset.opacity);
                 this._layerManager.notify(layer);
             }
         }

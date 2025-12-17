@@ -7,10 +7,8 @@ import type { DatasetBuilder } from '@/api';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import GraticulePropertyView from './graticule/GraticulePropertyView.vue';
-import { useGraticuleStore } from './graticule/store';
-
 let visible = false;
+let opacity = 1;
 
 function getThickness(altitude: number): number {
     return MathUtils.clamp(altitude / 400, 1, +Infinity);
@@ -80,14 +78,13 @@ const builder: (pieroContext: PieroContext) => DatasetBuilder = pieroContext => 
         const instance = context.instance;
         const view = instance.view;
         visible = true;
+        opacity = 1;
 
         const cameraPosition = view.camera.position.clone();
         const cameraRotation = view.camera.rotation.clone();
-        const store = useGraticuleStore();
 
         const update = (): void => {
             const basemap = pieroContext.view.getBasemap();
-            const opacity = store.opacity;
 
             if (
                 basemap.graticule.opacity !== opacity ||
@@ -102,6 +99,14 @@ const builder: (pieroContext: PieroContext) => DatasetBuilder = pieroContext => 
             }
         };
 
+        pieroContext.events.addEventListener('dataset-opacity-changed', e => {
+            const type = e.value.config.type;
+            if (type === 'graticule') {
+                opacity = e.value.opacity;
+                update();
+            }
+        });
+
         pieroContext.events.addEventListener('dataset-visibility-changed', e => {
             const type = e.value.config.type;
             if (type === 'graticule') {
@@ -112,16 +117,6 @@ const builder: (pieroContext: PieroContext) => DatasetBuilder = pieroContext => 
 
         instance.addEventListener('after-camera-update', () => {
             update();
-        });
-
-        store.$onAction(({ after, name }) => {
-            after(() => {
-                switch (name) {
-                    case 'setOpacity':
-                        update();
-                        break;
-                }
-            });
         });
 
         update();
@@ -139,7 +134,6 @@ export default class Graticule implements Module {
             builder: builder(context),
             icon: 'fg-grid',
             name: 'Graticule',
-            propertyView: GraticulePropertyView,
         });
     }
 }

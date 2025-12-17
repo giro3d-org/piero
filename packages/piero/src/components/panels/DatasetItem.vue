@@ -19,14 +19,19 @@
         dataset: Dataset;
     }>();
 
-    defineEmits(['zoom', 'clipTo', 'update:toggle-grid', 'update:toggle-mask', 'update:visible']);
+    defineEmits<{
+        showParameters: [value: Dataset];
+        'update:visible': [ds: Dataset, visible: boolean];
+        zoom: [value: Dataset];
+    }>();
 
     const state = refAndWatch(props.dataset, 'state');
     const isVisible = refAndWatch(props.dataset, 'visibleSelf');
 
-    function deleteDataset(): void {
-        store.remove(props.dataset);
-    }
+    // TODO
+    // function deleteDataset(): void {
+    //     store.remove(props.dataset);
+    // }
 
     const id = MathUtils.generateUUID();
     const target = `#${id}`;
@@ -71,63 +76,72 @@
                 :title="datasetTitles[dataset.type] ?? 'Unknown'"
             />
         </IconList>
-        <ListLabelButton
-            class="label"
-            :disabled="!isVisible || state !== DatasetState.Loaded"
-            :text="dataset.name"
-            :title="`Zoom to ${dataset.name}`"
-            @click="$emit('zoom', dataset)"
-        />
-        <IconList class="ms-1">
-            <div v-if="state === DatasetState.Loading" class="icon spinner d-inline-block me-1">
-                <SpinnerControl title="Loading..." />
-            </div>
-            <div v-if="state === DatasetState.Failed" class="d-inline-block">
-                <Icon
-                    class="text-secondary me-1"
-                    icon="bi-exclamation-triangle-fill"
-                    title="Failed to load"
-                />
-            </div>
+        <div class="variable-width">
+            <ListLabelButton
+                class="label"
+                :disabled="!isVisible || state !== DatasetState.Loaded"
+                :text="dataset.name"
+                :title="`Zoom to ${dataset.name}`"
+                @click="$emit('zoom', dataset)"
+            />
+            <IconList class="ms-1">
+                <div v-if="state === DatasetState.Loading" class="icon spinner d-inline-block me-1">
+                    <SpinnerControl title="Loading..." />
+                </div>
+                <div v-if="state === DatasetState.Failed" class="d-inline-block">
+                    <Icon
+                        class="text-secondary me-1"
+                        icon="bi-exclamation-triangle-fill"
+                        title="Failed to load"
+                    />
+                </div>
 
-            <!-- Action buttons -->
-            <div v-if="hovered">
-                <IconListButton
-                    v-if="
-                        state === DatasetState.Loaded &&
-                        (('canMaskBasemap' in dataset.config && dataset.config.canMaskBasemap) ||
-                            ('isMaskingBasemap' in dataset.config &&
-                                dataset.config.isMaskingBasemap))
-                    "
-                    title="Toggle basemap masking"
-                    icon="bi-mask"
-                    @click="$emit('update:toggle-mask', dataset)"
-                />
+                <!-- Action buttons -->
+                <div v-if="hovered" class="float-end">
+                    <!-- <IconListButton
+                        v-if="
+                            state === DatasetState.Loaded &&
+                            (('canMaskBasemap' in dataset.config &&
+                                dataset.config.canMaskBasemap) ||
+                                ('isMaskingBasemap' in dataset.config &&
+                                    dataset.config.isMaskingBasemap))
+                        "
+                        title="Toggle basemap masking"
+                        icon="bi-mask"
+                        @click="$emit('update:toggle-mask', dataset)"
+                    /> -->
 
-                <IconListButton
-                    v-for="action in store.getCustomActions(dataset, {
-                        isVisible,
-                        isPreloaded: state === DatasetState.Loaded,
-                    })"
-                    :key="action.title"
-                    :title="action.title"
-                    :icon="action.icon"
-                    @click="action.action(dataset)"
-                />
+                    <IconListButton
+                        v-for="action in store.getCustomActions(dataset, {
+                            isVisible,
+                            isPreloaded: state === DatasetState.Loaded,
+                        })"
+                        :key="action.title"
+                        :title="action.title"
+                        :icon="action.icon"
+                        @click="action.action(dataset)"
+                    />
 
-                <IconListButton
-                    v-if="state === DatasetState.Loaded"
-                    title="Toggle 3D grid"
-                    icon="bi-box"
-                    @click="$emit('update:toggle-grid', dataset)"
-                />
-                <IconListButton
-                    title="Delete this dataset"
-                    icon="bi-trash"
-                    @click="deleteDataset"
-                />
-            </div>
-        </IconList>
+                    <!-- <IconListButton
+                        v-if="state === DatasetState.Loaded"
+                        title="Toggle 3D grid"
+                        icon="bi-box"
+                        @click="$emit('update:toggle-grid', dataset)"
+                    /> -->
+                    <!-- <IconListButton
+                        title="Delete this dataset"
+                        icon="bi-trash"
+                        @click="deleteDataset"
+                    /> -->
+                    <IconListButton
+                        v-if="state === DatasetState.Loaded"
+                        title="Parameters"
+                        icon="bi-gear"
+                        @click="$emit('showParameters', dataset)"
+                    />
+                </div>
+            </IconList>
+        </div>
     </div>
     <!-- Property view -->
     <div
@@ -142,10 +156,27 @@
 <style scoped>
     .label {
         min-width: 50%;
+        float: start;
+        overflow: hidden;
+        max-width: 14rem;
+    }
+
+    .variable-width {
+        display: flex;
+        width: 100%;
     }
 
     .entry-row:hover {
         font-weight: bold !important;
         background-color: rgba(0, 136, 82, 0.05);
+    }
+
+    .parameters {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: red;
     }
 </style>

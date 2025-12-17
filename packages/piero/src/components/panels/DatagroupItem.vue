@@ -2,7 +2,7 @@
     import { MathUtils } from 'three';
     import { reactive, ref, watch } from 'vue';
 
-    import type { Datagroup } from '@/types/Dataset';
+    import type { Datagroup, Dataset } from '@/types/Dataset';
 
     import CompactList from '@/components/atoms/CompactList.vue';
     import IconList from '@/components/atoms/IconList.vue';
@@ -17,7 +17,11 @@
         group: Datagroup;
     }>();
 
-    defineEmits(['zoom', 'clipTo', 'update:toggle-grid', 'update:toggle-mask', 'update:visible']);
+    defineEmits<{
+        showParameters: [value: Dataset];
+        'update:visible': [ds: Dataset, visible: boolean];
+        zoom: [value: Dataset];
+    }>();
 
     const leafs = reactive(props.group.leafs());
     const hasLeafPreloading = ref(false);
@@ -109,9 +113,7 @@
                 :key="dataset.name"
                 :dataset="dataset"
                 @zoom="ds => $emit('zoom', ds)"
-                @clip-to="ds => $emit('clipTo', ds)"
-                @update:toggle-grid="ds => $emit('update:toggle-grid', ds)"
-                @update:toggle-mask="ds => $emit('update:toggle-mask', ds)"
+                @show-parameters="ds => $emit('showParameters', ds)"
                 @update:visible="(ds, v) => $emit('update:visible', ds, v)"
             />
         </template>
