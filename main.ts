@@ -2,8 +2,7 @@ import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
-import DefaultConfig from './config';
-import styles from './styles';
+import DefaultConfig from './defaultConfig';
 
 class Environment {
     public readonly baseUrl: string;
@@ -78,7 +77,6 @@ function start(): Promise<void> {
         baseUrl: env.baseUrl,
         configuration,
         container: '#app',
-        dynamicStyles: styles,
         modules,
     });
 }

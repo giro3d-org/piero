@@ -6,7 +6,6 @@ import type { Module } from './module';
 
 import './assets/main.scss';
 import type { Configuration } from './types/configuration/Configuration';
-import type { DynamicStyleCollection } from './types/VectorStyle';
 
 import { AnalysisApiImpl } from './api/AnalysisApi';
 import { BookmarkApiImpl } from './api/BookmarkApi';
@@ -15,7 +14,7 @@ import { NotificationApiImpl } from './api/NotificationApi';
 import { SearchApiImpl } from './api/SearchApi';
 import { WidgetApiImpl } from './api/WidgetApi';
 import App from './App.vue';
-import { loadRemoteConfiguration, setConfiguration, setDynamicStyles } from './configurationLoader';
+import { loadRemoteConfiguration, setConfiguration } from './configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from './events';
 import { useAnalysisStore } from './stores/analysis';
 import { useBookmarkStore } from './stores/bookmarks';
@@ -57,11 +56,6 @@ export type AppParameters = {
     container: Element | string;
 
     /**
-     * Optional style functions to use.
-     */
-    dynamicStyles?: DynamicStyleCollection;
-
-    /**
      * The list of modules to load.
      * @defaultValue []
      */
@@ -76,10 +70,6 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
     await setConfiguration(configuration);
 
     console.info('Configuration loaded.');
-
-    if (params.dynamicStyles) {
-        setDynamicStyles(params.dynamicStyles);
-    }
 
     Download.setBaseUrl(params.baseUrl);
 

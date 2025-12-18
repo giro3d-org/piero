@@ -1,23 +1,17 @@
 import Instance from '@giro3d/giro3d/core/Instance';
 
 import type { CrsDefinition } from './types/configuration/crs';
-import type { DynamicStyleCollection } from './types/VectorStyle';
 
 import { Configuration } from './types/configuration/Configuration';
 import Fetcher from './utils/Fetcher';
 
 let currentConfiguration: Readonly<Configuration> | null = null;
-let dynamicStyles: DynamicStyleCollection = {};
 
 export function getConfig(): Readonly<Configuration> {
     if (currentConfiguration == null) {
         throw new Error('No configuration loaded');
     }
     return currentConfiguration;
-}
-
-export function getDynamicStyles(): DynamicStyleCollection {
-    return dynamicStyles;
 }
 
 export async function loadRemoteConfiguration(url: string): Promise<Configuration> {
@@ -80,8 +74,4 @@ export async function setConfiguration(newConfiguration: Configuration): Promise
     currentConfiguration = actual;
     // Reserve promise usage for future
     return Promise.resolve();
-}
-
-export function setDynamicStyles(styles: DynamicStyleCollection): void {
-    dynamicStyles = styles;
 }

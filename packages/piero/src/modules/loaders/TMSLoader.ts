@@ -8,12 +8,13 @@ import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
 import { Url } from '@/types/configuration';
+import * as config from '@/types/configuration';
 import { CrsName } from '@/types/configuration/crs';
-import { Dataset } from '@/types/configuration/Dataset';
+import { toGiro3DExtent } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'tms';
 
-export const TMSDataset = Dataset.extend(
+export const TMSDataset = config.layer.Layer.extend(
     z.object({
         projection: CrsName.optional().default('EPSG:3857'),
         url: Url,
@@ -24,6 +25,11 @@ export type TMSDataset = z.infer<typeof TMSDataset>;
 const builder: DatasetBuilder = context => {
     const dataset = TMSDataset.parse(context.dataset);
     const layer = new ColorLayer({
+        extent: dataset.extent
+            ? toGiro3DExtent(dataset.extent, context.instance.referenceCrs).as(
+                  context.instance.referenceCrs,
+              )
+            : undefined,
         source: new TiledImageSource({
             source: new XYZ({
                 projection: dataset.projection ?? 'EPSG:3857',
