@@ -62,6 +62,8 @@
 
         let lastPosition = new Vector3();
 
+        let interval: NodeJS.Timeout | undefined = undefined;
+
         const updateView = (): void => {
             const instance = props.context.view.getInstance();
             const camera = props.context.view.getCameraController();
@@ -86,9 +88,16 @@
             }
         };
 
-        props.context.events.addEventListener('updated', updateView);
-
         let collapsed = false;
+
+        const updateViewAfterDelay = (): void => {
+            clearTimeout(interval);
+            if (!collapsed) {
+                interval = setTimeout(updateView, 200);
+            }
+        };
+
+        props.context.events.addEventListener('updated', updateViewAfterDelay);
 
         if (target.value) {
             target.value.onclick = (): void => {
