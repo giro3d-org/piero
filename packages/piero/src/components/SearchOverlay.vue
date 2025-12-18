@@ -47,11 +47,15 @@
             placeholder="Search..."
         >
             <template #result="{ result, props }">
-                <li v-bind="props" class="autocomplete-result result">
-                    <div class="result-label">
-                        <span class="result-type"><Icon icon="fg-poi" title="Location" /></span>
-                        <span>{{ result.label }}</span>
-                        <p class="provider">{{ result.provider.name }}</p>
+                <li v-bind="props" class="autocomplete-result result overflow-hidden">
+                    <div class="row">
+                        <span class="col-auto ms-3 my-auto"
+                            ><Icon icon="fg-poi" title="Location"
+                        /></span>
+                        <div class="col-auto">
+                            <span>{{ result.label }}</span>
+                            <p class="provider">{{ result.provider.name }}</p>
+                        </div>
                     </div>
                     <div class="wiki-snippet" :v-html="result.snippet"></div>
                 </li>
@@ -67,7 +71,7 @@
 
     .result {
         border-top: 1px solid #eee;
-        padding: 16px;
+        padding: 2pt;
         background: transparent;
     }
 

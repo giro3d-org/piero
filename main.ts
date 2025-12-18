@@ -65,6 +65,7 @@ function start(): Promise<void> {
         // Search
         search.CoordinatesSearch,
         search.FrenchBanGeocoder,
+        search.PhotonGeocoder,
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param
