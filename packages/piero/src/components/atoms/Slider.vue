@@ -4,15 +4,16 @@
         max?: number;
         min?: number;
         modelValue: number;
+        showNumericInput?: boolean;
         step?: number;
     }>();
     defineEmits(['update:modelValue']);
 </script>
 
 <template>
-    <div class="d-flex">
-        <div class="row">
-            <div class="col-auto p-0 my-auto text-start">{{ props.label }}</div>
+    <div class="d-flex py-1">
+        <div class="row w-100">
+            <div class="col-auto my-auto text-start">{{ props.label }}</div>
             <div class="col">
                 <input
                     type="range"
@@ -28,7 +29,7 @@
                     id="range1"
                 />
             </div>
-            <div class="col-4">
+            <div class="col-4" v-if="showNumericInput === true">
                 <input
                     type="number"
                     :min="props.min ?? 0"

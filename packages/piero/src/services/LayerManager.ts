@@ -6,6 +6,7 @@ import { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
 import Giro3dMap from '@giro3d/giro3d/entities/Map';
 import { EventDispatcher } from 'three';
 
+import { useBasemapStore } from '@/stores/basemap';
 import { useGiro3dStore } from '@/stores/giro3d';
 
 interface LayerConfig {
@@ -17,6 +18,7 @@ export default class LayerManager extends EventDispatcher {
         return this._map.extent;
     }
 
+    private readonly _basemapStore = useBasemapStore();
     private readonly _giro3dStore = useGiro3dStore();
     private readonly _instance: Instance;
     private readonly _layers: Map<Layer['id'], LayerConfig>;
@@ -38,6 +40,19 @@ export default class LayerManager extends EventDispatcher {
         this._map.terrain.segments = 32;
         this._map.name = 'basemaps';
         this._instance.add(this._map).catch(console.error);
+
+        this._basemapStore.$onAction(({ args, name }) => {
+            switch (name) {
+                case 'setOpacity':
+                    this._map.opacity = args[0];
+                    this._instance.notifyChange(this._map);
+                    break;
+                case 'setVisible':
+                    this._map.visible = args[0];
+                    this._instance.notifyChange(this._map);
+                    break;
+            }
+        });
     }
 
     public async addLayer(layer: Layer, zOrder: number): Promise<void> {

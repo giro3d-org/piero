@@ -28,10 +28,9 @@
     const state = refAndWatch(props.dataset, 'state');
     const isVisible = refAndWatch(props.dataset, 'visibleSelf');
 
-    // TODO
-    // function deleteDataset(): void {
-    //     store.remove(props.dataset);
-    // }
+    function deleteDataset(): void {
+        store.remove(props.dataset);
+    }
 
     const id = MathUtils.generateUUID();
     const target = `#${id}`;
@@ -128,11 +127,11 @@
                         icon="bi-box"
                         @click="$emit('update:toggle-grid', dataset)"
                     /> -->
-                    <!-- <IconListButton
+                    <IconListButton
                         title="Delete this dataset"
                         icon="bi-trash"
                         @click="deleteDataset"
-                    /> -->
+                    />
                     <IconListButton
                         v-if="state === DatasetState.Loaded"
                         title="Parameters"
@@ -158,7 +157,7 @@
         min-width: 50%;
         float: start;
         overflow: hidden;
-        max-width: 14rem;
+        /* max-width: 14rem; */
     }
 
     .variable-width {
@@ -167,7 +166,6 @@
     }
 
     .entry-row:hover {
-        font-weight: bold !important;
         background-color: rgba(0, 136, 82, 0.05);
     }
 

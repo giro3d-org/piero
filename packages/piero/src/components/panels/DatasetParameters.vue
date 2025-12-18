@@ -51,7 +51,7 @@
                         <CheckboxToggle
                             :model-value="visible"
                             @update:model-value="v => store.setVisible(ds, v)"
-                            title="foo"
+                            title="Visible"
                             >Visible</CheckboxToggle
                         >
                     </div>
