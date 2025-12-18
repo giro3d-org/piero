@@ -4,16 +4,16 @@ import type z from 'zod';
 import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
 import { IfcCategoryMap } from 'openbim-components';
 
-import type { DatasetBuilder } from '@/api/DatasetApi';
+import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/DatasetApi';
 import type { PieroContext } from '@/context';
-import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 
 import { Dataset, Url } from '@/types/configuration';
-import { Coordinate, toGiro3DCoordinates } from '@/types/configuration/coordinate';
+import { Coordinate } from '@/types/configuration/coordinate';
+import { toGiro3DCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
 
 import IfcEntity, { isIFCPickResult } from './ifc/IfcEntity';

@@ -1,9 +1,9 @@
 <script setup lang="ts">
     const props = defineProps<{
-        modelValue: number;
         label: string;
-        min?: number;
         max?: number;
+        min?: number;
+        modelValue: number;
         step?: number;
     }>();
     defineEmits(['update:modelValue']);
@@ -20,7 +20,10 @@
                     :max="props.max ?? 1"
                     :step="props.step ?? 0.01"
                     :value="props.modelValue"
-                    @input="e => $emit('update:modelValue', e.target.valueAsNumber)"
+                    @input="
+                        e =>
+                            $emit('update:modelValue', (e.target as HTMLInputElement).valueAsNumber)
+                    "
                     class="form-range ms-2 h-100"
                     id="range1"
                 />
@@ -32,7 +35,10 @@
                     :max="props.max ?? 1"
                     :step="props.step ?? 0.01"
                     :value="props.modelValue"
-                    @input="e => $emit('update:modelValue', e.target.valueAsNumber)"
+                    @input="
+                        e =>
+                            $emit('update:modelValue', (e.target as HTMLInputElement).valueAsNumber)
+                    "
                     class="form-control ms-2"
                     id="range1"
                 />

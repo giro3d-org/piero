@@ -1,4 +1,3 @@
-import Giro3DExtent from '@giro3d/giro3d/core/geographic/Extent';
 import z from 'zod';
 
 import { CrsName } from './crs';
@@ -25,16 +24,3 @@ z.globalRegistry.add(ExtentTuple, { id: 'ExtentTuple' });
 export const Extent = z.union([ExtentObject, ExtentTuple]);
 export type Extent = z.infer<typeof Extent>;
 z.globalRegistry.add(Extent, { id: 'Extent' });
-
-export function toGiro3DExtent(input: Extent, sceneCrs: CrsName): Giro3DExtent {
-    if (Array.isArray(input)) {
-        return new Giro3DExtent(sceneCrs, ...input);
-    } else {
-        return new Giro3DExtent(input.crs, {
-            east: input.maxx,
-            north: input.maxy,
-            south: input.miny,
-            west: input.minx,
-        });
-    }
-}

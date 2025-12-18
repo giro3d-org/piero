@@ -1,14 +1,3 @@
-//             {
-//                 name: 'Mapbox Elevation',
-//                 source: {
-//                     imageFormat: 'MapboxTerrain',
-//                     type: 'xyz',
-//                     url: 'https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=pk.eyJ1IjoiZ2lybzNkIiwiYSI6ImNtZ3Q0NDNlNTAwY2oybHI3Ym1kcW03YmoifQ.Zl7_KZiAhqWSPjlkKDKYnQ',
-//                 },
-//                 type: 'elevation',
-//                 visible: false,
-//             },
-
 import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
 import type ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
 
@@ -23,8 +12,8 @@ import type { DatasetBuilder } from '@/api';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import { toGiro3DExtent } from '@/types/configuration/extent';
 import { Layer } from '@/types/configuration/layer';
+import { toGiro3DExtent } from '@/utils/Configuration';
 
 const MapboxTileset = z.union([
     z.literal('mapbox.mapbox-terrain-dem-v1'),

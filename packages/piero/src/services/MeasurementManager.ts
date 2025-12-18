@@ -237,7 +237,7 @@ export default class MeasurementManager {
         await this._instance.add(measurement);
         const measure = new Measure(title, measurement, properties);
         measurement.userData.measure = measure;
-        measure.addEventListener('visibleSelf', () => this.updateMeasure(measure));
+        measure.addEventListener('visible', () => this.updateMeasure(measure));
         this._store.add(measure);
         this._instance.notifyChange(measurement);
     }

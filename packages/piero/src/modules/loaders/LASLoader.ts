@@ -3,13 +3,13 @@ import COPCSource from '@giro3d/giro3d/sources/COPCSource';
 import LASSource from '@giro3d/giro3d/sources/LASSource';
 import z from 'zod';
 
-import type { DatasetBuilder } from '@/api/DatasetApi';
+import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/DatasetApi';
 import type { PieroContext } from '@/context';
-import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 
 import { Dataset, Url } from '@/types/configuration';
-import { ColorMap, toGiro3DColorMap } from '@/types/configuration/ColorMap';
+import { ColorMap } from '@/types/configuration/ColorMap';
+import { toGiro3DColorMap } from '@/utils/Configuration';
 
 const Style = z.object({
     colorMap: ColorMap.default({ max: 100, min: 0, ramp: 'Greys' }),

@@ -46,7 +46,7 @@ function buildDatasets(root: DatasetOrGroup): DatasetOrGroup {
 }
 
 function loadDatasets(config: Configuration): DatasetOrGroup[] {
-    const roots = parseDatasetConfig(config.data);
+    const roots = parseDatasetConfig(config.data ?? []);
 
     assignZOrders(roots);
 

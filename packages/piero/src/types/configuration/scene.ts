@@ -10,7 +10,7 @@ export const SceneConfiguration = z.object({
 
     camera: LookAt.describe('The initial configuration of the camera.'),
 
-    basemap: BasemapConfiguration,
+    basemap: BasemapConfiguration.describe('The configuration for the basemap and terrain.'),
 });
 export type SceneConfiguration = z.infer<typeof SceneConfiguration>;
 z.globalRegistry.add(SceneConfiguration, { id: 'SceneConfiguration' });

@@ -13,19 +13,19 @@ import { ModuleConfiguration } from './module';
 import { SceneConfiguration } from './scene';
 
 export const Configuration = z.object({
-    version: z.int().positive().min(2).describe('The version of the configuration.'),
+    version: z.literal(2).describe('The version of the configuration.'),
 
-    crsDefinitions: CrsDefinitionCollection,
+    crsDefinitions: CrsDefinitionCollection.optional(),
 
     scene: SceneConfiguration,
 
-    bookmarks: z.array(Bookmark).default([]),
+    bookmarks: z.array(Bookmark).default([]).optional(),
 
-    annotations: z.array(Annotation).default([]),
+    annotations: z.array(Annotation).default([]).optional(),
 
-    modules: ModuleConfiguration,
+    modules: ModuleConfiguration.optional(),
 
-    data: z.array(DatasetOrGroup).default([]),
+    data: z.array(DatasetOrGroup).default([]).optional(),
 });
 
 export type Configuration = z.infer<typeof Configuration>;

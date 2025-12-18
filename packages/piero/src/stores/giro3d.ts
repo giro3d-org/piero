@@ -11,7 +11,7 @@ import { shallowRef } from 'vue';
 import type { LookAt } from '@/types/configuration/LookAt';
 
 import { getConfig } from '@/configurationLoader';
-import { toGiro3DExtent } from '@/types/configuration/extent';
+import { toGiro3DExtent } from '@/utils/Configuration';
 
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);

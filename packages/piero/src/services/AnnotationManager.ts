@@ -31,8 +31,8 @@ import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/con
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Annotation from '@/types/Annotation';
-import { toGiro3DCoordinates } from '@/types/configuration/coordinate';
 import Notification from '@/types/Notification';
+import { toGiro3DCoordinates } from '@/utils/Configuration';
 import Measure from '@/utils/Measure';
 
 function promptTitle(defaultValue: string): string | null {
@@ -591,6 +591,10 @@ export default class AnnotationManager {
 
     private loadAnnotationsFromConfiguration(): void {
         const config = getConfig();
+
+        if (config.annotations == null) {
+            return;
+        }
 
         for (const conf of config.annotations) {
             const name = conf.title;

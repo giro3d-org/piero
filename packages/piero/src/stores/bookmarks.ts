@@ -11,6 +11,11 @@ import { getLookAtTarget } from '@/types/configuration/LookAt';
 
 function buildInitialList(): Bookmark[] {
     const config = getConfig();
+
+    if (config.bookmarks == null) {
+        return [];
+    }
+
     const result: Bookmark[] = [];
 
     for (const conf of config.bookmarks) {

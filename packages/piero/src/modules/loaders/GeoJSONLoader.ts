@@ -4,9 +4,8 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GeoJSON from 'ol/format/GeoJSON';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult, LoadDatasetFromFile } from '@/api/DatasetApi';
 import type { PieroContext } from '@/context';
-import type { LoadDatasetFromFile } from '@/loaders/loader';
 import type { Module } from '@/module';
 
 import * as config from '@/types/configuration';

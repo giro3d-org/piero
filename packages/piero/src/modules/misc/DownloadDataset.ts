@@ -1,3 +1,5 @@
+import z from 'zod';
+
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 import type { DatasetOrGroup } from '@/types/Dataset';
@@ -7,12 +9,11 @@ import Fetcher from '@/utils/Fetcher';
 
 function getUrl(dataset: DatasetOrGroup): string | undefined {
     if ('url' in dataset.config && typeof dataset.config.url === 'string') {
-        return dataset.config.url;
-    }
-
-    if ('source' in dataset.config && typeof dataset.config.source === 'object') {
-        if ('url' in dataset.config.source && typeof dataset.config.source.url === 'string') {
-            return dataset.config.source.url;
+        try {
+            z.url().parse(dataset.config.url);
+            return dataset.config.url;
+        } catch {
+            return undefined;
         }
     }
 

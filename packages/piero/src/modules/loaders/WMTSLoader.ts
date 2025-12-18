@@ -13,8 +13,8 @@ import type { Module } from '@/module';
 
 import * as config from '@/types/configuration';
 import { CrsName } from '@/types/configuration/crs';
-import { toGiro3DExtent } from '@/types/configuration/extent';
 import { ImageFormat } from '@/types/configuration/ImageFormat';
+import { toGiro3DExtent } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'wmts';
 

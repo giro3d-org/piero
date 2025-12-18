@@ -1,7 +1,10 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "composite": true
+        "composite": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     },
-    "include": ["src", "../../env.d.ts", "../piero/src"]
+    "include": ["src", "../../env.d.ts"]
 }

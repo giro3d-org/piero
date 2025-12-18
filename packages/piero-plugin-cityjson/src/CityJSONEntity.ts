@@ -1,7 +1,7 @@
 import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import type { CrsName } from '@giro3d/piero/src/types/configuration/crs';
+import type { configuration } from '@giro3d/piero';
 import type { Material, Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
@@ -59,8 +59,8 @@ export const isCityJSONPickResult = (obj: unknown): obj is CityJSONPickResult =>
  * Source interface for {@link CityJSONEntity}
  */
 export interface CityJSONSource {
-    dataProjection?: CrsName;
-    featureProjection?: CrsName;
+    dataProjection?: configuration.CrsName;
+    featureProjection?: configuration.CrsName;
     url: string;
 }
 

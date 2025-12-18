@@ -301,7 +301,7 @@ export default class Picker {
         }
         const attributes = attributesGroups.get('Measurement') as Attribute[];
 
-        if (type === 'MultiPoint') {
+        if (type === 'multipoint') {
             attributes.push({ key: 'Number of points', value: shape.points.length });
         }
 
@@ -311,7 +311,7 @@ export default class Picker {
         }
         if (measurements.perimeter != null) {
             attributes.push({
-                key: type === 'Polygon' ? 'Perimeter' : 'Length',
+                key: type === 'polygon' ? 'Perimeter' : 'Length',
                 value: `${measurements.perimeter.toFixed(2)}${unit}`,
             });
         }

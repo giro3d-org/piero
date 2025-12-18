@@ -1,6 +1,3 @@
-import Giro3DColorMap from '@giro3d/giro3d/core/ColorMap';
-import chroma from 'chroma-js';
-import { Color } from 'three';
 import z from 'zod';
 
 export const ColorRampName = z.union([
@@ -51,15 +48,3 @@ export const ColorMap = z.object({
 });
 export type ColorMap = z.infer<typeof ColorMap>;
 z.globalRegistry.add(ColorMap, { id: 'ColorMap' });
-
-export function toGiro3DColorMap(config: ColorMap): Giro3DColorMap {
-    const colors = chroma
-        .scale(config.ramp)
-        .mode('lab')
-        .colors(256)
-        .map(c => {
-            const rgb = chroma(c).gl();
-            return new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
-        });
-    return new Giro3DColorMap({ colors, ...config });
-}

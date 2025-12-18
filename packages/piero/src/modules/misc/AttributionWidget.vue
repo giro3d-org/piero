@@ -1,10 +1,16 @@
 <script setup lang="ts">
     import { computed, ref } from 'vue';
 
+    import type { WidgetProps } from '@/api';
+
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useDatasetStore } from '@/stores/datasets';
     import { Datagroup, type Dataset, type DatasetOrGroup } from '@/types/Dataset';
     import { nonNull } from '@/utils/Types';
+
+    // Even though we are not using them, it
+    // is to conform to the expected widget interface.
+    defineProps<WidgetProps>();
 
     const store = useDatasetStore();
 

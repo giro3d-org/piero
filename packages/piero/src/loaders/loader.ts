@@ -1,17 +1,9 @@
+import type { LoadDatasetFromFile, LoaderContext } from '@/api/DatasetApi';
 import type { Configuration } from '@/types/configuration/Configuration';
 import type { Dataset as DatasetConfig } from '@/types/configuration/Dataset';
 
 import { Dataset } from '@/types/Dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';
-
-export type LoadDatasetFromFile = (context: LoaderContext) => Promise<DatasetConfig>;
-
-export type LoaderContext = {
-    configuration: Configuration;
-    extension: string;
-    file: File | string;
-    filename: string;
-};
 
 const loaders: Record<string, LoadDatasetFromFile> = {};
 

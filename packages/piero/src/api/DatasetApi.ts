@@ -9,12 +9,13 @@ import { type Component } from 'vue';
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
 import type { DatasetStore } from '@/stores/datasets';
+import type { Configuration } from '@/types/configuration/Configuration';
 import type { Dataset } from '@/types/configuration/Dataset';
 import type { DatasetOrGroup } from '@/types/Dataset';
 
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
 import { registerBuilder } from '@/giro3d/DatasetBuilder';
-import { type LoadDatasetFromFile, registerLoader } from '@/loaders/loader';
+import { registerLoader } from '@/loaders/loader';
 import { customHighlighters } from '@/services/Highlighter';
 import { customAttributeExtractors } from '@/services/Picker';
 
@@ -98,6 +99,15 @@ export type DatasetRegistrationParams = {
      * An optional custom property view.
      */
     propertyView?: Component;
+};
+
+export type LoadDatasetFromFile = (context: LoaderContext) => Promise<Dataset>;
+
+export type LoaderContext = {
+    configuration: Configuration;
+    extension: string;
+    file: File | string;
+    filename: string;
 };
 
 /** @internal */

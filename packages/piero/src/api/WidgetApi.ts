@@ -4,8 +4,12 @@ import type { PieroContext } from '@/context';
 import type { WidgetStore } from '@/stores/widgets';
 
 export interface Widget {
-    component: Component<{ context: PieroContext }>;
+    component: Component<WidgetProps>;
     id: string;
+}
+
+export interface WidgetProps {
+    context: PieroContext;
 }
 
 export class WidgetApiImpl implements WidgetApi {

@@ -2,12 +2,9 @@
     import { Vector3 } from 'three';
     import { ref } from 'vue';
 
-    import { getConfig } from '@/configurationLoader';
     import { useCameraStore } from '@/stores/camera';
 
     import { useClippingBoxStore } from './store';
-
-    const config = getConfig();
 
     const store = useClippingBoxStore();
     const camera = useCameraStore();
@@ -56,9 +53,14 @@
         store.setCenter(center);
     }
 
-    const floorReferenceAltitude = ref(config.analysis.clipping_box.floor_preset.altitude);
-    const floorSize = ref(config.analysis.clipping_box.floor_preset.size);
-    const floorNumber = ref(config.analysis.clipping_box.floor_preset.floor);
+    // TODO
+    // const floorReferenceAltitude = ref(config.analysis.clipping_box.floor_preset.altitude);
+    // const floorSize = ref(config.analysis.clipping_box.floor_preset.size);
+    // const floorNumber = ref(config.analysis.clipping_box.floor_preset.floor);
+
+    const floorSize = ref(10000);
+    const floorNumber = ref(2);
+    const floorReferenceAltitude = ref(0);
 
     function floorDown(): void {
         floorNumber.value -= 1;

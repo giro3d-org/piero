@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "rootDir": ".",
+
         "target": "ES2022",
         "module": "esnext",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
@@ -22,7 +24,8 @@
         "paths": {
             "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly
             "@giro3d/piero/*": ["./packages/piero/src/*"],
-            "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/src"]
+            "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/src"],
+            "@giro3d/piero-cli": ["./packages/piero-cli/src"]
         }
     },
     "exclude": ["node_modules", "**/dist"],

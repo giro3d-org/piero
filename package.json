@@ -52,7 +52,7 @@
         "markdownlint": "^0.38.0",
         "markdownlint-cli": "^0.45.0",
         "prettier": "^3.2.5",
-        "rollup-plugin-node-externals": "^8.1.1",
+        "rollup-plugin-node-externals": "^8.1.2",
         "sass": "^1.89.2",
         "semver": "^7.7.2",
         "shx": "^0.3.4",

@@ -1,4 +1,3 @@
-import Giro3DCoordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import z from 'zod';
 
 import { CrsName } from './crs';
@@ -33,24 +32,3 @@ z.globalRegistry.add(Coordinate3D, { id: 'Coordinate3D' });
 export const Coordinate = z.union([CoordinateObject, Coordinate2D, Coordinate3D, LatLon]);
 export type Coordinate = z.infer<typeof Coordinate>;
 z.globalRegistry.add(Coordinate, { id: 'Coordinate' });
-
-export function toGiro3DCoordinates(input: Coordinate, sceneCrs: string): Giro3DCoordinates {
-    if ('crs' in input) {
-        return new Giro3DCoordinates(input.crs, input.x, input.y, input.z ?? 0);
-    } else if (Array.isArray(input)) {
-        if (input.length === 2) {
-            return new Giro3DCoordinates(sceneCrs, input[0], input[1], 0);
-        } else if (input.length === 3) {
-            return new Giro3DCoordinates(sceneCrs, input[0], input[1], input[2]);
-        }
-    } else if ('latitude' in input) {
-        return new Giro3DCoordinates(
-            'EPSG:4326',
-            input.longitude,
-            input.latitude,
-            input.altitude ?? 0,
-        );
-    }
-
-    throw new Error('invalid coordinates');
-}
