@@ -1,9 +1,11 @@
 <script setup lang="ts">
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import { Map, View } from 'ol';
-    import TileLayer from 'ol/layer/Tile';
+    import apply from 'ol-mapbox-style';
+    import { MVT } from 'ol/format';
+    import VectorTileLayer from 'ol/layer/VectorTile';
     import { fromLonLat } from 'ol/proj';
-    import { OSM } from 'ol/source';
+    import { VectorTile } from 'ol/source';
     import { Vector3 } from 'three';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
@@ -34,9 +36,16 @@
     }
 
     onMounted(() => {
+        const layer = new VectorTileLayer({
+            source: new VectorTile({
+                format: new MVT(),
+                url: 'https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt',
+            }),
+        });
+
         map.value = new Map({
             controls: [],
-            layers: [new TileLayer({ source: new OSM() })],
+            layers: [layer],
             target: target.value,
             view: new View({
                 center: fromLonLat([4, 44]),
@@ -44,6 +53,10 @@
                 zoom: 5,
             }),
         });
+
+        apply(map.value, 'https://vector.openstreetmap.org/styles/shortbread/colorful.json').catch(
+            console.warn,
+        );
 
         let lastPosition = new Vector3();
 
@@ -96,7 +109,11 @@
 </script>
 
 <template>
-    <div ref="target" title="Toggle minimap" class="minimap expanded"></div>
+    <div ref="target" title="Toggle minimap" class="minimap expanded">
+        <div class="crosshair position-absolute top-50 start-50 translate-middle">
+            <i class="bi bi-crosshair"></i>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -113,16 +130,22 @@
         border-width: 1px;
         border-style: solid;
 
-        border-radius: 10px;
+        border-radius: 5px;
         box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
         transition:
             width 200ms ease-out,
             height 200ms ease-out;
     }
 
+    .crosshair {
+        z-index: 999;
+        opacity: 50%;
+    }
+
     .minimap:hover {
-        border-color: #40ae80;
-        border-width: 5px;
+        outline-color: #40ae80;
+        outline-width: 3px;
+        outline-style: solid;
     }
 
     .collapsed {
