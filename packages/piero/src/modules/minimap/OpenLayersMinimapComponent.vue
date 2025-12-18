@@ -23,6 +23,8 @@
         [100_000, 8],
         [400_000, 6],
         [800_000, 4],
+        [1_600_000, 3],
+        [3_000_000, 1],
     ];
 
     function getZoomFromAltitude(altitude: number): number {
