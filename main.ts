@@ -2,6 +2,7 @@ import type { ModuleConstructor } from '@giro3d/piero';
 
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
+import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
 import DefaultConfig from './defaultConfig';
@@ -66,6 +67,8 @@ function start(): Promise<void> {
         search.CoordinatesSearch,
         search.FrenchBanGeocoder,
         search.PhotonGeocoder,
+
+        GeohashGeocoder,
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param

@@ -25,6 +25,7 @@
             "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly
             "@giro3d/piero/*": ["./packages/piero/src/*"],
             "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/src"],
+            "@giro3d/piero-plugin-geohash": ["./packages/piero-plugin-geohash/src"],
             "@giro3d/piero-cli": ["./packages/piero-cli/src"]
         }
     },

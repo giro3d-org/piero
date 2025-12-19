@@ -9,7 +9,7 @@ import type {
     LoadDatasetFromFile,
     LoaderContext,
 } from './DatasetApi';
-import type { SearchApi, SearchProvider, SearchResult } from './SearchApi';
+import type { LocationSearchResult, SearchApi, SearchProvider, SearchResult } from './SearchApi';
 import type ViewApi from './ViewApi';
 import type WidgetApi from './WidgetApi';
 import type { WidgetProps } from './WidgetApi';
@@ -24,6 +24,7 @@ export {
     DatasetRegistrationParams,
     LoadDatasetFromFile,
     LoaderContext,
+    LocationSearchResult,
     SearchApi,
     SearchProvider,
     SearchResult,

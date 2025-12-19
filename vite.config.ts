@@ -69,6 +69,9 @@ const appConfig = defineConfig(() => {
                 '@giro3d/piero-plugin-cityjson': fileURLToPath(
                     new URL('./packages/piero-plugin-cityjson/src', import.meta.url),
                 ),
+                '@giro3d/piero-plugin-geohash': fileURLToPath(
+                    new URL('./packages/piero-plugin-geohash/src', import.meta.url),
+                ),
             },
         },
         root,
