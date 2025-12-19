@@ -1,3 +1,5 @@
+import type { ModuleConstructor } from '@giro3d/piero';
+
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
@@ -25,44 +27,44 @@ function start(): Promise<void> {
     // for demonstration purposes. However, in a customized Piero app,
     // you will want to select as few modules as possible for the best
     // performance and bundle size.
-    const modules = [
+    const modules: ModuleConstructor[] = [
         // Misc modules
-        new misc.Attribution(),
-        new misc.Tour(),
-        new misc.DownloadDataset(),
-        new misc.PostProcessEntities(),
-        new misc.OpenLayersMinimap(),
-        new misc.Graticule(),
+        misc.Attribution,
+        misc.Tour,
+        misc.DownloadDataset,
+        misc.PostProcessEntities,
+        misc.OpenLayersMinimap,
+        misc.Graticule,
 
         // Built-in data loaders
-        new loaders.LASLoader(),
-        new loaders.KMLLoader(),
-        new loaders.GPXLoader(),
-        new loaders.GeoJSONLoader(),
-        new loaders.IFCLoader(),
-        new loaders.OSMLoader(),
-        new loaders.TMSLoader(),
-        new loaders.WMSLoader(),
-        new loaders.WMTSLoader(),
-        new loaders.GeoTIFFLoader(),
-        new loaders.Tiles3DLoader(),
+        loaders.LASLoader,
+        loaders.KMLLoader,
+        loaders.GPXLoader,
+        loaders.GeoJSONLoader,
+        loaders.IFCLoader,
+        loaders.OSMLoader,
+        loaders.TMSLoader,
+        loaders.WMSLoader,
+        loaders.WMTSLoader,
+        loaders.GeoTIFFLoader,
+        loaders.Tiles3DLoader,
 
         // Non-standard loaders
-        new loaders.MapboxLoader(),
-        new loaders.PotreeLoader(),
-        new loaders.BDTopoLoader(),
+        loaders.MapboxLoader,
+        loaders.PotreeLoader,
+        loaders.BDTopoLoader,
 
         // Data loaders provided by external packages
-        new CityJSONLoader(),
+        CityJSONLoader,
 
         // Analysis tools
-        new analysis.FloodingPlane(),
-        // new analysis.ClippingBox(),
-        new analysis.CrossSection(),
+        analysis.FloodingPlane,
+        // analysis.ClippingBox,
+        analysis.CrossSection,
 
         // Search
-        new search.CoordinatesSearch(),
-        new search.FrenchBanGeocoder(),
+        search.CoordinatesSearch,
+        search.FrenchBanGeocoder,
     ];
 
     // Piero can either load a remote configuration from the provided 'config' URL param

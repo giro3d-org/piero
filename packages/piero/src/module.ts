@@ -15,3 +15,7 @@ export interface Module {
      */
     initialize(context: PieroContext): Promise<void> | void;
 }
+
+export interface ModuleConstructor {
+    new (): Module;
+}

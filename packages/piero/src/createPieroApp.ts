@@ -2,7 +2,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import type { PieroContext } from './context';
-import type { Module } from './module';
+import type { ModuleConstructor } from './module';
 
 import './assets/main.scss';
 import type { Configuration } from './types/configuration/Configuration';
@@ -59,7 +59,7 @@ export type AppParameters = {
      * The list of modules to load.
      * @defaultValue []
      */
-    modules?: Module[];
+    modules?: ModuleConstructor[];
 };
 
 /**
@@ -78,7 +78,8 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
     const pinia = createPinia();
 
     const moduleStore = useModuleStore(pinia);
-    moduleStore.setLoadedModules(params.modules ?? []);
+    const modules = params.modules?.map(ctor => new ctor()) ?? [];
+    moduleStore.setLoadedModules(modules);
 
     const analysisStore = useAnalysisStore(pinia);
 
@@ -103,7 +104,7 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
 
     // Now we can register the modules.
     if (params.modules) {
-        for (const module of params.modules) {
+        for (const module of modules) {
             const init = Promise.resolve(module.initialize(readyContext));
             moduleInitializations.push(init);
             console.info(`Module ${module.name} initialized.`);

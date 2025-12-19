@@ -1,6 +1,6 @@
 import type { PieroContext } from '@/context';
 import type { BookmarkEvents, PieroEmptyEvent, PieroEvents, PieroGlobalEvents } from '@/events';
-import type { Module } from '@/module';
+import type { Module, ModuleConstructor } from '@/module';
 import type { AttributeExtractorFn } from '@/services/Picker';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 
@@ -28,6 +28,7 @@ export {
     Fetcher,
     fillObject3DUserData,
     Module,
+    ModuleConstructor,
     Notification,
     PieroContext,
     PieroEmptyEvent,

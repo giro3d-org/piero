@@ -13,8 +13,7 @@ import TMSLoader from './TMSLoader';
 import WMSLoader from './WMSLoader';
 import WMTSLoader from './WMTSLoader';
 
-export default {
-    // Standard formats
+const all = [
     GeoJSONLoader,
     GeoTIFFLoader,
     GPXLoader,
@@ -26,11 +25,28 @@ export default {
     TMSLoader,
     WMSLoader,
     WMTSLoader,
-
-    // Provider or application-specific loaders
     MapboxLoader,
     PotreeLoader,
-
-    // Region-specific loaders
     BDTopoLoader,
+];
+
+/**
+ * Modules that can load datasets.
+ */
+export default {
+    all,
+    BDTopoLoader,
+    GeoJSONLoader,
+    GeoTIFFLoader,
+    GPXLoader,
+    IFCLoader,
+    KMLLoader,
+    LASLoader,
+    MapboxLoader,
+    OSMLoader,
+    PotreeLoader,
+    Tiles3DLoader,
+    TMSLoader,
+    WMSLoader,
+    WMTSLoader,
 };
