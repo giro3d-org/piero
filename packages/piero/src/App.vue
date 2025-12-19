@@ -27,6 +27,7 @@
     import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
+    import { useSearchStore } from './stores/search';
     import { useWidgetStore } from './stores/widgets';
 
     const { getContext } = defineProps<{
@@ -48,6 +49,7 @@
     const annotationStore = useAnnotationStore();
     const measurementStore = useMeasurementStore();
     const widgetStore = useWidgetStore();
+    const searchStore = useSearchStore();
 
     const giro3d = shallowRef<Giro3DManager | null>(null);
     const debounce = ref<NodeJS.Timeout | number | string | undefined>();
@@ -261,7 +263,12 @@
     />
     <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
     <ProgressBar :progress="progress" class="loading-indicator" />
-    <SearchOverlay id="address-search" class="search" @result-selected="onSearchResultSelected" />
+    <SearchOverlay
+        v-if="searchStore.searchProviderCount > 0"
+        id="address-search"
+        class="search"
+        @result-selected="onSearchResultSelected"
+    />
     <NavigationButtons class="navigation-buttons" />
     <AlertToast />
 
