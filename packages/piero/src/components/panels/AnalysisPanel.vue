@@ -2,6 +2,7 @@
     import { useAnalysisStore } from '@/stores/analysis';
 
     import ToolWrapper from './analysis/ToolWrapper.vue';
+    import EmptyIndicator from './EmptyIndicator.vue';
 
     const analysis = useAnalysisStore();
 </script>
@@ -20,7 +21,7 @@
         </ToolWrapper>
     </div>
 
-    <div v-if="analysis.getTools().length === 0" class="warning">No analysis tool registered.</div>
+    <EmptyIndicator text="No analysis tool" v-if="analysis.getTools().length === 0" />
 </template>
 
 <style scoped>
