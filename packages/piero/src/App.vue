@@ -251,6 +251,7 @@
     />
     <StatusBar
         class="component statusbar"
+        :crs="giro3dStore.getMainView()?.referenceCrs"
         :x="coordinates.x"
         :y="coordinates.y"
         :z="coordinates.z"
