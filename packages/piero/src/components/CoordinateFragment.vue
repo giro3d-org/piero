@@ -17,7 +17,6 @@
 <style scoped>
     div {
         width: 5rem;
-        text-align: start;
         font-size: small;
     }
 </style>
