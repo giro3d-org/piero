@@ -11,6 +11,8 @@
 
     import type { PieroContext } from '@/context';
 
+    import style from './style.json';
+
     const target = ref<HTMLDivElement>();
     const map = shallowRef<Map>();
     const props = defineProps<{
@@ -56,9 +58,7 @@
             }),
         });
 
-        apply(map.value, 'https://vector.openstreetmap.org/styles/shortbread/colorful.json').catch(
-            console.warn,
-        );
+        apply(map.value, style).catch(console.warn);
 
         let lastPosition = new Vector3();
 
