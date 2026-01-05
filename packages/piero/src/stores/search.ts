@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
-import { shallowRef } from 'vue';
+import { computed, shallowRef } from 'vue';
 
 import type { SearchProvider } from '@/api/SearchApi';
 
 export const useSearchStore = defineStore('search', () => {
     const providers = shallowRef<SearchProvider[]>([]);
+    const searchProviderCount = computed(() => providers.value.length);
 
     function registerProvider(provider: SearchProvider): void {
         if (!providers.value.includes(provider)) {
@@ -19,6 +20,7 @@ export const useSearchStore = defineStore('search', () => {
     return {
         getProviders,
         registerProvider,
+        searchProviderCount,
     };
 });
 
