@@ -1,17 +1,13 @@
 <script setup lang="ts">
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import { Map, View } from 'ol';
-    import apply from 'ol-mapbox-style';
-    import { MVT } from 'ol/format';
-    import VectorTileLayer from 'ol/layer/VectorTile';
+    import TileLayer from 'ol/layer/Tile';
     import { fromLonLat } from 'ol/proj';
-    import { VectorTile } from 'ol/source';
+    import { OSM } from 'ol/source';
     import { Vector3 } from 'three';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
     import type { PieroContext } from '@/context';
-
-    import style from './style.json';
 
     const target = ref<HTMLDivElement>();
     const map = shallowRef<Map>();
@@ -40,11 +36,8 @@
     }
 
     onMounted(() => {
-        const layer = new VectorTileLayer({
-            source: new VectorTile({
-                format: new MVT(),
-                url: 'https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt',
-            }),
+        const layer = new TileLayer({
+            source: new OSM(),
         });
 
         map.value = new Map({
@@ -57,8 +50,6 @@
                 zoom: 5,
             }),
         });
-
-        apply(map.value, style).catch(console.warn);
 
         let lastPosition = new Vector3();
 
