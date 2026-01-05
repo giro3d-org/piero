@@ -29,7 +29,9 @@ function start(): Promise<void> {
     // you will want to select as few modules as possible for the best
     // performance and bundle size.
     const modules: ModuleConstructor[] = [
-        // Misc modules
+        /**
+         * Miscellaneous modules
+         */
         misc.Attribution,
         misc.Tour,
         misc.DownloadDataset,
@@ -37,7 +39,11 @@ function start(): Promise<void> {
         misc.OpenLayersMinimap,
         misc.Graticule,
 
-        // Built-in data loaders
+        /**
+         * Data loaders
+         */
+
+        // Built-in
         loaders.LASLoader,
         loaders.KMLLoader,
         loaders.GPXLoader,
@@ -50,24 +56,28 @@ function start(): Promise<void> {
         loaders.GeoTIFFLoader,
         loaders.Tiles3DLoader,
 
-        // Non-standard loaders
         loaders.MapboxLoader,
         loaders.PotreeLoader,
         loaders.BDTopoLoader,
 
-        // Data loaders provided by external packages
+        // External plugins
         CityJSONLoader,
 
-        // Analysis tools
+        /**
+         * Analysis tools
+         */
         analysis.FloodingPlane,
-        // analysis.ClippingBox,
         analysis.CrossSection,
 
-        // Search
+        /**
+         * Search-related modules
+         */
+        // Built-in
         search.CoordinatesSearch,
         search.FrenchBanGeocoder,
         search.PhotonGeocoder,
 
+        // External plugins
         GeohashGeocoder,
     ];
 

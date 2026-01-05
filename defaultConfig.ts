@@ -1,5 +1,9 @@
 import type { Configuration } from '@giro3d/piero/types/configuration';
 
+/**
+ * A default, ultra-minimal configuration that displays the world in the Web Mercator
+ * projection using an OpenStreetMap basemap (requires the OSMLoader built-in module).
+ */
 const config: Configuration = {
     data: [
         {

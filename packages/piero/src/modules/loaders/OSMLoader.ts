@@ -6,7 +6,7 @@ import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-const osmBuilder: DatasetBuilder = () => {
+const builder: DatasetBuilder = () => {
     const layer = new ColorLayer({
         source: new TiledImageSource({
             source: new OSM(),
@@ -26,7 +26,7 @@ export default class OSMLoader implements Module {
 
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('osm', {
-            builder: osmBuilder,
+            builder,
             icon: 'fg-layer-alt',
             name: 'OpenStreetMap',
         });

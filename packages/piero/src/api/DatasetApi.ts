@@ -54,7 +54,13 @@ export interface DatasetBuildContext {
 export type DatasetBuilder = (context: DatasetBuildContext) => Promise<DatasetBuildResult>;
 
 export interface DatasetBuildResult {
+    /**
+     * The entities created from the dataset.
+     */
     entities?: Entity3D[];
+    /**
+     * The map layers created from the dataset, to be added to the basemap.
+     */
     layers?: (ColorLayer | ElevationLayer | MaskLayer)[];
 }
 
@@ -67,7 +73,7 @@ export type DatasetRegistrationParams = {
      */
     attributeExtractor?: AttributeExtractorFn;
     /**
-     * The function to build an entity from a dataset.
+     * The function to build graphical objects (entities and layers) from a dataset.
      */
     builder: DatasetBuilder;
     /**
@@ -92,7 +98,7 @@ export type DatasetRegistrationParams = {
     loader?: LoadDatasetFromFile;
     /**
      * The dataset display name.
-     * @example 'IFC
+     * @example 'IFC'
      */
     name?: string;
     /**
