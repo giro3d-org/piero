@@ -114,10 +114,11 @@
                 </blockquote>
             </li>
         </ul>
-        <p>Loaded modules:</p>
+        <h5>Loaded modules</h5>
         <ul>
             <li v-for="module in modules" :key="module.name">
-                <code>{{ module.id }}</code>
+                {{ module.name }}
+                <h6 class="badge text-bg-light">{{ module.id }}</h6>
             </li>
         </ul>
         <hr />
