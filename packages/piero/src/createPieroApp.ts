@@ -63,6 +63,11 @@ export type AppParameters = {
 };
 
 /**
+ * The Piero configuration, or an URL pointing to a remote JSON configuration file.
+ */
+export type ConfigurationOrUrl = Configuration | string;
+
+/**
  * Entry point for a Piero application.
  */
 export default async function createPieroApp(params: AppParameters): Promise<void> {

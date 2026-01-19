@@ -9,6 +9,13 @@ export class NotificationApiImpl implements NotificationApi {
     }
 }
 
+/**
+ * Provides access to the notification system.
+ */
 export default interface NotificationApi {
+    /**
+     * Pushes a notification to the user.
+     * @param notification - The notification.
+     */
     pushNotification(notification: Notification): void;
 }

@@ -14,6 +14,9 @@ import type { Configuration } from './types/configuration/Configuration';
  * Piero context.
  */
 export interface PieroContext {
+    /**
+     * Interface to the analysis panel.
+     */
     analysis: AnalysisApi;
 
     /**
