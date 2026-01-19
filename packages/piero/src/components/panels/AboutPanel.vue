@@ -115,12 +115,15 @@
             </li>
         </ul>
         <h5>Loaded modules</h5>
-        <ul>
+        <ul v-if="modules.length > 0">
             <li v-for="module in modules" :key="module.name">
                 {{ module.name }}
                 <h6 class="badge text-bg-light">{{ module.id }}</h6>
             </li>
         </ul>
+        <div v-if="modules.length === 0">
+            <span>No module loaded.</span>
+        </div>
         <hr />
     </div>
 </template>
