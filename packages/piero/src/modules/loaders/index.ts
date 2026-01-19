@@ -33,7 +33,7 @@ const all = [
 /**
  * Modules that can load datasets.
  */
-export default {
+export {
     all,
     BDTopoLoader,
     GeoJSONLoader,

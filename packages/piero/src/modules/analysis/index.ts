@@ -7,4 +7,4 @@ const all = [ClippingBox, CrossSection, FloodingPlane];
 /**
  * Modules for the analysis panel.
  */
-export default { all, ClippingBox, CrossSection, FloodingPlane };
+export { all, ClippingBox, CrossSection, FloodingPlane };

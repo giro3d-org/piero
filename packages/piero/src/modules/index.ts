@@ -1,7 +1,7 @@
-import analysis from './analysis';
-import loaders from './loaders';
-import misc from './misc';
-import search from './search';
+import * as analysis from './analysis';
+import * as loaders from './loaders';
+import * as misc from './misc';
+import * as search from './search';
 
 /**
  * Contains all the built-in modules.

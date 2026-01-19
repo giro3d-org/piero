@@ -7,4 +7,4 @@ const all = [CoordinatesSearch, FrenchBanGeocoder, PhotonGeocoder];
 /**
  * Search-related modules.
  */
-export default { all, CoordinatesSearch, FrenchBanGeocoder, PhotonGeocoder };
+export { all, CoordinatesSearch, FrenchBanGeocoder, PhotonGeocoder };

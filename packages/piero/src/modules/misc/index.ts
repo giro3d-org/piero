@@ -10,7 +10,7 @@ const all = [Attribution, DownloadDataset, Graticule, OpenLayersMinimap, PostPro
 /**
  * Miscellaneous modules.
  */
-export default {
+export {
     all,
     Attribution,
     DownloadDataset,
