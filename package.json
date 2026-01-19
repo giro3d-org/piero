@@ -22,7 +22,10 @@
         "start": "vite --port 8080",
         "test": "vitest",
         "copy-wasm": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm public/laz-perf.wasm",
-        "prepare": "husky"
+        "prepare": "husky",
+        "docs:dev": "vitepress dev",
+        "docs:build": "vitepress build",
+        "docs:preview": "vitepress preview"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",
@@ -61,6 +64,7 @@
         "vite": "^6.3.5",
         "vite-plugin-dts": "^4.5.4",
         "vite-plugin-node-polyfills": "^0.23.0",
+        "vitepress": "^2.0.0-alpha.15",
         "vitest": "^3.2.4",
         "vue-tsc": "^3.0.6",
         "zod": "^4.1.11"

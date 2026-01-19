@@ -28,3 +28,4 @@ public/ply
 public/shp
 
 .DS_Store
+.vitepress
