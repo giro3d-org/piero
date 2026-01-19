@@ -19,6 +19,7 @@
 
         /* Linting */
         "strict": true,
+        "strictNullChecks": true,
         "noImplicitOverride": true,
 
         "paths": {
