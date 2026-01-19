@@ -1,0 +1,5 @@
+{
+    "tsconfig": "tsconfig.json",
+    "plugin": ["typedoc-plugin-zod"],
+    "entryPoints": ["src"]
+}
