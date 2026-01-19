@@ -1,6 +1,7 @@
 import type { ModuleConstructor } from '@giro3d/piero';
+import type { PieroApplication } from '@giro3d/piero/PieroApplication';
 
-import { createPieroApp } from '@giro3d/piero';
+import { createPieroApp, Notification } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
@@ -17,7 +18,7 @@ class Environment {
     }
 }
 
-function start(): Promise<void> {
+function start(): Promise<PieroApplication> {
     // Load the environment variables.
     const env = new Environment();
 
@@ -97,4 +98,11 @@ function start(): Promise<void> {
     });
 }
 
-start().catch(console.error);
+start()
+    .then(app => {
+        console.info('Piero instantiated successfully.', app);
+        app.context.notifications.pushNotification(
+            new Notification('Hello 👋', 'Hello from Piero !', 'success'),
+        );
+    })
+    .catch(console.error);

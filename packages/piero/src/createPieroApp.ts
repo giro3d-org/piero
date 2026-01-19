@@ -5,6 +5,7 @@ import type { PieroContext } from './context';
 import type { ModuleConstructor } from './module';
 
 import './assets/main.scss';
+import type { PieroApplication } from './PieroApplication';
 import type { Configuration } from './types/configuration/Configuration';
 
 import { AnalysisApiImpl } from './api/AnalysisApi';
@@ -25,7 +26,7 @@ import { useSearchStore } from './stores/search';
 import { useWidgetStore } from './stores/widgets';
 import Download from './utils/Download';
 
-async function resolveConfiguration(params: AppParameters): Promise<Configuration> {
+async function resolveConfiguration(params: CreatePieroAppParameters): Promise<Configuration> {
     let configuration: Configuration;
 
     if (typeof params.configuration === 'string') {
@@ -40,7 +41,16 @@ async function resolveConfiguration(params: AppParameters): Promise<Configuratio
     return configuration;
 }
 
-export type AppParameters = {
+/**
+ * The Piero configuration, or an URL pointing to a remote JSON configuration file.
+ * @preventExpand
+ */
+export type ConfigurationOrUrl = Configuration | string;
+
+/**
+ * @expand
+ */
+export interface CreatePieroAppParameters {
     /**
      * The base URL of the application. This is used to resolve relative URLs.
      * @example 'http://localhost:8080/' or 'https://mydomain.com/myapp/'
@@ -49,18 +59,17 @@ export type AppParameters = {
     /**
      * The static configuration to use, or the URL to a remote configuration.
      */
-    configuration: Configuration | string;
+    configuration: ConfigurationOrUrl;
     /**
-     * Where to attach the piero root element.
+     * Where to attach the piero root element. Can be either the `id` of an existing element, or a reference to a DOM element.
      */
     container: Element | string;
-
     /**
      * The list of modules to load.
      * @defaultValue []
      */
     modules?: ModuleConstructor[];
-};
+}
 
 /**
  * The Piero configuration, or an URL pointing to a remote JSON configuration file.
@@ -69,8 +78,11 @@ export type ConfigurationOrUrl = Configuration | string;
 
 /**
  * Entry point for a Piero application.
+ * @returns A promise that resolves when the application has been initialized and is ready to use.
  */
-export default async function createPieroApp(params: AppParameters): Promise<void> {
+export default async function createPieroApp(
+    params: CreatePieroAppParameters,
+): Promise<PieroApplication> {
     const configuration = await resolveConfiguration(params);
     await setConfiguration(configuration);
 
@@ -108,7 +120,7 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
     const moduleInitializations: Promise<void>[] = [];
 
     // Now we can register the modules.
-    if (params.modules) {
+    if (params.modules != null) {
         for (const module of modules) {
             const init = Promise.resolve(module.initialize(readyContext));
             moduleInitializations.push(init);
@@ -122,4 +134,8 @@ export default async function createPieroApp(params: AppParameters): Promise<voi
     const app = createApp(App, { getContext: () => context });
     app.use(pinia);
     app.mount(params.container);
+
+    return {
+        context: readyContext,
+    };
 }
