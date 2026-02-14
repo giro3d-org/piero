@@ -3,15 +3,15 @@ import type z from 'zod';
 import PointCloud from '@giro3d/giro3d/entities/PointCloud';
 import PotreeSource from '@giro3d/giro3d/sources/PotreeSource';
 
-import type { DatasetBuilder } from '@/api/DatasetApi';
+import type { DatasetBuilder } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
+import * as config from '@/configuration';
 import { fillObject3DUserData } from '@/loaders/userData';
-import { Dataset, Url } from '@/types/configuration';
 
-const PotreeDataset = Dataset.extend({
-    url: Url,
+const PotreeDataset = config.dataset.Dataset.extend({
+    url: config.url.Url,
 });
 type PotreeDataset = z.infer<typeof PotreeDataset>;
 
@@ -32,7 +32,7 @@ const builder: DatasetBuilder = context => {
 };
 
 /**
- * Loads [Potree](https://potree.github.io/) datasets.
+ * Add support for [Potree](https://potree.github.io/) datasets.
  */
 export default class PotreeLoader implements Module {
     public readonly id = 'builtin-loader-potree';

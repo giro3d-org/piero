@@ -4,17 +4,16 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
 
-import type { DatasetBuilder } from '@/api';
+import type { DatasetBuilder } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import { Url } from '@/types/configuration';
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
 
 const GeoTIFFDataset = config.layer.Layer.extend({
     projection: CrsName,
-    url: Url,
+    url: config.url.Url,
 });
 type GeoTIFFDataset = z.infer<typeof GeoTIFFDataset>;
 
@@ -44,6 +43,9 @@ const builder: DatasetBuilder = context => {
     });
 };
 
+/**
+ * Add support for GeoTIFF files.
+ */
 export default class GeoTIFFLoader implements Module {
     public readonly id = 'builtin-loader-geotiff';
     public readonly name = 'GeoTIFF';

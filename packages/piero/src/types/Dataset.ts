@@ -1,14 +1,7 @@
 import { EventDispatcher, MathUtils } from 'three';
 
+import * as config from '@/configuration/dataset';
 import { isObject } from '@/utils/Types';
-
-import type {
-    Datagroup as DatagroupConfig,
-    Dataset as DatasetConfig,
-    DatasetOrGroup as DatasetOrGroupConfig,
-} from './configuration';
-
-import { isDatagroupConfig } from './configuration/Datagroup';
 
 export enum DatasetState {
     Unloaded,
@@ -44,7 +37,7 @@ export type DatasetGroupEventMap = DatasetEventMap & {
 export type DatasetOrGroup = Datagroup | Dataset;
 
 export abstract class DatasetBase<
-    TConfig extends DatasetOrGroupConfig,
+    TConfig extends config.DatasetOrGroup,
     TEventMap extends DatasetEventMap = DatasetEventMap,
 > extends EventDispatcher<DatasetEventMap & TEventMap> {
     public readonly config: TConfig;
@@ -185,7 +178,7 @@ export abstract class DatasetBase<
 }
 
 /** Datagroup item */
-export class Datagroup extends DatasetBase<DatagroupConfig, DatasetGroupEventMap> {
+export class Datagroup extends DatasetBase<config.Datagroup, DatasetGroupEventMap> {
     public get children(): DatasetOrGroup[] {
         return this._children;
     }
@@ -199,7 +192,7 @@ export class Datagroup extends DatasetBase<DatagroupConfig, DatasetGroupEventMap
     }
 
     protected _children: DatasetOrGroup[];
-    public constructor(conf: DatagroupConfig) {
+    public constructor(conf: config.Datagroup) {
         super(conf);
         this._children = parseDatasetConfig(conf.children, this);
         this.state = DatasetState.Loaded;
@@ -243,8 +236,8 @@ export class Datagroup extends DatasetBase<DatagroupConfig, DatasetGroupEventMap
 }
 
 /** Dataset item */
-export class Dataset extends DatasetBase<DatasetConfig, DatasetEventMap> {
-    public constructor(conf: DatasetConfig) {
+export class Dataset extends DatasetBase<config.Dataset, DatasetEventMap> {
+    public constructor(conf: config.Dataset) {
         super(conf);
 
         this._opacity = conf.opacity ?? 1;
@@ -270,12 +263,12 @@ export class Dataset extends DatasetBase<DatasetConfig, DatasetEventMap> {
  * @returns Hierarchy of DatasetOrGroup
  */
 export function parseDatasetConfig(
-    datasets: DatasetOrGroupConfig[],
+    datasets: config.DatasetOrGroup[],
     parent?: Datagroup,
 ): DatasetOrGroup[] {
     return datasets.map(childconf => {
         let child: DatasetOrGroup;
-        if (isDatagroupConfig(childconf)) {
+        if (config.isDatagroupConfig(childconf)) {
             child = new Datagroup(childconf);
         } else {
             child = new Dataset(childconf);

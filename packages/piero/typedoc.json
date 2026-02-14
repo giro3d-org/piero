@@ -1,5 +1,6 @@
 {
     "tsconfig": "tsconfig.json",
     "plugin": ["typedoc-plugin-zod"],
-    "entryPoints": ["src"]
+    "readme": "none",
+    "entryPoints": ["src/index.ts", "src/modules/index.ts"]
 }

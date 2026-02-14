@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { computed, ref } from 'vue';
 
-    import type { WidgetProps } from '@/api';
+    import type { WidgetProps } from '@/api/widgets';
 
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useDatasetStore } from '@/stores/datasets';

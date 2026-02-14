@@ -13,6 +13,9 @@ import TMSLoader from './TMSLoader';
 import WMSLoader from './WMSLoader';
 import WMTSLoader from './WMTSLoader';
 
+/**
+ * Contains all loader modules.
+ */
 const all = [
     GeoJSONLoader,
     GeoTIFFLoader,

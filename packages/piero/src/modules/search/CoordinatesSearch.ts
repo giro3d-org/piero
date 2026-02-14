@@ -1,7 +1,6 @@
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 
-import type { SearchProvider, SearchResult } from '@/api';
-import type { LocationSearchResult } from '@/api/SearchApi';
+import type { LocationSearchResult, SearchProvider, SearchResult } from '@/api/search';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 

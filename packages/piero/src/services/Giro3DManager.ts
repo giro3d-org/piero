@@ -13,7 +13,7 @@ import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
 import Picker from '@/services/Picker';
 import { useGiro3dStore } from '@/stores/giro3d';
-import { getLookAtTarget } from '@/types/configuration/LookAt';
+import { getLookAtTarget } from '@/configuration/lookAt';
 import Fetcher from '@/utils/Fetcher';
 
 import SceneCursorManager from './SceneCursorManager';

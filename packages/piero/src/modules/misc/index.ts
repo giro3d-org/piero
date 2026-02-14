@@ -5,6 +5,9 @@ import OpenLayersMinimap from './OpenLayersMinimap';
 import PostProcessEntities from './PostProcessEntities';
 import Tour from './Tour';
 
+/**
+ * Contains all miscellaneous modules.
+ */
 const all = [Attribution, DownloadDataset, Graticule, OpenLayersMinimap, PostProcessEntities, Tour];
 
 /**

@@ -3,8 +3,7 @@
 import { Euler, MathUtils, Vector3 } from 'three';
 import z from 'zod';
 
-import { Degree } from './Degree';
-import { Meter } from './Meter';
+import { Degree, Meter } from './units';
 
 export const LookAt = z.object({
     latitude: Degree,

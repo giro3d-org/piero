@@ -1,6 +1,6 @@
-import type { LoadDatasetFromFile, LoaderContext } from '@/api/DatasetApi';
-import type { Configuration } from '@/types/configuration/Configuration';
-import type { Dataset as DatasetConfig } from '@/types/configuration/Dataset';
+import type { LoadDatasetFromFile, LoaderContext } from '@/api/dataset';
+import type { Configuration } from '@/configuration/configuration';
+import type { Dataset as DatasetConfig } from '@/configuration/dataset';
 
 import { Dataset } from '@/types/Dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';

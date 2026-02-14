@@ -2,7 +2,7 @@
     // @ts-expect-error autocomplete-vue does not provide typing
     import Autocomplete from '@trevoreyre/autocomplete-vue';
 
-    import type { SearchResult } from '@/api';
+    import type { SearchResult } from '@/api/search';
 
     import Icon from '@/components/atoms/Icon.vue';
     import { useSearchStore } from '@/stores/search';

@@ -9,8 +9,8 @@ import { type Component } from 'vue';
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
 import type { DatasetStore } from '@/stores/datasets';
-import type { Configuration } from '@/types/configuration/Configuration';
-import type { Dataset } from '@/types/configuration/Dataset';
+import type { Configuration } from '@/configuration/configuration';
+import type { Dataset } from '@/configuration/dataset';
 import type { DatasetOrGroup } from '@/types/Dataset';
 
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';

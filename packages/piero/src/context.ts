@@ -1,33 +1,25 @@
+/* eslint-disable perfectionist/sort-interfaces */
+
 import type { EventDispatcher } from 'three';
 
-import type { SearchApi } from './api';
-import type AnalysisApi from './api/AnalysisApi';
-import type BookmarkApi from './api/BookmarkApi';
-import type DatasetApi from './api/DatasetApi';
-import type NotificationApi from './api/NotificationApi';
-import type ViewApi from './api/ViewApi';
-import type WidgetApi from './api/WidgetApi';
+import type AnalysisApi from './api/analysis';
+import type BookmarkApi from './api/bookmarks';
+import type DatasetApi from './api/dataset';
+import type NotificationApi from './api/notifications';
+import type SearchApi from './api/search';
+import type ViewApi from './api/view';
+import type WidgetApi from './api/widgets';
+import type { Configuration } from './configuration/configuration';
 import type { PieroEvents } from './events';
-import type { Configuration } from './types/configuration/Configuration';
 
 /**
  * Piero context.
  */
 export interface PieroContext {
     /**
-     * Interface to the analysis panel.
-     */
-    analysis: AnalysisApi;
-
-    /**
      * The base URL of the application.
      */
     baseURL: URL;
-
-    /**
-     * Bookmark related functions.
-     */
-    bookmarks: BookmarkApi;
 
     /**
      * The configuration of the Piero app.
@@ -35,14 +27,24 @@ export interface PieroContext {
     configuration: Readonly<Configuration>;
 
     /**
-     * Dataset related functions.
-     */
-    datasets: DatasetApi;
-
-    /**
      * The global event dispatcher.
      */
     events: EventDispatcher<PieroEvents>;
+
+    /**
+     * Interface to the analysis API.
+     */
+    analysis: AnalysisApi;
+
+    /**
+     * Bookmark related functions.
+     */
+    bookmarks: BookmarkApi;
+
+    /**
+     * Dataset related functions.
+     */
+    datasets: DatasetApi;
 
     /**
      * Notification related functions.

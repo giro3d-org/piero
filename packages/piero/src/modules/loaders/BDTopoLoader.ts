@@ -1,4 +1,4 @@
-import type { DatasetBuilder } from '@/api';
+import type { DatasetBuilder } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 

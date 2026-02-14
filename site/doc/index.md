@@ -13,6 +13,9 @@ hero:
         - theme: alt
           text: Module reference
           link: /module-reference/index
+        - theme: alt
+          text: API reference
+          link: /api/packages
 
 features:
     - title: 3D native

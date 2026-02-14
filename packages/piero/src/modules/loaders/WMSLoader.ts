@@ -2,12 +2,12 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import WmsSource from '@giro3d/giro3d/sources/WmsSource';
 import z from 'zod';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
 
 const DATASET_TYPE = 'wms';
 
@@ -15,7 +15,7 @@ export const WMSDataset = config.layer.Layer.extend({
     format: z.string().nonempty().optional().default('image/jpeg'),
     layer: z.union([z.array(z.string().nonempty()), z.string().nonempty()]),
     projection: CrsName.optional().default('EPSG:3857'),
-    url: config.Url,
+    url: config.url.Url,
 });
 export type WMSDataset = z.infer<typeof WMSDataset>;
 
@@ -39,6 +39,9 @@ const builder: DatasetBuilder = context => {
     return Promise.resolve(result);
 };
 
+/**
+ * Add support for WMS (Web Map Service) layers.
+ */
 export default class WMSLoader implements Module {
     public readonly id = 'builtin-loader-wms';
     public readonly name = 'WMS';

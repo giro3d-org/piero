@@ -8,7 +8,7 @@ import z from 'zod';
 import { Annotation } from './annotation';
 import { Bookmark } from './bookmark';
 import { CrsDefinitionCollection } from './crs';
-import { DatasetOrGroup } from './Datagroup';
+import { DatasetOrGroup } from './dataset';
 import { ModuleConfiguration } from './module';
 import { SceneConfiguration } from './scene';
 

@@ -2,25 +2,31 @@ import z from 'zod';
 
 import { CrsName } from './crs';
 
-export const ExtentObject = z.object({
+export interface ExtentObject {
+    crs: CrsName;
+    maxx: number;
+    maxy: number;
+    minx: number;
+    miny: number;
+}
+export const ExtentObject: z.ZodType<ExtentObject> = z.object({
     crs: CrsName,
     maxx: z.number(),
     maxy: z.number(),
     minx: z.number(),
     miny: z.number(),
 });
-export type ExtentObject = z.infer<typeof ExtentObject>;
 z.globalRegistry.add(ExtentObject, { id: 'ExtentObject' });
 
-export const ExtentTuple = z.tuple([
+export type ExtentTuple = [minx: number, miny: number, maxx: number, maxy: number];
+export const ExtentTuple: z.ZodType<ExtentTuple> = z.tuple([
     z.number().describe('minx'),
     z.number().describe('miny'),
     z.number().describe('maxx'),
     z.number().describe('maxy'),
 ]);
-export type ExtentTuple = z.infer<typeof ExtentTuple>;
 z.globalRegistry.add(ExtentTuple, { id: 'ExtentTuple' });
 
-export const Extent = z.union([ExtentObject, ExtentTuple]);
-export type Extent = z.infer<typeof Extent>;
+export type Extent = ExtentObject | ExtentTuple;
+export const Extent: z.ZodType<Extent> = z.union([ExtentObject, ExtentTuple]);
 z.globalRegistry.add(Extent, { id: 'Extent' });

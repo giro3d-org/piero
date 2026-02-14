@@ -8,11 +8,11 @@ import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { XYZ } from 'ol/source';
 import z from 'zod';
 
-import type { DatasetBuilder } from '@/api';
+import type { DatasetBuilder } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import { Layer } from '@/types/configuration/layer';
+import * as config from '@/configuration';
 import { toGiro3DExtent } from '@/utils/Configuration';
 
 const MapboxTileset = z.union([
@@ -22,7 +22,7 @@ const MapboxTileset = z.union([
 ]);
 type MapboxTileset = z.infer<typeof MapboxTileset>;
 
-const MapboxLayer = Layer.extend({
+const MapboxLayer = config.layer.Layer.extend({
     tileset: MapboxTileset,
     token: z.string().nonempty(),
 });
@@ -82,6 +82,9 @@ const builder: DatasetBuilder = context => {
     });
 };
 
+/**
+ * Add support for Mapbox tilesets.
+ */
 export default class MapboxLoader implements Module {
     public readonly id: string = 'builtin-loader-mapbox';
     public readonly name = 'Mapbox';

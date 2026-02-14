@@ -15,7 +15,7 @@ import VectorSource from 'ol/source/Vector';
 import { createXYZ } from 'ol/tilegrid.js';
 import { Color } from 'three';
 
-import type { CrsName } from '@/types/configuration/crs';
+import type { CrsName } from '@/configuration/crs';
 
 import { fillObject3DUserData } from '@/loaders/userData';
 

@@ -5,11 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig } from 'vitepress';
 
+const projectRoot = path.join(__dirname, '../../../');
 const moduleDocOutputDir = path.join(__dirname, '../module-reference');
 const moduleTemplate = fs.readFileSync(path.join(__dirname, 'module-doc-template.md'), 'utf-8');
 
 function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
-    const packageRoot = path.join(__dirname, '../../packages');
+    const packageRoot = path.join(projectRoot, 'packages');
 
     return fs
         .readdirSync(packageRoot, { encoding: 'utf-8', recursive: true, withFileTypes: true })
@@ -114,7 +115,8 @@ export default defineConfig({
         nav: [
             { link: '/', text: 'Home' },
             { link: '/getting-started', text: 'Guide' },
-            { link: '/module-reference', text: 'Module reference' },
+            { link: '/module-reference', text: 'Modules' },
+            { link: '/api/packages', text: 'API' },
         ],
 
         sidebar: [

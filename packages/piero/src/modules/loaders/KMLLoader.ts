@@ -4,20 +4,20 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import KML from 'ol/format/KML';
 
-import type { DatasetBuilder, DatasetBuildResult, LoadDatasetFromFile } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult, LoadDatasetFromFile } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
-import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/types/configuration/style';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
+import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/configuration/style';
 
 const DATASET_TYPE = 'kml';
 
 export const KMLDataset = config.layer.Layer.extend({
     projection: CrsName.optional().default('EPSG:4326'),
     style: OpenLayersFlatStyleLike.optional(),
-    url: config.Url,
+    url: config.url.Url,
 });
 export type KMLDataset = z.infer<typeof KMLDataset>;
 
@@ -62,6 +62,9 @@ const loader: LoadDatasetFromFile = context => {
     return Promise.resolve(result);
 };
 
+/**
+ * Add support for KML (Keyhole Markup Language) files.
+ */
 export default class KMLLoader implements Module {
     public readonly id = 'builtin-loader-kml';
     public readonly name = 'KML';

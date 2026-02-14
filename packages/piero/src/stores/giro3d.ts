@@ -8,7 +8,7 @@ import { defineStore } from 'pinia';
 import { DoubleSide } from 'three';
 import { shallowRef } from 'vue';
 
-import type { LookAt } from '@/types/configuration/LookAt';
+import type { LookAt } from '@/configuration/lookAt';
 
 import { getConfig } from '@/configurationLoader';
 import { toGiro3DExtent } from '@/utils/Configuration';

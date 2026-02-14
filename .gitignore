@@ -11,7 +11,7 @@ packages/**/*.tgz
 styles.ts
 
 # App apidoc
-apidoc/
+# apidoc/
 
 # IFC
 public/web-ifc.wasm
@@ -27,7 +27,3 @@ public/ply
 public/shp
 
 .DS_Store
-
-# Vitepress
-*/.vitepress/cache
-*/.vitepress/dist

@@ -171,7 +171,7 @@ const libConfig = defineConfig(e => {
 });
 
 const config = defineConfig(env => {
-    console.log(`📦️ Building package @giro3d/piero at ${commitHash}`);
+    console.log(`📦️ Building package @ at ${commitHash}`);
     return mergeConfig(commonConfig(env), libConfig(env));
 });
 

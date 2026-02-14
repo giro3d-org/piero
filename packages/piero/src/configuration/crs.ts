@@ -5,6 +5,9 @@ export type CrsName = z.infer<typeof CrsName>;
 z.globalRegistry.add(CrsName, { id: 'CrsName' });
 
 export const CrsDefinition = z.object({
+    /**
+     * The CRS definition. Can be a WKT or a proj4 string.
+     */
     definition: z
         .string()
         .nonempty()
@@ -14,6 +17,9 @@ export const CrsDefinition = z.object({
 export type CrsDefinition = z.infer<typeof CrsDefinition>;
 z.globalRegistry.add(CrsDefinition, { id: 'CrsDefinition' });
 
-export const CrsDefinitionCollection = z.array(CrsDefinition).default([]).optional();
-export type CrsDefinitionCollection = z.infer<typeof CrsDefinitionCollection>;
+export type CrsDefinitionCollection = CrsDefinition[] | undefined;
+export const CrsDefinitionCollection: z.ZodType<CrsDefinitionCollection> = z
+    .array(CrsDefinition)
+    .default([])
+    .optional();
 z.globalRegistry.add(CrsDefinitionCollection, { id: 'CrsDefinitionCollection' });

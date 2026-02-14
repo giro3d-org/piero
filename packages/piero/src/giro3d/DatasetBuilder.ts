@@ -1,7 +1,7 @@
 import type Instance from '@giro3d/giro3d/core/Instance';
 
-import type { DatasetBuildContext, DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
-import type { DatasetOrGroup } from '@/types/configuration';
+import type { DatasetBuildContext, DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
+import type * as config from '@/configuration';
 import type { Dataset, DatasetBase } from '@/types/Dataset';
 
 const builders: Record<Dataset['type'], DatasetBuilder> = {};
@@ -14,7 +14,7 @@ const builders: Record<Dataset['type'], DatasetBuilder> = {};
  */
 async function build(
     instance: Instance,
-    dataset: Dataset & DatasetBase<DatasetOrGroup>,
+    dataset: Dataset & DatasetBase<config.dataset.DatasetOrGroup>,
 ): Promise<DatasetBuildResult> {
     const context: DatasetBuildContext = {
         dataset: dataset.config,

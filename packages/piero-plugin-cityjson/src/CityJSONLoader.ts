@@ -1,12 +1,5 @@
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import type {
-    api,
-    Attribute,
-    AttributeExtractorFn,
-    AttributesGroups,
-    Module,
-    PieroContext,
-} from '@giro3d/piero';
+import type { Module, PieroContext } from '@giro3d/piero';
 import type z from 'zod';
 
 import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
@@ -15,12 +8,12 @@ import { configuration } from '@giro3d/piero';
 import CityJSONEntity, { isCityJSONPickResult } from './CityJSONEntity';
 import CityJSONEntityInspector from './CityJSONEntityInspector';
 
-const CityJSONDataset = configuration.Dataset.extend({
-    url: configuration.Url,
+const CityJSONDataset = configuration.dataset.Dataset.extend({
+    url: configuration.url.Url,
 });
 type CityJSONDataset = z.infer<typeof CityJSONDataset>;
 
-export const loader: api.LoadDatasetFromFile = context => {
+export const loader: LoadDatasetFromFile = context => {
     const result = {
         name: context.filename,
         type: 'cityjson',
@@ -31,7 +24,7 @@ export const loader: api.LoadDatasetFromFile = context => {
     return Promise.resolve(result);
 };
 
-export const builder: api.DatasetBuilder = context => {
+export const builder: DatasetBuilder = context => {
     const cfg = CityJSONDataset.parse(context.dataset);
 
     const entity = new CityJSONEntity({

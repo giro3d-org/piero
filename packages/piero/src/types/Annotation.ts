@@ -5,7 +5,7 @@ import { EventDispatcher, MathUtils } from 'three';
 
 import Download from '@/utils/Download';
 
-import type { AnnotationType } from './configuration/annotation';
+import type { AnnotationType } from '../configuration/annotation';
 
 type AnnotationEventMap = {
     isEditing: EmptyEvent;

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, shallowRef } from 'vue';
 
-import type { SearchProvider } from '@/api/SearchApi';
+import type { SearchProvider } from '@/api/search';
 
 export const useSearchStore = defineStore('search', () => {
     const providers = shallowRef<SearchProvider[]>([]);

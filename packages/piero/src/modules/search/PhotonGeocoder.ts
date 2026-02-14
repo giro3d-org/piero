@@ -3,8 +3,7 @@ import type { FeatureCollection, Point } from 'geojson';
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import { HttpError } from '@giro3d/giro3d/utils/Fetcher';
 
-import type { SearchProvider } from '@/api';
-import type { LocationSearchResult } from '@/api/SearchApi';
+import type { LocationSearchResult, SearchProvider } from '@/api/search';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 

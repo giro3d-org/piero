@@ -21,10 +21,10 @@ import DrawTool, {
 } from '@giro3d/giro3d/interactions/DrawTool';
 import { MathUtils, Vector3 } from 'three';
 
+import type { AnnotationType } from '@/configuration/annotation';
 import type CameraController from '@/services/CameraController';
 import type Picker from '@/services/Picker';
 import type { PieroShapeUserData } from '@/types/Annotation';
-import type { AnnotationType } from '@/types/configuration/annotation';
 
 import { getConfig } from '@/configurationLoader';
 import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';

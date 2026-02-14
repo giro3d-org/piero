@@ -3,7 +3,7 @@ import type Map from '@giro3d/giro3d/entities/Map';
 
 import { MathUtils, type Vector3 } from 'three';
 
-import type { DatasetBuilder } from '@/api';
+import type { DatasetBuilder } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 

@@ -6,8 +6,8 @@ import { defineStore } from 'pinia';
 import { Box3 } from 'three';
 import { computed, ref, shallowReactive } from 'vue';
 
-import type { DatasetActionRegistrationParams } from '@/api';
-import type { Configuration } from '@/types/configuration';
+import type { DatasetActionRegistrationParams } from '@/api/dataset';
+import type { ConfigurationOutput } from '@/configurationLoader';
 
 import { getConfig } from '@/configurationLoader';
 import { Datagroup, type Dataset, type DatasetOrGroup, parseDatasetConfig } from '@/types/Dataset';
@@ -45,7 +45,7 @@ function buildDatasets(root: DatasetOrGroup): DatasetOrGroup {
     return ds;
 }
 
-function loadDatasets(config: Configuration): DatasetOrGroup[] {
+function loadDatasets(config: ConfigurationOutput): DatasetOrGroup[] {
     const roots = parseDatasetConfig(config.data ?? []);
 
     assignZOrders(roots);

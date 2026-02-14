@@ -3,13 +3,12 @@ import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { XYZ } from 'ol/source';
 import z from 'zod';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import { Url } from '@/types/configuration';
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
 import { toGiro3DExtent } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'tms';
@@ -17,7 +16,7 @@ const DATASET_TYPE = 'tms';
 export const TMSDataset = config.layer.Layer.extend(
     z.object({
         projection: CrsName.optional().default('EPSG:3857'),
-        url: Url,
+        url: config.url.Url,
     }).shape,
 );
 export type TMSDataset = z.infer<typeof TMSDataset>;
@@ -45,6 +44,9 @@ const builder: DatasetBuilder = context => {
     return Promise.resolve(result);
 };
 
+/**
+ * Add support for TMS (Tile Map Service) tilesets.
+ */
 export default class TMSLoader implements Module {
     public readonly id = 'builtin-loader-tms';
     public readonly name = 'TMS';

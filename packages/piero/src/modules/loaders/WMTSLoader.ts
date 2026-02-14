@@ -7,13 +7,13 @@ import BilFormat from '@giro3d/giro3d/formats/BilFormat';
 import WmtsSource from '@giro3d/giro3d/sources/WmtsSource';
 import z from 'zod';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
-import { ImageFormat } from '@/types/configuration/ImageFormat';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
+import { ImageFormat } from '@/configuration/ImageFormat';
 import { toGiro3DExtent } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'wmts';
@@ -22,7 +22,7 @@ export const WMTSDataset = config.layer.Layer.extend({
     format: ImageFormat.optional().default('image/jpeg'),
     layer: z.string().nonempty().nonoptional(),
     projection: CrsName.optional().default('EPSG:3857'),
-    url: config.Url,
+    url: config.url.Url,
 });
 
 function getDecoder(format: string): Giro3DImageFormat | undefined {
@@ -45,11 +45,12 @@ const builder: DatasetBuilder = async context => {
     });
 
     const options: LayerOptions = {
-        extent: dataset.extent
-            ? toGiro3DExtent(dataset.extent, context.instance.referenceCrs).as(
-                  context.instance.referenceCrs,
-              )
-            : undefined,
+        extent:
+            dataset.extent != null
+                ? toGiro3DExtent(dataset.extent, context.instance.referenceCrs).as(
+                      context.instance.referenceCrs,
+                  )
+                : undefined,
         noDataOptions:
             dataset.nodata != null
                 ? {
@@ -81,6 +82,9 @@ const builder: DatasetBuilder = async context => {
     return Promise.resolve(result);
 };
 
+/**
+ * Add support for WMTS (Web Map Tile Service) layers.
+ */
 export default class WMTSLoader implements Module {
     public readonly id = 'builtin-loader-wmts';
     public readonly name = 'WMTS';

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import z from 'zod';
 
-import { Configuration } from './Configuration';
+import { Configuration } from './configuration';
 
 describe('Configuration', () => {
     it('should generate JSON schema', () => {

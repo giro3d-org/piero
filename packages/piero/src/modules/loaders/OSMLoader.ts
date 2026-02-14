@@ -2,7 +2,7 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { OSM } from 'ol/source';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
@@ -20,6 +20,9 @@ const builder: DatasetBuilder = () => {
     return Promise.resolve(result);
 };
 
+/**
+ * Add support for the OpenStreetMap basemap.
+ */
 export default class OSMLoader implements Module {
     public readonly id = 'builtin-loader-osm';
     public readonly name = 'OSM basemap';

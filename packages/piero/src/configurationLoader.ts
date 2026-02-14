@@ -1,21 +1,25 @@
+import type z from 'zod';
+
 import Instance from '@giro3d/giro3d/core/Instance';
 
-import type { CrsDefinition } from './types/configuration/crs';
+import type { CrsDefinition } from './configuration/crs';
 
-import { Configuration } from './types/configuration/Configuration';
+import { Configuration } from './configuration/configuration';
 import Fetcher from './utils/Fetcher';
 
-let currentConfiguration: Readonly<Configuration> | null = null;
+export type ConfigurationOutput = z.output<typeof Configuration>;
 
-export function getConfig(): Readonly<Configuration> {
+let currentConfiguration: Readonly<ConfigurationOutput> | null = null;
+
+export function getConfig(): Readonly<ConfigurationOutput> {
     if (currentConfiguration == null) {
         throw new Error('No configuration loaded');
     }
     return currentConfiguration;
 }
 
-export async function loadRemoteConfiguration(url: string): Promise<Configuration> {
-    const json = await Fetcher.fetchJson<Configuration>(url);
+export async function loadRemoteConfiguration(url: string): Promise<ConfigurationOutput> {
+    const json = await Fetcher.fetchJson(url);
 
     return Configuration.parse(json);
 }

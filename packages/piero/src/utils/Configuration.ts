@@ -4,7 +4,10 @@ import Giro3DExtent from '@giro3d/giro3d/core/geographic/Extent';
 import chroma from 'chroma-js';
 import { Color } from 'three';
 
-import type { ColorMap, Coordinate, CrsName, Extent } from '@/types/configuration';
+import type { ColorMap } from '@/configuration/colormap';
+import type { Coordinate } from '@/configuration/coordinate';
+import type { CrsName } from '@/configuration/crs';
+import type { Extent } from '@/configuration/extent';
 
 import Download from './Download';
 

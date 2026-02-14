@@ -7,7 +7,7 @@ import { getConfig } from '@/configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import Bookmark from '@/types/Bookmark';
 import CameraPosition from '@/types/CameraPosition';
-import { getLookAtTarget } from '@/types/configuration/LookAt';
+import { getLookAtTarget } from '@/configuration/lookAt';
 
 function buildInitialList(): Bookmark[] {
     const config = getConfig();

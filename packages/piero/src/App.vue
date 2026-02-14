@@ -14,8 +14,8 @@
     import type { PanelType } from './components/Configuration';
     import type { PieroContext } from './context';
 
-    import { isLocationSearchResult, type SearchResult } from './api/SearchApi';
-    import { ViewApiImpl } from './api/ViewApi';
+    import { isLocationSearchResult, type SearchResult } from './api/search';
+    import { ViewApiImpl } from './api/view';
     import AlertToast from './components/AlertToast.vue';
     import AttributePanel from './components/AttributePanel.vue';
     import LoadingScreen from './components/LoadingScreen.vue';

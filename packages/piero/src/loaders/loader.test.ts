@@ -1,6 +1,6 @@
 import { describe, expect, it, vitest } from 'vitest';
 
-import type { Configuration } from '@/types/configuration/Configuration';
+import type { Configuration } from '@/configuration/configuration';
 
 import loader, { registerLoader } from './loader';
 

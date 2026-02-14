@@ -3,22 +3,22 @@ import COPCSource from '@giro3d/giro3d/sources/COPCSource';
 import LASSource from '@giro3d/giro3d/sources/LASSource';
 import z from 'zod';
 
-import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/DatasetApi';
+import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import { Dataset, Url } from '@/types/configuration';
-import { ColorMap } from '@/types/configuration/ColorMap';
+import * as config from '@/configuration';
+import { ColorMap } from '@/configuration/colormap';
 import { toGiro3DColorMap } from '@/utils/Configuration';
 
 const Style = z.object({
     colorMap: ColorMap.default({ max: 100, min: 0, ramp: 'Greys' }),
 });
 
-export const LASDataset = Dataset.extend({
+export const LASDataset = config.dataset.Dataset.extend({
     attribute: z.string().optional(),
     style: Style.optional(),
-    url: Url,
+    url: config.url.Url,
 });
 export type LASDataset = z.infer<typeof LASDataset>;
 
@@ -76,7 +76,7 @@ const loader: LoadDatasetFromFile = context => {
 };
 
 /**
- * Loads LAS files, including COPC (Cloud-Optimized point cloud) files.
+ * Add suport for LAS files, including COPC (Cloud-Optimized point cloud) files.
  */
 export default class LASLoader implements Module {
     public readonly id = 'builtin-loader-las';

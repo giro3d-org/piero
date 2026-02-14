@@ -2,7 +2,7 @@
     import { onMounted, onUnmounted, ref } from 'vue';
 
     import type Annotation from '@/types/Annotation';
-    import type { AnnotationType } from '@/types/configuration/annotation';
+    import type { AnnotationType } from '@/configuration/annotation';
 
     import Icon from '../atoms/Icon.vue';
     import IconList from '../atoms/IconList.vue';

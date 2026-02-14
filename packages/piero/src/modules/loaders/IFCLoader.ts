@@ -4,15 +4,15 @@ import type z from 'zod';
 import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
 import { IfcCategoryMap } from 'openbim-components';
 
-import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/DatasetApi';
+import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 import type { HighlightFn } from '@/services/Highlighter';
 import type { AttributeExtractorFn } from '@/services/Picker';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 
-import { Dataset, Url } from '@/types/configuration';
-import { Coordinate } from '@/types/configuration/coordinate';
+import * as config from '@/configuration';
+import { Coordinate } from '@/configuration/coordinate';
 import { toGiro3DCoordinates } from '@/utils/Configuration';
 import Fetcher from '@/utils/Fetcher';
 
@@ -20,9 +20,9 @@ import IfcEntity, { isIFCPickResult } from './ifc/IfcEntity';
 import IfcEntityInspector from './ifc/IfcEntityInspector';
 import IfcPropertyView from './ifc/IfcPropertyView.vue';
 
-const IFCDataset = Dataset.extend({
+const IFCDataset = config.dataset.Dataset.extend({
     position: Coordinate.optional(),
-    url: Url,
+    url: config.url.Url,
 });
 type IFCDataset = z.infer<typeof IFCDataset>;
 
@@ -126,7 +126,7 @@ const builder: DatasetBuilder = context => {
 };
 
 /**
- * Loads IFC (Industry Foundation Classes) files.
+ * Add support for IFC (Industry Foundation Classes) files.
  */
 export default class IFCLoader implements Module {
     public readonly id = 'builtin-loader-ifc';

@@ -4,20 +4,20 @@ import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GeoJSON from 'ol/format/GeoJSON';
 
-import type { DatasetBuilder, DatasetBuildResult, LoadDatasetFromFile } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult, LoadDatasetFromFile } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
-import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/types/configuration/style';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
+import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/configuration/style';
 
 const DATASET_TYPE = 'geojson';
 
 export const GeoJSONDataset = config.layer.Layer.extend({
     projection: CrsName.optional().default('EPSG:4326'),
     style: OpenLayersFlatStyleLike.optional(),
-    url: config.Url,
+    url: config.url.Url,
 });
 export type GeoJSONDataset = z.infer<typeof GeoJSONDataset>;
 
@@ -60,6 +60,9 @@ const loader: LoadDatasetFromFile = context => {
     return Promise.resolve(result);
 };
 
+/**
+ * Add support for GeoJSON files.
+ */
 export default class GeoJSONLoader implements Module {
     public readonly id = 'builtin-loader-geojson';
     public readonly name = 'GeoJSON';

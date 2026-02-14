@@ -5,20 +5,20 @@ import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GPX from 'ol/format/GPX';
 import { Fill, Stroke, Style } from 'ol/style';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/DatasetApi';
+import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import * as config from '@/types/configuration';
-import { CrsName } from '@/types/configuration/crs';
-import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/types/configuration/style';
+import * as config from '@/configuration';
+import { CrsName } from '@/configuration/crs';
+import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/configuration/style';
 
 const DATASET_TYPE = 'gpx';
 
 export const GPXDataset = config.layer.Layer.extend({
     projection: CrsName.optional().default('EPSG:3857'),
     style: OpenLayersFlatStyleLike.optional(),
-    url: config.Url,
+    url: config.url.Url,
 });
 export type GPXDataset = z.infer<typeof GPXDataset>;
 
@@ -54,7 +54,10 @@ const builder: DatasetBuilder = context => {
     return Promise.resolve(result);
 };
 
-export default class GeoJSONLoader implements Module {
+/**
+ * Add support for GPX files.
+ */
+export default class GPXLoader implements Module {
     public readonly id = 'builtin-loader-gpx';
     public readonly name = 'GPX';
 

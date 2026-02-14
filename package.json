@@ -24,9 +24,9 @@
         "copy-wasm": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm public/laz-perf.wasm",
         "prepare": "husky",
         "apidoc:build": "typedoc",
-        "site:dev": "vitepress dev site",
-        "site:build": "vitepress build site",
-        "site:preview": "vitepress preview site"
+        "site:dev": "vitepress dev site/doc",
+        "site:build": "vitepress build site/doc",
+        "site:preview": "vitepress preview site/doc"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",
@@ -61,7 +61,8 @@
         "sass": "^1.89.2",
         "semver": "^7.7.2",
         "shx": "^0.3.4",
-        "typedoc": "^0.28.16",
+        "typedoc": "^0.28.17",
+        "typedoc-plugin-markdown": "^4.10.0",
         "typedoc-plugin-zod": "^1.4.3",
         "typescript": "5.8.3",
         "vite": "^6.3.5",

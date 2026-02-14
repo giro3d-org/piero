@@ -3,7 +3,7 @@ import z from 'zod';
 
 import { BasemapConfiguration } from './basemap';
 import { CrsName } from './crs';
-import { LookAt } from './LookAt';
+import { LookAt } from './lookAt';
 
 export const SceneConfiguration = z.object({
     crs: CrsName.optional().default('EPSG:3857'),
@@ -12,5 +12,6 @@ export const SceneConfiguration = z.object({
 
     basemap: BasemapConfiguration.describe('The configuration for the basemap and terrain.'),
 });
-export type SceneConfiguration = z.infer<typeof SceneConfiguration>;
+export type SceneConfiguration = z.input<typeof SceneConfiguration>;
+export type SceneConfigurationOutput = z.infer<typeof SceneConfiguration>;
 z.globalRegistry.add(SceneConfiguration, { id: 'SceneConfiguration' });
