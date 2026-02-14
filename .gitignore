@@ -8,7 +8,6 @@ packages/**/*.tgz
 .env.local
 
 # App config
-config.ts
 styles.ts
 
 # App apidoc
@@ -28,5 +27,7 @@ public/ply
 public/shp
 
 .DS_Store
-.vitepress
-docs/api
+
+# Vitepress
+*/.vitepress/cache
+*/.vitepress/dist

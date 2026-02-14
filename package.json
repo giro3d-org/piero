@@ -24,9 +24,9 @@
         "copy-wasm": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm public/laz-perf.wasm",
         "prepare": "husky",
         "apidoc:build": "typedoc",
-        "docs:dev": "vitepress dev",
-        "docs:build": "vitepress build",
-        "docs:preview": "vitepress preview"
+        "site:dev": "vitepress dev site",
+        "site:build": "vitepress build site",
+        "site:preview": "vitepress preview site"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",
@@ -50,6 +50,7 @@
         "eslint-plugin-perfectionist": "^4.15.0",
         "eslint-plugin-tsdoc": "^0.4.0",
         "eslint-plugin-vue": "^10.2.0",
+        "gray-matter": "^4.0.3",
         "husky": "^9.0.11",
         "jsdom": "^26.1.0",
         "lint-staged": "^16.1.2",

@@ -72,11 +72,6 @@ export interface CreatePieroAppParameters {
 }
 
 /**
- * The Piero configuration, or an URL pointing to a remote JSON configuration file.
- */
-export type ConfigurationOrUrl = Configuration | string;
-
-/**
  * Entry point for a Piero application.
  * @returns A promise that resolves when the application has been initialized and is ready to use.
  */
