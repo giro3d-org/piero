@@ -3,7 +3,7 @@ import type { ColorRepresentation } from 'three';
 
 import { EventDispatcher, MathUtils } from 'three';
 
-import Download from '@/utils/Download';
+import Download from '@/utils/download';
 
 import type { AnnotationType } from '../configuration/annotation';
 

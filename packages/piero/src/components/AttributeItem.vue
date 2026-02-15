@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { isColor, isLink, isVector3 } from '@/utils/Types';
+    import { isColor, isLink, isVector3 } from '@/utils/types';
 
     import ColorFragment from './ColorFragment.vue';
     import CoordinateFragment from './CoordinateFragment.vue';

@@ -26,7 +26,7 @@ import { Group, Matrix4, MeshBasicMaterial, Vector3 } from 'three';
 
 import { fillObject3DUserData } from '@/loaders/userData';
 import Fetcher from '@/utils/Fetcher';
-import { isObject } from '@/utils/Types';
+import { isObject } from '@/utils/types';
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting

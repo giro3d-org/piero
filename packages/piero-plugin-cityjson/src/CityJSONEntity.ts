@@ -59,8 +59,8 @@ export const isCityJSONPickResult = (obj: unknown): obj is CityJSONPickResult =>
  * Source interface for {@link CityJSONEntity}
  */
 export interface CityJSONSource {
-    dataProjection?: configuration.CrsName;
-    featureProjection?: configuration.CrsName;
+    dataProjection?: configuration.crs.CrsName;
+    featureProjection?: configuration.crs.CrsName;
     url: string;
 }
 
@@ -198,7 +198,7 @@ export default class CityJSONEntity
                     this.source.dataProjection ??
                     this.source.featureProjection;
 
-                Projections.loadProjCrsIfNeeded(projection)
+                Projections.loadFromRemoteService(projection)
                     .then(proj => {
                         const coords = new Coordinates(
                             proj,

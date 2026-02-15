@@ -8,7 +8,7 @@ import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 import type { HighlightFn } from '@/services/Highlighter';
-import type { AttributeExtractorFn } from '@/services/Picker';
+import type { AttributeExtractorFn } from '@/services/picking';
 import type { Attribute, AttributesGroups } from '@/types/Feature';
 
 import * as config from '@/configuration';

@@ -17,7 +17,7 @@ import { Clock, Group } from 'three';
 
 import type { Alticoder } from '@/providers/Alticoding';
 
-import Projections from './Projections';
+import { loadFromRemoteService } from './Projections';
 
 async function fetchZCoordinates(
     features: SimpleFeature[],
@@ -209,7 +209,7 @@ async function readFeatures(
     dataProjection: string | undefined,
     featureProjection: string,
 ): Promise<FeatureLike[]> {
-    const projIn = await Projections.loadProjCrsIfNeeded(dataProjection ?? 'EPSG:4326');
+    const projIn = await loadFromRemoteService(dataProjection ?? 'EPSG:4326');
 
     return format.readFeatures(data, {
         dataProjection: projIn,

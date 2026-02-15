@@ -4,6 +4,7 @@ import type { Object3D } from 'three';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
+import { getLookAtTarget } from '@/configuration/lookAt';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
@@ -11,9 +12,8 @@ import DatasetManager from '@/services/DatasetManager';
 import Highlighter from '@/services/Highlighter';
 import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
-import Picker from '@/services/Picker';
+import Picker from '@/services/picking';
 import { useGiro3dStore } from '@/stores/giro3d';
-import { getLookAtTarget } from '@/configuration/lookAt';
 import Fetcher from '@/utils/Fetcher';
 
 import SceneCursorManager from './SceneCursorManager';

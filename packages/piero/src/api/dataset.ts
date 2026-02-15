@@ -6,18 +6,18 @@ import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 
 import { type Component } from 'vue';
 
-import type { HighlightFn } from '@/services/Highlighter';
-import type { AttributeExtractorFn } from '@/services/Picker';
-import type { DatasetStore } from '@/stores/datasets';
 import type { Configuration } from '@/configuration/configuration';
 import type { Dataset } from '@/configuration/dataset';
+import type { HighlightFn } from '@/services/Highlighter';
+import type { AttributeExtractorFn } from '@/services/picking';
+import type { DatasetStore } from '@/stores/datasets';
 import type { DatasetOrGroup } from '@/types/Dataset';
 
 import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
 import { registerBuilder } from '@/giro3d/DatasetBuilder';
 import { registerLoader } from '@/loaders/loader';
 import { customHighlighters } from '@/services/Highlighter';
-import { customAttributeExtractors } from '@/services/Picker';
+import { customAttributeExtractors } from '@/services/picking';
 
 export type DatasetActionRegistrationParams = {
     /**
@@ -45,6 +45,24 @@ export type DatasetActionRegistrationParams = {
      */
     title: string;
 };
+
+/**
+ * APIs to manipulate datasets.
+ */
+export interface DatasetApi {
+    registerDatasetAction(params: DatasetActionRegistrationParams): void;
+    /**
+     * Register a new dataset type.
+     */
+    registerDatasetType(
+        /**
+         * The unique key to identify this dataset type.
+         * @example 'ifc'
+         */
+        key: string,
+        params: DatasetRegistrationParams,
+    ): void;
+}
 
 export interface DatasetBuildContext {
     dataset: Dataset;
@@ -157,22 +175,4 @@ export class DatasetApiImpl implements DatasetApi {
             customAttributeExtractors.push(params.attributeExtractor);
         }
     }
-}
-
-/**
- * APIs to manipulate datasets.
- */
-export default interface DatasetApi {
-    registerDatasetAction(params: DatasetActionRegistrationParams): void;
-    /**
-     * Register a new dataset type.
-     */
-    registerDatasetType(
-        /**
-         * The unique key to identify this dataset type.
-         * @example 'ifc'
-         */
-        key: string,
-        params: DatasetRegistrationParams,
-    ): void;
 }

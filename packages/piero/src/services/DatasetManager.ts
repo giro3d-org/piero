@@ -13,9 +13,9 @@ import Polygon from 'ol/geom/Polygon';
 import { Fill, Style } from 'ol/style';
 import { Color, Vector3 } from 'three';
 
-// import type { DatasetAsLayerConfig, DatasetAsMeshConfig } from '@/types/configuration/datasets';
 import type { Dataset } from '@/types/Dataset';
 
+import { Notification } from '@/api/notifications';
 import { getConfig } from '@/configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import DatasetBuilder from '@/giro3d/DatasetBuilder';
@@ -23,7 +23,6 @@ import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
 import { Datagroup, type DatasetOrGroup, DatasetState } from '@/types/Dataset';
-import Notification from '@/types/Notification';
 
 import type LayerManager from './LayerManager';
 

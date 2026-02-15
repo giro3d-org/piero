@@ -1,30 +1,31 @@
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
-import type { Configuration } from './configuration/configuration';
-import type { PieroContext } from './context';
+import type { PieroContext } from '@/context';
+import type { ModuleConstructor } from '@/module';
 
 import './assets/main.scss';
-import type { ModuleConstructor } from './module';
+import { AnalysisApiImpl } from '@/api/analysis';
+import { BookmarkApiImpl } from '@/api/bookmarks';
+import { DatasetApiImpl } from '@/api/dataset';
+import { NotificationApiImpl } from '@/api/notifications';
+import { SearchApiImpl } from '@/api/search';
+import { WidgetApiImpl } from '@/api/widgets';
+import { loadRemoteConfiguration, setConfiguration } from '@/configurationLoader';
+import { GLOBAL_EVENT_DISPATCHER } from '@/events';
+import { useAnalysisStore } from '@/stores/analysis';
+import { useBookmarkStore } from '@/stores/bookmarks';
+import { useDatasetStore } from '@/stores/datasets';
+import { useModuleStore } from '@/stores/modules';
+import { useNotificationStore } from '@/stores/notifications';
+import { useSearchStore } from '@/stores/search';
+import { useWidgetStore } from '@/stores/widgets';
+import Download from '@/utils/download';
+
+import type { Configuration } from './configuration/configuration';
 import type { PieroApplication } from './PieroApplication';
 
-import { AnalysisApiImpl } from './api/analysis';
-import { BookmarkApiImpl } from './api/bookmarks';
-import { DatasetApiImpl } from './api/dataset';
-import { NotificationApiImpl } from './api/notifications';
-import { SearchApiImpl } from './api/search';
-import { WidgetApiImpl } from './api/widgets';
 import App from './App.vue';
-import { loadRemoteConfiguration, setConfiguration } from './configurationLoader';
-import { GLOBAL_EVENT_DISPATCHER } from './events';
-import { useAnalysisStore } from './stores/analysis';
-import { useBookmarkStore } from './stores/bookmarks';
-import { useDatasetStore } from './stores/datasets';
-import { useModuleStore } from './stores/modules';
-import { useNotificationStore } from './stores/notifications';
-import { useSearchStore } from './stores/search';
-import { useWidgetStore } from './stores/widgets';
-import Download from './utils/Download';
 
 async function resolveConfiguration(params: {
     configuration: Configuration | string;

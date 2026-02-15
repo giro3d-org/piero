@@ -8,7 +8,7 @@ import Fetcher from '@/utils/Fetcher';
  * @param projection - Projection code
  * @returns EPSG string (e.g. `EPSG:2154`)
  */
-async function loadProjCrsIfNeeded(projection: string): Promise<string> {
+export async function loadFromRemoteService(projection: string): Promise<string> {
     let epsgCode: string | null = null;
 
     const regexes = [
@@ -35,4 +35,6 @@ async function loadProjCrsIfNeeded(projection: string): Promise<string> {
     throw new Error(`Could not find projection for ${projection}`);
 }
 
-export default { loadProjCrsIfNeeded };
+export default {
+    loadFromRemoteService,
+};

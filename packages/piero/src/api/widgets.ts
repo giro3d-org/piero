@@ -8,18 +8,19 @@ export interface Widget {
     id: string;
 }
 
+export interface WidgetApi {
+    addWidget(widget: Widget): void;
+}
+
 export interface WidgetProps {
     context: PieroContext;
 }
 
+/** @internal */
 export class WidgetApiImpl implements WidgetApi {
     public constructor(private readonly store: WidgetStore) {}
 
     public addWidget(widget: Widget): void {
         this.store.addWidget(widget);
     }
-}
-
-export default interface WidgetApi {
-    addWidget(widget: Widget): void;
 }

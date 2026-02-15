@@ -14,7 +14,7 @@
     import { useMeasurementStore } from '@/stores/measurement';
     import Measure from '@/types/Measure';
     import { measurementModes } from '@/types/MeasurementMode';
-    import Download from '@/utils/Download';
+    import Download from '@/utils/download';
 
     const measures = useMeasurementStore();
     const cameraStore = useCameraStore();

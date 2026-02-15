@@ -3,11 +3,11 @@ import { defineStore } from 'pinia';
 import { Vector3 } from 'three';
 import { computed, ref } from 'vue';
 
+import { getLookAtTarget } from '@/configuration/lookAt';
 import { getConfig } from '@/configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import Bookmark from '@/types/Bookmark';
 import CameraPosition from '@/types/CameraPosition';
-import { getLookAtTarget } from '@/configuration/lookAt';
 
 function buildInitialList(): Bookmark[] {
     const config = getConfig();

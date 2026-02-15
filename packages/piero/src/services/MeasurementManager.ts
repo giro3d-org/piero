@@ -3,14 +3,14 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import { MathUtils, Vector3 } from 'three';
 
 import type CameraController from '@/services/CameraController';
-import type Picker from '@/services/Picker';
+import type Picker from '@/services/picking';
 
+import { Notification } from '@/api/notifications';
 import Measure3D from '@/giro3d/Measure3D';
 import MeasureTool from '@/services/MeasureTool';
 import { useMeasurementStore } from '@/stores/measurement';
 import { useNotificationStore } from '@/stores/notifications';
 import Measure from '@/types/Measure';
-import Notification from '@/types/Notification';
 
 function promptTitle(defaultValue: string): string | null {
     return window.prompt('Measure name', defaultValue);

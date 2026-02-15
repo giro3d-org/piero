@@ -4,7 +4,7 @@ import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 import type { DatasetOrGroup } from '@/types/Dataset';
 
-import Download from '@/utils/Download';
+import Download from '@/utils/download';
 import Fetcher from '@/utils/Fetcher';
 
 function getUrl(dataset: DatasetOrGroup): string | undefined {

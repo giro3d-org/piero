@@ -1,12 +1,16 @@
+import type { api } from '@giro3d/piero';
+
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Geohash from 'latlon-geohash';
 
 const validationRegex = /^[0-9bcdefghjkmnpqrstuvwxyz]{3,12}$/;
 
-export default class GeohashSearchProvider implements SearchProvider<LocationSearchResult> {
+export default class GeohashSearchProvider
+    implements api.search.SearchProvider<api.search.LocationSearchResult>
+{
     public readonly name = 'Geohash';
 
-    public async search(query: string): Promise<LocationSearchResult[]> {
+    public async search(query: string): Promise<api.search.LocationSearchResult[]> {
         // Basic validation that the query could be applicable to us.
         if (!validationRegex.test(query)) {
             return Promise.resolve([]);
@@ -17,7 +21,7 @@ export default class GeohashSearchProvider implements SearchProvider<LocationSea
 
             const coordinates = Coordinates.WGS84(location.lat, location.lon);
 
-            const result: LocationSearchResult = {
+            const result: api.search.LocationSearchResult = {
                 coordinates,
                 label: `lat: ${location.lat}°, lon: ${location.lon}°`,
                 provider: this,

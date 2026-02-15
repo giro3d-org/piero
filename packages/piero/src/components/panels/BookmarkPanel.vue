@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref } from 'vue';
 
+    import { Notification } from '@/api/notifications';
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
@@ -12,8 +13,7 @@
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
     import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
-    import Notification from '@/types/Notification';
-    import Download from '@/utils/Download';
+    import Download from '@/utils/download';
 
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);

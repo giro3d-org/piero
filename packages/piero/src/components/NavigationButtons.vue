@@ -5,9 +5,9 @@
 
     import type NavigationMode from '@/types/NavigationMode';
 
+    import { Notification } from '@/api/notifications';
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
-    import Notification from '@/types/Notification';
 
     import SwitchToggle from './SwitchToggle.vue';
 

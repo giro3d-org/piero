@@ -1,7 +1,7 @@
 import { EventDispatcher, MathUtils } from 'three';
 
 import * as config from '@/configuration/dataset';
-import { isObject } from '@/utils/Types';
+import { isObject } from '@/utils/types';
 
 export enum DatasetState {
     Unloaded,

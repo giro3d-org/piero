@@ -2,13 +2,13 @@
 
 import type { EventDispatcher } from 'three';
 
-import type AnalysisApi from './api/analysis';
-import type BookmarkApi from './api/bookmarks';
-import type DatasetApi from './api/dataset';
-import type NotificationApi from './api/notifications';
-import type SearchApi from './api/search';
-import type ViewApi from './api/view';
-import type WidgetApi from './api/widgets';
+import type { AnalysisApi } from './api/analysis';
+import type { BookmarkApi } from './api/bookmarks';
+import type { DatasetApi } from './api/dataset';
+import type { NotificationApi } from './api/notifications';
+import type { SearchApi } from './api/search';
+import type { ViewApi } from './api/view';
+import type { WidgetApi } from './api/widgets';
 import type { Configuration } from './configuration/configuration';
 import type { PieroEvents } from './events';
 

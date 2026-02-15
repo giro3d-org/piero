@@ -7,6 +7,14 @@ import { Box3 } from 'three';
 import type CameraController from '@/services/CameraController';
 import type SceneCursorManager from '@/services/SceneCursorManager';
 
+export interface ViewApi {
+    getBasemap(): Map;
+    getBoundingBox(): Box3;
+    getCameraController(): CameraController;
+    getInstance(): Instance;
+    getSceneCursorManager(): SceneCursorManager;
+}
+
 /** @internal */
 export class ViewApiImpl implements ViewApi {
     private readonly _basemap: Map;
@@ -57,12 +65,4 @@ export class ViewApiImpl implements ViewApi {
     public getSceneCursorManager(): SceneCursorManager {
         return this._sceneCursorManager;
     }
-}
-
-export default interface ViewApi {
-    getBasemap(): Map;
-    getBoundingBox(): Box3;
-    getCameraController(): CameraController;
-    getInstance(): Instance;
-    getSceneCursorManager(): SceneCursorManager;
 }

@@ -29,7 +29,7 @@ import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import CameraPosition from '@/types/CameraPosition';
 
-import type Picker from './Picker';
+import type Picker from './picking';
 import type SceneCursorManager from './SceneCursorManager';
 
 CameraControls.install({

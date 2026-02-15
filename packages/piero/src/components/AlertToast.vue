@@ -2,7 +2,7 @@
     import * as bootstrap from 'bootstrap';
     import { ref } from 'vue';
 
-    import Notification from '@/types/Notification';
+    import { Notification } from '@/api/notifications';
 
     import { useNotificationStore } from '../stores/notifications';
 

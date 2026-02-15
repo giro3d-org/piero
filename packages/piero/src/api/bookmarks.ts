@@ -1,6 +1,12 @@
 import type { BookmarkStore } from '@/stores/bookmarks';
 import type Bookmark from '@/types/Bookmark';
 
+export interface BookmarkApi {
+    clearBookmarks(): void;
+    getBookmarks(): Bookmark[];
+    setBookmarks(bookmarks: Bookmark[]): void;
+}
+
 /** @internal */
 export class BookmarkApiImpl implements BookmarkApi {
     private readonly _store: BookmarkStore;
@@ -23,10 +29,4 @@ export class BookmarkApiImpl implements BookmarkApi {
             this._store.add(bookmark);
         }
     }
-}
-
-export default interface BookmarkApi {
-    clearBookmarks(): void;
-    getBookmarks(): Bookmark[];
-    setBookmarks(bookmarks: Bookmark[]): void;
 }

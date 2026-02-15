@@ -23,15 +23,15 @@ import { MathUtils, Vector3 } from 'three';
 
 import type { AnnotationType } from '@/configuration/annotation';
 import type CameraController from '@/services/CameraController';
-import type Picker from '@/services/Picker';
+import type Picker from '@/services/picking';
 import type { PieroShapeUserData } from '@/types/Annotation';
 
+import { Notification } from '@/api/notifications';
 import { getConfig } from '@/configurationLoader';
 import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Annotation from '@/types/Annotation';
-import Notification from '@/types/Notification';
 import { toGiro3DCoordinates } from '@/utils/Configuration';
 import Measure from '@/utils/Measure';
 

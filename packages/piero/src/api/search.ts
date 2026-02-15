@@ -6,6 +6,10 @@ export interface LocationSearchResult extends SearchResult {
     coordinates: Coordinates;
 }
 
+export interface SearchApi {
+    registerProvider(provider: SearchProvider): void;
+}
+
 export interface SearchProvider<T extends SearchResult = SearchResult> {
     /**
      * The name of the provider, as displayed in the search results.
@@ -28,6 +32,7 @@ export interface SearchResult {
     provider: SearchProvider;
 }
 
+/** @internal */
 export class SearchApiImpl implements SearchApi {
     public constructor(private readonly searchStore: SearchStore) {}
 
@@ -38,8 +43,4 @@ export class SearchApiImpl implements SearchApi {
 
 export function isLocationSearchResult(result: SearchResult): result is LocationSearchResult {
     return (result as LocationSearchResult).coordinates instanceof Coordinates;
-}
-
-export default interface SearchApi {
-    registerProvider(provider: SearchProvider): void;
 }

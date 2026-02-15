@@ -4,5 +4,6 @@
     "plugin": ["typedoc-plugin-zod"],
     "entryPoints": ["packages/*"],
     "tsconfig": "tsconfig.json",
+    "readme": "none",
     "out": "site/api"
 }

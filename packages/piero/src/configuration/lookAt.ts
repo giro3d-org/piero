@@ -5,7 +5,16 @@ import z from 'zod';
 
 import { Degree, Meter } from './units';
 
-export const LookAt = z.object({
+export interface LookAt {
+    altitude: Meter;
+    heading: Degree;
+    latitude: Degree;
+
+    longitude: Degree;
+    tilt: Degree;
+}
+
+export const LookAt: z.ZodType<LookAt> = z.object({
     latitude: Degree,
     longitude: Degree,
     altitude: Meter,
@@ -13,7 +22,6 @@ export const LookAt = z.object({
     heading: Degree,
     tilt: Degree,
 });
-export type LookAt = z.infer<typeof LookAt>;
 z.globalRegistry.add(LookAt, { id: 'LookAt' });
 
 const FORWARD = new Vector3(0, 1, 0);

@@ -6,7 +6,7 @@ import Shape from '@giro3d/giro3d/entities/Shape';
 import type Measure from '@/types/Measure';
 
 import { DEFAULT_MEASURE_COLOR, HIGHLIGHT_MEASURE_COLOR } from '@/constants';
-import { isObject } from '@/utils/Types';
+import { isObject } from '@/utils/types';
 
 const lengthFormat = new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 2,
