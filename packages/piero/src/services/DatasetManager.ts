@@ -15,7 +15,6 @@ import { Color, Vector3 } from 'three';
 
 import type { Dataset } from '@/types/Dataset';
 
-import { Notification } from '@/api/notifications';
 import { getConfig } from '@/configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import DatasetBuilder from '@/giro3d/DatasetBuilder';
@@ -221,24 +220,33 @@ export default class DatasetManager {
         let dataset: DatasetOrGroup;
         const name = file instanceof File ? file.name : file;
         try {
-            this._notifications.push(new Notification(name, 'Importing file...'));
+            this._notifications.push({
+                level: 'info',
+                text: 'Importing file...',
+                title: name,
+            });
+
             const _dataset = await loader.importFile(file, getConfig());
             dataset = this._store.add(_dataset); // We need to keep track of the reactive dataset!
-            this._notifications.push(
-                new Notification(dataset.name, 'Import done, parsing data...', 'success'),
-            );
+            this._notifications.push({
+                level: 'success',
+                text: 'Import done, parsing data...',
+                title: dataset.name,
+            });
         } catch (e) {
             console.error(e);
-            this._notifications.push(new Notification(name, (e as Error).message, 'error'));
+            this._notifications.push({ level: 'error', text: (e as Error).message, title: name });
             return;
         }
 
         try {
             dataset.state = DatasetState.Loading;
             await this.preloadDataset(dataset);
-            this._notifications.push(
-                new Notification(dataset.name, 'Import successful.', 'success'),
-            );
+            this._notifications.push({
+                level: 'success',
+                text: 'Import successful.',
+                title: dataset.name,
+            });
         } catch (_e) {
             // Already logged, ignore
         }
@@ -315,13 +323,11 @@ export default class DatasetManager {
             dataset.state = DatasetState.Loaded;
         } catch (e) {
             console.error('Could not load dataset', dataset, e);
-            this._notifications.push(
-                new Notification(
-                    dataset.name,
-                    `Could not load dataset : ${(e as Error).message}`,
-                    'error',
-                ),
-            );
+            this._notifications.push({
+                level: 'error',
+                text: `Could not load dataset : ${(e as Error).message}`,
+                title: dataset.name,
+            });
             dataset.state = DatasetState.Failed;
             throw e;
         }

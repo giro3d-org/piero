@@ -9,7 +9,7 @@
 
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import Picker from '@/services/picking';
-    import { nonNull } from '@/utils/types';
+    import { nonNull } from '@/utils/Types';
 
     const props = defineProps<{
         cursorManager?: SceneCursorManager;

@@ -9,7 +9,7 @@ import type { Coordinate } from '@/configuration/coordinate';
 import type { CrsName } from '@/configuration/crs';
 import type { Extent } from '@/configuration/extent';
 
-import Download from './download';
+import Download from './Download';
 
 export function getPublicFolderUrl(url: string): string {
     if (url.startsWith('http://') || url.startsWith('https://')) {

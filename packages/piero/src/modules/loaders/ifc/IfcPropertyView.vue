@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { useDatasetStore } from '@/stores/datasets';
     import { type Dataset, DatasetState } from '@/types/Dataset';
-    import { refAndWatch } from '@/utils/components';
+    import { refAndWatch } from '@/utils/Components';
 
     import type IfcEntity from './IfcEntity';
     import type { ClassificationItem } from './IfcEntity';

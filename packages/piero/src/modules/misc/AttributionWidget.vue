@@ -6,7 +6,7 @@
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useDatasetStore } from '@/stores/datasets';
     import { Datagroup, type Dataset, type DatasetOrGroup } from '@/types/Dataset';
-    import { nonNull } from '@/utils/types';
+    import { nonNull } from '@/utils/Types';
 
     // Even though we are not using them, it
     // is to conform to the expected widget interface.

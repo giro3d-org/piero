@@ -2,7 +2,10 @@
 import { describe, expect, it } from 'vitest';
 import z from 'zod';
 
-import { Configuration } from './configuration';
+import type { Bookmark } from './bookmark';
+import type { DatasetOrGroup } from './dataset';
+
+import { Configuration, ConfigurationBuilder } from './configuration';
 
 describe('Configuration', () => {
     it('should generate JSON schema', () => {
@@ -40,5 +43,87 @@ describe('Configuration', () => {
         expect(withDefaults.scene.camera.longitude).toEqual(3.4);
         expect(withDefaults.scene.camera.altitude).toEqual(20000);
         expect(withDefaults.scene.basemap.extent).toEqual([0, 0, 100, 100]);
+    });
+});
+
+describe('ConfigurationBuilder', () => {
+    it('withCrsDefinitions', () => {
+        const definitions = [
+            {
+                name: 'foo',
+                definition: 'the foo def',
+            },
+            {
+                name: 'bar',
+                definition: 'the bar def',
+            },
+        ];
+
+        const config = new ConfigurationBuilder().withCrsDefinitions([...definitions]).build();
+
+        expect(config.crsDefinitions).toEqual(definitions);
+    });
+
+    it('withCrsDefinitions', () => {
+        const bookmarks: Bookmark[] = [
+            {
+                title: 'bookmark 1',
+                lookAt: {
+                    heading: 10,
+                    altitude: 1000,
+                    latitude: 10.24,
+                    longitude: 1014.2442,
+                    tilt: 0,
+                },
+            },
+            {
+                title: 'bookmark 2',
+                lookAt: {
+                    heading: 13,
+                    altitude: 1000,
+                    latitude: 10.24,
+                    longitude: 1014.2442,
+                    tilt: 0,
+                },
+            },
+        ];
+
+        const config = new ConfigurationBuilder().withBookmarks(bookmarks).build();
+
+        expect(config.bookmarks).toEqual(bookmarks);
+    });
+
+    it('withDatasets', () => {
+        const datasets: DatasetOrGroup[] = [
+            {
+                name: 'folder 1',
+                type: 'group',
+            },
+            {
+                name: 'bar',
+                type: 'foo',
+                attribution: 'hello',
+            },
+        ];
+
+        const config = new ConfigurationBuilder().withDatasets(datasets).build();
+
+        const expected: DatasetOrGroup[] = [
+            {
+                name: 'folder 1',
+                type: 'group',
+                visible: false,
+                opacity: 1,
+            },
+            {
+                name: 'bar',
+                type: 'foo',
+                attribution: 'hello',
+                visible: false,
+                opacity: 1,
+            },
+        ];
+
+        expect(config.data).toEqual(expected);
     });
 });

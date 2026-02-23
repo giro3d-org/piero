@@ -20,11 +20,12 @@ import { useModuleStore } from '@/stores/modules';
 import { useNotificationStore } from '@/stores/notifications';
 import { useSearchStore } from '@/stores/search';
 import { useWidgetStore } from '@/stores/widgets';
-import Download from '@/utils/download';
+import Download from '@/utils/Download';
 
 import type { Configuration } from './configuration/configuration';
 import type { PieroApplication } from './PieroApplication';
 
+import { HttpApiImpl } from './api/http';
 import App from './App.vue';
 
 async function resolveConfiguration(params: {
@@ -88,19 +89,23 @@ export default async function createPieroApp(params: {
     // Here we create a context that will be used by modules
     // to interact with the Piero application, without having
     // to import individual services.
-    const context: Partial<PieroContext> = {
+    const context: Omit<PieroContext, 'view'> = {
         analysis: new AnalysisApiImpl(analysisStore),
         baseURL: new URL(Download.getBaseUrl()),
         bookmarks: new BookmarkApiImpl(useBookmarkStore(pinia)),
         configuration,
         datasets: new DatasetApiImpl(useDatasetStore(pinia)),
         events: GLOBAL_EVENT_DISPATCHER,
+        http: new HttpApiImpl(),
         notifications: new NotificationApiImpl(useNotificationStore(pinia)),
         search: new SearchApiImpl(useSearchStore(pinia)),
         widgets: new WidgetApiImpl(useWidgetStore(pinia)),
     };
 
-    const readyContext = context as PieroContext;
+    // @ts-expect-error TODO we have to initialize a
+    // partial context because we can't yet create
+    // the view entry since it requires a Giro3D instance;
+    const readyContext: PieroContext = context;
 
     const moduleInitializations: Promise<void>[] = [];
 

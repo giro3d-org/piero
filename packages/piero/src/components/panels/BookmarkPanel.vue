@@ -1,7 +1,6 @@
 <script setup lang="ts">
     import { ref } from 'vue';
 
-    import { Notification } from '@/api/notifications';
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
@@ -13,7 +12,7 @@
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
     import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
-    import Download from '@/utils/download';
+    import Download from '@/utils/Download';
 
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);
@@ -70,13 +69,11 @@
             }
         });
 
-        notificationStore.push(
-            new Notification(
-                'Bookmarks',
-                `${nbImported} bookmarks imported (${nbSkipped} skipped)`,
-                'success',
-            ),
-        );
+        notificationStore.push({
+            level: 'success',
+            text: `${nbImported} bookmarks imported (${nbSkipped} skipped)`,
+            title: 'Bookmarks',
+        });
     }
 
     function shareBookmark(bookmark: Bookmark): void {

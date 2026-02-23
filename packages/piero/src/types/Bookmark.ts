@@ -1,6 +1,6 @@
 import { EventDispatcher, Vector3 } from 'three';
 
-import Download from '@/utils/download';
+import Download from '@/utils/Download';
 
 import CameraPosition from './CameraPosition';
 

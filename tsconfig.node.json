@@ -15,6 +15,9 @@
         "packages/**/vite.config.ts",
         "site/.vitepress/config.ts",
         "build/**/*.ts",
-        "build/**/*.mjs"
+        "temp/**/*.ts",
+        "packages/**/*.ts",
+        "build/**/*.mjs",
+        "tests/**/*.ts"
     ]
 }

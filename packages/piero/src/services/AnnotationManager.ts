@@ -26,7 +26,6 @@ import type CameraController from '@/services/CameraController';
 import type Picker from '@/services/picking';
 import type { PieroShapeUserData } from '@/types/Annotation';
 
-import { Notification } from '@/api/notifications';
 import { getConfig } from '@/configurationLoader';
 import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
 import { useAnnotationStore } from '@/stores/annotations';
@@ -447,16 +446,19 @@ export default class AnnotationManager {
         const existingAnnotations = new Set(this._store.getAnnotations().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingAnnotations);
-            this._notificationStore.push(
-                new Notification(
-                    'Annotations',
-                    `${nbImported} annotations imported (${nbSkipped} skipped)`,
-                    'success',
-                ),
-            );
+            this._notificationStore.push({
+                level: 'success',
+                text: `${nbImported} annotations imported (${nbSkipped} skipped)`,
+                title: 'Annotations',
+            });
         } catch (e: unknown) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            new Notification('Annotations', `Could not import file: ${e}`, 'warning');
+            console.error(e);
+            this._notificationStore.push({
+                level: 'warning',
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                text: `Could not import file: ${e}`,
+                title: 'Annotations',
+            });
         }
     }
 
@@ -483,21 +485,17 @@ export default class AnnotationManager {
         await Promise.allSettled(promises);
 
         if (errors.length > 0) {
-            this._notificationStore.push(
-                new Notification(
-                    'Annotations',
-                    `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
-                    'warning',
-                ),
-            );
+            this._notificationStore.push({
+                level: 'warning',
+                text: `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
+                title: 'Annotations',
+            });
         } else {
-            this._notificationStore.push(
-                new Notification(
-                    'Annotations',
-                    `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped)`,
-                    'success',
-                ),
-            );
+            this._notificationStore.push({
+                level: 'success',
+                text: `${nbTotalImported} annotations imported (${nbTotalSkipped} skipped)`,
+                title: 'Annotations',
+            });
         }
     }
 

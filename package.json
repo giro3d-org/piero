@@ -10,6 +10,7 @@
         "build": "npm run copy-wasm && NODE_OPTIONS=--max-old-space-size=8192 vite build",
         "build-libraries": "npm run build-library --workspaces --if-present",
         "package-libraries": "npm run package-library --workspaces --if-present",
+        "typecheck": "npm run typecheck --workspaces --if-present",
         "format-eslint": "eslint . --fix",
         "format-prettier": "prettier --write .",
         "format-markdownlint": "markdownlint . --fix --ignore-path .gitignore",

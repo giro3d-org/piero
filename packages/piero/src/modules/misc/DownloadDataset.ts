@@ -4,7 +4,7 @@ import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 import type { DatasetOrGroup } from '@/types/Dataset';
 
-import Download from '@/utils/download';
+import Download from '@/utils/Download';
 import Fetcher from '@/utils/Fetcher';
 
 function getUrl(dataset: DatasetOrGroup): string | undefined {
@@ -69,7 +69,7 @@ export default class DownloadDataset implements Module {
             .then(blob => {
                 Download.downloadBlob(blob, filename);
 
-                context.notifications.pushNotification({
+                context.notifications.push({
                     level: 'success',
                     text: filename,
                     title: 'Download successful',
@@ -80,7 +80,7 @@ export default class DownloadDataset implements Module {
 
                 const message = e instanceof Error ? e.message : 'Download failed';
 
-                context.notifications.pushNotification({
+                context.notifications.push({
                     level: 'error',
                     text: message,
                     title: dataset.name,

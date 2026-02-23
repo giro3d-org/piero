@@ -29,31 +29,33 @@ export interface Dataset {
     visible?: boolean;
 }
 
-export const Dataset = z.object({
-    /**
-     * The name of the dataset to display in the UI.
-     */
-    name: z.string().nonempty(),
-    /**
-     * The dataset's default opacity.
-     * @defaultValue 1
-     */
-    opacity: z.number().min(0).max(1).default(1).optional(),
-    /**
-     * The dataset type key, used to determine which loader to use.
-     * Note: cannot be `folder`, as it is a reserved word.
-     */
-    type: z.string().nonempty(),
-    /**
-     * The dataset's default visibility.
-     * @defaultValue false
-     */
-    visible: z.boolean().default(false).optional(),
-    /**
-     * The dataset attribution.
-     */
-    attribution: z.string().optional(),
-});
+export const Dataset = z
+    .object({
+        /**
+         * The name of the dataset to display in the UI.
+         */
+        name: z.string().nonempty(),
+        /**
+         * The dataset's default opacity.
+         * @defaultValue 1
+         */
+        opacity: z.number().min(0).max(1).default(1).optional(),
+        /**
+         * The dataset type key, used to determine which loader to use.
+         * Note: cannot be `folder`, as it is a reserved word.
+         */
+        type: z.string().nonempty(),
+        /**
+         * The dataset's default visibility.
+         * @defaultValue false
+         */
+        visible: z.boolean().default(false).optional(),
+        /**
+         * The dataset attribution.
+         */
+        attribution: z.string().optional(),
+    })
+    .loose();
 const _typeCheck: Dataset = {} as z.infer<typeof Dataset>;
 z.globalRegistry.add(Dataset, { id: 'Dataset' });
 

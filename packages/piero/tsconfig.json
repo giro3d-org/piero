@@ -6,7 +6,9 @@
         "stripInternal": true,
 
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "@giro3d/piero/*": ["./src/*"],
+            "@giro3d/piero": ["./src"]
         }
     },
     "include": ["src", "../../env.d.ts"]

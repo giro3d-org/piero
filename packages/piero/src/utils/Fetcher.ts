@@ -1,6 +1,8 @@
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 import { fetchFile } from '@loaders.gl/core';
 
+import type { FetchContext, UrlOrData, UrlOrFetchedData } from '@/api/http';
+
 import { getPublicFolderUrl } from './Configuration';
 
 /**
@@ -123,29 +125,6 @@ async function toDataURL(url: UrlOrData): Promise<string> {
         }
     });
 }
-
-/**
- * Info on a file.
- * Inspired by loaders.gl LoaderContext
- */
-export interface FetchContext {
-    /** Full URL of the resource (without query string) */
-    baseUrl: string;
-    /** Directory name (`baseUrl` up to the filename) */
-    dirname: string;
-    /** File extension */
-    fileext?: string;
-    /** Filename */
-    filename: string;
-    /** Query string (beginning with the leading `?` character) */
-    queryString?: string;
-}
-
-/** URL to load or Blob (drag-and-drop) */
-export type UrlOrData = Blob | string;
-
-/** URL to load, or Response (already loaded), or Blob (drag-and-drop) */
-export type UrlOrFetchedData = Blob | Response | string;
 
 export default {
     checkAbsoluteHost,

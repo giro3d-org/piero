@@ -1,18 +1,20 @@
 import type PickableFeatures from '@giro3d/giro3d/core/picking/PickableFeatures';
 import type PickOptions from '@giro3d/giro3d/core/picking/PickOptions';
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
-import type { configuration } from '@giro3d/piero';
+import type { configuration, PieroContext } from '@giro3d/piero';
 import type { Material, Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Instance from '@giro3d/giro3d/core/Instance';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
-import { Fetcher, fillObject3DUserData, Projections } from '@giro3d/piero';
+import { fillObject3DUserData } from '@giro3d/piero';
 import {
     CityJSONLoader as CityJSONThreeLoader,
     CityJSONWorkerParser,
     type CityObjectsMaterial,
     type CityObjectsMesh,
 } from 'cityjson-threejs-loader';
+import proj4 from 'proj4';
 import { DoubleSide, FrontSide, Group } from 'three';
 
 // FIXME this is copied from the @giro3d/piero package, we should find a way to share it
@@ -76,10 +78,12 @@ export default class CityJSONEntity
     public readonly source: CityJSONSource;
 
     public override readonly type = 'CityJSONEntity';
+
     /** Array of the available Levels Of Details in this CityJSON model */
     public get availableLods(): string[] | null {
         return this._availableLods ? [...this._availableLods] : null;
     }
+
     /**
      * Gets the displayed index of Level Of Details, from {@link availableLods}.
      * If `-1` or out of bounds, displays all levels.
@@ -87,6 +91,7 @@ export default class CityJSONEntity
     public get displayedLodIdx(): number {
         return this._displayedLodIdx;
     }
+
     /**
      * Sets the displayed index of Level Of Details, from {@link availableLods}.
      * If `-1` or out of bounds, displays all levels.
@@ -97,7 +102,6 @@ export default class CityJSONEntity
         this.traverseCityMaterials(m => (m.showLod = lodIdx));
         this.notifyChange(this.object3d);
     }
-
     /** Gets whether the theme uses semantics or not */
     public get showSemantics(): boolean {
         return this._showSemantics;
@@ -109,16 +113,19 @@ export default class CityJSONEntity
         this.traverseCityMaterials(m => (m.showSemantics = v));
         this.notifyChange(this.object3d);
     }
+
     private _availableLods: string[] | null;
+    private readonly _context: PieroContext;
     private _displayedLodIdx: number;
 
     private _showSemantics: boolean;
-    public constructor(source: CityJSONSource) {
+    public constructor(source: CityJSONSource, context: PieroContext) {
         super(new Group());
         this.source = source;
         this._availableLods = null;
         this._displayedLodIdx = -1;
         this._showSemantics = true;
+        this._context = context;
 
         this.addEventListener('clippingPlanes-property-changed', () => {
             const isClipped =
@@ -159,7 +166,7 @@ export default class CityJSONEntity
 
     public override async preprocess(): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const json: any = await Fetcher.fetchJson(this.source.url);
+        const json: any = await this._context.http.getJson(this.source.url);
 
         return new Promise<void>((resolve, reject) => {
             const parser = new CityJSONWorkerParser();
@@ -198,7 +205,7 @@ export default class CityJSONEntity
                     this.source.dataProjection ??
                     this.source.featureProjection;
 
-                Projections.loadFromRemoteService(projection)
+                this.loadFromRemoteService(projection)
                     .then(proj => {
                         const coords = new Coordinates(
                             proj,
@@ -237,7 +244,7 @@ export default class CityJSONEntity
 
                         this.onObjectCreated(loader.scene);
 
-                        const context = Fetcher.getContext(this.source.url);
+                        const context = this._context.http.getContext(this.source.url);
                         fillObject3DUserData(this, { filename: context.filename });
 
                         this.notifyChange(this.object3d);
@@ -248,6 +255,38 @@ export default class CityJSONEntity
 
             loader.load(json);
         });
+    }
+
+    /**
+     * Loads a Projection info and registers it in Giro3D if needed
+     * @param projection - Projection code
+     * @returns EPSG string (e.g. `EPSG:2154`)
+     */
+    private async loadFromRemoteService(projection: string): Promise<string> {
+        let epsgCode: string | null = null;
+
+        const regexes = [
+            /EPSG:+(\d+)/,
+            /http:\/\/www.opengis.net\/def\/crs\/EPSG\/0\/(\d+)/,
+            /https:\/\/www.opengis.net\/def\/crs\/EPSG\/0\/(\d+)/,
+        ];
+        for (const regex of regexes) {
+            const search = projection.match(regex);
+            if (search !== null) {
+                epsgCode = search[1];
+                break;
+            }
+        }
+
+        if (epsgCode != null) {
+            const epsgString = `EPSG:${epsgCode}`;
+            if (proj4.defs(epsgString) === undefined) {
+                const text = await this._context.http.getText(`https://epsg.io/${epsgCode}.proj4`);
+                Instance.registerCRS(epsgString, text);
+            }
+            return epsgString;
+        }
+        throw new Error(`Could not find projection for ${projection}`);
     }
 
     private traverseCityMaterials(callback: (m: CityObjectsMaterial) => void): void {

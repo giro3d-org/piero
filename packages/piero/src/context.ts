@@ -5,6 +5,7 @@ import type { EventDispatcher } from 'three';
 import type { AnalysisApi } from './api/analysis';
 import type { BookmarkApi } from './api/bookmarks';
 import type { DatasetApi } from './api/dataset';
+import type { HttpApi } from './api/http';
 import type { NotificationApi } from './api/notifications';
 import type { SearchApi } from './api/search';
 import type { ViewApi } from './api/view';
@@ -30,6 +31,11 @@ export interface PieroContext {
      * The global event dispatcher.
      */
     events: EventDispatcher<PieroEvents>;
+
+    /**
+     * APIs to perform HTTP requests.
+     */
+    http: HttpApi;
 
     /**
      * Interface to the analysis API.

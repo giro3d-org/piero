@@ -2,12 +2,12 @@
     import * as bootstrap from 'bootstrap';
     import { ref } from 'vue';
 
-    import { Notification } from '@/api/notifications';
+    import type { Notification } from '@/api/notifications';
 
     import { useNotificationStore } from '../stores/notifications';
 
     const alertToast = ref<HTMLDivElement | null>(null);
-    const notification = ref<Notification>(Notification.empty());
+    const notification = ref<Notification>({ level: 'info', text: '', title: '' });
 
     function showNotification(notif: Notification): void {
         notification.value = notif;

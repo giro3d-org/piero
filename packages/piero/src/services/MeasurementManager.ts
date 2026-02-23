@@ -5,7 +5,6 @@ import { MathUtils, Vector3 } from 'three';
 import type CameraController from '@/services/CameraController';
 import type Picker from '@/services/picking';
 
-import { Notification } from '@/api/notifications';
 import Measure3D from '@/giro3d/Measure3D';
 import MeasureTool from '@/services/MeasureTool';
 import { useMeasurementStore } from '@/stores/measurement';
@@ -163,16 +162,18 @@ export default class MeasurementManager {
         const existingMeasures = new Set(this._store.getMeasures().map(m => m.title));
         try {
             const { nbImported, nbSkipped } = await this.importBlob(file, existingMeasures);
-            this._notificationStore.push(
-                new Notification(
-                    'Measures',
-                    `${nbImported} measures imported (${nbSkipped} skipped)`,
-                    'success',
-                ),
-            );
-        } catch (e: unknown) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            new Notification('Measures', `Could not import file: ${e}`, 'warning');
+            this._notificationStore.push({
+                level: 'success',
+                text: `${nbImported} measures imported (${nbSkipped} skipped)`,
+                title: 'Measures',
+            });
+        } catch (e) {
+            console.error(e);
+            this._notificationStore.push({
+                level: 'warning',
+                text: `Could not import file`,
+                title: 'Measures',
+            });
         }
     }
 
@@ -199,21 +200,17 @@ export default class MeasurementManager {
         await Promise.allSettled(promises);
 
         if (errors.length > 0) {
-            this._notificationStore.push(
-                new Notification(
-                    'Measures',
-                    `${nbTotalImported} measures imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
-                    'warning',
-                ),
-            );
+            this._notificationStore.push({
+                level: 'warning',
+                text: `${nbTotalImported} measures imported (${nbTotalSkipped} skipped); ${errors.length} errors: ${errors}`,
+                title: 'Measures',
+            });
         } else {
-            this._notificationStore.push(
-                new Notification(
-                    'Measures',
-                    `${nbTotalImported} measures imported (${nbTotalSkipped} skipped)`,
-                    'success',
-                ),
-            );
+            this._notificationStore.push({
+                level: 'success',
+                text: `${nbTotalImported} measures imported (${nbTotalSkipped} skipped)`,
+                title: 'Measures',
+            });
         }
     }
 

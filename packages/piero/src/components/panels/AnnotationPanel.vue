@@ -15,7 +15,7 @@
     import { useCameraStore } from '@/stores/camera';
     import Annotation from '@/types/Annotation';
     import { annotationModes } from '@/types/AnnotationMode';
-    import Download from '@/utils/download';
+    import Download from '@/utils/Download';
 
     const annotations = useAnnotationStore();
     const cameraStore = useCameraStore();

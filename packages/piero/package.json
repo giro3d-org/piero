@@ -66,7 +66,8 @@
     "scripts": {
         "prepublishOnly": "npm run build-library",
         "build-library": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
-        "package-library": "npm run build-library && npm pack"
+        "package-library": "npm run build-library && npm pack",
+        "typecheck": "tsc --noEmit"
     },
     "peerDependencies": {
         "@giro3d/giro3d": "^0.43.0",

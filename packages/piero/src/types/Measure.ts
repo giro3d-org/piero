@@ -2,7 +2,7 @@ import { EventDispatcher, MathUtils } from 'three';
 
 import type Measure3D from '@/giro3d/Measure3D';
 
-import Download from '@/utils/download';
+import Download from '@/utils/Download';
 
 type MeasureEventMap = {
     visible: {

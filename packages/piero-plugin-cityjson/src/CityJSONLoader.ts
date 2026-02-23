@@ -31,17 +31,22 @@ export const loader: api.dataset.LoadDatasetFromFile = context => {
     return Promise.resolve(result);
 };
 
-export const builder: api.dataset.DatasetBuilder = context => {
-    const cfg = CityJSONDataset.parse(context.dataset);
+export const builder: (pieroContext: PieroContext) => api.dataset.DatasetBuilder = pieroCtx => {
+    return context => {
+        const cfg = CityJSONDataset.parse(context.dataset);
 
-    const entity = new CityJSONEntity({
-        featureProjection: context.instance.referenceCrs,
-        url: cfg.url,
-    });
+        const entity = new CityJSONEntity(
+            {
+                featureProjection: context.instance.referenceCrs,
+                url: cfg.url,
+            },
+            pieroCtx,
+        );
 
-    return Promise.resolve({
-        entities: [entity],
-    });
+        return Promise.resolve({
+            entities: [entity],
+        });
+    };
 };
 
 const getAttributesFromCityObject: AttributeExtractorFn = (
@@ -86,7 +91,7 @@ export default class CityJSONLoader implements Module {
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType('cityjson', {
             attributeExtractor: getAttributesFromCityObject,
-            builder,
+            builder: builder(context),
             fileExtensions: ['cityjson', 'city.json'],
             icon: 'bi-buildings',
             loader,

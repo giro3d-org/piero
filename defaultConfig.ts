@@ -1,4 +1,4 @@
-import type { Configuration } from '@giro3d/piero/types/configuration';
+import type { Configuration } from '@giro3d/piero';
 
 /**
  * A default, ultra-minimal configuration that displays the world in the Web Mercator
