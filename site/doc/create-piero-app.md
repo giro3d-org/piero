@@ -4,7 +4,7 @@ This function is the entry point to a Piero application. It starts a Piero insta
 
 ## Example
 
-**index.html**
+### `index.html`
 
 ```html
 <!doctype html>
@@ -21,10 +21,11 @@ This function is the entry point to a Piero application. It starts a Piero insta
 </html>
 ```
 
-**main.ts**
+### `main.ts`
 
 ```js
 import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 createPieroApp({
     baseUrl: 'https://example.com/piero',

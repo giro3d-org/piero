@@ -1,12 +1,10 @@
-import type { ModuleConstructor } from '@giro3d/piero';
-import type { PieroApplication } from '@giro3d/piero/PieroApplication';
+import type { ModuleConstructor, PieroApplication } from '@giro3d/piero';
 
 import { createPieroApp } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
-
-import DefaultConfig from './defaultConfig';
+import '@giro3d/piero/piero.css';
 
 class Environment {
     public readonly baseUrl: string;
@@ -87,7 +85,7 @@ function start(): Promise<PieroApplication> {
     // or load the static configuration file (config.ts) in the same folder as this file.
     const params = new URLSearchParams(document.location.search);
     const configurationUrl = params.get('config');
-    const configuration = configurationUrl ?? DefaultConfig;
+    const configuration = configurationUrl ?? undefined;
 
     // We are now ready to instantiate Piero on the #app DOM element of our webpage.
     return createPieroApp({

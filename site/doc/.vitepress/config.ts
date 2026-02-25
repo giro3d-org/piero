@@ -72,10 +72,7 @@ function generateModuleDocumentation(dirent: fs.Dirent<string>): DefaultTheme.Si
 
     const outputFilename = path.join(moduleDocOutputDir, dirent.name);
 
-    const outputContent = matter.stringify(result, {
-        name,
-        title: name,
-    });
+    const outputContent = matter.stringify(result, {});
 
     fs.writeFileSync(outputFilename, outputContent);
 

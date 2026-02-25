@@ -1,7 +1,3 @@
----
-name: WMSLoader
-title: WMSLoader
----
 # WMSLoader <Badge type="info" text="@giro3d/piero" />
 
 <!---
@@ -9,8 +5,6 @@ This file was auto-generated from module-doc-template.md. Do not edit it manuall
 -->
 
 Add support for [Web Map Service](https://www.ogc.org/standards/wms/) (WMS) layers.
-
-
 
 ## Usage with [`createPieroApp`](../create-piero-app.md)
 
@@ -26,7 +20,6 @@ createPieroApp({
 })
 ```
 
-
 ### The `wms` dataset
 
 This module provides the `wms` dataset type, configured as such:
@@ -41,4 +34,3 @@ This module provides the `wms` dataset type, configured as such:
     ...
 }
 ```
-

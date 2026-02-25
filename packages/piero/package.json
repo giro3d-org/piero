@@ -1,7 +1,7 @@
 {
     "name": "@giro3d/piero",
     "type": "module",
-    "version": "1.0.0-beta.4",
+    "version": "1.0.0-beta.5",
     "description": "A web application for 3D geospatial data visualization, powered by Giro3D",
     "keywords": [
         "front-end",
@@ -95,6 +95,7 @@
         "proj4": "^2.9.0",
         "regenerator-runtime": "^0.14.1",
         "shepherd.js": "^11.2.0",
+        "vite": "^6.3.6",
         "web-ifc": "^0.0.44",
         "zod": "^4.1.11"
     }

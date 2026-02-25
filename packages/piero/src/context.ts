@@ -20,7 +20,7 @@ export interface PieroContext {
     /**
      * The base URL of the application.
      */
-    baseURL: URL;
+    baseURL: string;
 
     /**
      * The configuration of the Piero app.

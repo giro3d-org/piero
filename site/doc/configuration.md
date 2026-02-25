@@ -30,8 +30,12 @@ import { defaultConfiguration, validateConfiguration } from '@giro3d/piero';
 
 const config = defaultConfiguration();
 
-config.data = [/** your datasets here */];
-config.bookmarks = [/** your bookmarks here */];
+config.data = [
+    /** your datasets here */
+];
+config.bookmarks = [
+    /** your bookmarks here */
+];
 
 // Get the final configuration with default values set.
 const finalConfig = validateConfiguration(config);

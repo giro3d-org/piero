@@ -11,13 +11,35 @@ import type { Extent } from '@/configuration/extent';
 
 import Download from './Download';
 
+function removeLeadingSlash(s: string): string {
+    const trimmed = s.trim();
+    if (trimmed.startsWith('/')) {
+        return trimmed.substring(1);
+    }
+
+    return trimmed;
+}
+
+function removeTrailingSlash(s: string): string {
+    const trimmed = s.trim();
+    if (trimmed.endsWith('/')) {
+        return s.substring(0, trimmed.length);
+    }
+
+    return trimmed;
+}
+
 export function getPublicFolderUrl(url: string): string {
     if (url.startsWith('http://') || url.startsWith('https://')) {
         // url is absolute
         return url;
     }
 
-    return new URL(url, Download.getBaseUrl()).toString();
+    const base = removeTrailingSlash(Download.getBaseUrl());
+    const sanitized = removeLeadingSlash(url);
+    const result = `${base}/${sanitized}`;
+
+    return result;
 }
 
 export function toGiro3DColorMap(config: ColorMap): Giro3DColorMap {

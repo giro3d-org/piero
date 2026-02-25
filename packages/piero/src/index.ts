@@ -1,11 +1,11 @@
-import './assets/main.scss';
 import type { AttributesGroups } from '@/types/Feature';
 
 import type { PieroContext } from './context';
 import type { UserData } from './loaders/userData';
 import type { Module, ModuleConstructor } from './module';
-import type { AttributeExtractorFn } from './services/picking';
+import type { PieroApplication } from './PieroApplication';
 import type Picker from './services/picking';
+import type { AttributeExtractorFn } from './services/picking';
 import type { Attribute } from './types/Feature';
 
 import * as api from './api';
@@ -29,6 +29,7 @@ export {
     defaultConfiguration,
     Fetcher,
     fillObject3DUserData,
+    PieroApplication,
     validateConfiguration,
 };
 

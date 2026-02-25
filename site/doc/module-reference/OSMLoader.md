@@ -1,7 +1,3 @@
----
-name: OSMLoader
-title: OSMLoader
----
 # OSMLoader <Badge type="info" text="@giro3d/piero" />
 
 <!---
@@ -9,8 +5,6 @@ This file was auto-generated from module-doc-template.md. Do not edit it manuall
 -->
 
 Add support for OpenStreetMap layers.
-
-
 
 ## Usage with [`createPieroApp`](../create-piero-app.md)
 
@@ -26,7 +20,6 @@ createPieroApp({
 })
 ```
 
-
 ### The `osm` dataset
 
 This module provides the `osm` dataset type, configured as such:
@@ -41,4 +34,3 @@ This module provides the `osm` dataset type, configured as such:
 No additional configuration is required.
 
 This will add the default OpenStreetMap layer to the basemap.
-

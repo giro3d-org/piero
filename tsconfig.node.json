@@ -13,7 +13,7 @@
         "vite.config.ts",
         "vitest.config.ts",
         "packages/**/vite.config.ts",
-        "site/.vitepress/config.ts",
+        "site/**/.vitepress/**/*.ts",
         "build/**/*.ts",
         "temp/**/*.ts",
         "packages/**/*.ts",
