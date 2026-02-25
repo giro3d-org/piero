@@ -65,8 +65,9 @@
     "homepage": "https://piero.giro3d.org/",
     "scripts": {
         "prepublishOnly": "npm run build-library",
-        "build-library": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
-        "package-library": "npm run build-library && npm pack",
+        "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
+        "build:dev": "NODE_OPTIONS=--max-old-space-size=8192 vite build --mode dev",
+        "package": "npm run build && npm pack",
         "typecheck": "tsc --noEmit"
     },
     "peerDependencies": {
