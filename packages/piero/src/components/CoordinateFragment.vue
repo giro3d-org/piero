@@ -16,7 +16,7 @@
 
 <style scoped>
     div {
-        width: 5rem;
+        width: 6rem;
         font-size: small;
     }
 </style>
