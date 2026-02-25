@@ -1,0 +1,8 @@
+.gitlab-ci-local
+.gitlab
+**/node_modules
+**/dist
+
+graphics
+site/
+
