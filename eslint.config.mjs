@@ -10,7 +10,13 @@ import pluginVue from 'eslint-plugin-vue';
 
 export default defineConfigWithVueTs([
     {
-        ignores: ['dist/*', 'packages/*/dist/*', 'node_modules/*'],
+        ignores: [
+            '**/dist/*',
+            'packages/*/dist/*',
+            'node_modules/*',
+            '.gitlab-ci-local',
+            '**/.vitepress/*',
+        ],
     },
     pluginVue.configs['flat/essential'],
     vueTsConfigs.recommendedTypeChecked,

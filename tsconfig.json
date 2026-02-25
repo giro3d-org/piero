@@ -19,10 +19,10 @@
         "strictNullChecks": true,
         "noImplicitOverride": true,
         "paths": {
-            "@giro3d/piero": ["./packages/piero/src"], // to access root index file implicitly
-            "@giro3d/piero/*": ["./packages/piero/src/*"],
-            "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/src"],
-            "@giro3d/piero-plugin-geohash": ["./packages/piero-plugin-geohash/src"],
+            "@giro3d/piero": ["./packages/piero/dist"], // to access root index file implicitly
+            "@giro3d/piero/*": ["./packages/piero/dist/*"],
+            "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/dist"],
+            "@giro3d/piero-plugin-geohash": ["./packages/piero-plugin-geohash/dist"],
             "@giro3d/piero-cli": ["./packages/piero-cli/src"]
         }
     },

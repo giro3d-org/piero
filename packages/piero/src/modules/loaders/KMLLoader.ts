@@ -10,7 +10,8 @@ import type { Module } from '@/module';
 
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
-import { OpenLayersFlatStyleLike, toOpenLayersStyle } from '@/configuration/style';
+import { OpenLayersFlatStyleLike } from '@/configuration/style';
+import { toOpenLayersStyle } from '@/utils/style';
 
 const DATASET_TYPE = 'kml';
 

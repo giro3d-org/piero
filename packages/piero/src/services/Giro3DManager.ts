@@ -125,9 +125,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.dirLight.updateMatrixWorld();
         this.mainInstance.scene.updateMatrixWorld();
 
-        // We disable the skybox for now as it breaks the rendering of point cloud  with effects.
-        // Skybox.addSkybox(this.mainInstance);
-
         this.mainInstance.notifyChange();
     }
 

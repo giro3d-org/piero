@@ -27,3 +27,5 @@ public/ply
 public/shp
 
 .DS_Store
+
+.gitlab-ci-local/
