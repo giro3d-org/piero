@@ -4,6 +4,8 @@ import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig } from 'vitepress';
+import chokidar from 'chokidar';
+import { endsWith } from 'zod';
 
 const projectRoot = path.join(__dirname, '../../../');
 const moduleDocOutputDir = path.join(__dirname, '../module-reference');
@@ -43,13 +45,9 @@ createPieroApp({
 \`\`\``;
 }
 
-function generateModuleDocumentation(dirent: fs.Dirent<string>): DefaultTheme.SidebarItem {
-    console.log(dirent.name);
-
-    const absPath = path.join(dirent.parentPath, dirent.name);
+function generateModulePage(moduleName: string, absPath: string, outputFilename: string, parentPath: string) {
     const { content, data } = matter(fs.readFileSync(absPath, 'utf-8'));
 
-    const name = dirent.name.replace('.md', '');
     const isBuiltin = data.type === 'builtin';
     const packageName = isBuiltin ? '@giro3d/piero' : data.package;
 
@@ -66,15 +64,27 @@ function generateModuleDocumentation(dirent: fs.Dirent<string>): DefaultTheme.Si
         .replace('%badge%', packageBadge)
         .replace('%preamble%', preamble)
         .replace('%content%', content)
-        .replace('%title%', name)
+        .replace('%title%', moduleName)
         .replace('%description%', data.description?.trim() ?? 'MISSING DESCRIPTION')
-        .replace('%import%', formatModuleImport(isBuiltin, dirent.parentPath, packageName, name));
-
-    const outputFilename = path.join(moduleDocOutputDir, dirent.name);
+        .replace('%import%', formatModuleImport(isBuiltin, parentPath, packageName, moduleName));
 
     const outputContent = matter.stringify(result, {});
 
     fs.writeFileSync(outputFilename, outputContent);
+}
+
+function generateModuleDocumentation(dirent: fs.Dirent<string>): DefaultTheme.SidebarItem {
+    const outputFilename = path.join(moduleDocOutputDir, dirent.name);
+    const name = dirent.name.replace('.md', '');
+    const absPath = path.join(dirent.parentPath, dirent.name);
+
+    if (process.env.NODE_ENV === 'development') {
+        chokidar.watch(absPath).on("change", () => {
+            generateModulePage(name, absPath, outputFilename, dirent.parentPath);
+        });
+    }
+
+    generateModulePage(name, absPath, outputFilename, dirent.parentPath);
 
     return {
         link: `/module-reference/${dirent.name}`,
@@ -84,7 +94,6 @@ function generateModuleDocumentation(dirent: fs.Dirent<string>): DefaultTheme.Si
 
 function isModuleDocumentationFile(file: fs.Dirent): boolean {
     const isMarkdown = file.isFile() && file.name.endsWith('.md');
-
     if (!isMarkdown) {
         return false;
     }
