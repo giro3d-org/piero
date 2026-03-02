@@ -7,7 +7,7 @@ hero:
     text: 'Geospatial data viz'
     tagline: Fully-configurable open-source web application for 3D visualization.
     image:
-        src: /logo.png
+        src: /logo.webp
         alt: Piero
     actions:
         - theme: brand
