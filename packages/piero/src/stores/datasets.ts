@@ -11,6 +11,7 @@ import type { ConfigurationOutput } from '@/configurationLoader';
 
 import { getConfig } from '@/configurationLoader';
 import { Datagroup, type Dataset, type DatasetOrGroup, parseDatasetConfig } from '@/types/Dataset';
+import { toGiro3DExtent } from '@/utils/Configuration';
 
 type DatasetAction = DatasetActionRegistrationParams & {
     mustBePreloaded: boolean;
@@ -134,10 +135,12 @@ export const useDatasetStore = defineStore('datasets', () => {
 
             const layerList = layers.get(ds.uuid);
             if (layerList) {
+                const basemapExtent = toGiro3DExtent(config.scene.basemap.extent, config.scene.crs);
                 for (const layer of layerList) {
                     const layerExtent = layer?.getExtent()?.as(config.scene.crs);
                     if (layerExtent && layerExtent.isValid()) {
-                        const localBox = layerExtent.toBox3(0, 0);
+                        const actual = layerExtent.clone().intersect(basemapExtent);
+                        const localBox = actual.toBox3(0, 0);
                         box.union(localBox);
                         return;
                     }
