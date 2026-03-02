@@ -13,6 +13,8 @@ import { ModuleConfiguration } from './module';
 import { SceneConfiguration } from './scene';
 
 export const Configuration = z.object({
+    title: z.string().optional(),
+
     version: z.literal(2).describe('The version of the configuration.'),
 
     crsDefinitions: CrsDefinitionCollection.optional(),

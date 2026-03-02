@@ -32,6 +32,7 @@ const config: Configuration = {
         },
         crs: 'EPSG:3857',
     },
+    title: 'Default configuration',
     version: 2,
 };
 

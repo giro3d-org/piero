@@ -1,4 +1,5 @@
 {
+    "title": "Demo",
     "crsDefinitions": [
         {
             "name": "EPSG:2154",
@@ -20,8 +21,14 @@
             "name": "EPSG:3948",
             "definition": "+proj=lcc +lat_0=48 +lon_0=3 +lat_1=47.25 +lat_2=48.75 +x_0=1700000 +y_0=7200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
         },
-        { "name": "EPSG:4171", "definition": "+proj=longlat +ellps=GRS80 +no_defs +type=crs" },
-        { "name": "EPSG:4326", "definition": "+proj=longlat +datum=WGS84 +no_defs +type=crs" },
+        {
+            "name": "EPSG:4171",
+            "definition": "+proj=longlat +ellps=GRS80 +no_defs +type=crs"
+        },
+        {
+            "name": "EPSG:4326",
+            "definition": "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+        },
         {
             "name": "IGNF:WGS84G",
             "definition": "GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]]"
@@ -127,7 +134,14 @@
                     "url": "https://3d.oslandia.com/lyon/tcl_sytral.tcllignemf_2_0_0.kml",
                     "style": [
                         {
-                            "filter": ["==", ["get", "name"], "13"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "13"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -140,7 +154,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "14"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "14"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -153,7 +174,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "15"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "15"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -166,7 +194,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "16"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "16"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -179,7 +214,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "17"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "17"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -192,7 +234,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "18"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "18"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -205,7 +254,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "19"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "19"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -218,7 +274,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "20"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "20"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -231,7 +294,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "21"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "21"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -244,7 +314,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "22"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "22"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -257,7 +334,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "23"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "23"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -270,7 +354,14 @@
                             ]
                         },
                         {
-                            "filter": ["==", ["get", "name"], "24"],
+                            "filter": [
+                                "==",
+                                [
+                                    "get",
+                                    "name"
+                                ],
+                                "24"
+                            ],
                             "style": [
                                 {
                                     "stroke-color": "black",
@@ -308,10 +399,20 @@
                     "url": "https://3d.oslandia.com/lyon/evg_esp_veg.evgparcindiccanope_latest.geojson",
                     "style": [
                         {
-                            "filter": ["<", ["get", "indiccanop"], 0.1],
+                            "filter": [
+                                "<",
+                                [
+                                    "get",
+                                    "indiccanop"
+                                ],
+                                0.1
+                            ],
                             "style": [
                                 {
-                                    "text-value": ["get", "nom"],
+                                    "text-value": [
+                                        "get",
+                                        "nom"
+                                    ],
                                     "text-stroke-color": "black",
                                     "text-fill-color": "#328e26",
                                     "text-font": "16px sans-serif",
@@ -322,10 +423,20 @@
                             ]
                         },
                         {
-                            "filter": [">", ["get", "indiccanop"], 0.1],
+                            "filter": [
+                                ">",
+                                [
+                                    "get",
+                                    "indiccanop"
+                                ],
+                                0.1
+                            ],
                             "style": [
                                 {
-                                    "text-value": ["get", "nom"],
+                                    "text-value": [
+                                        "get",
+                                        "nom"
+                                    ],
                                     "text-stroke-color": "black",
                                     "text-fill-color": "#328e26",
                                     "text-font": "16px sans-serif",
@@ -336,10 +447,20 @@
                             ]
                         },
                         {
-                            "filter": [">", ["get", "indiccanop"], 0.3],
+                            "filter": [
+                                ">",
+                                [
+                                    "get",
+                                    "indiccanop"
+                                ],
+                                0.3
+                            ],
                             "style": [
                                 {
-                                    "text-value": ["get", "nom"],
+                                    "text-value": [
+                                        "get",
+                                        "nom"
+                                    ],
                                     "text-stroke-color": "black",
                                     "text-fill-color": "#328e26",
                                     "text-font": "16px sans-serif",
@@ -350,10 +471,20 @@
                             ]
                         },
                         {
-                            "filter": [">=", ["get", "indiccanop"], 0.5],
+                            "filter": [
+                                ">=",
+                                [
+                                    "get",
+                                    "indiccanop"
+                                ],
+                                0.5
+                            ],
                             "style": [
                                 {
-                                    "text-value": ["get", "nom"],
+                                    "text-value": [
+                                        "get",
+                                        "nom"
+                                    ],
                                     "text-stroke-color": "black",
                                     "text-fill-color": "#094901",
                                     "text-font": "16px sans-serif",
@@ -364,10 +495,20 @@
                             ]
                         },
                         {
-                            "filter": [">=", ["get", "indiccanop"], 0.7],
+                            "filter": [
+                                ">=",
+                                [
+                                    "get",
+                                    "indiccanop"
+                                ],
+                                0.7
+                            ],
                             "style": [
                                 {
-                                    "text-value": ["get", "nom"],
+                                    "text-value": [
+                                        "get",
+                                        "nom"
+                                    ],
                                     "text-stroke-color": "black",
                                     "text-fill-color": "#063a00",
                                     "text-font": "16px sans-serif",

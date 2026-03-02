@@ -12,16 +12,14 @@ class Environment {
 
     public constructor() {
         this.baseUrl = import.meta.env.VITE_BASE_URL;
-        this.title = import.meta.env.VITE_APP_TITLE;
+        this.title = import.meta.env.VITE_APP_TITLE ?? 'Piero';
     }
 }
 
+// Load the environment variables.
+const env = new Environment();
+
 function start(): Promise<PieroApplication> {
-    // Load the environment variables.
-    const env = new Environment();
-
-    document.title = env.title;
-
     // The list of all optional modules we want to use.
     // Since this is the default Piero app, we load all the modules
     // for demonstration purposes. However, in a customized Piero app,
@@ -99,6 +97,16 @@ function start(): Promise<PieroApplication> {
 start()
     .then(app => {
         console.info('Piero instantiated successfully.', app);
-        app.context.notifications.success('Loading successful', 'Hello from Piero 👋');
+        app.context.notifications.success(
+            app.context.configuration.title ?? 'Configuration',
+            'Loading successful.',
+        );
+
+        const configName = app.context.configuration.title;
+        if (configName != null) {
+            document.title = `${configName} · ${env.title}`;
+        } else {
+            document.title = env.title;
+        }
     })
     .catch(console.error);
