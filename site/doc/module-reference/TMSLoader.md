@@ -6,6 +6,8 @@ This file was auto-generated from module-doc-template.md. Do not edit it manuall
 
 Adds support for [Tile Map Service](https://en.wikipedia.org/wiki/Tile_Map_Service) (TMS) datasets.
 
+
+
 ## Usage with [`createPieroApp`](../create-piero-app.md)
 
 ```js
@@ -20,7 +22,8 @@ createPieroApp({
 })
 ```
 
-### The `tms` dataset
+
+## Usage
 
 This module provides the `tms` dataset type, configured as such:
 
@@ -32,3 +35,4 @@ This module provides the `tms` dataset type, configured as such:
     ...
 }
 ```
+

@@ -101,6 +101,7 @@ function isModuleDocumentationFile(file: fs.Dirent): boolean {
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     description: 'A VitePress Site',
+    head: [['link', { rel: 'icon', href: '/favicon.svg' }]],
     themeConfig: {
         logo: { alt: 'Piero Logo', src: '/favicon.svg' },
 
@@ -113,7 +114,6 @@ export default defineConfig({
             { link: '/', text: 'Home' },
             { link: '/getting-started', text: 'Guide' },
             { link: '/module-reference', text: 'Modules' },
-            { link: '/api/packages', text: 'API' },
         ],
 
         sidebar: [

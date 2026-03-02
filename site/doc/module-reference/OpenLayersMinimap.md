@@ -6,6 +6,8 @@ This file was auto-generated from module-doc-template.md. Do not edit it manuall
 
 Add a minimap widget based on OpenLayers.
 
+
+
 ## Usage with [`createPieroApp`](../create-piero-app.md)
 
 ```js
@@ -19,3 +21,5 @@ createPieroApp({
     ]
 })
 ```
+
+

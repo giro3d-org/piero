@@ -6,6 +6,8 @@ This file was auto-generated from module-doc-template.md. Do not edit it manuall
 
 Add support for OpenStreetMap layers.
 
+
+
 ## Usage with [`createPieroApp`](../create-piero-app.md)
 
 ```js
@@ -20,7 +22,8 @@ createPieroApp({
 })
 ```
 
-### The `osm` dataset
+
+## Usage
 
 This module provides the `osm` dataset type, configured as such:
 
@@ -34,3 +37,4 @@ This module provides the `osm` dataset type, configured as such:
 No additional configuration is required.
 
 This will add the default OpenStreetMap layer to the basemap.
+

@@ -4,7 +4,7 @@ type: builtin
 description: Add support for [Web Map Service](https://www.ogc.org/standards/wms/) (WMS) layers.
 ---
 
-### The `wms` dataset
+## Usage
 
 This module provides the `wms` dataset type, configured as such:
 

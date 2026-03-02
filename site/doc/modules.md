@@ -23,7 +23,7 @@ export default class Greetings implements Module {
     public readonly id = 'plugin-greetings';
     public readonly name = 'Greetings';
 
-    public initialize(context: PieroContext): Promise<void> | void {
+    public initialize(context: PieroContext) {
         console.log('Hello !');
     }
 }

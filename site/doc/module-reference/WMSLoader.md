@@ -6,6 +6,8 @@ This file was auto-generated from module-doc-template.md. Do not edit it manuall
 
 Add support for [Web Map Service](https://www.ogc.org/standards/wms/) (WMS) layers.
 
+
+
 ## Usage with [`createPieroApp`](../create-piero-app.md)
 
 ```js
@@ -20,7 +22,8 @@ createPieroApp({
 })
 ```
 
-### The `wms` dataset
+
+## Usage
 
 This module provides the `wms` dataset type, configured as such:
 
@@ -34,3 +37,4 @@ This module provides the `wms` dataset type, configured as such:
     ...
 }
 ```
+

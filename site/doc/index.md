@@ -6,22 +6,27 @@ hero:
     name: 'Piero'
     text: 'Geospatial data viz'
     tagline: Fully-configurable open-source web application for 3D visualization.
+    image:
+        src: /logo.png
+        alt: Piero
     actions:
         - theme: brand
-          text: Getting started
+          text: Demo
+          link: https://piero.giro3d.org/ 
+        - theme: alt
+          text: what is Piero ?
+          link: /what-is-piero
+        - theme: alt
+          text: getting started
           link: /getting-started
-        - theme: alt
-          text: Module reference
-          link: /module-reference/index
-        - theme: alt
-          text: API reference
-          link: /api/packages
+ 
 
 features:
     - title: 3D native
-      details: TODO
+      details: Powered by Giro3D and three.js. Display 3D datasets such as 3D tiles, CityJSON and point clouds.
     - title: Extensible
-      details: TODO
+      details: Create your own configurations and plugins. Load your own datasets and connect to
+        your own search providers.
     - title: Free and open-source
-      details: TODO
+      details: Piero only uses open-source components and is licensed under the MIT license.
 ---

@@ -50,6 +50,3 @@ console.log('final config:', finalConfig);
 
 You can pass a URL to a remote configuration file as well. The file will be downloaded and validated by [`createPieroApp()`](./create-piero-app.md).
 
-## Anatomy of a configuration
-
-TODO

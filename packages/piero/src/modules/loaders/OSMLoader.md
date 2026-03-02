@@ -4,7 +4,7 @@ type: builtin
 description: Add support for OpenStreetMap layers.
 ---
 
-### The `osm` dataset
+## Usage
 
 This module provides the `osm` dataset type, configured as such:
 

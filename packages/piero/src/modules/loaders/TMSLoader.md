@@ -4,7 +4,7 @@ type: builtin
 description: Adds support for [Tile Map Service](https://en.wikipedia.org/wiki/Tile_Map_Service) (TMS) datasets.
 ---
 
-### The `tms` dataset
+## Usage
 
 This module provides the `tms` dataset type, configured as such:
 
