@@ -40,6 +40,11 @@
                     "type": "copc",
                     "attribute": "Classification",
                     "url": "http://127.0.0.1/CRAIG/LHD_FXX_0705_6525_PTS_LAMB93_IGN69.copc.laz"
+                },
+                {
+                    "name": "Maquette 3D / Bâtiments",
+                    "type": "cityjson",
+                    "url": "http://localhost/CRAIG/out/cityjson/Clermont_LoD2_texture_1.json"
                 }
             ]
         },
@@ -122,7 +127,7 @@
             "altitude": 80000,
             "heading": 0,
             "latitude": 45.78624,
-            "longitude": 3.10870,
+            "longitude": 3.1087,
             "tilt": -90
         },
         "crs": "EPSG:2154"
