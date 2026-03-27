@@ -398,7 +398,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             'contextmenu',
             this._boundOrbitControlsOnContextMenu,
         );
-        this._instance.domElement.removeEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
+        document.removeEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
 
         this._orbitControls.disconnect();
     }
@@ -430,7 +430,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             'contextmenu',
             this._boundOrbitControlsOnContextMenu,
         );
-        this._instance.domElement.addEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
+        document.addEventListener('mouseup', this._boundOrbitControlsOnMouseUp);
 
         // "Patch" camera-controls for nicer event handlers
         this._boundOrbitControlsOnWheel = this.orbitControlsOnWheel.bind(this);
