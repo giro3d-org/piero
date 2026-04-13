@@ -12,6 +12,15 @@ pip install commitizen
 
 This will install the `cz` utility in your python packages folder (by default `$HOME/.local/bin/cz`).
 
+## Package configuration on npmjs.com
+
+Packages are published automatically by the Gitlab CI/CD using the [Trusted Publisher](https://docs.npmjs.com/trusted-publishers) mechanism recommended by NPM. This mechanism is more secure since it does not require an authentication token (that could be intercepted or leaked).
+
+> [!warning]
+> Trusted publishers must be enabled for **each Piero package**, not only the [`@giro3d/piero`](https://www.npmjs.com/package/@giro3d/piero/access) main
+> package, but also any plugin, such as `@giro3d/piero-plugin-cityjson`. If you have created a new
+> package, you must enable trusted publishers specifically on the package's settings on npmjs.com.
+
 ## Create a release branch
 
 Create a branch `release/XX.YY` where `XX.YY` is the release version number (e.g. `24.4`).
