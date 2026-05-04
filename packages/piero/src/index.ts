@@ -16,6 +16,7 @@ import {
     defaultConfiguration,
     validateConfiguration,
 } from './configuration/configuration';
+import { loadRemoteConfiguration } from './configurationLoader';
 import createPieroApp from './createPieroApp';
 import { fillObject3DUserData } from './loaders/userData';
 import Fetcher from './utils/Fetcher';
@@ -29,6 +30,7 @@ export {
     defaultConfiguration,
     Fetcher,
     fillObject3DUserData,
+    loadRemoteConfiguration,
     PieroApplication,
     validateConfiguration,
 };
