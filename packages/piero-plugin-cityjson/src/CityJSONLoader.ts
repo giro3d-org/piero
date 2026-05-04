@@ -15,10 +15,16 @@ import { configuration } from '@giro3d/piero';
 import CityJSONEntity, { isCityJSONPickResult } from './CityJSONEntity';
 import CityJSONEntityInspector from './CityJSONEntityInspector';
 
-const CityJSONDataset = configuration.dataset.Dataset.extend({
+/**
+ * CityJSON dataset configuration.
+ *
+ * See [Dataset](/api/@giro3d/piero/index/namespaces/configuration/namespaces/dataset/interfaces/Dataset.html) for inherited properties.
+ */
+export const CityJSONDataset = configuration.dataset.Dataset.extend({
+    /** URL to the json file */
     url: configuration.url.Url,
 });
-type CityJSONDataset = z.infer<typeof CityJSONDataset>;
+export type CityJSONDataset = z.infer<typeof CityJSONDataset>;
 
 export const loader: api.dataset.LoadDatasetFromFile = context => {
     const result = {

@@ -15,3 +15,5 @@ This module provides the `cityjson` dataset type, configured as such:
     ...
 }
 ```
+
+See [CityJSONDataset](/api/@giro3d/piero-plugin-cityjson/type-aliases/CityJSONDataset) for all available options.

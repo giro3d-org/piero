@@ -1,9 +1,10 @@
 {
     "$schema": "https://typedoc.org/schema.json",
     "entryPointStrategy": "packages",
-    "plugin": ["typedoc-plugin-zod"],
+    "plugin": ["typedoc-plugin-zod", "typedoc-plugin-markdown", "typedoc-vitepress-theme"],
     "entryPoints": ["packages/*"],
     "tsconfig": "tsconfig.json",
     "readme": "none",
-    "out": "site/api"
+    "out": "site/doc/api",
+    "docsRoot": "site/doc"
 }

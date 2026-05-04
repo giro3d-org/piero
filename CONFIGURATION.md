@@ -60,7 +60,7 @@ To tweak your app, chances are you will first want to:
 You can generate the API doc for the configuration to dive deeper:
 
 ```bash
-npm run apidoc:serve
+npm run site:dev
 ```
 
 ### Remote config

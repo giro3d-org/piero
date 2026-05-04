@@ -7,9 +7,6 @@ packages/**/*.tgz
 # Env
 .env.local
 
-# App apidoc
-# apidoc/
-
 # IFC/LazPerf
 public/*.wasm
 

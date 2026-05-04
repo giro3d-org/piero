@@ -6,6 +6,7 @@ import path from 'node:path';
 import { defineConfig } from 'vitepress';
 import chokidar from 'chokidar';
 import { endsWith } from 'zod';
+import typedocSidebar from '../api/typedoc-sidebar.json';
 
 const projectRoot = path.join(__dirname, '../../../');
 const moduleDocOutputDir = path.join(__dirname, '../module-reference');
@@ -123,6 +124,7 @@ export default defineConfig({
             { link: '/', text: 'Home' },
             { link: '/getting-started', text: 'Guide' },
             { link: '/module-reference', text: 'Modules' },
+            { text: 'API', link: '/api/' },
         ],
 
         sidebar: [
@@ -140,6 +142,10 @@ export default defineConfig({
                 items: collectModuleDocumentationFiles(),
                 text: 'Module reference',
             },
+            {
+                text: 'API',
+                items: typedocSidebar,
+            }
         ],
 
         socialLinks: [{ icon: 'gitlab', link: 'https://gitlab.com/giro3d/piero' }],

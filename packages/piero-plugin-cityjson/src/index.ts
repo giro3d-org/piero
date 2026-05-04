@@ -1,3 +1,3 @@
-import CityJSONLoader from './CityJSONLoader';
+import CityJSONLoader, { type CityJSONDataset } from './CityJSONLoader';
 
-export { CityJSONLoader };
+export { CityJSONDataset, CityJSONLoader };
