@@ -121,51 +121,23 @@ Then open your browser at <http://localhost:8080>.
 
 ### Building from source
 
-You'll simply need to checkout this application and edit the configuration.
+You'll simply need to checkout this application and install the npm dependencies:
 
 ```bash
 # Clone the app
 git clone https://gitlab.com/giro3d/piero.git
 cd piero
+npm install
 ```
-
-On compatible platforms, you can use the `init.sh` script to initialize the configuration; otherwise initialize it manually:
-
-1. Install npm dependencies
-
-    ```sh
-     npm install --force
-    ```
-
-    `--force` is required until issue #87 gets resolved.
-
-2. Copy the default app configuration
-
-    ```sh
-     cp config.ts.sample config.ts
-     cp styles.ts.sample styles.ts
-    ```
-
-3. Create the `.env.local` file to provide environment variables, and set the appropriate values for your app.
-
-    | variable          | Description                                                                                | Default value           |
-    | ----------------- | ------------------------------------------------------------------------------------------ | ----------------------- |
-    | `PIERO_BASE_URL`  | The URL of your server where the app is deployed, for example: <https://example.com/piero> | `http://localhost:8080` |
-    | `PIERO_APP_TITLE` | The title of your app                                                                      | `"Piero"`               |
-
-    > [!tip]
-    > Use the `.env` file as a template for `.env.local`.
-
-If you want to learn more about the configuration, head up to [its documentation](./CONFIGURATION.md).
 
 #### Run
 
-Run the app with `npm run start`: it should be available at <http://localhost:8080/>.
+Run the app with `npm run app:dev`: it should be available at <http://localhost:8080/>.
 
 To deploy the app, simply build it; the static web application will be available in the `dist` folder - it can then be copied to your server:
 
 ```bash
-npm run build
+npm run app:build
 ```
 
 #### Tagged version vs. main
