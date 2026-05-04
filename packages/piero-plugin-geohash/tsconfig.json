@@ -3,8 +3,11 @@
     "compilerOptions": {
         "composite": true,
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "@giro3d/piero": ["../piero/dist"],
+            "@giro3d/piero/*": ["../piero/dist/*"]
         }
     },
-    "include": ["src", "../../env.d.ts"]
+    "include": ["src", "../../env.d.ts"],
+    "references": [{ "path": "../piero" }]
 }

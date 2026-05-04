@@ -10,7 +10,8 @@
         "three": "^0.170.0"
     },
     "scripts": {
-        "apidoc:build": "typedoc",
+        "apidoc:build": "npm run libs:build && typedoc",
+        "apidoc:serve": "npm run apidoc:build && npx http-server site/api/",
         "app:build": "npm run copy-wasm && vite build",
         "app:dev": "npm run copy-wasm && vite --port 8080",
         "app:serve": "npm run app:build -- --base 'http://localhost:8080' && vite preview --port 8080",
