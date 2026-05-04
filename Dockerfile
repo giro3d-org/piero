@@ -16,7 +16,7 @@ FROM nginx:1-alpine-slim
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built files
-COPY --from=builder /piero-build/app/dist /usr/share/nginx/html
+COPY --from=builder /piero-build/dist /usr/share/nginx/html
 
 # Copy optional custom Nginx config (if needed)
 # COPY nginx.conf /etc/nginx/conf.d/default.conf

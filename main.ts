@@ -4,7 +4,6 @@ import { createPieroApp, loadRemoteConfiguration } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
-import '@giro3d/piero/piero.css';
 
 class Environment {
     public readonly baseUrl: string;
