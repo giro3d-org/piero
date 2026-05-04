@@ -1,13 +1,10 @@
 FROM node:24 AS builder
-
 WORKDIR /piero-build
 
-COPY .env.production.docker .env.production
-
-COPY . .
-
+COPY --parents package.json package-lock.json packages/*/package.json /piero-build/
 RUN npm ci
-
+COPY . .
+COPY .env.production.docker .env.production
 RUN npm run libs:build && npm run app:build
 
 FROM nginx:1-alpine-slim
