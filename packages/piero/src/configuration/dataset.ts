@@ -27,6 +27,10 @@ export interface Dataset {
      * @defaultValue false
      */
     visible?: boolean;
+    /**
+     * Additional properties added by dataset loaders (e.g., url, position, etc).
+     */
+    [key: string]: unknown;
 }
 
 export const Dataset = z
