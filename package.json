@@ -31,7 +31,7 @@
         "site:dev": "vitepress dev site/doc",
         "site:preview": "vitepress preview site/doc",
         "test": "vitest",
-        "typecheck": "npm run typecheck --workspaces --if-present"
+        "typecheck": "npm run libs:build && npm run typecheck --workspaces --if-present"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",

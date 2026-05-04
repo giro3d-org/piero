@@ -15,6 +15,7 @@ export default defineConfigWithVueTs([
             'packages/*/dist/*',
             'node_modules/*',
             '.gitlab-ci-local',
+            'site/api',
             '**/.vitepress/*',
         ],
     },

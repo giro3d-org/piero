@@ -4,31 +4,30 @@ Piero can be customized via a configuration file and via modules.
 
 ## Configuration file
 
-Configuration file is a static configuration used at build-time. This is *not* defined by default. More precisely: the piero core package defines [a default configuration](./packages/piero/src/configuration/defaultConfig.ts), while the app can override it (which is not done by default).
+Configuration file is a static configuration used at build-time. This is _not_ defined by default. More precisely: the piero core package defines [a default configuration](./packages/piero/src/configuration/defaultConfig.ts), while the app can override it (which is not done by default).
 
 ### Enabling static default configuration
 
 1. Create a `config.ts` file at the root of the project (see below for the content)
 2. Edit [`main.ts`](./main.ts) to import the file and use that configuration by default:
 
-   ```diff
-    import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
-    
-   + import { appConfig } from './config';
+    ```diff
+     import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
-    class Environment {
+    + import { appConfig } from './config';
 
-    ...
+     class Environment {
 
-    const configurationUrl = params.get('config');
-   -let configuration = undefined;
-   +let configuration = appConfig;
-    let fallback = false;
+     ...
 
-    if (configurationUrl != null) {
-        try {
-   ```
+     const configurationUrl = params.get('config');
+    -let configuration = undefined;
+    +let configuration = appConfig;
+     let fallback = false;
 
+     if (configurationUrl != null) {
+         try {
+    ```
 
 When changing the static configuration file, you'll need to rebuild and redeploy your app.
 
