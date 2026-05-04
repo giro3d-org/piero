@@ -13,18 +13,8 @@ styles.ts
 # App apidoc
 # apidoc/
 
-# IFC
-public/web-ifc.wasm
-
-# LazPerf
-public/laz-perf.wasm
-
-# We should stop putting data in there
-public/cityjson
-public/geojson
-public/ifc
-public/ply
-public/shp
+# IFC/LazPerf
+app/public/*.wasm
 
 .DS_Store
 

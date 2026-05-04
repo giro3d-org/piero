@@ -12,7 +12,7 @@
         "app:build": "npm run copy-wasm && npm run build --prefix app",
         "app:dev": "npm run dev --prefix app",
         "app:serve": "npm run serve --prefix app",
-        "copy-wasm": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm public/laz-perf.wasm",
+        "copy-wasm": "shx cp node_modules/web-ifc/web-ifc.wasm app/public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm app/public/laz-perf.wasm",
         "format": "npm run format-eslint && npm run format-prettier && npm run format-markdownlint",
         "format-eslint": "eslint . --fix",
         "format-markdownlint": "markdownlint . --fix --ignore-path .gitignore",
