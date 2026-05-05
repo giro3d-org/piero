@@ -29,6 +29,7 @@ export interface Dataset {
     visible?: boolean;
     /**
      * Additional properties added by dataset loaders (e.g., url, position, etc).
+     * @internal
      */
     [key: string]: unknown;
 }

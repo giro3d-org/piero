@@ -1,5 +1,5 @@
 {
     "tsconfig": "tsconfig.json",
     "readme": "none",
-    "entryPoints": ["src"]
+    "entryPoints": ["src/index.ts"]
 }

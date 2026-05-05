@@ -7,6 +7,9 @@
         "skipLibCheck": true,
         "allowJs": true,
         "checkJs": true,
+        /* Emit */
+        "declaration": true,
+        "declarationMap": true,
         /* Bundler mode */
         "moduleResolution": "bundler",
         "allowSyntheticDefaultImports": true,

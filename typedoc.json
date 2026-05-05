@@ -6,5 +6,6 @@
     "tsconfig": "tsconfig.json",
     "readme": "none",
     "out": "site/doc/api",
-    "docsRoot": "site/doc"
+    "docsRoot": "site/doc",
+    "excludeInternal": true
 }
