@@ -1,3 +1,11 @@
+/**
+ * Built-in modules
+ *
+ * These are the modules available when installing the `@giro3d/piero` package.
+ *
+ * @packageDocumentation
+ */
+
 import * as analysis from './analysis';
 import * as loaders from './loaders';
 import * as misc from './misc';

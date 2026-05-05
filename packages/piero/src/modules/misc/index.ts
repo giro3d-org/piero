@@ -1,3 +1,9 @@
+/**
+ * Miscellaneous modules.
+ *
+ * @packageDocumentation
+ */
+
 import Attribution from './Attribution';
 import DownloadDataset from './DownloadDataset';
 import Graticule from './Graticule';
@@ -10,9 +16,6 @@ import Tour from './Tour';
  */
 const all = [Attribution, DownloadDataset, Graticule, OpenLayersMinimap, PostProcessEntities, Tour];
 
-/**
- * Miscellaneous modules.
- */
 export {
     all,
     Attribution,

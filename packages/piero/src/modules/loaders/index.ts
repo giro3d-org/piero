@@ -1,3 +1,9 @@
+/**
+ * Modules that can load datasets.
+ *
+ * @packageDocumentation
+ */
+
 import BDTopoLoader from './BDTopoLoader';
 import GeoJSONLoader from './GeoJSONLoader';
 import GeoTIFFLoader from './GeoTIFFLoader';
@@ -33,9 +39,6 @@ const all = [
     BDTopoLoader,
 ];
 
-/**
- * Modules that can load datasets.
- */
 export {
     all,
     BDTopoLoader,

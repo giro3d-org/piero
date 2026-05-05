@@ -18,7 +18,7 @@ import CityJSONEntityInspector from './CityJSONEntityInspector';
 /**
  * CityJSON dataset configuration.
  *
- * See [Dataset](/api/@giro3d/piero/index/namespaces/configuration/namespaces/dataset/interfaces/Dataset.html) for inherited properties.
+ * See {@link "@giro3d/piero".index.configuration.dataset.Dataset | Dataset} for inherited properties.
  */
 export const CityJSONDataset = configuration.dataset.Dataset.extend({
     /** URL to the json file */

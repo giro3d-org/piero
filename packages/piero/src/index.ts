@@ -1,3 +1,9 @@
+/**
+ * This is the Piero core API to use when installing the `@giro3d/piero` package.
+ *
+ * @packageDocumentation
+ */
+
 import type { AttributesGroups } from '@/types/Feature';
 
 import type { PieroContext } from './context';
