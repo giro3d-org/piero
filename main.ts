@@ -81,6 +81,7 @@ async function start(): Promise<PieroApplication> {
          */
         analysis.FloodingPlane,
         analysis.CrossSection,
+        analysis.ClippingBox,
 
         /**
          * Search-related modules
