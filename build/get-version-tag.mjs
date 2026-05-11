@@ -36,17 +36,24 @@ const gitTagVersion = gitTagMatch[1];
 const versions = [];
 
 for (const dir of fs.readdirSync(rootDir)) {
-    const content = fs.readFileSync(path.join(rootDir, dir, 'package.json'), { encoding: 'utf-8' });
-    const pkg = JSON.parse(content);
+    try {
+        const content = fs.readFileSync(path.join(rootDir, dir, 'package.json'), {
+            encoding: 'utf-8',
+        });
+        const pkg = JSON.parse(content);
 
-    if (gitTagVersion !== pkg.version) {
-        console.error(
-            `FATAL: package '${dir}' does not have the same version (${pkg.version}) as the git tag (${gitTagVersion}). All packages must have exactly the same version.`,
-        );
-        exit(1);
+        if (gitTagVersion !== pkg.version) {
+            console.error(
+                `FATAL: package '${dir}' does not have the same version (${pkg.version}) as the git tag (${gitTagVersion}). All packages must have exactly the same version.`,
+            );
+            exit(1);
+        }
+
+        versions.push(pkg.version);
+    } catch {
+        // missing package.json, etc.
+        // do nothing
     }
-
-    versions.push(pkg.version);
 }
 
 const prerelease = semver.prerelease(versions[0]);
