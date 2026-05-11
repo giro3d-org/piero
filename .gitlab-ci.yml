@@ -1,7 +1,7 @@
 default:
     image: node:24
     before_script:
-        - npm install --force
+        - npm ci
     id_tokens:
         NPM_ID_TOKEN:
             aud: 'npm:registry.npmjs.org'
