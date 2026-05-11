@@ -1,7 +1,5 @@
 import type { Component } from 'vue';
 
-import { hasExperimentalFeature } from '@/utils/Configuration';
-
 type PanelDef = {
     enabled: boolean;
     icon: string;
@@ -9,13 +7,7 @@ type PanelDef = {
     title: string;
 };
 
-export type PanelType =
-    | 'about'
-    | 'analysis'
-    | 'annotations'
-    | 'bookmarks'
-    | 'datasets'
-    | 'measures';
+export type PanelType = 'about' | 'analysis' | 'annotations' | 'bookmarks' | 'data' | 'measures';
 
 let panels: PanelDef[] | null = null;
 
@@ -24,10 +16,10 @@ type DatasetType = string;
 export default function getPanels(): ReadonlyArray<PanelDef> {
     if (!panels) {
         panels = [
-            { enabled: true, icon: 'bi-database', key: 'datasets', title: 'Datasets' },
+            { enabled: true, icon: 'bi-stack', key: 'data', title: 'Data' },
             { enabled: true, icon: 'bi-vector-pen', key: 'annotations', title: 'Annotations' },
             {
-                enabled: hasExperimentalFeature('measurements'),
+                enabled: true,
                 icon: 'bi-rulers',
                 key: 'measures',
                 title: 'Measurements',

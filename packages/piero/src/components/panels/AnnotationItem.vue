@@ -1,8 +1,11 @@
 <script setup lang="ts">
     import { onMounted, onUnmounted, ref } from 'vue';
 
+    import type { AnnotationType } from '@/configuration/annotation';
     import type Annotation from '@/types/Annotation';
 
+    import Icon from '../atoms/Icon.vue';
+    import IconList from '../atoms/IconList.vue';
     import AttributeItem from '../AttributeItem.vue';
     import VisibilityControl from '../VisibilityControl.vue';
     import EmptyIndicator from './EmptyIndicator.vue';
@@ -11,6 +14,20 @@
         annotation: Annotation;
         visible: boolean;
     }>();
+
+    const icons: Record<AnnotationType, string> = {
+        linestring: 'fg-polyline-pt',
+        multipoint: 'fg-multipoint',
+        point: 'fg-point',
+        polygon: 'fg-polygon-pt',
+    };
+
+    const titles: Record<AnnotationType, string> = {
+        linestring: 'Line',
+        multipoint: 'Points',
+        point: 'Point',
+        polygon: 'Polygon',
+    };
 
     defineEmits(['edit', 'stop-edit', 'delete', 'download', 'update:visible', 'zoom']);
 
@@ -36,6 +53,10 @@
                 :visible="visible"
                 v-on:update:visible="v => $emit('update:visible', v)"
             />
+
+            <IconList class="text-body-tertiary me-1">
+                <Icon :icon="icons[annotation.type]" :title="titles[annotation.type]" />
+            </IconList>
 
             <a class="title" :title="annotation.title" href="#" @click="$emit('zoom')">{{
                 annotation.title
@@ -116,7 +137,6 @@
         white-space: nowrap;
         display: block;
         width: 100% !important;
-        margin-left: 1rem;
         overflow: hidden;
         text-overflow: ellipsis;
     }

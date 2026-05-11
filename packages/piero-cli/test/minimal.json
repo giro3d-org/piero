@@ -1,0 +1,22 @@
+{
+    "version": 2,
+    "scene": {
+        "camera": {
+            "latitude": 0,
+            "longitude": 0,
+            "altitude": 10000,
+            "heading": 0,
+            "tilt": -90
+        },
+        "basemap": {
+            "extent": [0, 0, 1000, 1000]
+        }
+    },
+    "data": [
+        {
+            "type": "tms",
+            "name": "My TMS layer",
+            "url": 3
+        }
+    ]
+}

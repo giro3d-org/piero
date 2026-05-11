@@ -1,0 +1,7 @@
+# Vitepress
+**/.vitepress/cache
+**/.vitepress/dist
+
+# Auto-generated
+api
+module-reference

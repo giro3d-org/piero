@@ -8,7 +8,7 @@
     import type SceneCursorManager from '@/services/SceneCursorManager';
 
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
-    import Picker from '@/services/Picker';
+    import Picker from '@/services/picking';
     import { nonNull } from '@/utils/Types';
 
     const props = defineProps<{

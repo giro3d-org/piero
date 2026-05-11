@@ -1,27 +1,19 @@
-import ClippingBoxAnalysis from './ClippingBoxAnalysis';
-import CrossSectionAnalysis from './CrossSectionAnalysis';
-import DownloadDataset from './DownloadDataset';
-import FloodingPlaneAnalysis from './FloodingPlaneAnalysis';
-import CoordinatesSearch from './geocoding/CoordinatesSearch';
-import FrenchBanGeocoder from './geocoding/FrenchBanGeocoder';
-import IFCLoader from './IFCLoader';
-import OpenLayersMinimap from './OpenLayersMinimap';
-import PLYLoader from './PLYLoader';
-import PostProcessEntities from './PostProcessEntities';
-import PotreeLoader from './PotreeLoader';
-import Tour from './Tour';
+/**
+ * Built-in modules
+ *
+ * These are the modules available when installing the `@giro3d/piero` package.
+ *
+ * @packageDocumentation
+ */
 
-export {
-    ClippingBoxAnalysis,
-    CoordinatesSearch,
-    CrossSectionAnalysis,
-    DownloadDataset,
-    FloodingPlaneAnalysis,
-    FrenchBanGeocoder,
-    IFCLoader,
-    OpenLayersMinimap,
-    PLYLoader,
-    PostProcessEntities,
-    PotreeLoader,
-    Tour,
-};
+import * as analysis from './analysis';
+import * as loaders from './loaders';
+import * as misc from './misc';
+import * as search from './search';
+
+/**
+ * Contains all the built-in modules.
+ */
+const all = [...analysis.all, ...loaders.all, ...misc.all, ...search.all];
+
+export { all, analysis, loaders, misc, search };

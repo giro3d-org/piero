@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 import { generateUUID } from 'three/src/math/MathUtils.js';
 import { ref, shallowRef } from 'vue';
 
-import type { AnalysisToolRegistrationParams } from '@/api/AnalysisApi';
+import type { AnalysisToolRegistrationParams } from '@/api/analysis';
 
 type AnalysisTool = {
     collapsible: boolean;

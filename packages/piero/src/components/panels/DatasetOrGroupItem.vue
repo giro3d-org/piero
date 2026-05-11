@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { DatasetOrGroup } from '@/types/Dataset';
+    import type { Dataset, DatasetOrGroup } from '@/types/Dataset';
 
     import DatagroupItem from '@/components/panels/DatagroupItem.vue';
     import DatasetItem from '@/components/panels/DatasetItem.vue';
@@ -9,7 +9,11 @@
         dataset: DatasetOrGroup;
     }>();
 
-    defineEmits(['zoom', 'update:toggle-grid', 'update:toggle-mask', 'update:visible']);
+    defineEmits<{
+        showParameters: [value: Dataset];
+        'update:visible': [ds: Dataset, visible: boolean];
+        zoom: [value: Dataset];
+    }>();
 </script>
 
 <template>
@@ -18,16 +22,14 @@
             v-if="Datagroup.isGroup(dataset)"
             :group="dataset"
             @zoom="ds => $emit('zoom', ds)"
-            @update:toggle-grid="ds => $emit('update:toggle-grid', ds)"
-            @update:toggle-mask="ds => $emit('update:toggle-mask', ds)"
+            @show-parameters="ds => $emit('showParameters', ds)"
             @update:visible="(ds, v) => $emit('update:visible', ds, v)"
         />
         <DatasetItem
             v-else
             :dataset="dataset"
+            @show-parameters="ds => $emit('showParameters', ds)"
             @zoom="ds => $emit('zoom', ds)"
-            @update:toggle-grid="ds => $emit('update:toggle-grid', ds)"
-            @update:toggle-mask="ds => $emit('update:toggle-mask', ds)"
             @update:visible="(ds, v) => $emit('update:visible', ds, v)"
         />
     </li>

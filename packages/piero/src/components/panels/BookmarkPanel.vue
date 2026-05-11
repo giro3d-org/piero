@@ -12,7 +12,6 @@
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
     import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
-    import Notification from '@/types/Notification';
     import Download from '@/utils/Download';
 
     const showShareModal = ref(false);
@@ -70,13 +69,11 @@
             }
         });
 
-        notificationStore.push(
-            new Notification(
-                'Bookmarks',
-                `${nbImported} bookmarks imported (${nbSkipped} skipped)`,
-                'success',
-            ),
-        );
+        notificationStore.push({
+            level: 'success',
+            text: `${nbImported} bookmarks imported (${nbSkipped} skipped)`,
+            title: 'Bookmarks',
+        });
     }
 
     function shareBookmark(bookmark: Bookmark): void {

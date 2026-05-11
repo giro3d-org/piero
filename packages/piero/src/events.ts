@@ -1,7 +1,7 @@
 import { EventDispatcher } from 'three';
 
 import type Bookmark from './types/Bookmark';
-import type { DatasetOrGroup } from './types/Dataset';
+import type { Dataset, DatasetOrGroup } from './types/Dataset';
 
 export interface BookmarkEvents {
     'bookmark-added': PayloadEvent<Bookmark>;
@@ -10,6 +10,7 @@ export interface BookmarkEvents {
 
 export interface DatasetEvents {
     'dataset-added': PayloadEvent<DatasetOrGroup>;
+    'dataset-opacity-changed': PayloadEvent<Dataset>;
     'dataset-removed': PayloadEvent<DatasetOrGroup>;
     'dataset-visibility-changed': PayloadEvent<DatasetOrGroup>;
 }

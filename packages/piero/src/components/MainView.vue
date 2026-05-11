@@ -60,5 +60,7 @@
     .main {
         width: 100%;
         height: 100%;
+
+        background: radial-gradient(circle, rgba(86, 120, 105, 1) 0%, rgba(39, 56, 53, 1) 100%);
     }
 </style>

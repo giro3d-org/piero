@@ -1,0 +1,10 @@
+:root {
+  --piero: #377c5f;
+  --piero-2: #408b6c;
+  --piero-3: #408b6c33;
+
+  --vp-c-brand-1: var(--piero);
+  --vp-c-brand-2: var(--piero-2);
+  --vp-c-brand-3: var(--piero-2);
+  --vp-c-brand-soft: var(--piero-3);
+}

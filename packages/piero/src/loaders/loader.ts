@@ -1,38 +1,11 @@
-import type { Configuration } from '@/types/Configuration';
-import type { DatasetConfigImportable } from '@/types/configuration/datasets';
+import type { LoadDatasetFromFile, LoaderContext } from '@/api/dataset';
+import type { Configuration } from '@/configuration/configuration';
+import type { Dataset as DatasetConfig } from '@/configuration/dataset';
 
 import { Dataset } from '@/types/Dataset';
 import { getPublicFolderUrl } from '@/utils/Configuration';
 
-import * as csv from './csv';
-import * as las from './las';
-import * as vector from './vector';
-
-export type LoadDatasetFromFile<O extends DatasetConfigImportable = DatasetConfigImportable> = (
-    context: LoaderContext,
-) => O;
-
-export type LoaderContext = {
-    configuration: Configuration;
-    extension: string;
-    file: File | string;
-    filename: string;
-};
-
-const loaders: Record<string, LoadDatasetFromFile> = {
-    csv: csv.load,
-    dsv: csv.load,
-    'geo.json': vector.load,
-
-    geojson: vector.load,
-    gpkg: vector.load,
-    gpx: vector.load,
-    kml: vector.load,
-    las: las.load,
-
-    laz: las.load,
-    tsv: csv.load,
-};
+const loaders: Record<string, LoadDatasetFromFile> = {};
 
 /**
  * Gets the filename and extension from a File or URL
@@ -103,7 +76,7 @@ async function importFile(
         throw new Error(`File format ${context.extension} not supported`);
     }
 
-    const datasetConfig: DatasetConfigImportable = loader(context);
+    const datasetConfig: DatasetConfig = await loader(context);
 
     // Reserve promise usage for future (e.g. autodetecting format based on content, etc.)
     return Promise.resolve(new Dataset(datasetConfig));

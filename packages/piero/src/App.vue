@@ -14,8 +14,8 @@
     import type { PanelType } from './components/Configuration';
     import type { PieroContext } from './context';
 
-    import { isLocationSearchResult, type SearchResult } from './api/SearchApi';
-    import { ViewApiImpl } from './api/ViewApi';
+    import { isLocationSearchResult, type SearchResult } from './api/search';
+    import { ViewApiImpl } from './api/view';
     import AlertToast from './components/AlertToast.vue';
     import AttributePanel from './components/AttributePanel.vue';
     import LoadingScreen from './components/LoadingScreen.vue';
@@ -34,7 +34,7 @@
         getContext: () => PieroContext;
     }>();
 
-    const selectedTool = ref<PanelType | null>('datasets');
+    const selectedTool = ref<PanelType | null>(null);
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
     const mouse = new Vector2();
@@ -121,6 +121,7 @@
         });
 
         getContext().view = new ViewApiImpl({
+            basemap: giro3d.value.layerManager.getBasemap(),
             camera: giro3d.value.camera,
             instance: giro3d.value.mainInstance,
             sceneCursorManager: giro3d.value.sceneCursorManager,
@@ -273,12 +274,14 @@
     <NavigationButtons class="navigation-buttons" />
     <AlertToast />
 
-    <div
-        v-for="(widget, index) in widgetStore.getWidgets()"
-        :key="index"
-        :id="`widget-${widget.id}`"
-    >
-        <component :context="getContext()" :is="widget.component"></component>
+    <div class="widgets">
+        <div
+            v-for="(widget, index) in widgetStore.getWidgets()"
+            :key="index"
+            :id="`widget-${widget.id}`"
+        >
+            <component :context="getContext()" :is="widget.component"></component>
+        </div>
     </div>
 </template>
 
@@ -338,8 +341,22 @@
         position: absolute;
         height: 100vh;
         left: 3.5rem;
-        width: 27rem;
+        max-width: 30rem;
+        min-width: 20rem;
         z-index: 1;
+    }
+
+    .widgets {
+        pointer-events: none;
+        position: absolute;
+        left: 3.5rem;
+        top: 0;
+        height: 100vh;
+        width: calc(100% - 3.5rem);
+    }
+
+    .widgets > div {
+        pointer-events: all;
     }
 
     .mainview {
@@ -355,7 +372,6 @@
         width: 3.5rem;
         height: 100vh;
         position: absolute;
-        /* background-color: rgb(250, 250, 250); */
         top: 0;
         left: 0;
     }

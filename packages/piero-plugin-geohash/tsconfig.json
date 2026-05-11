@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src", "../../env.d.ts"],
+    "references": [{ "path": "../piero" }]
+}

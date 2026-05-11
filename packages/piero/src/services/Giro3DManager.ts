@@ -4,6 +4,7 @@ import type { Object3D } from 'three';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
+import { getLookAtTarget } from '@/configuration/lookAt';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
@@ -11,7 +12,7 @@ import DatasetManager from '@/services/DatasetManager';
 import Highlighter from '@/services/Highlighter';
 import LayerManager from '@/services/LayerManager';
 import MeasurementManager from '@/services/MeasurementManager';
-import Picker from '@/services/Picker';
+import Picker from '@/services/picking';
 import { useGiro3dStore } from '@/stores/giro3d';
 import Fetcher from '@/utils/Fetcher';
 
@@ -89,8 +90,9 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.camera = new CameraController(this.mainInstance, this.picker, this.sceneCursorManager);
 
         const position = this._store.getDefaultCameraPosition();
-        const lookAt = this._store.getDefaultCameraLookAt();
-        void this.camera.lookAt(position.toVector3(), lookAt.toVector3());
+        const lookAt = this._store.getDefaultLookAt();
+        const target = getLookAtTarget(position.toVector3(), lookAt);
+        void this.camera.lookAt(position.toVector3(), target);
 
         this.layerManager = new LayerManager(this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance, this.layerManager);
@@ -116,15 +118,12 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.mainInstance.scene.add(this.ambientLight);
 
         this.dirLight = new DirectionalLight(lightColor, 2);
-        this.dirLight.position.set(lookAt.x - 10000, lookAt.y - 10000, 10000);
-        this.dirLight.target.position.set(lookAt.x, lookAt.y, 0);
+        this.dirLight.position.set(1, -1, 1);
+        this.dirLight.target.position.set(0, 0, 0);
         this.mainInstance.scene.add(this.dirLight);
         this.mainInstance.scene.add(this.dirLight.target);
         this.dirLight.updateMatrixWorld();
         this.mainInstance.scene.updateMatrixWorld();
-
-        // We disable the skybox for now as it breaks the rendering of point cloud  with effects.
-        // Skybox.addSkybox(this.mainInstance);
 
         this.mainInstance.notifyChange();
     }

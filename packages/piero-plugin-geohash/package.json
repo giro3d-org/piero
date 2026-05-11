@@ -1,0 +1,80 @@
+{
+    "name": "@giro3d/piero-plugin-geohash",
+    "type": "module",
+    "version": "1.0.0-beta.4",
+    "description": "Add GeoHash geocoding to Piero",
+    "keywords": [
+        "front-end",
+        "web",
+        "cityjson",
+        "framework",
+        "webgl",
+        "webgl2",
+        "geography",
+        "gis",
+        "geospatial",
+        "3d",
+        "3D",
+        "three",
+        "three.js",
+        "openlayers",
+        "map",
+        "layer",
+        "visualization",
+        "pointcloud",
+        "3dtiles",
+        "raster",
+        "vector",
+        "geojson",
+        "geometry",
+        "geocoding",
+        "geohash",
+        "giro3d"
+    ],
+    "types": "dist/index.d.ts",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.es.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.es.js",
+            "require": "./dist/index.cjs.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": [
+        "**/*.css"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/giro3d/piero.git"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://gitlab.com/giro3d/piero/-/issues"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "homepage": "https://piero.giro3d.org/",
+    "scripts": {
+        "prepublishOnly": "npm run build-library",
+        "build": "vite build",
+        "build:dev": "vite build --mode dev",
+        "package": "npm run build && npm pack",
+        "typecheck": "tsc --noEmit"
+    },
+    "peerDependencies": {
+        "@giro3d/piero": "*",
+        "@giro3d/giro3d": "^0.43.0"
+    },
+    "devDependencies": {
+        "@types/latlon-geohash": "^2.0.0"
+    },
+    "dependencies": {
+        "latlon-geohash": "^2.0.0"
+    }
+}

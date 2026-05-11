@@ -1,22 +1,9 @@
-import { createPieroApp } from '@giro3d/piero';
-import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
-import {
-    CoordinatesSearch,
-    DownloadDataset,
-    FloodingPlaneAnalysis,
-    FrenchBanGeocoder,
-    IFCLoader,
-    OpenLayersMinimap,
-    PLYLoader,
-    PostProcessEntities,
-    PotreeLoader,
-    Tour,
-} from '@giro3d/piero/modules';
-import ClippingBoxAnalysis from '@giro3d/piero/modules/ClippingBoxAnalysis';
-import CrossSectionAnalysis from '@giro3d/piero/modules/CrossSectionAnalysis';
+import type { ModuleConstructor, PieroApplication } from '@giro3d/piero';
 
-import DefaultConfig from './config';
-import styles from './styles';
+import { createPieroApp, loadRemoteConfiguration } from '@giro3d/piero';
+import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
+import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
+import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
 class Environment {
     public readonly baseUrl: string;
@@ -24,59 +11,122 @@ class Environment {
 
     public constructor() {
         this.baseUrl = import.meta.env.VITE_BASE_URL;
-        this.title = import.meta.env.VITE_APP_TITLE;
+        this.title = import.meta.env.VITE_APP_TITLE ?? 'Piero';
     }
 }
 
-function start(): Promise<void> {
-    // Load the environment variables.
-    const env = new Environment();
+// Load the environment variables.
+const env = new Environment();
 
-    document.title = env.title;
+async function start(): Promise<PieroApplication> {
+    // Piero can either load a remote configuration from the provided 'config' URL param
+    // i.e: http://piero.giro3d.org?config=my-remote-configuration.json
+    // or load the static configuration file (config.ts) in the same folder as this file.
+    const params = new URLSearchParams(document.location.search);
+    const configurationUrl = params.get('config');
+    let configuration = undefined;
+    let fallback = false;
+
+    if (configurationUrl != null) {
+        try {
+            configuration = await loadRemoteConfiguration(configurationUrl);
+        } catch (e) {
+            console.warn(`Failed to fetch configuration from ${configurationUrl}`, e);
+            fallback = true;
+        }
+    }
 
     // The list of all optional modules we want to use.
     // Since this is the default Piero app, we load all the modules
     // for demonstration purposes. However, in a customized Piero app,
     // you will want to select as few modules as possible for the best
     // performance and bundle size.
-    const modules = [
-        // Misc modules
-        new Tour(),
-        new DownloadDataset(),
-        new OpenLayersMinimap(),
-        new PostProcessEntities(),
+    const modules: ModuleConstructor[] = [
+        /**
+         * Miscellaneous modules
+         */
+        misc.Attribution,
+        misc.Tour,
+        misc.DownloadDataset,
+        misc.PostProcessEntities,
+        misc.OpenLayersMinimap,
+        misc.Graticule,
 
-        // Data loaders
-        new IFCLoader(),
-        new CityJSONLoader(),
-        new PLYLoader(),
-        new PotreeLoader(),
+        /**
+         * Data loaders
+         */
 
-        // Analysis tools
-        new FloodingPlaneAnalysis(),
-        new CrossSectionAnalysis(),
-        new ClippingBoxAnalysis(),
+        // Built-in
+        loaders.LASLoader,
+        loaders.KMLLoader,
+        loaders.GPXLoader,
+        loaders.GeoJSONLoader,
+        loaders.IFCLoader,
+        loaders.OSMLoader,
+        loaders.TMSLoader,
+        loaders.WMSLoader,
+        loaders.WMTSLoader,
+        loaders.GeoTIFFLoader,
+        loaders.Tiles3DLoader,
 
-        // Search
-        new FrenchBanGeocoder(),
-        new CoordinatesSearch(),
+        loaders.MapboxLoader,
+        loaders.PotreeLoader,
+        loaders.BDTopoLoader,
+
+        // External plugins
+        CityJSONLoader,
+
+        /**
+         * Analysis tools
+         */
+        analysis.FloodingPlane,
+        analysis.CrossSection,
+        analysis.ClippingBox,
+
+        /**
+         * Search-related modules
+         */
+        // Built-in
+        search.CoordinatesSearch,
+        search.FrenchBanGeocoder,
+        search.PhotonGeocoder,
+
+        // External plugins
+        GeohashGeocoder,
     ];
 
-    // Piero can either load a remote configuration from the provided 'config' URL param
-    // i.e: http://piero.giro3d.org?config=my-remote-configuration.json
-    // or load the static configuration file (config.ts) in the same folder as this file.
-    const params = new URLSearchParams(document.location.search);
-    const configurationUrl = params.get('config');
-    const configuration = configurationUrl ?? DefaultConfig;
-
-    // We are now ready to instantiate Piero on the #app DOM element of our webpage.
-    return createPieroApp({
+    // We are now ready to instantiate Piero on the #app DOM element of our webpage.*
+    const app = await createPieroApp({
         baseUrl: env.baseUrl,
         configuration,
         container: '#app',
-        dynamicStyles: styles,
         modules,
     });
+    if (fallback) {
+        console.warn('Piero instantiated with default configuration.', app);
+        app.context.notifications.warning(
+            app.context.configuration.title ?? 'Configuration',
+            'Could not use provided configuration, loaded default configuration instead.',
+        );
+    } else {
+        console.info('Piero instantiated successfully.', app);
+        app.context.notifications.success(
+            app.context.configuration.title ?? 'Configuration',
+            'Loading successful.',
+        );
+    }
+    return app;
 }
 
-start().catch(console.error);
+start()
+    .then(app => {
+        const configName = app.context.configuration.title;
+        if (configName != null) {
+            document.title = `${configName} · ${env.title}`;
+        } else {
+            document.title = env.title;
+        }
+    })
+    .catch(e => {
+        console.error('Failed to instanciate Piero', e);
+    });

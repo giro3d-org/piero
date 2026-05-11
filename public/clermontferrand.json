@@ -1,0 +1,136 @@
+{
+    "title": "Clermont-Ferrand",
+    "crsDefinitions": [
+        {
+            "name": "EPSG:2154",
+            "definition": "+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+        },
+        {
+            "name": "EPSG:3857",
+            "definition": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs"
+        },
+        {
+            "name": "EPSG:3946",
+            "definition": "+proj=lcc +lat_1=45.25 +lat_2=46.75 +lat_0=46 +lon_0=3 +x_0=1700000 +y_0=5200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+        },
+        {
+            "name": "EPSG:3948",
+            "definition": "+proj=lcc +lat_0=48 +lon_0=3 +lat_1=47.25 +lat_2=48.75 +x_0=1700000 +y_0=7200000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+        },
+        {
+            "name": "EPSG:4171",
+            "definition": "+proj=longlat +ellps=GRS80 +no_defs +type=crs"
+        },
+        {
+            "name": "EPSG:4326",
+            "definition": "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+        },
+        {
+            "name": "IGNF:WGS84G",
+            "definition": "GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]]"
+        }
+    ],
+    "data": [
+        {
+            "name": "3D",
+            "type": "group",
+            "children": [
+                {
+                    "name": "LIDAR HD",
+                    "type": "copc",
+                    "attribute": "Classification",
+                    "url": "http://127.0.0.1/CRAIG/LHD_FXX_0705_6525_PTS_LAMB93_IGN69.copc.laz"
+                },
+                {
+                    "name": "Maquette 3D / Bâtiments",
+                    "type": "cityjson",
+                    "url": "http://localhost/CRAIG/out/cityjson/Clermont_LoD2_texture_1.json"
+                }
+            ]
+        },
+        {
+            "name": "Thématiques",
+            "type": "group",
+            "children": [
+                {
+                    "type": "wms",
+                    "name": "Réseau de distribution de gaz",
+                    "attribution": "© CRAIG",
+                    "format": "image/png",
+                    "layer": "gaz_reseau_distribution",
+                    "projection": "EPSG:2154",
+                    "url": "https://tiles.craig.fr/reseaux/service"
+                },
+                {
+                    "type": "wms",
+                    "name": "Bornes de recharges de véhicules électriques",
+                    "attribution": "© CRAIG",
+                    "format": "image/png",
+                    "layer": "electricite_bornes_irve",
+                    "projection": "EPSG:2154",
+                    "url": "https://tiles.craig.fr/reseaux/service"
+                },
+                {
+                    "type": "wms",
+                    "name": "Lignes électriques aériennes moyenne tension (HTA)",
+                    "attribution": "© CRAIG",
+                    "format": "image/png",
+                    "layer": "electricite_reseau_aerien_moyenne_tension_hta",
+                    "projection": "EPSG:2154",
+                    "url": "https://tiles.craig.fr/reseaux/service"
+                },
+                {
+                    "type": "wms",
+                    "name": "Thermographie 1 m - Clermont-Ferrand - été 2024",
+                    "attribution": "© CRAIG",
+                    "format": "image/png",
+                    "layer": "clermont_2024",
+                    "projection": "EPSG:2154",
+                    "url": "https://tiles.craig.fr/thermo/service"
+                }
+            ]
+        },
+        {
+            "attribution": "© OpenStreetMap contributors",
+            "name": "OSM",
+            "type": "osm"
+        },
+        {
+            "attribution": "© IGN",
+            "name": "IGN Plan",
+            "format": "image/png",
+            "layer": "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
+            "url": "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities",
+            "type": "wmts"
+        },
+        {
+            "type": "geotiff",
+            "name": "MNT",
+            "projection": "EPSG:2154",
+            "visible": true,
+            "attribution": "© CRAIG",
+            "layerType": "elevation",
+            "url": "http://127.0.0.1/CRAIG/out/CRAIG_MNT5m_L93-IGN69.cog.tif"
+        }
+    ],
+    "scene": {
+        "basemap": {
+            "extent": {
+                "crs": "EPSG:2154",
+                "maxx": 724362,
+                "maxy": 6531203,
+                "minx": 693880,
+                "miny": 6507528
+            }
+        },
+        "camera": {
+            "altitude": 80000,
+            "heading": 0,
+            "latitude": 45.78624,
+            "longitude": 3.1087,
+            "tilt": -90
+        },
+        "crs": "EPSG:2154"
+    },
+    "version": 2
+}

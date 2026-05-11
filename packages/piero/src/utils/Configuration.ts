@@ -1,18 +1,48 @@
-import ColorMap from '@giro3d/giro3d/core/ColorMap';
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Extent from '@giro3d/giro3d/core/geographic/Extent';
+import Giro3DColorMap from '@giro3d/giro3d/core/ColorMap';
+import Giro3DCoordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import Giro3DExtent from '@giro3d/giro3d/core/geographic/Extent';
 import chroma from 'chroma-js';
 import { Color } from 'three';
 
-import type { ColorMapConfig } from '@/types/configuration/color';
-import type { ExperimentalFeatures } from '@/types/configuration/features';
-import type { GeoExtent, GeoVec3 } from '@/types/configuration/geographic';
-
-import { getConfig } from '@/config-loader';
+import type { ColorMap } from '@/configuration/colormap';
+import type { Coordinate } from '@/configuration/coordinate';
+import type { CrsName } from '@/configuration/crs';
+import type { Extent } from '@/configuration/extent';
 
 import Download from './Download';
 
-export function getColorMap(config: ColorMapConfig): ColorMap {
+function removeLeadingSlash(s: string): string {
+    const trimmed = s.trim();
+    if (trimmed.startsWith('/')) {
+        return trimmed.substring(1);
+    }
+
+    return trimmed;
+}
+
+function removeTrailingSlash(s: string): string {
+    const trimmed = s.trim();
+    if (trimmed.endsWith('/')) {
+        return s.substring(0, trimmed.length);
+    }
+
+    return trimmed;
+}
+
+export function getPublicFolderUrl(url: string): string {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        // url is absolute
+        return url;
+    }
+
+    const base = removeTrailingSlash(Download.getBaseUrl());
+    const sanitized = removeLeadingSlash(url);
+    const result = `${base}/${sanitized}`;
+
+    return result;
+}
+
+export function toGiro3DColorMap(config: ColorMap): Giro3DColorMap {
     const colors = chroma
         .scale(config.ramp)
         .mode('lab')
@@ -21,42 +51,39 @@ export function getColorMap(config: ColorMapConfig): ColorMap {
             const rgb = chroma(c).gl();
             return new Color().setRGB(rgb[0], rgb[1], rgb[2], 'srgb');
         });
-    return new ColorMap({ colors, ...config });
+    return new Giro3DColorMap({ colors, ...config });
 }
 
-export function getCoordinates(): undefined;
-export function getCoordinates(geovec3: GeoVec3): Coordinates;
-export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined;
-export function getCoordinates(geovec3?: GeoVec3): Coordinates | undefined {
-    const config = getConfig();
-    return geovec3
-        ? new Coordinates(
-              geovec3.crs ?? config.default_crs,
-              geovec3.x,
-              geovec3.y,
-              geovec3.z ?? 0,
-          ).as(config.default_crs)
-        : undefined;
-}
-
-export function getExtent(): undefined;
-export function getExtent(extent: GeoExtent): Extent;
-export function getExtent(extent?: GeoExtent): Extent | undefined;
-export function getExtent(extent?: GeoExtent): Extent | undefined {
-    const config = getConfig();
-    return extent
-        ? new Extent(extent.crs ?? config.default_crs, extent).as(config.default_crs)
-        : undefined;
-}
-export function getPublicFolderUrl(url: string): string {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        // url is absolute
-        return url;
+export function toGiro3DCoordinates(input: Coordinate, sceneCrs: string): Giro3DCoordinates {
+    if ('crs' in input) {
+        return new Giro3DCoordinates(input.crs, input.x, input.y, input.z ?? 0);
+    } else if (Array.isArray(input)) {
+        if (input.length === 2) {
+            return new Giro3DCoordinates(sceneCrs, input[0], input[1], 0);
+        } else if (input.length === 3) {
+            return new Giro3DCoordinates(sceneCrs, input[0], input[1], input[2]);
+        }
+    } else if ('latitude' in input) {
+        return new Giro3DCoordinates(
+            'EPSG:4326',
+            input.longitude,
+            input.latitude,
+            input.altitude ?? 0,
+        );
     }
 
-    return new URL(url, Download.getBaseUrl()).toString();
+    throw new Error('invalid coordinates');
 }
-export function hasExperimentalFeature(feature: ExperimentalFeatures): boolean {
-    const config = getConfig();
-    return config.enabled_features?.includes(feature) ?? false;
+
+export function toGiro3DExtent(input: Extent, sceneCrs: CrsName): Giro3DExtent {
+    if (Array.isArray(input)) {
+        return new Giro3DExtent(sceneCrs, ...input);
+    } else {
+        return new Giro3DExtent(input.crs, {
+            east: input.maxx,
+            north: input.maxy,
+            south: input.miny,
+            west: input.minx,
+        });
+    }
 }

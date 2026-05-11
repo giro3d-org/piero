@@ -67,14 +67,14 @@
         <ButtonWithIcon
             :title="title"
             :text="text"
-            :icon="icon ?? `bi-box-arrow-left`"
+            :icon="icon ?? `bi-file-earmark-plus`"
             @click="(hiddenInput as HTMLInputElement).click()"
-            class="w-100"
-            :class="hover ? 'btn-primary' : 'btn-outline-secondary'"
+            class="w-100 btn-sm"
+            :class="hover ? 'btn-outline-primary' : 'btn-primary'"
         />
         <input
             ref="hiddenInput"
-            class="btn btn-outline-secondary d-none"
+            class="btn btn-primary d-none"
             type="file"
             @input="importFromFile"
             multiple="true"

@@ -29,7 +29,7 @@ import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
 import CameraPosition from '@/types/CameraPosition';
 
-import type Picker from './Picker';
+import type Picker from './picking';
 import type SceneCursorManager from './SceneCursorManager';
 
 CameraControls.install({
@@ -219,6 +219,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
             return this._orbitControls.fitToBox(bbox, enableTransition, options);
         });
     }
+
     /**
      * Sets the camera to look at a position.
      *
@@ -248,6 +249,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         });
         this._orbitControls.setOrbitPoint(lookAt.x, lookAt.y, lookAt.z);
     }
+
     public lookTopDownAt(obj: Box3 | Entity3D | Object3D, enableTransition = true): Promise<void> {
         const center = new Vector3();
         const size = new Vector3();
@@ -262,12 +264,11 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         const cameraPosition = newCameraPosition.multiplyScalar(distance).add(center);
 
         // Slightly offset camera to avoid gimbal lock
-        cameraPosition.x += size.x / 10;
-        cameraPosition.y -= size.y / 10;
+        // cameraPosition.x += size.x / 10;
+        cameraPosition.y -= 0.01;
 
         return this.lookAt(cameraPosition, center, enableTransition);
     }
-
     public setCamera(pos: CameraPosition): void {
         void this.executeInteraction(async () => {
             this._orbitControls.setOrbitPoint(0, 0, 0);

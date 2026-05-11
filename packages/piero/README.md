@@ -12,7 +12,7 @@
 
 <div align="center">
   <a href="https://gitlab.com/giro3d/piero/badges/main/pipeline.svg"><img src="https://gitlab.com/giro3d/piero/badges/main/pipeline.svg" alt="Pipeline status"></a>
-  <a href="https://www.npmjs.com/package/@giro3d/piero"><img alt="NPMJS latest package badge" src="https://img.shields.io/npm/v/@giro3d/piero?color=blue"></a>
+  <a href="https://www.npmjs.com/package/@"><img alt="NPMJS latest package badge" src="https://img.shields.io/npm/v/@?color=blue"></a>
   <a href="https://matrix.to/#/#giro3d:matrix.org"><img src="https://img.shields.io/matrix/giro3d:matrix.org" alt="Matrix chat"></a>
 </div>
 
@@ -25,7 +25,7 @@ This is the library version of the [Piero web application](https://giro3d.org/pi
 This library is built with Vue.js, but you don't need Vue to use the library (unless you want to write your own components).
 
 ```shell
-npm install @giro3d/piero
+npm install @
 ```
 
 Then create an `index.html` file
@@ -48,8 +48,8 @@ And an `index.ts` file:
 
 ```ts
 // index.ts
-import { createPieroApp } from '@giro3d/piero';
-import '@giro3d/piero/piero.css';
+import { createPieroApp } from '@';
+import '@/piero.css';
 
 import configuration from './config';
 
@@ -80,8 +80,8 @@ Alternatively, you can pass a URL to a remote JSON configuration
 
 ```ts
 // index.ts
-import { createPieroApp } from '@giro3d/piero';
-import '@giro3d/piero/piero.css';
+import { createPieroApp } from '@';
+import '@/piero.css';
 
 createPieroApp({
     container: '#app',
@@ -96,8 +96,8 @@ To deploy your app, update the `baseUrl` to be the URL from which the app is ser
 
 ```ts
 // index.ts
-import { createPieroApp } from '@giro3d/piero';
-import '@giro3d/piero/piero.css';
+import { createPieroApp } from '@';
+import '@/piero.css';
 
 createPieroApp({
     container: '#app',
@@ -112,8 +112,8 @@ You can register your own modules (classes that implement the `Module` interface
 
 ```ts
 // index.ts
-import { createPieroApp, Module, PieroContext } from '@giro3d/piero';
-import '@giro3d/piero/piero.css';
+import { createPieroApp, Module, PieroContext } from '@';
+import '@/piero.css';
 
 class MyCustomModule implements Module {
     name = 'A custom module';

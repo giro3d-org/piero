@@ -1,17 +1,11 @@
-FROM node:23-alpine3.20 AS builder
+FROM node:24 AS builder
+WORKDIR /piero-build
 
-WORKDIR /app
-
-COPY .env.production.docker .env.production
-
-COPY . .
-
+COPY --parents package.json package-lock.json packages/*/package.json /piero-build/
 RUN npm ci
-
-RUN mv config.ts.sample config.ts
-RUN mv styles.ts.sample styles.ts
-
-RUN npm run build
+COPY . .
+COPY .env.production.docker .env.production
+RUN npm run libs:build && npm run app:build
 
 FROM nginx:1-alpine-slim
 
@@ -19,7 +13,7 @@ FROM nginx:1-alpine-slim
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built files
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /piero-build/dist /usr/share/nginx/html
 
 # Copy optional custom Nginx config (if needed)
 # COPY nginx.conf /etc/nginx/conf.d/default.conf

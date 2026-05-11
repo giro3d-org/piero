@@ -7,7 +7,6 @@
 
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
-    import Notification from '@/types/Notification';
 
     import SwitchToggle from './SwitchToggle.vue';
 
@@ -55,13 +54,11 @@
             }
         }
 
-        notificationStore.push(
-            new Notification(
-                'Navigation',
-                `Navigation mode set to <strong>${name}</strong>.<br>${description}`,
-                'success',
-            ),
-        );
+        notificationStore.push({
+            level: 'success',
+            text: `Navigation mode set to <strong>${name}</strong>.<br>${description}`,
+            title: 'Navigation',
+        });
     });
 
     function onPositionOnMapToggle(): void {

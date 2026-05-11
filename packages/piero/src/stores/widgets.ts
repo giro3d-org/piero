@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 
-import type { Widget } from '@/api/WidgetApi';
+import type { Widget } from '@/api/widgets';
 
 export const useWidgetStore = defineStore('widgets', () => {
     const widgets = shallowRef<Widget[]>([]);

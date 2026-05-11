@@ -7,24 +7,9 @@ packages/**/*.tgz
 # Env
 .env.local
 
-# App config
-config.ts
-styles.ts
-
-# App apidoc
-apidoc/
-
-# IFC
-public/web-ifc.wasm
-
-# LazPerf
-public/laz-perf.wasm
-
-# We should stop putting data in there
-public/cityjson
-public/geojson
-public/ifc
-public/ply
-public/shp
+# IFC/LazPerf
+public/*.wasm
 
 .DS_Store
+
+.gitlab-ci-local/

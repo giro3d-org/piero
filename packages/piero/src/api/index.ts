@@ -1,16 +1,8 @@
-import type BookmarkApi from './BookmarkApi';
-import type DatasetApi from './DatasetApi';
-import type { DatasetActionRegistrationParams, DatasetRegistrationParams } from './DatasetApi';
-import type { SearchApi, SearchProvider, SearchResult } from './SearchApi';
-import type ViewApi from './ViewApi';
-
-export {
-    BookmarkApi,
-    DatasetActionRegistrationParams,
-    DatasetApi,
-    DatasetRegistrationParams,
-    SearchApi,
-    SearchProvider,
-    SearchResult,
-    ViewApi,
-};
+export * as analysis from './analysis';
+export * as bookmarks from './bookmarks';
+export * as dataset from './dataset';
+export * as http from './http';
+export * as notifications from './notifications';
+export * as search from './search';
+export * as view from './view';
+export * as widgets from './widgets';

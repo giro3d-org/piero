@@ -2,9 +2,6 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "composite": true,
-        // We want to avoid exporting API implementations, and keep only API interfaces
-        "stripInternal": true,
-
         "paths": {
             "@/*": ["./src/*"]
         }

@@ -1,20 +1,26 @@
 <script setup lang="ts">
-    import type { DatasetOrGroup } from '@/types/Dataset';
+    import { Vector3 } from 'three';
+    import { ref } from 'vue';
+
+    import type { Dataset, DatasetOrGroup } from '@/types/Dataset';
 
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
-    import SectionCollapsible from '@/components/atoms/SectionCollapsible.vue';
-    import BasemapItem from '@/components/panels/BasemapItem.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
-    import OverlayItem from '@/components/panels/OverlayItem.vue';
+    import { useBasemapStore } from '@/stores/basemap';
     import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
-    import { useLayerStore } from '@/stores/layers';
+
+    import Slider from '../atoms/Slider.vue';
+    import CheckboxToggle from '../CheckboxToggle.vue';
+    import DatasetParameters from './DatasetParameters.vue';
+    import EmptyIndicator from './EmptyIndicator.vue';
 
     const datasets = useDatasetStore();
     const camera = useCameraStore();
-    const layers = useLayerStore();
+    const basemap = useBasemapStore();
+    const showParameters = ref<Dataset>();
 
     function importDataset(files: File[]): void {
         for (const file of files) {
@@ -27,86 +33,65 @@
         datasets.importFromFile(url.value);
     }
 
+    function showParams(ds: Dataset): void {
+        showParameters.value = ds;
+    }
+
     function zoomOnDataset(dataset: DatasetOrGroup): void {
         const box = datasets.getBoundingBox(dataset);
         if (!box?.isEmpty()) {
-            camera.lookTopDownAt(box);
+            const [width, height] = box.getSize(new Vector3()).toArray();
+            const margin = Math.max(width, height) * 0.1;
+            const scaledBox = box.clone().expandByScalar(margin);
+            camera.lookTopDownAt(scaledBox);
         }
     }
 </script>
 
 <template>
-    <div class="d-flex flex-column h-100">
-        <div class="flex-fill overflow-auto">
-            <SectionCollapsible
-                title="Basemaps"
-                icon-position="left"
-                id="basemap-list"
-                class="border-bottom mb-3"
-            >
-                <CompactList id="layers-list-group">
-                    <BasemapItem
-                        v-if="layers.getGraticuleLayer() !== undefined"
-                        type="graticule"
-                        :opacity="1"
-                        :name="layers.getGraticuleLayer()!.name"
-                        :isLoading="false"
-                        :visible="layers.getGraticuleLayer()!.visible"
-                        :hasOpacitySlider="false"
-                        @update:visible="v => (layers.getGraticuleLayer()!.visible = v)"
-                    />
+    <div v-if="showParameters != null" class="d-flex flex-column h-100">
+        <DatasetParameters
+            @back-to-datasets="showParameters = undefined"
+            :dataset="showParameters"
+        />
+    </div>
 
-                    <BasemapItem
-                        v-for="layer in layers.getBasemaps()"
-                        :key="layer.name"
-                        :type="layer.type"
-                        :opacity="layer.opacity"
-                        :name="layer.name"
-                        :isLoading="layer.isLoading"
-                        :visible="layer.visible"
-                        :hasOpacitySlider="layer.type === 'color' || layer.type === 'elevation'"
-                        @update:visible="v => layers.setBasemapVisibility(layer, v)"
-                        @update:opacity="v => layers.setBasemapOpacity(layer, v)"
-                    /> </CompactList
-            ></SectionCollapsible>
-            <SectionCollapsible
-                v-if="layers.overlayCount > 0"
-                title="Overlays"
-                icon-position="left"
-                id="overlay-list"
-                class="border-bottom mb-3"
+    <div v-if="showParameters == null" class="d-flex flex-column h-100 px-2">
+        <div v-if="datasets.count > 0" class="flex-fill overflow-auto">
+            <!-- The margin counteracts the indentation for the root element -->
+            <CompactList style="margin-left: -1rem">
+                <DatasetOrGroupItem
+                    v-for="dataset of datasets.getTree()"
+                    :key="dataset.name"
+                    :dataset="dataset"
+                    @updated="$forceUpdate()"
+                    @zoom="ds => zoomOnDataset(ds)"
+                    @show-parameters="ds => showParams(ds)"
+                    @update:visible="(ds, v) => datasets.setVisible(ds, v)"
+                />
+            </CompactList>
+        </div>
+        <div v-else class="flex-fill"><EmptyIndicator text="No datasets" /></div>
+
+        <hr />
+
+        <div class="my-1">
+            <CheckboxToggle
+                :model-value="basemap.visible"
+                @update:model-value="v => basemap.setVisible(v)"
+                title="Show basemap"
+                >Show basemap</CheckboxToggle
             >
-                <CompactList>
-                    <OverlayItem
-                        v-for="layer in layers.getOverlays()"
-                        :key="layer.name"
-                        :opacity="layer.opacity"
-                        :name="layer.name"
-                        :visible="layer.visible"
-                        @update:visible="v => layers.setOverlayVisibility(layer, v)"
-                        @update:opacity="v => layers.setOverlayOpacity(layer, v)"
-                        @update:move-up="layers.moveOverlayUp(layer)"
-                        @update:move-down="layers.moveOverlayDown(layer)" /></CompactList
-            ></SectionCollapsible>
-            <SectionCollapsible
-                title="Datasets"
-                :expanded="true"
-                icon-position="left"
-                id="dataset-list"
-            >
-                <CompactList>
-                    <DatasetOrGroupItem
-                        v-for="dataset of datasets.getTree()"
-                        :key="dataset.name"
-                        :dataset="dataset"
-                        @updated="$forceUpdate()"
-                        @zoom="ds => zoomOnDataset(ds)"
-                        @update:toggle-grid="ds => datasets.toggleGrid(ds)"
-                        @update:toggle-mask="ds => datasets.toggleMask(ds)"
-                        @update:visible="(ds, v) => datasets.setVisible(ds, v)"
-                    />
-                </CompactList>
-            </SectionCollapsible>
+
+            <Slider
+                :model-value="basemap.opacity"
+                label="Basemap opacity"
+                :show-numeric-input="false"
+                :min="0"
+                :step="0.01"
+                :max="1"
+                @update:model-value="v => basemap.setOpacity(v)"
+            />
         </div>
 
         <ButtonArea>
@@ -121,7 +106,7 @@
                 />
                 <button
                     @click="importDatasetFromUrl"
-                    class="btn btn-outline-secondary"
+                    class="btn btn-sm btn-outline-secondary"
                     type="button"
                     id="button-dataset-import-url"
                 >

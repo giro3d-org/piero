@@ -2,7 +2,7 @@
     // @ts-expect-error autocomplete-vue does not provide typing
     import Autocomplete from '@trevoreyre/autocomplete-vue';
 
-    import type { SearchResult } from '@/api';
+    import type { SearchResult } from '@/api/search';
 
     import Icon from '@/components/atoms/Icon.vue';
     import { useSearchStore } from '@/stores/search';
@@ -47,11 +47,15 @@
             placeholder="Search..."
         >
             <template #result="{ result, props }">
-                <li v-bind="props" class="autocomplete-result result">
-                    <div class="result-label">
-                        <span class="result-type"><Icon icon="fg-poi" title="Location" /></span>
-                        <span>{{ result.label }}</span>
-                        <p class="provider">{{ result.provider.name }}</p>
+                <li v-bind="props" class="autocomplete-result result overflow-hidden">
+                    <div class="row">
+                        <span class="col-auto ms-3 my-auto"
+                            ><Icon icon="fg-poi" title="Location"
+                        /></span>
+                        <div class="col-auto">
+                            <span>{{ result.label }}</span>
+                            <p class="provider">{{ result.provider.name }}</p>
+                        </div>
                     </div>
                     <div class="wiki-snippet" :v-html="result.snippet"></div>
                 </li>
@@ -65,18 +69,9 @@
         padding-top: 0.5rem;
     }
 
-    input {
-        height: 30pt;
-        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .autocomplete {
-        width: 100%;
-    }
-
     .result {
         border-top: 1px solid #eee;
-        padding: 16px;
+        padding: 2pt;
         background: transparent;
     }
 

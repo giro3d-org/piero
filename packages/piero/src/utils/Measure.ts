@@ -21,6 +21,4 @@ function getMinMaxAltitudes(coordsOrDrawing: Shape | Vector3[]): [number, number
     return [min, max];
 }
 
-export default {
-    getMinMaxAltitudes,
-};
+export default { getMinMaxAltitudes };

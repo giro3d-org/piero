@@ -3,7 +3,7 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import { isShape } from '@giro3d/giro3d/entities/Shape';
 import { Raycaster } from 'three';
 
-import type Picker from '@/services/Picker';
+import type Picker from '@/services/picking';
 
 import Measure3D from '@/giro3d/Measure3D';
 
