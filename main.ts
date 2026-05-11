@@ -24,7 +24,7 @@ async function start(): Promise<PieroApplication> {
     // or load the static configuration file (config.ts) in the same folder as this file.
     const params = new URLSearchParams(document.location.search);
     const configurationUrl = params.get('config');
-    let configuration = undefined;
+    let configuration = 'demo.json';
     let fallback = false;
 
     if (configurationUrl != null) {

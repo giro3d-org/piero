@@ -4,7 +4,7 @@ Piero can be customized via a configuration file and via modules.
 
 ## Configuration file
 
-Configuration file is a static configuration used at build-time. This is _not_ defined by default. More precisely: the piero core package defines [a default configuration](./packages/piero/src/configuration/defaultConfig.ts), while the app can override it (which is not done by default).
+Configuration file is a static configuration used at build-time. The piero core package defines [a default minimal configuration](./packages/piero/src/configuration/defaultConfig.ts), while the app defines a [demo one](./public/demo.json).
 
 ### Enabling static default configuration
 
@@ -21,7 +21,7 @@ Configuration file is a static configuration used at build-time. This is _not_ d
      ...
 
      const configurationUrl = params.get('config');
-    -let configuration = undefined;
+    -let configuration = "demo.json";
     +let configuration = appConfig;
      let fallback = false;
 
