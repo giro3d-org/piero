@@ -77,12 +77,13 @@ export default async function createPieroApp(params: {
      */
     modules?: ModuleConstructor[];
 }): Promise<PieroApplication> {
+    // We need to set baseUrl first, before potentially resolving remote relative configurations
+    Download.setBaseUrl(params.baseUrl ?? './');
+
     const configuration = await resolveConfiguration(params);
     await setConfiguration(configuration);
 
     console.info('Configuration loaded.');
-
-    Download.setBaseUrl(params.baseUrl ?? './');
 
     // We define the Pinia store in advance because we will have
     // to inject it into APIs.

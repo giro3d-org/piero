@@ -18,8 +18,11 @@ function downloadBlob(object: Blob | MediaSource, filename: string): void {
 
 let baseUrl: string | undefined = undefined;
 
-function getBaseUrl(fallback: string = 'http://localhost:8080/'): string {
-    const url = baseUrl ?? fallback;
+function getBaseUrl(): string {
+    if (baseUrl == null) {
+        throw new Error('No baseUrl defined');
+    }
+    const url = baseUrl;
     return url.at(-1) === '/' ? url : url + '/';
 }
 
