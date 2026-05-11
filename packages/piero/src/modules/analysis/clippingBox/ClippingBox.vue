@@ -58,9 +58,9 @@
     // const floorSize = ref(config.analysis.clipping_box.floor_preset.size);
     // const floorNumber = ref(config.analysis.clipping_box.floor_preset.floor);
 
-    const floorSize = ref(10000);
+    const floorSize = ref(2.7);
     const floorNumber = ref(2);
-    const floorReferenceAltitude = ref(0);
+    const floorReferenceAltitude = ref(170);
 
     function floorDown(): void {
         floorNumber.value -= 1;
