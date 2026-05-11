@@ -73,7 +73,7 @@ pages:
         name: $ENVIRONMENT_NAME
     publish: dist
     script:
-        - npm run build -- --out-dir $OUTPUT --base $DEPLOY_URL
+        - npm run app:build -- --out-dir $OUTPUT --base $DEPLOY_URL
 
 publish_packages:
     stage: publish
