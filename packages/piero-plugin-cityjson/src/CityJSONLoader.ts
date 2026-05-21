@@ -22,7 +22,7 @@ import CityJSONEntityInspector from './CityJSONEntityInspector';
  */
 export const CityJSONDataset = configuration.dataset.Dataset.extend({
     /** URL to the json file */
-    url: configuration.url.Url,
+    url: configuration.url.UrlOrFile,
 });
 export type CityJSONDataset = z.infer<typeof CityJSONDataset>;
 
@@ -30,7 +30,7 @@ export const loader: api.dataset.LoadDatasetFromFile = context => {
     const result = {
         name: context.filename,
         type: 'cityjson',
-        url: typeof context.file === 'string' ? context.file : URL.createObjectURL(context.file),
+        url: context.file,
         visible: true,
     } satisfies CityJSONDataset;
 

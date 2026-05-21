@@ -30,8 +30,8 @@ function removeTrailingSlash(s: string): string {
 }
 
 export function getPublicFolderUrl(url: string): string {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        // url is absolute
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+        // url is absolute or a blob
         return url;
     }
 
@@ -40,6 +40,10 @@ export function getPublicFolderUrl(url: string): string {
     const result = `${base}/${sanitized}`;
 
     return result;
+}
+
+export function getStringUrl(fileOrUrl: File | string): string {
+    return typeof fileOrUrl === 'string' ? fileOrUrl : URL.createObjectURL(fileOrUrl);
 }
 
 export function toGiro3DColorMap(config: ColorMap): Giro3DColorMap {

@@ -63,7 +63,7 @@ export const isCityJSONPickResult = (obj: unknown): obj is CityJSONPickResult =>
 export interface CityJSONSource {
     dataProjection?: configuration.crs.CrsName;
     featureProjection?: configuration.crs.CrsName;
-    url: string;
+    url: Blob | string;
 }
 
 /**

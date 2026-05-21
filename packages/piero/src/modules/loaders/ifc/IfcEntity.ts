@@ -133,7 +133,7 @@ export interface IfcSource {
     at: Coordinates | undefined;
     /** Name of the IFC */
     name: string;
-    url: string;
+    url: Blob | string;
 }
 
 /**

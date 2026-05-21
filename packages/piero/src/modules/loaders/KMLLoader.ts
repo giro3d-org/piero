@@ -11,6 +11,7 @@ import type { Module } from '@/module';
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
 import { OpenLayersFlatStyleLike } from '@/configuration/style';
+import { getStringUrl } from '@/utils/Configuration';
 import { toOpenLayersStyle } from '@/utils/style';
 
 const DATASET_TYPE = 'kml';
@@ -56,7 +57,7 @@ const loader: LoadDatasetFromFile = context => {
         projection: 'EPSG:4326',
         resolution: 1,
         type: 'kml',
-        url: typeof context.file === 'string' ? context.file : URL.createObjectURL(context.file),
+        url: getStringUrl(context.file),
         visible: true,
     } satisfies KMLDataset;
 
