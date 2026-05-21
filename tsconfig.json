@@ -25,6 +25,7 @@
             "@giro3d/piero": ["./packages/piero/dist"], // to access root index file implicitly
             "@giro3d/piero/*": ["./packages/piero/dist/*"],
             "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/dist"],
+            "@giro3d/piero-plugin-obj": ["./packages/piero-plugin-obj/dist"],
             "@giro3d/piero-plugin-geohash": ["./packages/piero-plugin-geohash/dist"],
             "@giro3d/piero-cli": ["./packages/piero-cli/src"]
         }
@@ -40,6 +41,9 @@
         },
         {
             "path": "./packages/piero-plugin-cityjson/tsconfig.json"
+        },
+        {
+            "path": "./packages/piero-plugin-obj/tsconfig.json"
         }
     ]
 }

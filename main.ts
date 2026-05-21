@@ -3,6 +3,7 @@ import type { ModuleConstructor, PieroApplication } from '@giro3d/piero';
 import { createPieroApp, loadRemoteConfiguration } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
+import { OBJLoader } from '@giro3d/piero-plugin-obj';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
 class Environment {
@@ -57,6 +58,7 @@ async function start(): Promise<PieroApplication> {
          */
 
         // Built-in
+        // You can also use `...loaders.all` to load all of them
         loaders.LASLoader,
         loaders.KMLLoader,
         loaders.GPXLoader,
@@ -75,6 +77,7 @@ async function start(): Promise<PieroApplication> {
 
         // External plugins
         CityJSONLoader,
+        OBJLoader,
 
         /**
          * Analysis tools
