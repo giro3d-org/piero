@@ -213,7 +213,7 @@ export default class CityJSONEntity
                             translate[1],
                             translate[2],
                         );
-                        const coordsReference = coords.as(projection);
+                        const coordsReference = coords.as(proj);
                         loader.scene.position.set(
                             coordsReference.values[0],
                             coordsReference.values[1],
