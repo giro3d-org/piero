@@ -10,6 +10,7 @@ import type { Module } from '@/module';
 import * as config from '@/configuration';
 import { ColorMap } from '@/configuration/colormap';
 import { toGiro3DColorMap } from '@/utils/Configuration';
+import { getStringUrl } from '@/utils/Configuration';
 
 const Style = z.object({
     colorMap: ColorMap.default({ max: 100, min: 0, ramp: 'Greys' }),
@@ -68,7 +69,7 @@ const loader: LoadDatasetFromFile = context => {
         // (something like "Error: Invalid EVLR header length (must be 60)"),
         // so we have to use the less performant non-streamable LAS format for now.
         type: 'las',
-        url: typeof context.file === 'string' ? context.file : URL.createObjectURL(context.file),
+        url: getStringUrl(context.file),
         visible: true,
     };
 

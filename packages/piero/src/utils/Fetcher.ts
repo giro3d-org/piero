@@ -1,7 +1,7 @@
 import Fetcher from '@giro3d/giro3d/utils/Fetcher';
 import { fetchFile } from '@loaders.gl/core';
 
-import type { FetchContext, UrlOrData, UrlOrFetchedData } from '@/api/http';
+import type { FetchContext } from '@/api/http';
 
 import { getPublicFolderUrl } from './Configuration';
 
@@ -21,7 +21,10 @@ function checkAbsoluteHost(host: string): boolean {
  * @param fetchOptions - fetch options
  * @returns ArrayBuffer
  */
-async function fetchArrayBuffer(url: UrlOrData, fetchOptions?: RequestInit): Promise<ArrayBuffer> {
+async function fetchArrayBuffer(
+    url: Blob | string,
+    fetchOptions?: RequestInit,
+): Promise<ArrayBuffer> {
     const f = await fetchInternal(url, fetchOptions);
     return f.arrayBuffer();
 }
@@ -35,7 +38,7 @@ async function fetchArrayBuffer(url: UrlOrData, fetchOptions?: RequestInit): Pro
  * @param fetchOptions - fetch options
  * @returns The response object
  */
-function fetchInternal(urlOrData: UrlOrData, fetchOptions?: RequestInit): Promise<Response> {
+function fetchInternal(urlOrData: Blob | string, fetchOptions?: RequestInit): Promise<Response> {
     if (typeof urlOrData === 'string') {
         const url = getPublicFolderUrl(urlOrData);
         return Fetcher.fetch(url, fetchOptions);
@@ -52,7 +55,7 @@ function fetchInternal(urlOrData: UrlOrData, fetchOptions?: RequestInit): Promis
  * @typeParam T - Type of the JSON object returned
  */
 async function fetchJson<T extends object = object>(
-    url: UrlOrData,
+    url: Blob | string,
     fetchOptions?: RequestInit,
 ): Promise<T> {
     const f = await fetchInternal(url, fetchOptions);
@@ -66,7 +69,7 @@ async function fetchJson<T extends object = object>(
  * @param fetchOptions - fetch options
  * @returns Content as string
  */
-async function fetchText(url: UrlOrData, fetchOptions?: RequestInit): Promise<string> {
+async function fetchText(url: Blob | string, fetchOptions?: RequestInit): Promise<string> {
     const f = await fetchInternal(url, fetchOptions);
     return f.text();
 }
@@ -76,7 +79,7 @@ async function fetchText(url: UrlOrData, fetchOptions?: RequestInit): Promise<st
  * @param urlOrFetchedData - URL, Response or Blob-like object
  * @returns Fetch context
  */
-function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
+function getContext(urlOrFetchedData: Blob | Response | string): FetchContext {
     let baseUrl: string;
     let queryString: string | undefined;
 
@@ -113,7 +116,7 @@ function getContext(urlOrFetchedData: UrlOrFetchedData): FetchContext {
     };
 }
 
-async function toDataURL(url: UrlOrData): Promise<string> {
+async function toDataURL(url: Blob | string): Promise<string> {
     return new Promise((resolve, reject) => {
         if (typeof url === 'string') {
             return getPublicFolderUrl(url);

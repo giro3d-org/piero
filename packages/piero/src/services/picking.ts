@@ -258,8 +258,14 @@ export default class Picker {
                 }
             }
         }
+
+        if (result.distance < instance.view.camera.near) {
+            return false;
+        }
         if (
-            result.distance < instance.view.camera.near ||
+            // far & near might be equal if we're basically lost (e.g. loading data in wrong projection)
+            // let picking go through, so the user can at least rotate and navigate properly
+            instance.view.camera.far !== instance.view.camera.near &&
             result.distance > instance.view.camera.far
         ) {
             return false;

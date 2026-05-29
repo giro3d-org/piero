@@ -22,7 +22,7 @@ import IfcPropertyView from './ifc/IfcPropertyView.vue';
 
 const IFCDataset = config.dataset.Dataset.extend({
     position: Coordinate.optional(),
-    url: config.url.Url,
+    url: config.url.UrlOrFile,
 });
 type IFCDataset = z.infer<typeof IFCDataset>;
 
@@ -47,7 +47,7 @@ const loader: LoadDatasetFromFile = context => {
     const result = {
         name: context.filename,
         type: 'ifc',
-        url: typeof context.file === 'string' ? context.file : URL.createObjectURL(context.file),
+        url: context.file,
         visible: true,
     } satisfies IFCDataset;
 

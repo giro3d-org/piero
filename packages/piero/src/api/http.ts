@@ -18,20 +18,14 @@ export interface FetchContext {
 }
 
 export interface HttpApi {
-    getContext(url: string, options?: RequestInit): FetchContext;
-    getJson<T extends object>(url: UrlOrData, options?: RequestInit): Promise<T>;
-    getText(url: UrlOrData, options?: RequestInit): Promise<string>;
+    getContext(url: Blob | Response | string): FetchContext;
+    getJson<T extends object>(url: Blob | string, options?: RequestInit): Promise<T>;
+    getText(url: Blob | string, options?: RequestInit): Promise<string>;
 }
-
-/** URL to load or Blob (drag-and-drop) */
-export type UrlOrData = Blob | string;
-
-/** URL to load, or Response (already loaded), or Blob (drag-and-drop) */
-export type UrlOrFetchedData = Blob | Response | string;
 
 /** @internal */
 export class HttpApiImpl implements HttpApi {
-    public getContext(url: UrlOrFetchedData): FetchContext {
+    public getContext(url: Blob | Response | string): FetchContext {
         return Fetcher.getContext(url);
     }
 

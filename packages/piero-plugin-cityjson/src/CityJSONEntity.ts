@@ -63,7 +63,7 @@ export const isCityJSONPickResult = (obj: unknown): obj is CityJSONPickResult =>
 export interface CityJSONSource {
     dataProjection?: configuration.crs.CrsName;
     featureProjection?: configuration.crs.CrsName;
-    url: string;
+    url: Blob | string;
 }
 
 /**
@@ -213,7 +213,7 @@ export default class CityJSONEntity
                             translate[1],
                             translate[2],
                         );
-                        const coordsReference = coords.as(projection);
+                        const coordsReference = coords.as(proj);
                         loader.scene.position.set(
                             coordsReference.values[0],
                             coordsReference.values[1],
