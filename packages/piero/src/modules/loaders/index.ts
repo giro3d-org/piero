@@ -15,6 +15,7 @@ import MapboxLoader from './MapboxLoader';
 import OSMLoader from './OSMLoader';
 import PotreeLoader from './PotreeLoader';
 import Tiles3DLoader from './Tiles3DLoader';
+import * as Tiles3D from './Tiles3DLoader';
 import TMSLoader from './TMSLoader';
 import WMSLoader from './WMSLoader';
 import WMTSLoader from './WMTSLoader';
@@ -51,6 +52,7 @@ export {
     MapboxLoader,
     OSMLoader,
     PotreeLoader,
+    Tiles3D,
     Tiles3DLoader,
     TMSLoader,
     WMSLoader,
