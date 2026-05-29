@@ -12,27 +12,31 @@ import * as config from '@/configuration';
 import { ColorMap } from '@/configuration/colormap';
 import { toGiro3DColorMap } from '@/utils/Configuration';
 
-const PointcloudDisplayMode = z.enum(['default', 'intensity', 'elevation']);
-type PointcloudDisplayMode = z.infer<typeof PointcloudDisplayMode>;
+export const PointcloudDisplayModeSchema = z.enum(['default', 'intensity', 'elevation']);
+export type PointcloudDisplayModeSchema = z.infer<typeof PointcloudDisplayModeSchema>;
 
-const Style = z.union([
+export const StyleSchema = z.union([
     z.object({
-        displayMode: PointcloudDisplayMode.extract(['default']).optional(),
+        displayMode: PointcloudDisplayModeSchema.extract(['default']).optional(),
     }),
     z.object({
         colorMap: ColorMap.default({ max: 100, min: 0, ramp: 'Greys' }),
-        displayMode: PointcloudDisplayMode.extract(['elevation', 'intensity']),
+        displayMode: PointcloudDisplayModeSchema.extract(['elevation', 'intensity']),
     }),
 ]);
 
-const Tiles3DDataset = config.dataset.Dataset.extend({
-    style: Style.optional(),
+export const Tiles3DDatasetSchema = config.dataset.Dataset.extend({
+    style: StyleSchema.optional(),
+    type: z.literal('3dtiles'),
     url: config.url.Url,
 });
-type Tiles3DDataset = z.infer<typeof Tiles3DDataset>;
+/**
+ * 3D Tiles dataset configuration.
+ */
+export type Tiles3DDataset = z.infer<typeof Tiles3DDatasetSchema>;
 
 const builder: DatasetBuilder = context => {
-    const dataset = Tiles3DDataset.parse(context.dataset);
+    const dataset = Tiles3DDatasetSchema.parse(context.dataset);
 
     const config: Tiles3DOptions = {
         url: dataset.url,
@@ -64,6 +68,8 @@ const builder: DatasetBuilder = context => {
 
 /**
  * Add support for the [3D Tiles](https://www.ogc.org/standards/3dtiles/) tilesets.
+ *
+ * See  {@link Tiles3DDataset} for configurating 3D Tiles datasets.
  */
 export default class Tiles3DLoader implements Module {
     public readonly id = 'builtin-loader-3dtiles';
