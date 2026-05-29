@@ -18,8 +18,8 @@ Packages are published automatically by the Gitlab CI/CD using the [Trusted Publ
 
 > [!warning]
 > Trusted publishers must be enabled for **each Piero package**, not only the [`@giro3d/piero`](https://www.npmjs.com/package/@giro3d/piero/access) main
-> package, but also any plugin, such as `@giro3d/piero-plugin-cityjson`. If you have created a new
-> package, you must enable trusted publishers specifically on the package's settings on npmjs.com.
+> package, but also any plugin, such as `@giro3d/piero-plugin-cityjson`.
+> As Trusted Published can only be enabled on an existing package, the first publishing of a new package must be done manually. Within the package folder, run for instance `npm publish --access public --tag beta --workspaces=false`. Afterwards, you must enable trusted publishers specifically on the package's settings on npmjs.com.
 
 ## Create a release branch
 
