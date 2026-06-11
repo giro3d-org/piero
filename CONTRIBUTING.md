@@ -45,8 +45,8 @@ To be able to do some changes, you must first [fork the project](https://gitlab.
 
 By contributing to the code, you will need to undestand what are existing NPM tasks to be able to run application locally, check the builds, run the lints, format the code, ... Below are the basic operations:
 
-- `npm run start`: run the application locally at <http://localhost:8080/>
-- `npm run build`: check the build,
+- `npm run app:dev`: run the application locally at <http://localhost:8080/>
+- `npm run app:build`: check the build,
 - `npm run lint`: run the lints (`eslint`, `prettier`, `markdownlint`),
 - `npm run format`: format the code (`eslint`, `prettier`, `markdownlint`),
 
