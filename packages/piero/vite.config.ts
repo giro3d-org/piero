@@ -83,6 +83,15 @@ export const commonConfig = defineConfig(env => {
     const modules = path.resolve(root, '../../node_modules');
 
     return {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    logger: {
+                        warn: (): void => {}, // To suppress annoying bootstrapp/Sass warnings
+                    },
+                },
+            },
+        },
         define: {
             'import.meta.env.VITE_AUTHORIZATIONS': metaEnv.VITE_AUTHORIZATIONS,
             'import.meta.env.VITE_DEPENDENCIES': JSON.stringify(dependencies),
