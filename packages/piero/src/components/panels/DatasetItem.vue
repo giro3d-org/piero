@@ -11,7 +11,7 @@
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { useDatasetStore } from '@/stores/datasets';
     import { type Dataset, DatasetState } from '@/types/Dataset';
-    import { refAndWatch } from '@/utils/Components';
+    import { refAndWatch } from '@/utils/components';
 
     const store = useDatasetStore();
 
