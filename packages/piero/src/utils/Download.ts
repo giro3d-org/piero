@@ -16,7 +16,7 @@ function downloadBlob(object: Blob | MediaSource, filename: string): void {
     URL.revokeObjectURL(blobUrl);
 }
 
-let baseUrl: string | undefined = undefined;
+let baseUrl: string = './';
 
 function getBaseUrl(): string {
     if (baseUrl == null) {
