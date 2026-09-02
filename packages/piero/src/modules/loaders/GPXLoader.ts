@@ -1,6 +1,5 @@
 import type z from 'zod';
 
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GPX from 'ol/format/GPX';
 import { Fill, Stroke, Style } from 'ol/style';
@@ -12,6 +11,7 @@ import type { Module } from '@/module';
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
 import { OpenLayersFlatStyleLike } from '@/configuration/style';
+import { toGiro3DLayer } from '@/utils/Configuration';
 import { toOpenLayersStyle } from '@/utils/style';
 
 const DATASET_TYPE = 'gpx';
@@ -36,17 +36,16 @@ const DEFAULT_STYLE: Style = new Style({
 const builder: DatasetBuilder = context => {
     const dataset = GPXDataset.parse(context.dataset);
 
-    const layer = new ColorLayer({
-        resolutionFactor: dataset.resolution,
-        source: new VectorSource({
-            data: {
-                format: new GPX(),
-                url: dataset.url,
-            },
-            dataProjection: dataset.projection,
-            style: dataset.style != null ? toOpenLayersStyle(dataset.style) : DEFAULT_STYLE,
-        }),
+    const source = new VectorSource({
+        data: {
+            format: new GPX(),
+            url: dataset.url,
+        },
+        dataProjection: dataset.projection,
+        style: dataset.style != null ? toOpenLayersStyle(dataset.style) : DEFAULT_STYLE,
     });
+
+    const layer = toGiro3DLayer(source, dataset, context.instance);
 
     const result: DatasetBuildResult = {
         layers: [layer],

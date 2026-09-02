@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import { ColorMap } from './colormap';
 import { Dataset } from './dataset';
 import { Extent } from './extent';
 
@@ -10,6 +11,7 @@ export const LayerType = z.union([z.literal('color'), z.literal('elevation')]);
  * A layer is a dataset that is draped on the basemap.
  */
 export interface Layer extends Dataset {
+    colorMap?: ColorMap;
     extent?: Extent;
     layerType?: LayerType;
     nodata?: number;
@@ -29,5 +31,9 @@ export const Layer = Dataset.extend({
      * The layer resolution.
      */
     resolution: z.number().optional().default(1),
+    /**
+     * The optional colormap to apply to the layer.
+     */
+    colorMap: ColorMap.optional(),
 });
 z.globalRegistry.add(Layer, { id: 'Layer' });

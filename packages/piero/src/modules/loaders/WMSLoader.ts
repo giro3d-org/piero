@@ -1,13 +1,13 @@
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import WmsSource from '@giro3d/giro3d/sources/WmsSource';
 import z from 'zod';
 
-import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
+import { type DatasetBuilder, type DatasetBuildResult } from '@/api/dataset';
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
+import { toGiro3DLayer } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'wms';
 
@@ -22,15 +22,14 @@ export type WMSDataset = z.infer<typeof WMSDataset>;
 const builder: DatasetBuilder = context => {
     const dataset = WMSDataset.parse(context.dataset);
 
-    const layer = new ColorLayer({
-        resolutionFactor: dataset.resolution,
-        source: new WmsSource({
-            imageFormat: dataset.format,
-            layer: Array.isArray(dataset.layer) ? dataset.layer : [dataset.layer],
-            projection: dataset.projection ?? 'EPSG:3857',
-            url: dataset.url,
-        }),
+    const source = new WmsSource({
+        imageFormat: dataset.format,
+        layer: Array.isArray(dataset.layer) ? dataset.layer : [dataset.layer],
+        projection: dataset.projection ?? 'EPSG:3857',
+        url: dataset.url,
     });
+
+    const layer = toGiro3DLayer(source, dataset, context.instance);
 
     const result: DatasetBuildResult = {
         layers: [layer],

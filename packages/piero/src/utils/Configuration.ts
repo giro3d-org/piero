@@ -1,6 +1,12 @@
+import type Instance from '@giro3d/giro3d/core/Instance';
+import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
+import type ImageSource from '@giro3d/giro3d/sources/ImageSource';
+
 import Giro3DColorMap from '@giro3d/giro3d/core/ColorMap';
 import Giro3DCoordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import Giro3DExtent from '@giro3d/giro3d/core/geographic/Extent';
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 import chroma from 'chroma-js';
 import { Color } from 'three';
 
@@ -8,6 +14,7 @@ import type { ColorMap } from '@/configuration/colormap';
 import type { Coordinate } from '@/configuration/coordinate';
 import type { CrsName } from '@/configuration/crs';
 import type { Extent } from '@/configuration/extent';
+import type { Layer } from '@/configuration/layer';
 
 import Download from './Download';
 
@@ -89,5 +96,35 @@ export function toGiro3DExtent(input: Extent, sceneCrs: CrsName): Giro3DExtent {
             south: input.miny,
             west: input.minx,
         });
+    }
+}
+
+export function toGiro3DLayer(
+    source: ImageSource,
+    layer: Layer,
+    instance: Instance,
+): ColorLayer | ElevationLayer {
+    const options: LayerOptions = {
+        colorMap: layer.colorMap ? toGiro3DColorMap(layer.colorMap) : undefined,
+        extent:
+            layer.extent != null
+                ? toGiro3DExtent(layer.extent, instance.referenceCrs).as(instance.referenceCrs)
+                : undefined,
+        noDataOptions:
+            layer.nodata != null
+                ? {
+                      replaceNoData: true,
+                  }
+                : undefined,
+        resolutionFactor: layer.resolution,
+        source,
+    };
+
+    switch (layer.layerType) {
+        case 'elevation':
+            return new ElevationLayer(options);
+        case 'color':
+        default:
+            return new ColorLayer(options);
     }
 }

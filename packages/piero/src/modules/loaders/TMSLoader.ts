@@ -1,4 +1,3 @@
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { XYZ } from 'ol/source';
 import z from 'zod';
@@ -9,7 +8,7 @@ import type { Module } from '@/module';
 
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
-import { toGiro3DExtent } from '@/utils/Configuration';
+import { toGiro3DLayer } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'tms';
 
@@ -23,19 +22,15 @@ export type TMSDataset = z.infer<typeof TMSDataset>;
 
 const builder: DatasetBuilder = context => {
     const dataset = TMSDataset.parse(context.dataset);
-    const layer = new ColorLayer({
-        extent: dataset.extent
-            ? toGiro3DExtent(dataset.extent, context.instance.referenceCrs).as(
-                  context.instance.referenceCrs,
-              )
-            : undefined,
-        source: new TiledImageSource({
-            source: new XYZ({
-                projection: dataset.projection ?? 'EPSG:3857',
-                url: dataset.url,
-            }),
+
+    const source = new TiledImageSource({
+        source: new XYZ({
+            projection: dataset.projection ?? 'EPSG:3857',
+            url: dataset.url,
         }),
     });
+
+    const layer = toGiro3DLayer(source, dataset, context.instance);
 
     const result: DatasetBuildResult = {
         layers: [layer],
