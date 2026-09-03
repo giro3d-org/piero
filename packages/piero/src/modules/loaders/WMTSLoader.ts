@@ -1,8 +1,5 @@
-import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
 import type Giro3DImageFormat from '@giro3d/giro3d/formats/ImageFormat';
 
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 import BilFormat from '@giro3d/giro3d/formats/BilFormat';
 import WmtsSource from '@giro3d/giro3d/sources/WmtsSource';
 import z from 'zod';
@@ -14,7 +11,7 @@ import type { Module } from '@/module';
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
 import { ImageFormat } from '@/configuration/ImageFormat';
-import { toGiro3DExtent } from '@/utils/Configuration';
+import { toGiro3DLayer } from '@/utils/Configuration';
 
 const DATASET_TYPE = 'wmts';
 
@@ -44,36 +41,7 @@ const builder: DatasetBuilder = async context => {
         noDataValue: dataset.nodata,
     });
 
-    const options: LayerOptions = {
-        extent:
-            dataset.extent != null
-                ? toGiro3DExtent(dataset.extent, context.instance.referenceCrs).as(
-                      context.instance.referenceCrs,
-                  )
-                : undefined,
-        noDataOptions:
-            dataset.nodata != null
-                ? {
-                      replaceNoData: true,
-                  }
-                : undefined,
-        resolutionFactor: dataset.resolution,
-        source,
-    };
-
-    let layer: ColorLayer | ElevationLayer;
-
-    // TODO mask layer ?
-    switch (dataset.layerType) {
-        case 'color':
-            layer = new ColorLayer(options);
-            break;
-        case 'elevation':
-            layer = new ElevationLayer(options);
-            break;
-        default:
-            throw new Error(`unsupported layer type: ${dataset.layerType}`);
-    }
+    const layer = toGiro3DLayer(source, dataset, context.instance);
 
     const result: DatasetBuildResult = {
         layers: [layer],

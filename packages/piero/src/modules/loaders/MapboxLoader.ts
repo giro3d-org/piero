@@ -1,19 +1,16 @@
-import type { LayerOptions } from '@giro3d/giro3d/core/layer/Layer';
 import type ImageFormat from '@giro3d/giro3d/formats/ImageFormat';
 
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 import MapboxTerrainFormat from '@giro3d/giro3d/formats/MapboxTerrainFormat';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
 import { XYZ } from 'ol/source';
 import z from 'zod';
 
-import type { DatasetBuilder } from '@/api/dataset';
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
+import { type DatasetBuilder } from '@/api/dataset';
 import * as config from '@/configuration';
-import { toGiro3DExtent } from '@/utils/Configuration';
+import { toGiro3DLayer } from '@/utils/Configuration';
 
 const MapboxTileset = z.union([
     z.literal('mapbox.mapbox-terrain-dem-v1'),
@@ -50,8 +47,6 @@ const builder: DatasetBuilder = context => {
             break;
     }
 
-    let layer: ColorLayer | ElevationLayer;
-
     const source = new TiledImageSource({
         format: decoder,
         source: new XYZ({
@@ -59,23 +54,7 @@ const builder: DatasetBuilder = context => {
         }),
     });
 
-    const baseOptions: LayerOptions = {
-        extent:
-            dataset.extent != null
-                ? toGiro3DExtent(dataset.extent, context.instance.referenceCrs)
-                : undefined,
-        resolutionFactor: dataset.resolution,
-        source,
-    };
-
-    switch (dataset.layerType) {
-        case 'color':
-            layer = new ColorLayer(baseOptions);
-            break;
-        case 'elevation':
-            layer = new ElevationLayer(baseOptions);
-            break;
-    }
+    const layer = toGiro3DLayer(source, dataset, context.instance);
 
     return Promise.resolve({
         layers: [layer],

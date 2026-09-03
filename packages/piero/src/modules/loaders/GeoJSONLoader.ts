@@ -1,6 +1,5 @@
 import type z from 'zod';
 
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GeoJSON from 'ol/format/GeoJSON';
 
@@ -11,7 +10,7 @@ import type { Module } from '@/module';
 import * as config from '@/configuration';
 import { CrsName } from '@/configuration/crs';
 import { OpenLayersFlatStyleLike } from '@/configuration/style';
-import { getStringUrl } from '@/utils/Configuration';
+import { getStringUrl, toGiro3DLayer } from '@/utils/Configuration';
 import { toOpenLayersStyle } from '@/utils/style';
 
 const DATASET_TYPE = 'geojson';
@@ -26,20 +25,19 @@ export type GeoJSONDataset = z.infer<typeof GeoJSONDataset>;
 const builder: DatasetBuilder = context => {
     const dataset = GeoJSONDataset.parse(context.dataset);
 
-    const layer = new ColorLayer({
-        resolutionFactor: dataset.resolution,
-        source: new VectorSource({
-            data: {
-                format: new GeoJSON(),
-                url: dataset.url,
-            },
-            dataProjection: dataset.projection,
-            style:
-                dataset.style != null
-                    ? toOpenLayersStyle(dataset.style)
-                    : config.style.defaultVectorStyle,
-        }),
+    const source = new VectorSource({
+        data: {
+            format: new GeoJSON(),
+            url: dataset.url,
+        },
+        dataProjection: dataset.projection,
+        style:
+            dataset.style != null
+                ? toOpenLayersStyle(dataset.style)
+                : config.style.defaultVectorStyle,
     });
+
+    const layer = toGiro3DLayer(source, dataset, context.instance);
 
     const result: DatasetBuildResult = {
         layers: [layer],

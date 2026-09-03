@@ -450,7 +450,12 @@
                     "name": "IGN Elevation",
                     "layer": "ELEVATION.ELEVATIONGRIDCOVERAGE",
                     "format": "image/x-bil;bits=32",
-                    "visible": true
+                    "visible": true,
+                    "colorMap": {
+                        "ramp": "Viridis",
+                        "min": 150,
+                        "max": 400
+                    }
                 },
                 {
                     "type": "mapbox",
