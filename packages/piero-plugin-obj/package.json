@@ -1,7 +1,7 @@
 {
     "name": "@giro3d/piero-plugin-obj",
     "type": "module",
-    "version": "1.0.0-beta.7",
+    "version": "1.0.0-beta.8",
     "description": "Load OBJ objects in Piero",
     "keywords": [
         "front-end",
