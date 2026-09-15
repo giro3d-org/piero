@@ -172,6 +172,11 @@ export const useDatasetStore = defineStore('datasets', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function setExpanded(ds: DatasetOrGroup, newExpanded: boolean): void {
+        // Nothing to do, rely on action listeners.
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function setOpacity(ds: Dataset, newOpacity: number): void {
         // Nothing to do, rely on action listeners.
     }
@@ -225,6 +230,7 @@ export const useDatasetStore = defineStore('datasets', () => {
         importFromFile,
         registerCustomAction,
         remove,
+        setExpanded,
         setOpacity,
         setVisible,
         toggleGrid,
