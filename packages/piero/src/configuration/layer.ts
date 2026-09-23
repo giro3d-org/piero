@@ -5,6 +5,7 @@ import { Dataset } from './dataset';
 import { Extent } from './extent';
 
 export const LayerType = z.union([z.literal('color'), z.literal('elevation')]);
+z.globalRegistry.add(LayerType, { id: 'LayerType' });
 
 /**
  * Extends {@link Dataset} with layer-specific properties.
