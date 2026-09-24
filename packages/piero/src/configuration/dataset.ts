@@ -19,7 +19,7 @@ export interface Dataset {
     opacity?: number;
     /**
      * The dataset type key, used to determine which loader to use.
-     * Note: cannot be `folder`, as it is a reserved word.
+     * Note: cannot be `group`, as it is a reserved word.
      */
     type: string;
     /**
