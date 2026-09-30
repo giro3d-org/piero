@@ -24,6 +24,7 @@ import {
 
 import type NavigationMode from '@/types/NavigationMode';
 
+import { getLookAtTarget } from '@/configuration/lookAt';
 import CameraControlsInspector from '@/giro3d/CameraControlsInspector';
 import { useCameraStore } from '@/stores/camera';
 import { useGiro3dStore } from '@/stores/giro3d';
@@ -84,7 +85,7 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
     private readonly _instance: Instance;
     private readonly _orbitControls: CameraControls;
     private readonly _picker: Picker;
-    private readonly _pickObjectsAt: (e: MouseEvent) => PickResult | null;
+    private readonly _pickObjectsAt: (e: MouseEvent | Vector2) => PickResult | null;
 
     private readonly _store = useCameraStore();
 
@@ -105,13 +106,10 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         );
 
         this._cameraControlsInspector = null;
-
-        this.initializeOrbitControls();
-
-        this._pickObjectsAt = (event: MouseEvent): PickResult | null =>
-            this._picker.getFirstFeatureAt(this._instance, event, 1)?.at(0) ?? null;
-
         this._clock = new Clock();
+
+        this._pickObjectsAt = (event: MouseEvent | Vector2): PickResult | null =>
+            this._picker.getFirstFeatureAt(this._instance, event, 1)?.at(0) ?? null;
 
         // Update controls from event loop - this replaces the requestAnimationFrame logic from
         // camera-controls sample code
@@ -123,6 +121,8 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
         this._boundPositionOnMapOnClick = null;
         this._boundPositionOnMapOnMouseMove = null;
         this._boundPositionOnMapOnContextMenu = null;
+
+        this.initializeOrbitControls();
 
         this._store.$onAction(({ args, name }) => {
             switch (name) {
@@ -464,6 +464,13 @@ class CameraController extends EventDispatcher<CameraControllerEventMap> {
 
         this._boundOrbitControlsOnKey = this.orbitControlsOnKey.bind(this);
         this._instance.domElement.addEventListener('keydown', this._boundOrbitControlsOnKey);
+
+        const position = this._giro3dStore.getDefaultCameraPosition();
+        const lookAt = this._giro3dStore.getDefaultLookAt();
+        const target = getLookAtTarget(position.toVector3(), lookAt);
+        target.z = MathUtils.clamp(target.z, -1000, 1000); // Probably won't work in all cases (e.g. indoor)
+
+        void this.lookAt(position.toVector3(), target, false);
     }
 
     private onAfterCameraUpdate(): void {
