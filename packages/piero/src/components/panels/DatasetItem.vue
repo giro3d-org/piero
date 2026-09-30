@@ -9,9 +9,11 @@
     import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
+    import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { useDatasetStore } from '@/stores/datasets';
     import { type Dataset, DatasetState } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/Components';
+    import { formatForSearch } from '@/utils/NameFiltering';
 
     const store = useDatasetStore();
 
@@ -36,6 +38,24 @@
     const target = `#${id}`;
 
     const hovered = ref(false);
+
+    function filter(query: string, type: string, uuids: string[]): boolean {
+        if (!query && type === ALL_DATASET_TYPES_KEYWORD && uuids.length === 0) {
+            return true;
+        }
+        if (!props.dataset.name) {
+            return false;
+        }
+        const nameMatch = formatForSearch(props.dataset.name).includes(query);
+        const typeMatch = type === ALL_DATASET_TYPES_KEYWORD || props.dataset.type === type;
+        const uuidMatch = uuids.length === 0 || uuids.indexOf(props.dataset.uuid) !== -1;
+
+        return nameMatch && typeMatch && uuidMatch;
+    }
+
+    defineExpose({
+        filter,
+    });
 </script>
 
 <template>

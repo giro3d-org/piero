@@ -1,5 +1,6 @@
 import type Layer from '@giro3d/giro3d/core/layer/Layer';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { Frustum } from 'three';
 import type { Ref } from 'vue';
 
 import { defineStore } from 'pinia';
@@ -88,6 +89,16 @@ export const useDatasetStore = defineStore('datasets', () => {
 
     function getVisibleDatasets(): Dataset[] {
         return leafs.value.filter(ds => ds.visible && !Datagroup.isGroup(ds));
+    }
+
+    function getVisibleDatasetsInCameraFrustum(frustum: Frustum): string[] {
+        const names: string[] = [];
+        entities.forEach((v, k) => {
+            if (v.find(entity => frustum.intersectsBox(entity.getBoundingBox() ?? new Box3()))) {
+                names.push(k);
+            }
+        });
+        return names;
     }
 
     /** Adds a dataset at the end of the tree */
@@ -227,6 +238,7 @@ export const useDatasetStore = defineStore('datasets', () => {
         getLayers,
         getTree,
         getVisibleDatasets,
+        getVisibleDatasetsInCameraFrustum,
         importFromFile,
         registerCustomAction,
         remove,
