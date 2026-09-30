@@ -1,6 +1,7 @@
 <script setup lang="ts">
+    import { storeToRefs } from 'pinia';
     import { Frustum, Vector3 } from 'three';
-    import { ref, useTemplateRef } from 'vue';
+    import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
     import type { Dataset, DatasetOrGroup } from '@/types/Dataset';
 
@@ -13,6 +14,7 @@
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { useBasemapStore } from '@/stores/basemap';
     import { useCameraStore } from '@/stores/camera';
+    import { useDatasetPanelStore } from '@/stores/datasetPanel';
     import { useDatasetStore } from '@/stores/datasets';
     import { useGiro3dStore } from '@/stores/giro3d.js';
     import { formatForSearch } from '@/utils/NameFiltering';
@@ -23,16 +25,17 @@
     import EmptyIndicator from './EmptyIndicator.vue';
 
     const giro3dStore = useGiro3dStore();
+    const datasetPanel = useDatasetPanelStore();
     const datasets = useDatasetStore();
     const camera = useCameraStore();
     const basemap = useBasemapStore();
     const showParameters = ref<Dataset>();
     const items = useTemplateRef<InstanceType<typeof DatasetOrGroupItem>[]>('items');
+    const filterPanel = useTemplateRef<HTMLDivElement>('filterPanel');
+    const { doFilterByCamera, filterExpanded, searchQuery, searchText, typeFilter } =
+        storeToRefs(datasetPanel);
 
-    let searchQuery = '';
-    let typeFilter = ALL_DATASET_TYPES_KEYWORD;
     let uuidFilter: string[] = [];
-    const doFilterByCamera = ref(false);
     let boundOnFilterByCamera: (() => void) | null = null;
 
     function getDatasetTitle(type: string): string {
@@ -75,8 +78,8 @@
     }
 
     const filter = (query: string, type: string): void => {
-        searchQuery = query;
-        typeFilter = type;
+        searchQuery.value = query;
+        typeFilter.value = type;
         items.value?.forEach(child => {
             child.filter(query, type, uuidFilter);
         });
@@ -97,10 +100,23 @@
                 uuidFilter = datasets.getDatasetsInCameraFrustum(frust).map(ds => ds.uuid);
 
                 items.value?.forEach(child => {
-                    child.filter(searchQuery, typeFilter, uuidFilter);
+                    child.filter(searchQuery.value, typeFilter.value, uuidFilter);
                 });
             }
         }
+    }
+
+    function onFilterCollapsed(): void {
+        filterExpanded.value = false;
+    }
+
+    function onFilterExpanded(): void {
+        filterExpanded.value = true;
+    }
+
+    function onSearchInput(value: string): void {
+        searchText.value = value;
+        filter(formatForSearch(value), typeFilter.value);
     }
 
     function setDoFilterByCamera(enable: boolean): void {
@@ -119,15 +135,34 @@
         } else {
             uuidFilter = [];
             items.value?.forEach(child => {
-                child.filter(searchQuery, typeFilter, []);
+                child.filter(searchQuery.value, typeFilter.value, []);
             });
         }
     }
+
+    onMounted(() => {
+        filterPanel.value?.addEventListener('show.bs.collapse', onFilterExpanded);
+        filterPanel.value?.addEventListener('hide.bs.collapse', onFilterCollapsed);
+
+        if (doFilterByCamera.value) {
+            setDoFilterByCamera(true);
+        } else {
+            filter(searchQuery.value, typeFilter.value);
+        }
+    });
+
+    onBeforeUnmount(() => {
+        filterPanel.value?.removeEventListener('show.bs.collapse', onFilterExpanded);
+        filterPanel.value?.removeEventListener('hide.bs.collapse', onFilterCollapsed);
+
+        if (boundOnFilterByCamera !== null) {
+            const instance = giro3dStore.getMainView();
+            instance?.removeEventListener('after-camera-update', boundOnFilterByCamera);
+        }
+    });
 </script>
 
 <template>
-    <PanelHeader title="Data" />
-
     <div v-if="showParameters != null" class="d-flex flex-column h-100">
         <DatasetParameters
             @back-to-datasets="showParameters = undefined"
@@ -136,34 +171,57 @@
     </div>
 
     <div v-if="showParameters == null" class="d-flex flex-column h-100 px-2">
-        <div class="input-group">
-            <input
-                @input="
-                    e => filter(formatForSearch((<HTMLInputElement>e.target).value), typeFilter)
-                "
-                type="text"
-                class="form-control w-100"
-                placeholder="Filter by name..."
-            />
-        </div>
-        <div class="input-group">
-            <select
-                name="type-filter"
-                class="form-control w-100"
-                @change="e => filter(searchQuery, (<HTMLSelectElement>e.target).value)"
+        <PanelHeader title="Data">
+            <button
+                class="btn btn-sm float-end"
+                :class="{ 'btn-success': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#dataset-filter"
+                :aria-expanded="filterExpanded"
+                aria-controls="dataset-filter"
             >
-                <option :value="ALL_DATASET_TYPES_KEYWORD">All Types</option>
-                <option v-for="type of getDatasetTypes()" :key="type" :value="type">
-                    {{ getDatasetTitle(type) }}
-                </option>
-            </select>
-        </div>
-        <CheckboxToggle
-            :model-value="doFilterByCamera"
-            @update:model-value="v => setDoFilterByCamera(v)"
-            title="Filter by Camera View"
-            >Filter datasets in current view</CheckboxToggle
+                <i class="bi bi-funnel-fill"></i>
+            </button>
+        </PanelHeader>
+        <div
+            ref="filterPanel"
+            class="collapse card"
+            :class="{ show: filterExpanded }"
+            id="dataset-filter"
         >
+            <div class="d-flex flex-column card-body">
+                <div class="input-group">
+                    <input
+                        :value="searchText"
+                        @input="e => onSearchInput((<HTMLInputElement>e.target).value)"
+                        type="text"
+                        class="form-control w-100"
+                        placeholder="Filter by name..."
+                    />
+                </div>
+                <div class="input-group">
+                    <select
+                        name="type-filter"
+                        class="form-control w-100"
+                        :value="typeFilter"
+                        @change="e => filter(searchQuery, (<HTMLSelectElement>e.target).value)"
+                    >
+                        <option :value="ALL_DATASET_TYPES_KEYWORD">All Types</option>
+                        <option v-for="type of getDatasetTypes()" :key="type" :value="type">
+                            {{ getDatasetTitle(type) }}
+                        </option>
+                    </select>
+                </div>
+                <CheckboxToggle
+                    :model-value="doFilterByCamera"
+                    @update:model-value="v => setDoFilterByCamera(v)"
+                    title="Filter by Camera View"
+                    >Filter datasets in current view</CheckboxToggle
+                >
+            </div>
+        </div>
+
         <hr />
         <div v-if="datasets.count > 0" class="flex-fill overflow-auto">
             <!-- The margin counteracts the indentation for the root element -->
@@ -228,3 +286,19 @@
         </ButtonArea>
     </div>
 </template>
+
+<style scoped>
+    a.icon[aria-expanded='true'] i::before,
+    a[aria-expanded='true'] .icon i::before,
+    .btn[aria-expanded='true'] > i::before,
+    [aria-expanded='true'].shepherd-button > i::before {
+        transform: rotate(0);
+    }
+
+    .btn[aria-expanded] {
+        transition:
+            color 0.2s,
+            background-color 0.2s,
+            border-color 0.2s;
+    }
+</style>
