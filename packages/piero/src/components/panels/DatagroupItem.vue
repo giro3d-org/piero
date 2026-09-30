@@ -19,6 +19,7 @@
 
     defineEmits<{
         showParameters: [value: Dataset];
+        'update:expanded': [ds: Dataset, expanded: boolean];
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
     }>();
@@ -27,6 +28,7 @@
     const hasLeafPreloading = ref(false);
     const hasLeafPreloaded = ref(false);
     const isVisible = ref(props.group.visibleSelf);
+    const isExpanded = ref(props.group.expanded);
     watch(leafs, newValues => {
         hasLeafPreloading.value = newValues.some(v => v.state === DatasetState.Loading);
         hasLeafPreloaded.value = newValues.some(v => v.state === DatasetState.Loaded);
@@ -47,9 +49,10 @@
                 icon="bi-chevron-down"
                 data-bs-toggle="collapse"
                 class="me-1"
+                @click="() => $emit('update:expanded', group, !isExpanded)"
                 :data-bs-target="target"
                 :aria-controls="id"
-                aria-expanded="false"
+                :aria-expanded="isExpanded"
             />
             <IconListButton
                 v-if="isEmpty"
@@ -106,7 +109,7 @@
         </IconList>
     </div>
 
-    <CompactList :id="id" class="collapse">
+    <CompactList :id="id" :class="`collapse ${isExpanded ? 'show' : ''}`">
         <template v-if="!isEmpty">
             <DatasetOrGroupItem
                 v-for="dataset of group.children"

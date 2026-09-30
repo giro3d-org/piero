@@ -191,7 +191,17 @@ export class Datagroup extends DatasetBase<config.Datagroup, DatasetGroupEventMa
         });
     }
 
+    public get expanded(): boolean {
+        return this._expanded;
+    }
+    public set expanded(v: boolean) {
+        this._expanded = v;
+    }
+
     protected _children: DatasetOrGroup[];
+
+    protected _expanded: boolean = false;
+
     public constructor(conf: config.Datagroup) {
         super(conf);
         this._children = parseDatasetConfig(conf.children, this);

@@ -11,6 +11,7 @@
 
     defineEmits<{
         showParameters: [value: Dataset];
+        'update:expanded': [ds: Dataset, expanded: boolean];
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
     }>();
@@ -24,6 +25,7 @@
             @zoom="ds => $emit('zoom', ds)"
             @show-parameters="ds => $emit('showParameters', ds)"
             @update:visible="(ds, v) => $emit('update:visible', ds, v)"
+            @update:expanded="(ds, v) => $emit('update:expanded', ds, v)"
         />
         <DatasetItem
             v-else

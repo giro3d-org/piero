@@ -67,6 +67,7 @@
                     @updated="$forceUpdate()"
                     @zoom="ds => zoomOnDataset(ds)"
                     @show-parameters="ds => showParams(ds)"
+                    @update:expanded="(ds, v) => datasets.setExpanded(ds, v)"
                     @update:visible="(ds, v) => datasets.setVisible(ds, v)"
                 />
             </CompactList>
