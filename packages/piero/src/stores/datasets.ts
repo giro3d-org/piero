@@ -92,14 +92,8 @@ export const useDatasetStore = defineStore('datasets', () => {
         return leafs.value.filter(ds => ds.visible && !Datagroup.isGroup(ds));
     }
 
-    function getVisibleDatasetsInCameraFrustum(frustum: Frustum): string[] {
-        const names: string[] = [];
-        entities.forEach((v, k) => {
-            if (v.find(entity => frustum.intersectsBox(entity.getBoundingBox() ?? new Box3()))) {
-                names.push(k);
-            }
-        });
-        return names;
+    function getDatasetsInCameraFrustum(frustum: Frustum): Dataset[] {
+        return leafs.value.filter(ds => frustum.intersectsBox(getBoundingBox(ds)));
     }
 
     /** Adds a dataset at the end of the tree */
@@ -236,11 +230,11 @@ export const useDatasetStore = defineStore('datasets', () => {
         getBoundingBox,
         getCustomActions,
         getDatasets,
+        getDatasetsInCameraFrustum,
         getEntities,
         getLayers,
         getTree,
         getVisibleDatasets,
-        getVisibleDatasetsInCameraFrustum,
         importFromFile,
         registerCustomAction,
         remove,
