@@ -4,7 +4,6 @@ import type { Object3D } from 'three';
 import HttpConfiguration from '@giro3d/giro3d/utils/HttpConfiguration';
 import { AmbientLight, Box3, DirectionalLight, EventDispatcher } from 'three';
 
-import { getLookAtTarget } from '@/configuration/lookAt';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import AnnotationManager from '@/services/AnnotationManager';
 import CameraController from '@/services/CameraController';
@@ -88,11 +87,6 @@ export default class Giro3DManager extends EventDispatcher<Giro3DManagerEventMap
         this.picker = new Picker();
         this.sceneCursorManager = new SceneCursorManager(instance);
         this.camera = new CameraController(this.mainInstance, this.picker, this.sceneCursorManager);
-
-        const position = this._store.getDefaultCameraPosition();
-        const lookAt = this._store.getDefaultLookAt();
-        const target = getLookAtTarget(position.toVector3(), lookAt);
-        void this.camera.lookAt(position.toVector3(), target);
 
         this.layerManager = new LayerManager(this.mainInstance);
         this.datasetManager = new DatasetManager(this.mainInstance, this.layerManager);

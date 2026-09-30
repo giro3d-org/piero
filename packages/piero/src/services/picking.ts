@@ -108,7 +108,7 @@ export default class Picker {
 
     public getFirstFeatureAt(
         instance: Instance,
-        e: MouseEvent,
+        e: MouseEvent | Vector2,
         radius = 1,
         filterOnObjects?: (obj: Entity | Object3D) => boolean,
     ): PickResult[] | null {
@@ -156,7 +156,7 @@ export default class Picker {
      * may return nothing)
      * @returns Result or null if nothing found
      */
-    public getMapAt(instance: Instance, e: MouseEvent, radius = 1): PickResult | null {
+    public getMapAt(instance: Instance, e: MouseEvent | Vector2, radius = 1): PickResult | null {
         const where = instance.getObjects(o => (o as Giro3DMap).isMap);
         const picked = instance
             .pickObjectsAt(e, {
@@ -230,7 +230,7 @@ export default class Picker {
 
     public pick(
         instance: Instance,
-        event: MouseEvent,
+        event: MouseEvent | Vector2,
     ): { feature: Feature | null; pickResult: PickResult; point: Vector3 } | null {
         const picked = this.getFirstFeatureAt(instance, event)?.at(0);
         if (picked) {
