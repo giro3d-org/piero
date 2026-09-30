@@ -7,6 +7,7 @@
     import ModalOverlay from '@/components/ModalOverlay.vue';
     import BookmarkItem from '@/components/panels/BookmarkItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import PanelHeader from '@/components/panels/PanelHeader.vue';
     import ShareBookmarkModal from '@/components/panels/ShareBookmarkModal.vue';
     import { useBookmarkStore } from '@/stores/bookmarks';
     import { useCameraStore } from '@/stores/camera';
@@ -91,6 +92,8 @@
 </script>
 
 <template>
+    <PanelHeader title="Bookmarks" />
+
     <div class="d-flex flex-column h-100">
         <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
 

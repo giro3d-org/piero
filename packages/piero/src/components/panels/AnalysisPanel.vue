@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { useAnalysisStore } from '@/stores/analysis';
 
     import ToolWrapper from './analysis/ToolWrapper.vue';
@@ -8,6 +9,8 @@
 </script>
 
 <template>
+    <PanelHeader title="Analysis" />
+
     <div class="accordion" id="analysis-accordion">
         <ToolWrapper
             v-for="item in analysis.getTools()"

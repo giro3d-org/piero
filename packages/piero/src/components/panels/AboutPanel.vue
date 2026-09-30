@@ -5,12 +5,20 @@
     import franceRelance from '@/assets/sponsors/france_relance.png';
     import oslandia from '@/assets/sponsors/oslandia.png';
     import ueNext from '@/assets/sponsors/ue_next_generation.png';
+    import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { useModuleStore } from '@/stores/modules';
 
     const modules = useModuleStore().getLoadedModules();
+    const gitCommit = import.meta.env.VITE_GIT_COMMIT;
 </script>
 
 <template>
+    <PanelHeader title="About Piero">
+        <span class="badge text-bg-secondary rounded-pill text-sm" title="Version">{{
+            gitCommit
+        }}</span>
+    </PanelHeader>
+
     <div>
         <p>
             <a href="https://gitlab.com/giro3d/piero" target="_blank">Piero</a>

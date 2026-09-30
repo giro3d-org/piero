@@ -1,7 +1,6 @@
 <script setup lang="ts">
     import type { PanelType } from './Configuration';
 
-    import getConfigurationPanels from './Configuration';
     import AboutPanel from './panels/AboutPanel.vue';
     import AnalysisPanel from './panels/AnalysisPanel.vue';
     import AnnotationPanel from './panels/AnnotationPanel.vue';
@@ -16,22 +15,10 @@
          */
         selected: PanelType | null;
     }>();
-
-    const panels = getConfigurationPanels();
-    const gitCommit = import.meta.env.VITE_GIT_COMMIT;
 </script>
 
 <template>
     <div class="panel" id="panel-container">
-        <h5 class="title">
-            {{ panels.find(p => p.key === selected)?.title }}
-            <span
-                v-if="selected === 'about'"
-                class="badge text-bg-primary rounded-pill float-end"
-                title="Version"
-                >Version: {{ gitCommit }}</span
-            >
-        </h5>
         <div class="content">
             <DatasetPanel v-if="selected === 'data'" />
             <AboutPanel v-if="selected === 'about'" />
