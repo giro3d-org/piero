@@ -92,7 +92,7 @@
         <IconList class="text-body-tertiary">
             <Icon
                 :icon="datasetIcons[dataset.type] ?? 'bi-file-earmark-x'"
-                :title="datasetTitles[dataset.type] ?? 'Unknown'"
+                :title="datasetTitles[dataset.type] ?? dataset.type"
             />
         </IconList>
         <div class="variable-width">

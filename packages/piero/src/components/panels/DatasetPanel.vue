@@ -7,6 +7,7 @@
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
+    import { datasetTitles } from '@/components/Configuration';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
@@ -34,12 +35,18 @@
     const doFilterByCamera = ref(false);
     let boundOnFilterByCamera: (() => void) | null = null;
 
+    function getDatasetTitle(type: string): string {
+        return datasetTitles[type] ?? type;
+    }
+
     function getDatasetTypes(): string[] {
         const types: Set<string> = new Set<string>();
         datasets.getDatasets().forEach(dataset => {
             types.add(dataset.type);
         });
-        return Array.from(types).sort();
+        return Array.from(types).sort((a, b) =>
+            getDatasetTitle(a).localeCompare(getDatasetTitle(b)),
+        );
     }
 
     function importDataset(files: File[]): void {
@@ -136,7 +143,7 @@
                 "
                 type="text"
                 class="form-control w-100"
-                placeholder="Filter..."
+                placeholder="Filter by name..."
             />
         </div>
         <div class="input-group">
@@ -147,7 +154,7 @@
             >
                 <option :value="ALL_DATASET_TYPES_KEYWORD">All Types</option>
                 <option v-for="type of getDatasetTypes()" :key="type" :value="type">
-                    {{ type }}
+                    {{ getDatasetTitle(type) }}
                 </option>
             </select>
         </div>
@@ -155,7 +162,7 @@
             :model-value="doFilterByCamera"
             @update:model-value="v => setDoFilterByCamera(v)"
             title="Filter by Camera View"
-            >Filter Datasets in View</CheckboxToggle
+            >Filter datasets in current view</CheckboxToggle
         >
         <hr />
         <div v-if="datasets.count > 0" class="flex-fill overflow-auto">
