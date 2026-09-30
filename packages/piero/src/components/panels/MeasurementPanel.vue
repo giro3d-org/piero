@@ -10,6 +10,7 @@
     import DropdownView from '@/components/DropdownView.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import MeasurementItem from '@/components/panels/MeasurementItem.vue';
+    import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useMeasurementStore } from '@/stores/measurement';
     import Measure from '@/types/Measure';
@@ -48,6 +49,8 @@
 </script>
 
 <template>
+    <PanelHeader title="Measures" />
+
     <div class="d-flex flex-column h-100">
         <div class="alert alert-warning py-2" role="alert">
             <i class="bi bi-cone-striped"></i> This feature is experimental

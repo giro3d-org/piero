@@ -10,6 +10,7 @@
     import DropdownView from '@/components/DropdownView.vue';
     import AnnotationItem from '@/components/panels/AnnotationItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import PanelHeader from '@/components/panels/PanelHeader.vue';
     import SwitchToggle from '@/components/SwitchToggle.vue';
     import { useAnnotationStore } from '@/stores/annotations';
     import { useCameraStore } from '@/stores/camera';
@@ -49,6 +50,8 @@
 </script>
 
 <template>
+    <PanelHeader title="Annotations" />
+
     <div class="d-flex flex-column h-100">
         <EmptyIndicator text="No annotations" v-if="annotations.count === 0" />
 

@@ -8,6 +8,7 @@
     import CompactList from '@/components/atoms/CompactList.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
+    import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { useBasemapStore } from '@/stores/basemap';
     import { useCameraStore } from '@/stores/camera';
     import { useDatasetStore } from '@/stores/datasets';
@@ -49,6 +50,8 @@
 </script>
 
 <template>
+    <PanelHeader title="Data" />
+
     <div v-if="showParameters != null" class="d-flex flex-column h-100">
         <DatasetParameters
             @back-to-datasets="showParameters = undefined"
