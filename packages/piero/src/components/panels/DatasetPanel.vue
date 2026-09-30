@@ -94,7 +94,7 @@
                 const frust = new Frustum();
                 frust.setFromProjectionMatrix(cam.projectionMatrix);
                 frust.planes.forEach(pl => pl.applyMatrix4(cam.matrixWorld));
-                uuidFilter = datasets.getVisibleDatasetsInCameraFrustum(frust);
+                uuidFilter = datasets.getDatasetsInCameraFrustum(frust).map(ds => ds.uuid);
 
                 items.value?.forEach(child => {
                     child.filter(searchQuery, typeFilter, uuidFilter);
