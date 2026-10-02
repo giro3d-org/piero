@@ -1,21 +1,14 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import child_process from 'child_process';
 import { fileURLToPath, URL } from 'node:url';
 import { nodeExternals } from 'rollup-plugin-node-externals';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
-let commitHash = 'unknown';
-try {
-    commitHash = child_process
-        .execSync('git describe --tags --match "packages-v*" --always')
-        .toString();
-} catch {
-    // Ignore
-}
+import { getPackageVersion } from '../../build/utils';
+import pkgConfig from './package.json';
 
 const config = defineConfig(e => {
-    console.log(`📦️ Building package @giro3d/piero-plugin-geohash at ${commitHash}`);
+    console.log(`📦️ Building package ${pkgConfig.name} @ ${getPackageVersion()}`);
 
     const mode = e.mode;
     const isProduction = mode === 'production';

@@ -1,6 +1,5 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue';
-import child_process from 'child_process';
 import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
@@ -9,7 +8,10 @@ import { defineConfig, loadEnv, mergeConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
+import { getPackageVersion } from '../../build/utils';
 import pkgConfig from './package.json';
+
+const version = getPackageVersion();
 
 type PackageJson = {
     homepage?: string;
@@ -20,15 +22,6 @@ type PackageJson = {
               url: string;
           };
 };
-
-let commitHash = 'unknown';
-try {
-    commitHash = child_process
-        .execSync('git describe --tags --match "packages-v*" --always')
-        .toString();
-} catch {
-    // Ignore
-}
 
 const homepages: Record<string, string> = {
     'camera-controls': 'https://github.com/yomotsu/camera-controls',
@@ -90,10 +83,19 @@ export const commonConfig = defineConfig(env => {
     const modules = path.resolve(root, '../../node_modules');
 
     return {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    logger: {
+                        warn: (): void => {}, // To suppress annoying bootstrapp/Sass warnings
+                    },
+                },
+            },
+        },
         define: {
             'import.meta.env.VITE_AUTHORIZATIONS': metaEnv.VITE_AUTHORIZATIONS,
             'import.meta.env.VITE_DEPENDENCIES': JSON.stringify(dependencies),
-            'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(commitHash),
+            'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(version),
             'import.meta.env.VITE_HEADERS': metaEnv.VITE_HEADERS,
         },
         plugins: [
@@ -171,7 +173,7 @@ const libConfig = defineConfig(e => {
 });
 
 const config = defineConfig(env => {
-    console.log(`📦️ Building package @ at ${commitHash}`);
+    console.log(`📦️ [${pkgConfig.name}] Building CJS/ESM package @ ${version}`);
     return mergeConfig(commonConfig(env), libConfig(env));
 });
 

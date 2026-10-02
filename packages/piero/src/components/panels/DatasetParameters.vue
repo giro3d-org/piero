@@ -2,7 +2,7 @@
     import type { Dataset } from '@/types/Dataset';
 
     import { useDatasetStore } from '@/stores/datasets';
-    import { refAndWatch } from '@/utils/Components';
+    import { refAndWatch } from '@/utils/components';
 
     import ButtonWithIcon from '../atoms/ButtonWithIcon.vue';
     import Slider from '../atoms/Slider.vue';
