@@ -51,9 +51,13 @@ const copcBuilder: DatasetBuilder = context => {
         if (activeAttribute != null) {
             entity.setColoringMode('attribute');
             entity.setActiveAttribute(activeAttribute);
-        }
-        if (dataset.style?.colorMap != null) {
-            entity.colorMap = toGiro3DColorMap(dataset.style.colorMap);
+
+            if (dataset.style?.colorMap != null) {
+                entity.setAttributeColorMap(
+                    activeAttribute,
+                    toGiro3DColorMap(dataset.style.colorMap),
+                );
+            }
         }
     });
 

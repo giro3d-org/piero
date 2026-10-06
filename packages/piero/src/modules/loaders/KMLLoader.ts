@@ -1,5 +1,6 @@
 import type z from 'zod';
 
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import KML from 'ol/format/KML';
 
@@ -32,7 +33,7 @@ const builder: DatasetBuilder = context => {
             }),
             url: dataset.url,
         },
-        dataProjection: dataset.projection,
+        dataProjection: CoordinateSystem.get(dataset.projection),
         style:
             dataset.style != null
                 ? toOpenLayersStyle(dataset.style)

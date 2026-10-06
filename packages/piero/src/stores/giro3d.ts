@@ -1,9 +1,10 @@
 import type Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type Instance from '@giro3d/giro3d/core/Instance';
-import type { MapConstructorOptions } from '@giro3d/giro3d/entities/Map';
+import type { MapOptions } from '@giro3d/giro3d/entities/Map';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import { defineStore } from 'pinia';
 import { DoubleSide } from 'three';
 import { shallowRef } from 'vue';
@@ -37,9 +38,12 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         const config = getConfig();
         const conf = config.scene.camera;
 
-        return new Coordinates('EPSG:4326', conf.longitude, conf.latitude, conf.altitude).as(
-            config.scene.crs,
-        );
+        return new Coordinates(
+            CoordinateSystem.epsg4326,
+            conf.longitude,
+            conf.latitude,
+            conf.altitude,
+        ).as(CoordinateSystem.get(config.scene.crs));
     }
 
     function getDefaultLookAt(): LookAt {
@@ -48,8 +52,8 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         return config.scene.camera;
     }
 
-    function getDefaultBasemapOptions(): Omit<MapConstructorOptions, 'extent'> {
-        const opts: Omit<MapConstructorOptions, 'extent'> = {
+    function getDefaultBasemapOptions(): Omit<MapOptions, 'extent'> {
+        const opts: Omit<MapOptions, 'extent'> = {
             backgroundColor: 'white',
             lighting: {
                 elevationLayersOnly: true,
@@ -68,12 +72,12 @@ export const useGiro3dStore = defineStore('giro3d', () => {
 
         const input = config.scene.basemap.extent;
 
-        return toGiro3DExtent(input, config.scene.crs);
+        return toGiro3DExtent(input, CoordinateSystem.get(config.scene.crs));
     }
 
-    function getCRS(): string {
+    function getCRS(): CoordinateSystem {
         const config = getConfig();
-        return config.scene.crs;
+        return CoordinateSystem.get(config.scene.crs);
     }
 
     function notifyChange(): void {

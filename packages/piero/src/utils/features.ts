@@ -4,6 +4,7 @@ import type FeatureFormat from 'ol/format/Feature';
 import type { LineString } from 'ol/geom';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import GeometryConverter from '@giro3d/giro3d/renderer/geometries/GeometryConverter';
 import { type FeatureLike } from 'ol/Feature';
 import {
@@ -49,7 +50,7 @@ async function fetchZCoordinates(
 
         for (let i = 0; i < coordinates.length; i += stride) {
             const c = new Coordinates(
-                featureProjection,
+                CoordinateSystem.get(featureProjection),
                 coordinates[i + 0],
                 coordinates[i + 1],
                 stride >= 3 ? coordinates[i + 2] : noDataValue,

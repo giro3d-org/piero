@@ -1,5 +1,6 @@
 import type z from 'zod';
 
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GPX from 'ol/format/GPX';
 import { Fill, Stroke, Style } from 'ol/style';
@@ -41,7 +42,7 @@ const builder: DatasetBuilder = context => {
             format: new GPX(),
             url: dataset.url,
         },
-        dataProjection: dataset.projection,
+        dataProjection: CoordinateSystem.get(dataset.projection),
         style: dataset.style != null ? toOpenLayersStyle(dataset.style) : DEFAULT_STYLE,
     });
 

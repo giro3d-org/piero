@@ -3,6 +3,7 @@ node_modules
 .parcel-cache
 dist
 packages/**/*.tgz
+tsconfig.tsbuildinfo
 
 # Env
 .env.local

@@ -6,7 +6,7 @@ import { BDTopoEntity } from './bdtopo/BDTopoEntity';
 
 const builder: DatasetBuilder = context => {
     const entity = new BDTopoEntity({
-        featureProjection: context.instance.referenceCrs,
+        featureProjection: context.instance.coordinateSystem.id,
     });
 
     return Promise.resolve({

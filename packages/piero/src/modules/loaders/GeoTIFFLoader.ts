@@ -1,5 +1,6 @@
 import type z from 'zod';
 
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import GeoTIFFSource from '@giro3d/giro3d/sources/GeoTIFFSource';
 
 import type { DatasetBuilder } from '@/api/dataset';
@@ -20,7 +21,7 @@ const builder: DatasetBuilder = context => {
     const dataset = GeoTIFFDataset.parse(context.dataset);
 
     const source = new GeoTIFFSource({
-        crs: dataset.projection,
+        crs: CoordinateSystem.get(dataset.projection),
         url: dataset.url,
     });
 

@@ -2,6 +2,7 @@ import type Layer from '@giro3d/giro3d/core/layer/Layer';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import type { Ref } from 'vue';
 
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import { defineStore } from 'pinia';
 import { Box3 } from 'three';
 import { computed, ref, shallowReactive } from 'vue';
@@ -135,9 +136,10 @@ export const useDatasetStore = defineStore('datasets', () => {
 
             const layerList = layers.get(ds.uuid);
             if (layerList) {
-                const basemapExtent = toGiro3DExtent(config.scene.basemap.extent, config.scene.crs);
+                const crs = CoordinateSystem.get(config.scene.crs);
+                const basemapExtent = toGiro3DExtent(config.scene.basemap.extent, crs);
                 for (const layer of layerList) {
-                    const layerExtent = layer?.getExtent()?.as(config.scene.crs);
+                    const layerExtent = layer?.getExtent()?.as(crs);
                     if (layerExtent && layerExtent.isValid()) {
                         const actual = layerExtent.clone().intersect(basemapExtent);
                         const localBox = actual.toBox3(0, 0);

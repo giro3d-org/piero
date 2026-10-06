@@ -1,6 +1,7 @@
 import type { FeatureCollection, Point } from 'geojson';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import { HttpError } from '@giro3d/giro3d/utils/Fetcher';
 
 import type { LocationSearchResult, SearchProvider } from '@/api/search';
@@ -51,7 +52,7 @@ class PhotonSearchProvider implements SearchProvider<LocationSearchResult> {
                 const [x, y] = point.coordinates;
 
                 return {
-                    coordinates: new Coordinates('EPSG:4326', x, y, 0),
+                    coordinates: new Coordinates(CoordinateSystem.epsg4326, x, y, 0),
                     label: formatLabel(props),
                     provider: this,
                 } satisfies LocationSearchResult;

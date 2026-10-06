@@ -142,7 +142,7 @@
 
         if (isLocationSearchResult(result)) {
             const instance = giro3d.value.mainInstance;
-            const poiCoordinates = result.coordinates.as(instance.referenceCrs);
+            const poiCoordinates = result.coordinates.as(instance.coordinateSystem);
             const target = Extent.fromCenterAndSize(
                 poiCoordinates.crs,
                 poiCoordinates.toVector2(),
@@ -252,7 +252,7 @@
     />
     <StatusBar
         class="component statusbar"
-        :crs="giro3dStore.getMainView()?.referenceCrs"
+        :crs="giro3dStore.getMainView()?.coordinateSystem.id"
         :x="coordinates.x"
         :y="coordinates.y"
         :z="coordinates.z"

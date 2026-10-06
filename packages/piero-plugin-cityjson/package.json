@@ -67,8 +67,8 @@
     },
     "peerDependencies": {
         "@giro3d/piero": "*",
-        "@giro3d/giro3d": "^0.43.0",
-        "three": "^0.170.0"
+        "@giro3d/giro3d": "^2.0.0",
+        "three": "^0.180.0"
     },
     "dependencies": {
         "cityjson-threejs-loader": "github:cityjson/cityjson-threejs-loader"

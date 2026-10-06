@@ -1,8 +1,9 @@
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 
 import Fetcher from '@/utils/Fetcher';
 
-const tmpCoords = new Coordinates('EPSG:4326', 0, 0, 0);
+const tmpCoords = new Coordinates(CoordinateSystem.epsg4326, 0, 0, 0);
 
 type AltitudeResponse = {
     elevations: number[];
@@ -42,7 +43,7 @@ export default {
         const lat: number[] = [];
 
         coordinates.forEach(c => {
-            c.as('EPSG:4326', tmpCoords);
+            c.as(CoordinateSystem.epsg4326, tmpCoords);
             lng.push(tmpCoords.longitude);
             lat.push(tmpCoords.latitude);
         });

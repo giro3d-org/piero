@@ -3,7 +3,7 @@ import type Instance from '@giro3d/giro3d/core/Instance';
 import type Layer from '@giro3d/giro3d/core/layer/Layer';
 
 import { isColorLayer } from '@giro3d/giro3d/core/layer/ColorLayer';
-import Giro3dMap from '@giro3d/giro3d/entities/Map';
+import Giro3DMap from '@giro3d/giro3d/entities/Map';
 import { EventDispatcher } from 'three';
 
 import { useBasemapStore } from '@/stores/basemap';
@@ -22,7 +22,7 @@ export default class LayerManager extends EventDispatcher {
     private readonly _giro3dStore = useGiro3dStore();
     private readonly _instance: Instance;
     private readonly _layers: Map<Layer['id'], LayerConfig>;
-    private readonly _map: Giro3dMap;
+    private readonly _map: Giro3DMap;
 
     public constructor(instance: Instance) {
         super();
@@ -33,8 +33,8 @@ export default class LayerManager extends EventDispatcher {
         const extent = this._giro3dStore.getDefaultBasemapExtent();
         const mapOptions = this._giro3dStore.getDefaultBasemapOptions();
 
-        this._map = new Giro3dMap({
-            extent: extent.as(instance.referenceCrs),
+        this._map = new Giro3DMap({
+            extent: extent.as(instance.coordinateSystem),
             ...mapOptions,
         });
         this._map.terrain.segments = 32;
@@ -66,7 +66,7 @@ export default class LayerManager extends EventDispatcher {
         this._map.dispose({ disposeLayers: true });
     }
 
-    public getBasemap(): Giro3dMap {
+    public getBasemap(): Giro3DMap {
         return this._map;
     }
 

@@ -1,5 +1,6 @@
 import type z from 'zod';
 
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
 import GeoJSON from 'ol/format/GeoJSON';
 
@@ -30,7 +31,7 @@ const builder: DatasetBuilder = context => {
             format: new GeoJSON(),
             url: dataset.url,
         },
-        dataProjection: dataset.projection,
+        dataProjection: CoordinateSystem.get(dataset.projection),
         style:
             dataset.style != null
                 ? toOpenLayersStyle(dataset.style)

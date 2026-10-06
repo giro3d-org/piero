@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+    import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
     import { Map, View } from 'ol';
     import TileLayer from 'ol/layer/Tile';
     import { fromLonLat } from 'ol/proj';
@@ -66,10 +67,10 @@
                 lastPosition = position.camera.clone();
 
                 const latlon = new Coordinates(
-                    instance.referenceCrs,
+                    instance.coordinateSystem,
                     lastPosition.x,
                     lastPosition.y,
-                ).as('EPSG:4326');
+                ).as(CoordinateSystem.epsg4326);
 
                 const zoom = getZoomFromAltitude(altitude);
 

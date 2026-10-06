@@ -4,6 +4,7 @@ import type ImageSource from '@giro3d/giro3d/sources/ImageSource';
 
 import Giro3DColorMap from '@giro3d/giro3d/core/ColorMap';
 import Giro3DCoordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import Giro3DExtent from '@giro3d/giro3d/core/geographic/Extent';
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
@@ -12,7 +13,6 @@ import { Color } from 'three';
 
 import type { ColorMap } from '@/configuration/colormap';
 import type { Coordinate } from '@/configuration/coordinate';
-import type { CrsName } from '@/configuration/crs';
 import type { Extent } from '@/configuration/extent';
 import type { Layer } from '@/configuration/layer';
 
@@ -65,9 +65,13 @@ export function toGiro3DColorMap(config: ColorMap): Giro3DColorMap {
     return new Giro3DColorMap({ colors, ...config });
 }
 
-export function toGiro3DCoordinates(input: Coordinate, sceneCrs: string): Giro3DCoordinates {
+export function toGiro3DCoordinates(
+    input: Coordinate,
+    sceneCrs: CoordinateSystem,
+): Giro3DCoordinates {
     if ('crs' in input) {
-        return new Giro3DCoordinates(input.crs, input.x, input.y, input.z ?? 0);
+        const crs = CoordinateSystem.get(input.crs);
+        return new Giro3DCoordinates(crs, input.x, input.y, input.z ?? 0);
     } else if (Array.isArray(input)) {
         if (input.length === 2) {
             return new Giro3DCoordinates(sceneCrs, input[0], input[1], 0);
@@ -76,7 +80,7 @@ export function toGiro3DCoordinates(input: Coordinate, sceneCrs: string): Giro3D
         }
     } else if ('latitude' in input) {
         return new Giro3DCoordinates(
-            'EPSG:4326',
+            CoordinateSystem.epsg4326,
             input.longitude,
             input.latitude,
             input.altitude ?? 0,
@@ -86,15 +90,16 @@ export function toGiro3DCoordinates(input: Coordinate, sceneCrs: string): Giro3D
     throw new Error('invalid coordinates');
 }
 
-export function toGiro3DExtent(input: Extent, sceneCrs: CrsName): Giro3DExtent {
+export function toGiro3DExtent(input: Extent, sceneCrs: CoordinateSystem): Giro3DExtent {
     if (Array.isArray(input)) {
         return new Giro3DExtent(sceneCrs, ...input);
     } else {
-        return new Giro3DExtent(input.crs, {
-            east: input.maxx,
-            north: input.maxy,
-            south: input.miny,
-            west: input.minx,
+        const crs = CoordinateSystem.get(input.crs);
+        return new Giro3DExtent(crs, {
+            maxX: input.maxx,
+            maxY: input.maxy,
+            minX: input.minx,
+            minY: input.miny,
         });
     }
 }
@@ -108,7 +113,9 @@ export function toGiro3DLayer(
         colorMap: layer.colorMap ? toGiro3DColorMap(layer.colorMap) : undefined,
         extent:
             layer.extent != null
-                ? toGiro3DExtent(layer.extent, instance.referenceCrs).as(instance.referenceCrs)
+                ? toGiro3DExtent(layer.extent, instance.coordinateSystem).as(
+                      instance.coordinateSystem,
+                  )
                 : undefined,
         noDataOptions:
             layer.nodata != null

@@ -5,7 +5,7 @@ import type { configuration, PieroContext } from '@giro3d/piero';
 import type { Material, Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import Instance from '@giro3d/giro3d/core/Instance';
+import { CoordinateSystem } from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
 import { fillObject3DUserData } from '@giro3d/piero';
 import {
@@ -207,13 +207,15 @@ export default class CityJSONEntity
 
                 this.loadFromRemoteService(projection)
                     .then(proj => {
+                        const crs = CoordinateSystem.get(proj);
+
                         const coords = new Coordinates(
-                            proj,
+                            crs,
                             translate[0],
                             translate[1],
                             translate[2],
                         );
-                        const coordsReference = coords.as(proj);
+                        const coordsReference = coords.as(crs);
                         loader.scene.position.set(
                             coordsReference.values[0],
                             coordsReference.values[1],
@@ -282,7 +284,7 @@ export default class CityJSONEntity
             const epsgString = `EPSG:${epsgCode}`;
             if (proj4.defs(epsgString) === undefined) {
                 const text = await this._context.http.getText(`https://epsg.io/${epsgCode}.proj4`);
-                Instance.registerCRS(epsgString, text);
+                CoordinateSystem.register(epsgString, text);
             }
             return epsgString;
         }
