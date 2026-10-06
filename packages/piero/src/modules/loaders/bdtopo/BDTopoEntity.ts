@@ -7,6 +7,7 @@ import type {
 } from '@giro3d/giro3d/core/FeatureTypes';
 import type Feature from 'ol/Feature';
 
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import Extent from '@giro3d/giro3d/core/geographic/Extent';
 import FeatureCollection from '@giro3d/giro3d/entities/FeatureCollection';
 import { GeoJSON } from 'ol/format';
@@ -81,7 +82,13 @@ export class BDTopoEntity extends FeatureCollection {
         });
         const extent =
             options.extent ??
-            new Extent('EPSG:2154', -111629.52, 1275028.84, 5976033.79, 7230161.64); // Cover France by default
+            new Extent(
+                CoordinateSystem.get('EPSG:2154'),
+                -111629.52,
+                1275028.84,
+                5976033.79,
+                7230161.64,
+            ); // Cover France by default
 
         const extrusionOffset =
             options.extrusionOffset ??

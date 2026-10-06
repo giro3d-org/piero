@@ -121,7 +121,7 @@ export default class DatasetManager {
             },
             volume: {
                 ceiling: box.max.z + 10,
-                extent: Extent.fromBox3(this._instance.referenceCrs, box).withMargin(20, 20),
+                extent: Extent.fromBox3(this._instance.coordinateSystem, box).withMargin(20, 20),
                 floor: box.min.z - 10,
             },
         });

@@ -1,6 +1,6 @@
 import type z from 'zod';
 
-import Instance from '@giro3d/giro3d/core/Instance';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 
 import type { CrsDefinition } from './configuration/crs';
 
@@ -68,7 +68,7 @@ export async function setConfiguration(newConfiguration: Configuration): Promise
 
     for (const { definition, name } of crsToRegister) {
         try {
-            Instance.registerCRS(name, definition);
+            CoordinateSystem.register(name, definition);
         } catch (error: unknown) {
             console.error(`Failed to register CRS "${name}" as "${definition}".`);
             throw error;

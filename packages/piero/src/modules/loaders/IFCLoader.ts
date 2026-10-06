@@ -111,7 +111,9 @@ const builder: DatasetBuilder = context => {
     const ifcDataset = IFCDataset.parse(dataset);
 
     const at = ifcDataset.position
-        ? toGiro3DCoordinates(ifcDataset.position, instance.referenceCrs).as(instance.referenceCrs)
+        ? toGiro3DCoordinates(ifcDataset.position, instance.coordinateSystem).as(
+              instance.coordinateSystem,
+          )
         : undefined;
 
     const entity = new IfcEntity({

@@ -47,7 +47,7 @@
     const emitCoordinates = (): void => {
         emits(
             'update:coordinates',
-            new Coordinates(nonNull(props.instance).referenceCrs, x.value, y.value, z.value),
+            new Coordinates(nonNull(props.instance).coordinateSystem, x.value, y.value, z.value),
         );
     };
 

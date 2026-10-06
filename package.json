@@ -7,7 +7,9 @@
     ],
     "private": true,
     "overrides": {
-        "three": "^0.170.0"
+        "three": "^0.180.0",
+        "3d-tiles-renderer": "0.4.22",
+        "ol": "10.8.0"
     },
     "scripts": {
         "apidoc:build": "npm run libs:build && typedoc",

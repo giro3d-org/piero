@@ -11,6 +11,7 @@ import type { Geometry, Position } from 'geojson';
 import type { Vector2 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import { isMapPickResult } from '@giro3d/giro3d/core/picking/PickTilesAt';
 import Shape, { isShapePickResult } from '@giro3d/giro3d/entities/Shape';
 import DrawTool, {
@@ -532,11 +533,11 @@ export default class AnnotationManager {
             throw new Error('not a valid GeoJSON feature');
         }
 
-        const crs = 'EPSG:4326';
+        const crs = CoordinateSystem.epsg4326;
 
         const getPoint = (c: Position): Vector3 => {
             const coord = new Coordinates(crs, c[0], c[1], c[2] ?? 0);
-            return coord.as(this._instance.referenceCrs, coord).toVector3();
+            return coord.as(this._instance.coordinateSystem, coord).toVector3();
         };
 
         let result: Shape<PieroShapeUserData>;
@@ -599,9 +600,8 @@ export default class AnnotationManager {
 
             switch (conf.type) {
                 case 'point':
-                    const coord = toGiro3DCoordinates(conf.coordinate, config.scene.crs)
-                        .as(config.scene.crs)
-                        .toVector3();
+                    const crs = CoordinateSystem.get(config.scene.crs);
+                    const coord = toGiro3DCoordinates(conf.coordinate, crs).as(crs).toVector3();
                     const shape = this.createPointShape(coord);
                     shape.userData.type = 'point';
 

@@ -1,6 +1,7 @@
 import type { Vector3 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 
 import type { CrsName } from '@/configuration/crs';
 import type { LookAt } from '@/configuration/lookAt';
@@ -19,11 +20,11 @@ export default class CameraPosition {
     public toLookAt(crs: CrsName): LookAt {
         const altitude = this.camera.z;
         const { latitude, longitude } = new Coordinates(
-            crs,
+            CoordinateSystem.get(crs),
             this.camera.x,
             this.camera.y,
             altitude,
-        ).as('EPSG:4326');
+        ).as(CoordinateSystem.epsg4326);
 
         // TODO check formulas
         const heading = Math.atan2(this.target.x - this.camera.x, this.target.y - this.camera.y);

@@ -43,7 +43,7 @@ export const builder: (pieroContext: PieroContext) => api.dataset.DatasetBuilder
 
         const entity = new CityJSONEntity(
             {
-                featureProjection: context.instance.referenceCrs,
+                featureProjection: context.instance.coordinateSystem.id,
                 url: cfg.url,
             },
             pieroCtx,

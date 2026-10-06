@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+    import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
     import { computed, ref } from 'vue';
 
     import CoordinateFragment from './CoordinateFragment.vue';
@@ -11,11 +12,12 @@
         z: number;
     }>();
 
-    const latlon = computed(() =>
-        new Coordinates(props.crs ?? 'EPSG:3857', props.x ?? 0, props.y ?? 0, props.z ?? 0).as(
-            'EPSG:4326',
-        ),
-    );
+    const latlon = computed(() => {
+        const crs = props.crs != null ? CoordinateSystem.get(props.crs) : CoordinateSystem.epsg3857;
+        return new Coordinates(crs, props.x ?? 0, props.y ?? 0, props.z ?? 0).as(
+            CoordinateSystem.epsg4326,
+        );
+    });
 
     const isGeographic = ref(true);
 

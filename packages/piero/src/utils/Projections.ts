@@ -1,4 +1,4 @@
-import Instance from '@giro3d/giro3d/core/Instance';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import proj4 from 'proj4';
 
 import Fetcher from '@/utils/Fetcher';
@@ -28,7 +28,7 @@ export async function loadFromRemoteService(projection: string): Promise<string>
         const epsgString = `EPSG:${epsgCode}`;
         if (proj4.defs(epsgString) === undefined) {
             const text = await Fetcher.fetchText(`https://epsg.io/${epsgCode}.proj4`);
-            Instance.registerCRS(epsgString, text);
+            CoordinateSystem.register(epsgString, text);
         }
         return epsgString;
     }

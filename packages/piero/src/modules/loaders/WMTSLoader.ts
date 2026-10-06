@@ -9,7 +9,6 @@ import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
 import * as config from '@/configuration';
-import { CrsName } from '@/configuration/crs';
 import { ImageFormat } from '@/configuration/ImageFormat';
 import { toGiro3DLayer } from '@/utils/Configuration';
 
@@ -18,7 +17,6 @@ const DATASET_TYPE = 'wmts';
 export const WMTSDataset = config.layer.Layer.extend({
     format: ImageFormat.optional().default('image/jpeg'),
     layer: z.string().nonempty().nonoptional(),
-    projection: CrsName.optional().default('EPSG:3857'),
     url: config.url.Url,
 });
 

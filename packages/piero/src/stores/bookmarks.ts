@@ -1,4 +1,5 @@
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import { defineStore } from 'pinia';
 import { Vector3 } from 'three';
 import { computed, ref } from 'vue';
@@ -20,8 +21,13 @@ function buildInitialList(): Bookmark[] {
 
     for (const conf of config.bookmarks) {
         const lookAt = conf.lookAt;
-        const pos = new Coordinates('EPSG:4326', lookAt.longitude, lookAt.latitude, lookAt.altitude)
-            .as(config.scene.crs)
+        const pos = new Coordinates(
+            CoordinateSystem.epsg4326,
+            lookAt.longitude,
+            lookAt.latitude,
+            lookAt.altitude,
+        )
+            .as(CoordinateSystem.get(config.scene.crs))
             .toVector3();
 
         const target = getLookAtTarget(pos, lookAt);

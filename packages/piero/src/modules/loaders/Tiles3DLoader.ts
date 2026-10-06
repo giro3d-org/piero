@@ -47,7 +47,7 @@ const builder: DatasetBuilder = context => {
             config.pointCloudMode = MODE.ELEVATION;
             break;
         case 'intensity':
-            config.pointCloudMode = MODE.INTENSITY;
+            config.pointCloudMode = MODE.SCALAR;
             break;
         case 'default':
         default:

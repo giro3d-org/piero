@@ -18,7 +18,7 @@ export default class CrossSectionManager {
     public constructor(private readonly context: PieroContext) {
         context.events.addEventListener('ready', () => {
             this._instance = context.view.getInstance();
-            const defaultCrs = this._instance.referenceCrs;
+            const defaultCrs = this._instance.coordinateSystem;
 
             this._store.setCursorManager(context.view.getSceneCursorManager());
             this._store.setInstance(context.view.getInstance());
