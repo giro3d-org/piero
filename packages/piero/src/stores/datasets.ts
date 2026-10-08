@@ -1,5 +1,6 @@
 import type Layer from '@giro3d/giro3d/core/layer/Layer';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type { Frustum } from 'three';
 import type { Ref } from 'vue';
 
 import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
@@ -89,6 +90,10 @@ export const useDatasetStore = defineStore('datasets', () => {
 
     function getVisibleDatasets(): Dataset[] {
         return leafs.value.filter(ds => ds.visible && !Datagroup.isGroup(ds));
+    }
+
+    function getDatasetsInCameraFrustum(frustum: Frustum): Dataset[] {
+        return leafs.value.filter(ds => frustum.intersectsBox(getBoundingBox(ds)));
     }
 
     /** Adds a dataset at the end of the tree */
@@ -225,6 +230,7 @@ export const useDatasetStore = defineStore('datasets', () => {
         getBoundingBox,
         getCustomActions,
         getDatasets,
+        getDatasetsInCameraFrustum,
         getEntities,
         getLayers,
         getTree,

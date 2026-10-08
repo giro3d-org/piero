@@ -1,6 +1,7 @@
 <script setup lang="ts">
+    import { Collapse } from 'bootstrap';
     import { MathUtils } from 'three';
-    import { reactive, ref, watch } from 'vue';
+    import { reactive, ref, useTemplateRef, watch } from 'vue';
 
     import type { Datagroup, Dataset } from '@/types/Dataset';
 
@@ -11,6 +12,7 @@
     import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
+    import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { DatasetState } from '@/types/Dataset';
 
     const props = defineProps<{
@@ -23,6 +25,8 @@
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
     }>();
+
+    const items = useTemplateRef<InstanceType<typeof DatasetOrGroupItem>[]>('items');
 
     const leafs = reactive(props.group.leafs());
     const hasLeafPreloading = ref(false);
@@ -38,6 +42,30 @@
     const id = MathUtils.generateUUID();
     const target = `#${id}`;
     const isEmpty = props.group.children.length === 0;
+
+    function filter(query: string, type: string, uuids: string[]): boolean {
+        if (items.value) {
+            let showFolder = false;
+            items.value.forEach(item => {
+                /** item.filter must be called on every child to determine whether it should be visible or not,
+                 * so things like array.some will not work as they do not complete all iterations,
+                 * and putting item.filter in the or statement directly can lead to short circuiting skipping the call. */
+                const childResult = item.filter(query, type, uuids);
+                showFolder = showFolder || childResult;
+            });
+            if (!query && type === ALL_DATASET_TYPES_KEYWORD && uuids.length === 0) {
+                Collapse.getOrCreateInstance(target)?.hide();
+            } else {
+                Collapse.getOrCreateInstance(target)?.show();
+            }
+            return showFolder;
+        }
+        return !query && type === ALL_DATASET_TYPES_KEYWORD && uuids.length === 0;
+    }
+
+    defineExpose({
+        filter,
+    });
 </script>
 
 <template>
@@ -113,6 +141,7 @@
         <template v-if="!isEmpty">
             <DatasetOrGroupItem
                 v-for="dataset of group.children"
+                ref="items"
                 :key="dataset.name"
                 :dataset="dataset"
                 @zoom="ds => $emit('zoom', ds)"

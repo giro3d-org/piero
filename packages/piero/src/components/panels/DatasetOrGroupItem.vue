@@ -1,11 +1,17 @@
 <script setup lang="ts">
+    import { useTemplateRef } from 'vue';
+
     import type { Dataset, DatasetOrGroup } from '@/types/Dataset';
 
     import DatagroupItem from '@/components/panels/DatagroupItem.vue';
     import DatasetItem from '@/components/panels/DatasetItem.vue';
     import { Datagroup } from '@/types/Dataset';
 
-    defineProps<{
+    const groupRef = useTemplateRef<InstanceType<typeof DatagroupItem>>('groupRef');
+    const datasetRef = useTemplateRef<InstanceType<typeof DatasetItem>>('datasetRef');
+    const item = useTemplateRef('item');
+
+    const props = defineProps<{
         dataset: DatasetOrGroup;
     }>();
 
@@ -15,12 +21,39 @@
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
     }>();
+
+    function filter(query: string, type: string, uuids: string[]): boolean {
+        const result = filterResult(query, type, uuids);
+        if (item.value != null) {
+            item.value.hidden = !result;
+        }
+        return result;
+    }
+
+    function filterResult(query: string, type: string, uuids: string[]): boolean {
+        if (Datagroup.isGroup(props.dataset)) {
+            if (groupRef.value == null) {
+                return false;
+            }
+            return groupRef.value.filter(query, type, uuids);
+        } else {
+            if (datasetRef.value == null) {
+                return false;
+            }
+            return datasetRef.value.filter(query, type, uuids);
+        }
+    }
+
+    defineExpose({
+        filter,
+    });
 </script>
 
 <template>
-    <li class="list-group-item">
+    <li class="list-group-item" ref="item">
         <DatagroupItem
             v-if="Datagroup.isGroup(dataset)"
+            ref="groupRef"
             :group="dataset"
             @zoom="ds => $emit('zoom', ds)"
             @show-parameters="ds => $emit('showParameters', ds)"
@@ -29,6 +62,7 @@
         />
         <DatasetItem
             v-else
+            ref="datasetRef"
             :dataset="dataset"
             @show-parameters="ds => $emit('showParameters', ds)"
             @zoom="ds => $emit('zoom', ds)"
