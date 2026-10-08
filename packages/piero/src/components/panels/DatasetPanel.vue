@@ -186,7 +186,7 @@
     <div
         v-if="showParameters == null"
         ref="filterPanel"
-        class="collapse card"
+        class="collapse card mb-2"
         :class="{ show: filterExpanded }"
         id="dataset-filter"
     >
