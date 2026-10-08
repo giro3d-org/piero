@@ -19,37 +19,28 @@
 
 <template>
     <div class="panel" id="panel-container">
-        <div class="content">
-            <DatasetPanel v-if="selected === 'data'" />
-            <AboutPanel v-if="selected === 'about'" />
-            <BookmarkPanel v-if="selected === 'bookmarks'" />
-            <AnalysisPanel v-if="selected === 'analysis'" />
-            <AnnotationPanel v-if="selected === 'annotations'" />
-            <MeasurementPanel v-if="selected === 'measures'" />
-        </div>
+        <DatasetPanel v-if="selected === 'data'" />
+        <AboutPanel v-if="selected === 'about'" />
+        <BookmarkPanel v-if="selected === 'bookmarks'" />
+        <AnalysisPanel v-if="selected === 'analysis'" />
+        <AnnotationPanel v-if="selected === 'annotations'" />
+        <MeasurementPanel v-if="selected === 'measures'" />
     </div>
 </template>
 
 <style scoped>
-    .title {
-        margin: 1rem;
-    }
-
-    .content {
-        flex-grow: 1;
-        overflow: auto;
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-
     .panel {
         border-color: var(--bs-border-color);
         border-width: 0 2px 0 2px;
         border-style: solid;
         height: 100%;
+        overflow: auto;
         display: flex;
         flex-direction: column;
+
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
 </style>

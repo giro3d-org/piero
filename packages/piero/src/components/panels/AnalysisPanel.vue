@@ -11,7 +11,17 @@
 <template>
     <PanelHeader title="Analysis" />
 
-    <div class="accordion" id="analysis-accordion">
+    <EmptyIndicator
+        text="No analysis tool"
+        v-if="analysis.getTools().length === 0"
+        class="flex-grow-1"
+    />
+
+    <div
+        v-if="analysis.getTools().length > 0"
+        class="accordion flex-grow-1 overflow-auto"
+        id="analysis-accordion"
+    >
         <ToolWrapper
             v-for="item in analysis.getTools()"
             :id="item.id"
@@ -23,8 +33,6 @@
             <component :is="item.component" />
         </ToolWrapper>
     </div>
-
-    <EmptyIndicator text="No analysis tool" v-if="analysis.getTools().length === 0" />
 </template>
 
 <style scoped>

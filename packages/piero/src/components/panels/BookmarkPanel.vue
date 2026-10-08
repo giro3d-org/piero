@@ -94,54 +94,52 @@
 <template>
     <PanelHeader title="Bookmarks" />
 
-    <div class="d-flex flex-column h-100">
-        <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" />
+    <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" class="flex-grow-1" />
 
-        <ul class="list-group list-group-flush flex-fill overflow-auto">
-            <BookmarkItem
-                v-for="bookmark in bookmarkStore.getBookmarks()"
-                :key="bookmark.name"
-                :name="bookmark.name"
-                v-on:share="shareBookmark(bookmark)"
-                v-on:delete="bookmarkStore.remove(bookmark)"
-                v-on:goto="goTo(bookmark)"
-            />
-        </ul>
+    <ul class="list-group list-group-flush flex-grow-1 overflow-auto">
+        <BookmarkItem
+            v-for="bookmark in bookmarkStore.getBookmarks()"
+            :key="bookmark.name"
+            :name="bookmark.name"
+            v-on:share="shareBookmark(bookmark)"
+            v-on:delete="bookmarkStore.remove(bookmark)"
+            v-on:goto="goTo(bookmark)"
+        />
+    </ul>
 
-        <ButtonArea>
-            <ButtonWithIcon
-                text="New bookmark"
-                icon="bi-plus-lg"
-                title="Create a new bookmark from the current view"
-                class="btn-primary"
-                @click="
-                    () => {
-                        addBookmark();
-                        $forceUpdate();
-                    }
-                "
-            />
-            <ButtonWithIcon
-                text="Share view"
-                icon="bi-share"
-                title="Share current view"
-                class="btn-outline-secondary"
-                @click="shareCurrentView"
-            />
-            <ButtonWithIcon
-                title="Export bookmarks to GeoJSON"
-                class="btn-outline-secondary"
-                @click="exportBookmarks"
-                icon="bi-box-arrow-right"
-                text="Export bookmarks"
-            />
-            <ImportButton
-                title="Import bookmarks from GeoJSON"
-                text="Import bookmarks"
-                @import="importBookmarkFile"
-            />
-        </ButtonArea>
-    </div>
+    <ButtonArea>
+        <ButtonWithIcon
+            text="New bookmark"
+            icon="bi-plus-lg"
+            title="Create a new bookmark from the current view"
+            class="btn-primary"
+            @click="
+                () => {
+                    addBookmark();
+                    $forceUpdate();
+                }
+            "
+        />
+        <ButtonWithIcon
+            text="Share view"
+            icon="bi-share"
+            title="Share current view"
+            class="btn-outline-secondary"
+            @click="shareCurrentView"
+        />
+        <ButtonWithIcon
+            title="Export bookmarks to GeoJSON"
+            class="btn-outline-secondary"
+            @click="exportBookmarks"
+            icon="bi-box-arrow-right"
+            text="Export bookmarks"
+        />
+        <ImportButton
+            title="Import bookmarks from GeoJSON"
+            text="Import bookmarks"
+            @import="importBookmarkFile"
+        />
+    </ButtonArea>
 
     <!-- FIXME the modal popup background does not take the entire screen -->
     <!-- FIXME the modal popup slightly changes the layout of the page when it appears -->

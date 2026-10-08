@@ -163,128 +163,128 @@
 </script>
 
 <template>
-    <div v-if="showParameters != null" class="d-flex flex-column h-100">
-        <DatasetParameters
-            @back-to-datasets="showParameters = undefined"
-            :dataset="showParameters"
+    <DatasetParameters
+        v-if="showParameters != null"
+        @back-to-datasets="showParameters = undefined"
+        :dataset="showParameters"
+    />
+
+    <PanelHeader v-if="showParameters == null" title="Data">
+        <button
+            class="btn btn-sm float-end"
+            :class="{ 'btn-success': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#dataset-filter"
+            :aria-expanded="filterExpanded"
+            aria-controls="dataset-filter"
+        >
+            <i class="bi bi-funnel-fill"></i>
+        </button>
+    </PanelHeader>
+
+    <div
+        v-if="showParameters == null"
+        ref="filterPanel"
+        class="collapse card"
+        :class="{ show: filterExpanded }"
+        id="dataset-filter"
+    >
+        <div class="d-flex flex-column card-body">
+            <div class="input-group">
+                <input
+                    :value="searchText"
+                    @input="e => onSearchInput((<HTMLInputElement>e.target).value)"
+                    type="text"
+                    class="form-control w-100"
+                    placeholder="Filter by name..."
+                />
+            </div>
+            <div class="input-group">
+                <select
+                    name="type-filter"
+                    class="form-control w-100"
+                    :value="typeFilter"
+                    @change="e => filter(searchQuery, (<HTMLSelectElement>e.target).value)"
+                >
+                    <option :value="ALL_DATASET_TYPES_KEYWORD">All Types</option>
+                    <option v-for="type of getDatasetTypes()" :key="type" :value="type">
+                        {{ getDatasetTitle(type) }}
+                    </option>
+                </select>
+            </div>
+            <CheckboxToggle
+                :model-value="doFilterByCamera"
+                @update:model-value="v => setDoFilterByCamera(v)"
+                title="Filter by Camera View"
+                >Filter datasets in current view</CheckboxToggle
+            >
+        </div>
+    </div>
+
+    <div v-if="showParameters == null && datasets.count > 0" class="flex-grow-1 overflow-auto">
+        <!-- The margin counteracts the indentation for the root element -->
+        <CompactList style="margin-left: -1rem">
+            <DatasetOrGroupItem
+                v-for="dataset of datasets.getTree()"
+                ref="items"
+                :key="dataset.name"
+                :dataset="dataset"
+                @updated="$forceUpdate()"
+                @zoom="ds => zoomOnDataset(ds)"
+                @show-parameters="ds => showParams(ds)"
+                @update:expanded="(ds, v) => datasets.setExpanded(ds, v)"
+                @update:visible="(ds, v) => datasets.setVisible(ds, v)"
+            />
+        </CompactList>
+    </div>
+    <div v-if="showParameters == null && datasets.count === 0" class="flex-grow-1">
+        <EmptyIndicator text="No datasets" />
+    </div>
+
+    <hr v-if="showParameters == null" />
+
+    <div v-if="showParameters == null" class="my-1">
+        <CheckboxToggle
+            :model-value="basemap.visible"
+            @update:model-value="v => basemap.setVisible(v)"
+            title="Show basemap"
+            >Show basemap</CheckboxToggle
+        >
+
+        <Slider
+            :model-value="basemap.opacity"
+            label="Basemap opacity"
+            :show-numeric-input="false"
+            :min="0"
+            :step="0.01"
+            :max="1"
+            @update:model-value="v => basemap.setOpacity(v)"
         />
     </div>
 
-    <div v-if="showParameters == null" class="d-flex flex-column h-100 px-2">
-        <PanelHeader title="Data">
-            <button
-                class="btn btn-sm float-end"
-                :class="{ 'btn-success': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#dataset-filter"
-                :aria-expanded="filterExpanded"
-                aria-controls="dataset-filter"
-            >
-                <i class="bi bi-funnel-fill"></i>
-            </button>
-        </PanelHeader>
-        <div
-            ref="filterPanel"
-            class="collapse card"
-            :class="{ show: filterExpanded }"
-            id="dataset-filter"
-        >
-            <div class="d-flex flex-column card-body">
-                <div class="input-group">
-                    <input
-                        :value="searchText"
-                        @input="e => onSearchInput((<HTMLInputElement>e.target).value)"
-                        type="text"
-                        class="form-control w-100"
-                        placeholder="Filter by name..."
-                    />
-                </div>
-                <div class="input-group">
-                    <select
-                        name="type-filter"
-                        class="form-control w-100"
-                        :value="typeFilter"
-                        @change="e => filter(searchQuery, (<HTMLSelectElement>e.target).value)"
-                    >
-                        <option :value="ALL_DATASET_TYPES_KEYWORD">All Types</option>
-                        <option v-for="type of getDatasetTypes()" :key="type" :value="type">
-                            {{ getDatasetTitle(type) }}
-                        </option>
-                    </select>
-                </div>
-                <CheckboxToggle
-                    :model-value="doFilterByCamera"
-                    @update:model-value="v => setDoFilterByCamera(v)"
-                    title="Filter by Camera View"
-                    >Filter datasets in current view</CheckboxToggle
-                >
-            </div>
-        </div>
-
-        <hr />
-        <div v-if="datasets.count > 0" class="flex-fill overflow-auto">
-            <!-- The margin counteracts the indentation for the root element -->
-            <CompactList style="margin-left: -1rem">
-                <DatasetOrGroupItem
-                    v-for="dataset of datasets.getTree()"
-                    ref="items"
-                    :key="dataset.name"
-                    :dataset="dataset"
-                    @updated="$forceUpdate()"
-                    @zoom="ds => zoomOnDataset(ds)"
-                    @show-parameters="ds => showParams(ds)"
-                    @update:expanded="(ds, v) => datasets.setExpanded(ds, v)"
-                    @update:visible="(ds, v) => datasets.setVisible(ds, v)"
-                />
-            </CompactList>
-        </div>
-        <div v-else class="flex-fill"><EmptyIndicator text="No datasets" /></div>
-
-        <hr />
-
-        <div class="my-1">
-            <CheckboxToggle
-                :model-value="basemap.visible"
-                @update:model-value="v => basemap.setVisible(v)"
-                title="Show basemap"
-                >Show basemap</CheckboxToggle
-            >
-
-            <Slider
-                :model-value="basemap.opacity"
-                label="Basemap opacity"
-                :show-numeric-input="false"
-                :min="0"
-                :step="0.01"
-                :max="1"
-                @update:model-value="v => basemap.setOpacity(v)"
+    <ButtonArea v-if="showParameters == null">
+        <div class="input-group mb-3">
+            <input
+                type="text"
+                id="dataset-import-url"
+                class="form-control"
+                placeholder="https://"
+                aria-label="URL to import"
+                aria-describedby="button-dataset-import-url"
             />
+            <button
+                @click="importDatasetFromUrl"
+                class="btn btn-sm btn-outline-secondary"
+                type="button"
+                id="button-dataset-import-url"
+            >
+                Import URL
+            </button>
         </div>
 
-        <ButtonArea>
-            <div class="input-group mb-3">
-                <input
-                    type="text"
-                    id="dataset-import-url"
-                    class="form-control"
-                    placeholder="https://"
-                    aria-label="URL to import"
-                    aria-describedby="button-dataset-import-url"
-                />
-                <button
-                    @click="importDatasetFromUrl"
-                    class="btn btn-sm btn-outline-secondary"
-                    type="button"
-                    id="button-dataset-import-url"
-                >
-                    Import URL
-                </button>
-            </div>
-
-            <ImportButton title="Import file" text="Import file" @import="importDataset" />
-        </ButtonArea>
-    </div>
+        <ImportButton title="Import file" text="Import file" @import="importDataset" />
+    </ButtonArea>
 </template>
 
 <style scoped>
