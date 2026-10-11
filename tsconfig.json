@@ -3,7 +3,11 @@
         "rootDir": ".",
         "target": "ES2022",
         "module": "esnext",
-        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
         "skipLibCheck": true,
         "allowJs": true,
         "checkJs": true,
@@ -22,16 +26,33 @@
         "strictNullChecks": true,
         "noImplicitOverride": true,
         "paths": {
-            "@giro3d/piero": ["./packages/piero/dist"], // to access root index file implicitly
-            "@giro3d/piero/*": ["./packages/piero/dist/*"],
-            "@giro3d/piero-plugin-cityjson": ["./packages/piero-plugin-cityjson/dist"],
-            "@giro3d/piero-plugin-obj": ["./packages/piero-plugin-obj/dist"],
-            "@giro3d/piero-plugin-geohash": ["./packages/piero-plugin-geohash/dist"],
-            "@giro3d/piero-cli": ["./packages/piero-cli/src"]
+            "@giro3d/piero": [
+                "./packages/piero/src"
+            ], // to access root index file implicitly
+            "@giro3d/piero/*": [
+                "./packages/piero/src/*"
+            ],
+            "@giro3d/piero-plugin-cityjson": [
+                "./packages/piero-plugin-cityjson/src"
+            ],
+            "@giro3d/piero-plugin-obj": [
+                "./packages/piero-plugin-obj/src"
+            ],
+            "@giro3d/piero-plugin-geohash": [
+                "./packages/piero-plugin-geohash/src"
+            ],
+            "@giro3d/piero-cli": [
+                "./packages/piero-cli/src"
+            ]
         }
     },
-    "exclude": ["node_modules", "**/dist"],
-    "include": ["**/*.ts"],
+    "exclude": [
+        "node_modules",
+        "**/dist"
+    ],
+    "include": [
+        "**/*.ts"
+    ],
     "references": [
         {
             "path": "./tsconfig.node.json"
