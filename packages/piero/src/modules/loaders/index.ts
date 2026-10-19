@@ -8,6 +8,7 @@ import BDTopoLoader from './BDTopoLoader';
 import GeoJSONLoader from './GeoJSONLoader';
 import GeoTIFFLoader from './GeoTIFFLoader';
 import GPXLoader from './GPXLoader';
+import HuwiseLoader from './HuwiseLoader';
 import IFCLoader from './IFCLoader';
 import KMLLoader from './KMLLoader';
 import LASLoader from './LASLoader';
@@ -24,20 +25,21 @@ import WMTSLoader from './WMTSLoader';
  * Contains all loader modules.
  */
 const all = [
+    BDTopoLoader,
+    GPXLoader,
     GeoJSONLoader,
     GeoTIFFLoader,
-    GPXLoader,
+    HuwiseLoader,
     IFCLoader,
     KMLLoader,
     LASLoader,
+    MapboxLoader,
     OSMLoader,
-    Tiles3DLoader,
+    PotreeLoader,
     TMSLoader,
+    Tiles3DLoader,
     WMSLoader,
     WMTSLoader,
-    MapboxLoader,
-    PotreeLoader,
-    BDTopoLoader,
 ];
 
 export {
@@ -46,6 +48,7 @@ export {
     GeoJSONLoader,
     GeoTIFFLoader,
     GPXLoader,
+    HuwiseLoader,
     IFCLoader,
     KMLLoader,
     LASLoader,
