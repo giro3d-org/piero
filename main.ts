@@ -75,6 +75,7 @@ async function start(): Promise<PieroApplication> {
         loaders.PotreeLoader,
         loaders.BDTopoLoader,
         loaders.HuwiseLoader,
+        loaders.EsriLoader,
 
         // External plugins
         CityJSONLoader,

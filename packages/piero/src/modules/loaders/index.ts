@@ -5,6 +5,7 @@
  */
 
 import BDTopoLoader from './BDTopoLoader';
+import EsriLoader from './EsriLoader';
 import GeoJSONLoader from './GeoJSONLoader';
 import GeoTIFFLoader from './GeoTIFFLoader';
 import GPXLoader from './GPXLoader';
@@ -26,6 +27,7 @@ import WMTSLoader from './WMTSLoader';
  */
 const all = [
     BDTopoLoader,
+    EsriLoader,
     GPXLoader,
     GeoJSONLoader,
     GeoTIFFLoader,
@@ -45,6 +47,7 @@ const all = [
 export {
     all,
     BDTopoLoader,
+    EsriLoader,
     GeoJSONLoader,
     GeoTIFFLoader,
     GPXLoader,
