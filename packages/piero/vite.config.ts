@@ -1,6 +1,8 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue';
 import fs from 'fs';
+import { cpSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
 import { nodeExternals } from 'rollup-plugin-node-externals';
@@ -110,6 +112,19 @@ export const commonConfig = defineConfig(env => {
                 // Whether to polyfill `node:` protocol imports.
                 protocolImports: true,
             }),
+            {
+                apply: 'build',
+                closeBundle(): void {
+                    cpSync(
+                        resolve(__dirname, 'src/piero.scss'),
+                        resolve(__dirname, 'dist/assets/piero.scss'),
+                        {
+                            recursive: true,
+                        },
+                    );
+                },
+                name: 'copy-scss',
+            },
         ],
         resolve: {
             alias: {

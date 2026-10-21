@@ -1,5 +1,5 @@
-$green: #377c5f;
-$primary: $green;
+// Let the users define their own primary color
+$primary: #377c5f !default;
 
 @import 'font-gis/css/font-gis.css';
 @import '@trevoreyre/autocomplete-vue/dist/style.css';
@@ -10,8 +10,6 @@ $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/utilities';
 @import 'bootstrap/scss/utilities/api';
-
-@import './shepherd.scss';
 
 #app {
     width: 100vw;

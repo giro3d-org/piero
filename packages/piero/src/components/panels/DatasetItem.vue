@@ -177,7 +177,6 @@
         min-width: 50%;
         float: start;
         overflow: hidden;
-        /* max-width: 14rem; */
     }
 
     .variable-width {
@@ -186,7 +185,7 @@
     }
 
     .entry-row:hover {
-        background-color: rgba(0, 136, 82, 0.05);
+        background-color: rgba(var(--bs-primary-rgb), 0.08);
     }
 
     .parameters {
@@ -195,6 +194,5 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: red;
     }
 </style>

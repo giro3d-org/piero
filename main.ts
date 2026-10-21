@@ -6,6 +6,8 @@ import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { OBJLoader } from '@giro3d/piero-plugin-obj';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
 
+import './theme.scss';
+
 class Environment {
     public readonly baseUrl: string;
     public readonly title: string;

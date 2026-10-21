@@ -49,7 +49,7 @@
             <template #result="{ result, props }">
                 <li v-bind="props" class="autocomplete-result result overflow-hidden">
                     <div class="row">
-                        <span class="col-auto ms-3 my-auto"
+                        <span class="col-auto ms-3 my-auto text-primary"
                             ><Icon icon="fg-poi" title="Location"
                         /></span>
                         <div class="col-auto">

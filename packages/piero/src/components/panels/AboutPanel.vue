@@ -13,13 +13,12 @@
 </script>
 
 <template>
-    <PanelHeader title="About Piero">
-        <span class="badge text-bg-secondary rounded-pill text-sm" title="Version">{{
-            gitCommit
-        }}</span>
-    </PanelHeader>
+    <PanelHeader title="About Piero"> </PanelHeader>
 
     <div class="flex-grow-1 overflow-auto">
+        <span class="badge text-bg-primary rounded-pill text-sm my-2" title="Version"
+            >version: {{ gitCommit }}</span
+        >
         <p>
             <a href="https://gitlab.com/giro3d/piero" target="_blank">Piero</a>
             is a fully-configurable open-source web application for 3D visualization. It is powered
