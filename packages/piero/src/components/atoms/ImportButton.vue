@@ -69,8 +69,7 @@
             :text="text"
             :icon="icon ?? `bi-file-earmark-plus`"
             @click="(hiddenInput as HTMLInputElement).click()"
-            class="w-100 btn-sm"
-            :class="hover ? 'btn-outline-primary' : 'btn-primary'"
+            class="w-100 btn btn-outline-secondary"
         />
         <input
             ref="hiddenInput"

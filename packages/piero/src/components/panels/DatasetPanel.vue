@@ -172,7 +172,7 @@
     <PanelHeader v-if="showParameters == null" title="Data">
         <button
             class="btn btn-sm float-end"
-            :class="{ 'btn-success': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
+            :class="{ 'btn-primary': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#dataset-filter"

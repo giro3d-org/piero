@@ -112,7 +112,7 @@
             text="New bookmark"
             icon="bi-plus-lg"
             title="Create a new bookmark from the current view"
-            class="btn-primary"
+            class="btn-primary my-1"
             @click="
                 () => {
                     addBookmark();
@@ -124,17 +124,18 @@
             text="Share view"
             icon="bi-share"
             title="Share current view"
-            class="btn-outline-secondary"
+            class="btn-outline-secondary my-1"
             @click="shareCurrentView"
         />
         <ButtonWithIcon
             title="Export bookmarks to GeoJSON"
-            class="btn-outline-secondary"
+            class="btn-outline-secondary my-1"
             @click="exportBookmarks"
             icon="bi-box-arrow-right"
             text="Export bookmarks"
         />
         <ImportButton
+            class="my-1"
             title="Import bookmarks from GeoJSON"
             text="Import bookmarks"
             @import="importBookmarkFile"

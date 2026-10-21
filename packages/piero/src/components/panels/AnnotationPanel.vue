@@ -87,39 +87,40 @@
             :current="annotationModes[0]"
             :items="annotationModes"
             @updated:current="src => setCurrentMode(src)"
-            class="mb-2"
+            class="my-1"
         />
         <ButtonWithIcon
             title="Add point annotation"
             text="New points"
             icon="bi-pin"
-            class="btn-primary"
+            class="btn-primary my-1"
             @click="annotations.createPoint()"
         />
         <ButtonWithIcon
             title="Add line annotation"
             text="New line"
             icon="bi-bezier2"
-            class="btn-primary"
+            class="btn-primary my-1"
             @click="annotations.createLine()"
         />
         <ButtonWithIcon
             title="Add polygon annotation"
             text="New polygon"
             icon="bi-heptagon"
-            class="btn-primary"
+            class="btn-primary my-1"
             @click="annotations.createPolygon()"
         />
         <ButtonWithIcon
             title="Export annotations to GeoJSON"
             text="Export annotations"
             icon="bi-box-arrow-right"
-            class="btn-outline-secondary"
+            class="btn-outline-secondary my-1"
             @click="exportAnnotations"
         />
         <ImportButton
             title="Import annotation from GeoJSON"
             text="Import annotations"
+            class="my-1"
             @import="importAnnotationFile"
         />
     </ButtonArea>
