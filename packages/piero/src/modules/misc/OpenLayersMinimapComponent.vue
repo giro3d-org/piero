@@ -146,7 +146,7 @@
     }
 
     .minimap:hover {
-        outline-color: #40ae80;
+        outline-color: var(--bs-link-color);
         outline-width: 3px;
         outline-style: solid;
     }
