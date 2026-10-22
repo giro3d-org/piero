@@ -29,6 +29,12 @@ body {
     @extend .list-group-flush;
 }
 
+.monochrome-logo {
+    width: 100%;
+    fill: $primary;
+    stroke: $primary;
+}
+
 .disabled {
     opacity: 0.5;
 }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-    import logo from '@/assets/piero_logo_compact.png';
-
+    import MonochromeLogo from '../atoms/MonochromeLogo.vue';
     import getConfigurationPanels from '../Configuration';
     import ToolbarButton from './ToolbarButton.vue';
 
@@ -17,7 +16,7 @@
         <ul id="menu" class="nav nav-pills flex-column">
             <li class="nav-item mt-2">
                 <a href="https://giro3d.org" target="_blank" title="Piero, powered by Giro3D">
-                    <img :src="logo" alt="Piero, powered by Giro3D" class="mb-3 w-100 p-1" />
+                    <MonochromeLogo class="p-2 mb-2 v-100" style="width: 100%; height: 100%" />
                 </a>
             </li>
 
