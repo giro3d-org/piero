@@ -5,7 +5,7 @@
 
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useDatasetStore } from '@/stores/datasets';
-    import { Datagroup, type Dataset, type DatasetOrGroup } from '@/types/Dataset';
+    import { type Dataset } from '@/types/Dataset';
     import { nonNull } from '@/utils/Types';
 
     // Even though we are not using them, it
@@ -16,10 +16,10 @@
 
     const attributions = computed(() => getAttributions(store.getVisibleDatasets()));
 
-    function getAttributions(datasets: DatasetOrGroup[]): string[] {
+    function getAttributions(datasets: Dataset[]): string[] {
         const attributions = datasets
-            .filter(ds => ds.visible && !Datagroup.isGroup(ds) && ds.config.attribution != null)
-            .map(ds => nonNull((ds as Dataset).config.attribution));
+            .filter(ds => ds.config.attribution != null)
+            .map(ds => nonNull(ds.config.attribution));
 
         const unique = new Set(attributions);
 
