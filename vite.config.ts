@@ -1,5 +1,6 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import child_process from 'child_process';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { fileURLToPath, URL } from 'node:url';
 import { nodeExternals } from 'rollup-plugin-node-externals';
 import { defineConfig, mergeConfig } from 'vite';
@@ -65,7 +66,12 @@ const appConfig = defineConfig(() => {
         plugins: [nodeExternals(), nodeResolve()],
         resolve: {
             alias: {
-                '@giro3d/piero': fileURLToPath(new URL('./packages/piero/src', import.meta.url)),
+                // The Piero demo app should use the compiled packages (under dist/ folders) to
+                // ensure that we consume the exact same files (including CSS files) as any other
+                // consumer of those packages. However, you can temporarily uncomment the following
+                // lines to have instantaneous hot-reload to speed up development.
+                /*
+
                 '@giro3d/piero-plugin-cityjson': fileURLToPath(
                     new URL('./packages/piero-plugin-cityjson/src', import.meta.url),
                 ),
@@ -75,6 +81,16 @@ const appConfig = defineConfig(() => {
                 '@giro3d/piero-plugin-obj': fileURLToPath(
                     new URL('./packages/piero-plugin-obj/src', import.meta.url),
                 ),
+                '@giro3d/piero/piero.css': fileURLToPath(
+                    new URL('./packages/piero/dist/assets/piero.css', import.meta.url),
+                ),
+                '@giro3d/piero/piero.scss': fileURLToPath(
+                    new URL('./packages/piero/dist/assets/piero.scss', import.meta.url),
+                ),
+                // eslint-disable-next-line perfectionist/sort-objects
+                '@giro3d/piero': fileURLToPath(new URL('./packages/piero/src', import.meta.url)),
+
+                */
             },
         },
         root,
