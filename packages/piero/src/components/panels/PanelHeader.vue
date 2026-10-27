@@ -5,11 +5,11 @@
 </script>
 
 <template>
-    <h5 class="title mb-3">
-        {{ title }}
+    <div class="mb-3">
+        <h5 class="title float-start">{{ title }}</h5>
 
         <div class="float-end">
             <slot></slot>
         </div>
-    </h5>
+    </div>
 </template>
