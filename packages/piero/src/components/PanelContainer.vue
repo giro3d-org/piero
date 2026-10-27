@@ -1,30 +1,11 @@
 <script setup lang="ts">
-    import type { PanelType } from './Configuration';
-
-    import AboutPanel from './panels/AboutPanel.vue';
-    import AnalysisPanel from './panels/AnalysisPanel.vue';
-    import AnnotationPanel from './panels/AnnotationPanel.vue';
-    import BookmarkPanel from './panels/BookmarkPanel.vue';
-    import DatasetPanel from './panels/DatasetPanel.vue';
-    import MeasurementPanel from './panels/MeasurementPanel.vue';
-
-    defineProps<{
-        /**
-         * The name of the panel (must match the tooltip
-         * of the corresponding tool in the toolbar)
-         */
-        selected: PanelType | null;
-    }>();
+    import { usePanelStore } from '@/stores/panels';
+    const panels = usePanelStore();
 </script>
 
 <template>
-    <div class="panel" id="panel-container">
-        <DatasetPanel v-if="selected === 'data'" />
-        <AboutPanel v-if="selected === 'about'" />
-        <BookmarkPanel v-if="selected === 'bookmarks'" />
-        <AnalysisPanel v-if="selected === 'analysis'" />
-        <AnnotationPanel v-if="selected === 'annotations'" />
-        <MeasurementPanel v-if="selected === 'measures'" />
+    <div v-if="panels.activePanel" class="panel" id="panel-container">
+        <component :is="panels.activePanel?.component" />
     </div>
 </template>
 

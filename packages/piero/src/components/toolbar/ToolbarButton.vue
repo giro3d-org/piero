@@ -9,7 +9,7 @@
             :class="['nav-link', active ? 'active' : null]"
             href="#"
             :title="title"
-            ><i :class="['bi', icon]"></i
+            ><i :class="icon"></i
         ></a>
     </li>
 </template>

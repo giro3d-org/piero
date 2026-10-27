@@ -4,11 +4,11 @@
     import type { AnnotationType } from '@/configuration/annotation';
     import type Annotation from '@/types/Annotation';
 
-    import Icon from '../atoms/Icon.vue';
-    import IconList from '../atoms/IconList.vue';
-    import AttributeItem from '../AttributeItem.vue';
-    import VisibilityControl from '../VisibilityControl.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
+    import Icon from '@/components/atoms/Icon.vue';
+    import IconList from '@/components/atoms/IconList.vue';
+    import AttributeItem from '@/components/AttributeItem.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     const props = defineProps<{
         annotation: Annotation;

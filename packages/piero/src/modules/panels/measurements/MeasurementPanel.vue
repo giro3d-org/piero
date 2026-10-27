@@ -9,13 +9,14 @@
     import ImportButton from '@/components/atoms/ImportButton.vue';
     import DropdownView from '@/components/DropdownView.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
-    import MeasurementItem from '@/components/panels/MeasurementItem.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useMeasurementStore } from '@/stores/measurement';
     import Measure from '@/types/Measure';
     import { measurementModes } from '@/types/MeasurementMode';
     import Download from '@/utils/Download';
+
+    import MeasurementItem from './MeasurementItem.vue';
 
     const measures = useMeasurementStore();
     const cameraStore = useCameraStore();

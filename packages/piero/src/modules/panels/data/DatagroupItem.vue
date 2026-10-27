@@ -9,11 +9,12 @@
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
-    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { DatasetState } from '@/types/Dataset';
+
+    import DatasetOrGroupItem from './DatasetOrGroupItem.vue';
 
     const props = defineProps<{
         group: Datagroup;

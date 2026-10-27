@@ -9,11 +9,12 @@
 import * as analysis from './analysis';
 import * as loaders from './loaders';
 import * as misc from './misc';
+import * as panels from './panels';
 import * as search from './search';
 
 /**
  * Contains all the built-in modules.
  */
-const all = [...analysis.all, ...loaders.all, ...misc.all, ...search.all];
+const all = [...analysis.all, ...loaders.all, ...misc.all, ...search.all, ...panels.all];
 
-export { all, analysis, loaders, misc, search };
+export { all, analysis, loaders, misc, panels, search };

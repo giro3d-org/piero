@@ -1,9 +1,9 @@
 <script setup lang="ts">
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { useAnalysisStore } from '@/stores/analysis';
 
-    import ToolWrapper from './analysis/ToolWrapper.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
+    import ToolWrapper from './ToolWrapper.vue';
 
     const analysis = useAnalysisStore();
 </script>

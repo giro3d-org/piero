@@ -8,7 +8,6 @@
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
     import DropdownView from '@/components/DropdownView.vue';
-    import AnnotationItem from '@/components/panels/AnnotationItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
     import SwitchToggle from '@/components/SwitchToggle.vue';
@@ -17,6 +16,8 @@
     import Annotation from '@/types/Annotation';
     import { annotationModes } from '@/types/AnnotationMode';
     import Download from '@/utils/Download';
+
+    import AnnotationItem from './AnnotationItem.vue';
 
     const annotations = useAnnotationStore();
     const cameraStore = useCameraStore();

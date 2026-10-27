@@ -8,8 +8,10 @@
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import CompactList from '@/components/atoms/CompactList.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
+    import Slider from '@/components/atoms/Slider.vue';
+    import CheckboxToggle from '@/components/CheckboxToggle.vue';
     import { datasetTitles } from '@/components/Configuration';
-    import DatasetOrGroupItem from '@/components/panels/DatasetOrGroupItem.vue';
+    import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { useBasemapStore } from '@/stores/basemap';
@@ -19,10 +21,8 @@
     import { useGiro3dStore } from '@/stores/giro3d.js';
     import { formatForSearch } from '@/utils/NameFiltering';
 
-    import Slider from '../atoms/Slider.vue';
-    import CheckboxToggle from '../CheckboxToggle.vue';
+    import DatasetOrGroupItem from './DatasetOrGroupItem.vue';
     import DatasetParameters from './DatasetParameters.vue';
-    import EmptyIndicator from './EmptyIndicator.vue';
 
     const giro3dStore = useGiro3dStore();
     const datasetPanel = useDatasetPanelStore();
