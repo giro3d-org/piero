@@ -48,8 +48,8 @@ And an `index.ts` file:
 
 ```ts
 // index.ts
-import { createPieroApp } from '@';
-import '@/piero.css';
+import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 import configuration from './config';
 
@@ -80,8 +80,8 @@ Alternatively, you can pass a URL to a remote JSON configuration
 
 ```ts
 // index.ts
-import { createPieroApp } from '@';
-import '@/piero.css';
+import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 createPieroApp({
     container: '#app',
@@ -96,8 +96,8 @@ To deploy your app, update the `baseUrl` to be the URL from which the app is ser
 
 ```ts
 // index.ts
-import { createPieroApp } from '@';
-import '@/piero.css';
+import { createPieroApp } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 createPieroApp({
     container: '#app',
@@ -112,8 +112,8 @@ You can register your own modules (classes that implement the `Module` interface
 
 ```ts
 // index.ts
-import { createPieroApp, Module, PieroContext } from '@';
-import '@/piero.css';
+import { createPieroApp, Module, PieroContext } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
 
 class MyCustomModule implements Module {
     name = 'A custom module';
@@ -132,3 +132,37 @@ createPieroApp({
 ```
 
 Refer to [CONFIGURATION.md](https://gitlab.com/giro3d/piero/-/blob/main/CONFIGURATION.md) for more information.
+
+## Custom theme
+
+Piero uses [bootstrap](https://getbootstrap.com/) for its CSS layout. To customize it, you can either:
+
+- [override CSS variables](https://getbootstrap.com/docs/5.3/customize/css-variables/). This
+  approach is tedious as Bootstrap exposes many variables.
+- use a custom .scss file (this will [require a Sass pre-processor](https://vite.dev/guide/features#css-pre-processors)). This is the prefered approach as it
+  is much simpler.
+
+### Using a custom Sass theme
+
+Create your own `theme.scss` file :
+
+```scss
+$primary: #e20714;
+@import '@giro3d/piero/piero.scss';
+```
+
+Then import it in your main file just after importing `@giro3d/piero/piero.css` :
+
+```ts
+// index.ts
+import { createPieroApp, Module, PieroContext } from '@giro3d/piero';
+import '@giro3d/piero/piero.css';
+// Import your theme here
+import './theme.scss';
+
+createPieroApp({
+    container: '#app',
+    baseUrl: 'https://example.com/piero/',
+    configuration: 'https://example.com/config.json',
+});
+```
