@@ -40,6 +40,9 @@
             "path": "./packages/piero/tsconfig.json"
         },
         {
+            "path": "./packages/piero-plugin-geohash/tsconfig.json"
+        },
+        {
             "path": "./packages/piero-plugin-cityjson/tsconfig.json"
         },
         {

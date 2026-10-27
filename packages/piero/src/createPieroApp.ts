@@ -25,7 +25,8 @@ import { useNotificationStore } from '@/stores/notifications';
 import { useSearchStore } from '@/stores/search';
 import { useWidgetStore } from '@/stores/widgets';
 import Download from '@/utils/Download';
-import '@/assets/main.scss';
+
+import './piero.scss';
 
 async function resolveConfiguration(params: {
     configuration?: Configuration | string;

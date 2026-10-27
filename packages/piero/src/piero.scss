@@ -1,22 +1,92 @@
+// Let the users define their own primary color
+$primary: #377c5f !default;
+
+@import 'font-gis/css/font-gis.css';
+@import '@trevoreyre/autocomplete-vue/dist/style.css';
+@import 'bootstrap/scss/bootstrap';
+$bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
+@import 'bootstrap-icons/font/bootstrap-icons';
+
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/utilities/api';
+
+#app {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+
+    font-weight: normal;
+}
+
+body {
+    overflow: hidden;
+}
+
+.layers-list-group {
+    @extend .list-group;
+    @extend .list-group-flush;
+}
+
+.monochrome-logo {
+    width: 100%;
+    fill: $primary;
+    stroke: $primary;
+}
+
+.disabled {
+    opacity: 0.5;
+}
+
+// For light collapsible sections, e.g. DatasetGroup component
+a.icon[aria-expanded] i::before,
+a[aria-expanded] .icon i::before,
+.btn[aria-expanded] > i::before {
+    transition: $accordion-icon-transition;
+}
+
+a.icon[aria-expanded='true'] i::before,
+a[aria-expanded='true'] .icon i::before,
+.btn[aria-expanded='true'] > i::before {
+    transform: $accordion-icon-transform;
+}
+
+.scene-cursor {
+    border-radius: 50%;
+    border-width: 2px;
+    border-style: solid;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: orange;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
+    opacity: 70%;
+}
+
 /**
 Took the shepherd CSS file and rewrote .shepherd-button & .shepherd-button.shepherd-button-secondary to use bootstrap theme.
 The rest was left untouched.
 Maybe there was an easier way, but I did that quicly...
-*/
+*
 
 /** Add border on the arrow */
 .shepherd-element[data-popper-placement^='top'] > .shepherd-arrow::before {
     border-right: 1px solid rgba(0, 0, 0, 0.2);
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
+
 .shepherd-element[data-popper-placement^='bottom'] > .shepherd-arrow::before {
     border-left: 1px solid rgba(0, 0, 0, 0.2);
     border-top: 1px solid rgba(0, 0, 0, 0.2);
 }
+
 .shepherd-element[data-popper-placement^='left'] > .shepherd-arrow::before {
     border-right: 1px solid rgba(0, 0, 0, 0.2);
     border-top: 1px solid rgba(0, 0, 0, 0.2);
 }
+
 .shepherd-element[data-popper-placement^='right'] > .shepherd-arrow::before {
     border-left: 1px solid rgba(0, 0, 0, 0.2);
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -34,9 +104,11 @@ Maybe there was an easier way, but I did that quicly...
     @extend .btn;
     @extend .btn-secondary;
 }
+
 .shepherd-button:disabled {
     cursor: not-allowed;
 }
+
 .shepherd-footer {
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -44,9 +116,11 @@ Maybe there was an easier way, but I did that quicly...
     justify-content: flex-end;
     padding: 0 0.75rem 0.75rem;
 }
+
 .shepherd-footer .shepherd-button:last-child {
     margin-right: 0;
 }
+
 .shepherd-cancel-icon {
     background: transparent;
     border: none;
@@ -58,15 +132,19 @@ Maybe there was an easier way, but I did that quicly...
     padding: 0;
     transition: color 0.5s ease;
 }
+
 .shepherd-cancel-icon:hover {
     color: rgba(0, 0, 0, 0.75);
 }
+
 .shepherd-has-title .shepherd-content .shepherd-cancel-icon {
     color: hsla(0, 0%, 50%, 0.75);
 }
+
 .shepherd-has-title .shepherd-content .shepherd-cancel-icon:hover {
     color: rgba(0, 0, 0, 0.75);
 }
+
 .shepherd-title {
     color: rgba(0, 0, 0, 0.75);
     display: flex;
@@ -76,6 +154,7 @@ Maybe there was an easier way, but I did that quicly...
     margin: 0;
     padding: 0;
 }
+
 .shepherd-header {
     align-items: center;
     border-top-left-radius: 5px;
@@ -85,27 +164,33 @@ Maybe there was an easier way, but I did that quicly...
     line-height: 2em;
     padding: 0.75rem 0.75rem 0;
 }
+
 .shepherd-has-title .shepherd-content .shepherd-header {
     background: #e6e6e6;
     padding: 1em;
 }
+
 .shepherd-text {
     color: rgba(0, 0, 0, 0.75);
     font-size: 1rem;
     line-height: 1.3em;
     padding: 0.75em;
 }
+
 .shepherd-text p {
     margin-top: 0;
 }
+
 .shepherd-text p:last-child {
     margin-bottom: 0;
 }
+
 .shepherd-content {
     border-radius: 5px;
     outline: none;
     padding: 0;
 }
+
 .shepherd-element {
     background: #fff;
     border-radius: 5px;
@@ -120,21 +205,25 @@ Maybe there was an easier way, but I did that quicly...
     width: 100%;
     z-index: 9999;
 }
+
 .shepherd-enabled.shepherd-element {
     opacity: 1;
     visibility: visible;
 }
+
 .shepherd-element[data-popper-reference-hidden]:not(.shepherd-centered) {
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
 }
+
 .shepherd-element,
 .shepherd-element *,
 .shepherd-element :after,
 .shepherd-element :before {
     box-sizing: border-box;
 }
+
 .shepherd-arrow,
 .shepherd-arrow:before {
     height: 16px;
@@ -142,33 +231,42 @@ Maybe there was an easier way, but I did that quicly...
     width: 16px;
     z-index: -1;
 }
+
 .shepherd-arrow:before {
     background: #fff;
     content: '';
     transform: rotate(45deg);
 }
+
 .shepherd-element[data-popper-placement^='top'] > .shepherd-arrow {
     bottom: -8px;
 }
+
 .shepherd-element[data-popper-placement^='bottom'] > .shepherd-arrow {
     top: -8px;
 }
+
 .shepherd-element[data-popper-placement^='left'] > .shepherd-arrow {
     right: -8px;
 }
+
 .shepherd-element[data-popper-placement^='right'] > .shepherd-arrow {
     left: -8px;
 }
+
 .shepherd-element.shepherd-centered > .shepherd-arrow {
     opacity: 0;
 }
+
 .shepherd-element.shepherd-has-title[data-popper-placement^='bottom'] > .shepherd-arrow:before {
     background-color: #e6e6e6;
 }
+
 .shepherd-target-click-disabled.shepherd-enabled.shepherd-target,
 .shepherd-target-click-disabled.shepherd-enabled.shepherd-target * {
     pointer-events: none;
 }
+
 .shepherd-modal-overlay-container {
     height: 0;
     left: 0;
@@ -184,6 +282,7 @@ Maybe there was an easier way, but I did that quicly...
     width: 100vw;
     z-index: 9997;
 }
+
 .shepherd-modal-overlay-container.shepherd-modal-is-visible {
     height: 100vh;
     opacity: 0.5;
@@ -193,6 +292,7 @@ Maybe there was an easier way, but I did that quicly...
         height 0s 0s,
         opacity 0.3s 0s;
 }
+
 .shepherd-modal-overlay-container.shepherd-modal-is-visible path {
     pointer-events: all;
 }

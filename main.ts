@@ -5,6 +5,11 @@ import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { OBJLoader } from '@giro3d/piero-plugin-obj';
 import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
+// Import Giro3D CSS
+import '@giro3d/piero/piero.css';
+
+// You can customize Piero's theme by using a custom .scss file
+import './theme.scss';
 
 class Environment {
     public readonly baseUrl: string;
