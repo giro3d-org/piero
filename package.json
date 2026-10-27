@@ -14,7 +14,7 @@
     "scripts": {
         "apidoc:build": "npm run libs:build && typedoc",
         "app:build": "npm run copy-wasm && vite build",
-        "app:dev": "npm run copy-wasm && vite --port 8080",
+        "app:dev": "npm run libs:watch & npm run copy-wasm && vite --port 8080",
         "app:serve": "npm run app:build' && vite preview --port 8080",
         "copy-wasm": "shx cp node_modules/web-ifc/web-ifc.wasm public/web-ifc.wasm && shx cp node_modules/laz-perf/lib/laz-perf.wasm public/laz-perf.wasm",
         "format": "npm run format-eslint && npm run format-prettier && npm run format-markdownlint",
@@ -22,6 +22,7 @@
         "format-markdownlint": "markdownlint . --fix --ignore-path .gitignore",
         "format-prettier": "prettier --write .",
         "libs:build": "npm run build --workspaces --if-present",
+        "libs:watch": "npm run build:watch --workspaces --if-present",
         "libs:package": "npm run package --workspaces --if-present",
         "lint": "npm run lint:eslint && npm run lint:prettier && npm run lint:markdown",
         "lint:eslint": "eslint . --max-warnings=0",
