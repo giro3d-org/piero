@@ -82,14 +82,14 @@
             :current="measurementModes[0]"
             :items="measurementModes"
             @updated:current="src => setCurrentMode(src)"
-            class="mb-2"
+            class="my-1"
         />
         <ButtonWithIcon
             v-if="measures.isUserMeasuring()"
             title="Stop measuring"
             text="Stop measuring"
             icon="bi-stop-circle"
-            class="btn-primary"
+            class="btn-primary my-1"
             @click="measures.end()"
         />
         <ButtonWithIcon
@@ -97,18 +97,19 @@
             title="Start measuring"
             text="Start measuring"
             icon="bi-rulers"
-            class="btn-primary"
+            class="btn-primary my-1"
             @click="measures.start()"
         />
         <ButtonWithIcon
             title="Export measures to GeoJSON"
-            class="btn-outline-secondary"
+            class="btn-outline-secondary my-1"
             @click="exportMeasures"
             icon="bi-box-arrow-right"
             text="Export measures"
         />
         <ImportButton
             title="Import measures from GeoJSON"
+            class="my-1"
             text="Import measures"
             @import="importMeasureFile"
         />

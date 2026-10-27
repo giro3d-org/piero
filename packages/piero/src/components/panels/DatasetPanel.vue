@@ -172,7 +172,7 @@
     <PanelHeader v-if="showParameters == null" title="Data">
         <button
             class="btn btn-sm float-end"
-            :class="{ 'btn-success': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
+            :class="{ 'btn-primary': filterExpanded, 'btn-outline-secondary': !filterExpanded }"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#dataset-filter"
@@ -191,19 +191,22 @@
         id="dataset-filter"
     >
         <div class="d-flex flex-column card-body">
-            <div class="input-group">
+            <h5 class="card-title">Filters</h5>
+            <div class="input-group w-100">
+                <span class="input-group-text">By name</span>
                 <input
                     :value="searchText"
                     @input="e => onSearchInput((<HTMLInputElement>e.target).value)"
                     type="text"
-                    class="form-control w-100"
-                    placeholder="Filter by name..."
+                    class="form-control"
+                    placeholder="name..."
                 />
             </div>
-            <div class="input-group">
+            <div class="input-group w-100 mt-2">
+                <span class="input-group-text">By type</span>
                 <select
                     name="type-filter"
-                    class="form-control w-100"
+                    class="form-control"
                     :value="typeFilter"
                     @change="e => filter(searchQuery, (<HTMLSelectElement>e.target).value)"
                 >
@@ -215,6 +218,7 @@
             </div>
             <CheckboxToggle
                 :model-value="doFilterByCamera"
+                class="mt-2"
                 @update:model-value="v => setDoFilterByCamera(v)"
                 title="Filter by Camera View"
                 >Filter datasets in current view</CheckboxToggle
