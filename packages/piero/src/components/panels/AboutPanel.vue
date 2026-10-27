@@ -1,5 +1,6 @@
 <script setup lang="ts">
     const dependencies = import.meta.env.VITE_DEPENDENCIES;
+    import pieroPackage from '@/../package.json';
     import bpi from '@/assets/sponsors/bpi_france.png';
     import france2030 from '@/assets/sponsors/france_2030.png';
     import franceRelance from '@/assets/sponsors/france_relance.png';
@@ -9,16 +10,21 @@
     import { useModuleStore } from '@/stores/modules';
 
     const modules = useModuleStore().getLoadedModules();
-    const gitCommit = import.meta.env.VITE_GIT_COMMIT;
+    const packageVersion = pieroPackage.version;
 </script>
 
 <template>
-    <PanelHeader title="About Piero"> </PanelHeader>
+    <PanelHeader title="About Piero">
+        <a
+            target="_blank"
+            :title="`see @giro3d/piero@${packageVersion} on npmjs.com`"
+            :href="`https://www.npmjs.com/package/@giro3d/piero/v/${packageVersion}`"
+        >
+            <span class="badge rounded-pill bg-primary">{{ packageVersion }}</span>
+        </a>
+    </PanelHeader>
 
     <div class="flex-grow-1 overflow-auto">
-        <span class="badge text-bg-primary rounded-pill text-sm my-2" title="Version"
-            >version: {{ gitCommit }}</span
-        >
         <p>
             <a href="https://gitlab.com/giro3d/piero" target="_blank">Piero</a>
             is a fully-configurable open-source web application for 3D visualization. It is powered
