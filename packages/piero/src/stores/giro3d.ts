@@ -53,8 +53,13 @@ export const useGiro3dStore = defineStore('giro3d', () => {
     }
 
     function getDefaultBasemapOptions(): Omit<MapOptions, 'extent'> {
+        const config = getConfig();
+
+        const background = config.scene.basemap.background;
+
         const opts: Omit<MapOptions, 'extent'> = {
-            backgroundColor: 'white',
+            backgroundColor: background ?? 'white',
+            backgroundOpacity: background === null ? 0 : 1,
             lighting: {
                 elevationLayersOnly: true,
                 enabled: true,
