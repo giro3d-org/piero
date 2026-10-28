@@ -47,7 +47,7 @@
 
 <template>
     <div class="main">
-        <div ref="mainView" class="main" id="main-view"></div>
+        <div ref="mainView" class="main piero-background" id="main-view"></div>
         <div
             ref="inspectorView"
             id="inspector"
@@ -60,7 +60,5 @@
     .main {
         width: 100%;
         height: 100%;
-
-        background: radial-gradient(circle, rgba(86, 120, 105, 1) 0%, rgba(39, 56, 53, 1) 100%);
     }
 </style>

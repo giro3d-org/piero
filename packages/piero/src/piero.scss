@@ -1,6 +1,8 @@
 // Let the users define their own primary color
 $primary: #377c5f !default;
 
+@use 'sass:color';
+
 @import 'font-gis/css/font-gis.css';
 @import '@trevoreyre/autocomplete-vue/dist/style.css';
 @import 'bootstrap/scss/bootstrap';
@@ -60,9 +62,13 @@ a[aria-expanded='true'] .icon i::before,
     height: 28px;
     text-align: center;
     vertical-align: middle;
-    background-color: orange;
+    background-color: $primary;
     box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
     opacity: 70%;
+}
+
+.piero-background {
+    background: lightgray;
 }
 
 /**
