@@ -6,7 +6,7 @@
     import type { AttributesGroups } from '@/types/Feature';
 
     import AttributeGroup from './AttributeGroup.vue';
-    import CoordinateFragment from './CoordinateFragment.vue';
+    import CoordinateTuple from './CoordinateTuple.vue';
 
     const props = defineProps<{
         attributes: AttributesGroups;
@@ -55,10 +55,13 @@
         </div>
         <div class="card-footer py-0">
             <div class="d-flex align-items-center column-gap-3">
-                <CoordinateFragment :value="point.x.toFixed(0)" prefix="X:" />
-                <CoordinateFragment :value="point.y.toFixed(0)" prefix="Y:" />
-                <CoordinateFragment :value="point.z.toFixed(0)" prefix="Alt.:" suffix="m" />
-                <button @click="copyText" type="button" class="btn btn-link">
+                <CoordinateTuple displayMode="geographic" :coordinates="point" />
+                <button
+                    @click="copyText"
+                    title="Copy to clipboard"
+                    type="button"
+                    class="btn btn-link"
+                >
                     <i
                         class="bi"
                         :class="copied ? ['bi-clipboard-check', 'test-success'] : ['bi-clipboard']"
