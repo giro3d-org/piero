@@ -33,10 +33,12 @@ async function build(
 
     if (result.entities) {
         for (const entity of result.entities) {
-            if (!('dataset' in entity.object3d.userData)) {
-                entity.object3d.userData.dataset = {};
-            }
-            entity.object3d.userData.dataset.name = dataset.name;
+            entity.userData.dataset = dataset;
+        }
+    }
+    if (result.layers) {
+        for (const layer of result.layers) {
+            layer.userData.dataset = dataset;
         }
     }
 

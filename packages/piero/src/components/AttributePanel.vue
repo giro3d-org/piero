@@ -37,7 +37,7 @@
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <i class="bi bi-card-checklist"></i>
-            <span class="text-truncate mx-2">{{ name ?? parent }}</span>
+            <span class="text-truncate">{{ name ?? parent }}</span>
             <button
                 @click="$emit('close')"
                 type="button"
@@ -45,13 +45,11 @@
                 aria-label="Close"
             ></button>
         </div>
-        <div class="card-body content py-2 px-1">
-            <AttributeGroup
-                v-for="(item, index) in attributes.entries()"
-                :key="index"
-                :title="item[0]"
-                :children="item[1]"
-            />
+        <div class="card-body content p-0">
+            <template :key="index" v-for="(item, index) in attributes.entries()">
+                <hr v-if="index > 0" class="my-1" />
+                <AttributeGroup :title="item[0]" :children="item[1]" />
+            </template>
         </div>
         <div class="card-footer py-0">
             <div class="d-flex align-items-center column-gap-3">
