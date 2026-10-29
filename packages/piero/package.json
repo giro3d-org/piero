@@ -79,6 +79,7 @@
         "vue": "^3.4.20"
     },
     "dependencies": {
+        "@imengyu/vue3-context-menu": "^1.5.7",
         "@loaders.gl/core": "^4.1.1",
         "@loaders.gl/csv": "^4.1.1",
         "@loaders.gl/geopackage": "^4.1.1",
