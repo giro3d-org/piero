@@ -1,13 +1,12 @@
 <script setup lang="ts">
     import type { Dataset } from '@/types/Dataset';
 
+    import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
+    import Slider from '@/components/atoms/Slider.vue';
+    import CheckboxToggle from '@/components/CheckboxToggle.vue';
+    import { datasetTitles } from '@/components/Configuration';
     import { useDatasetStore } from '@/stores/datasets';
     import { refAndWatch } from '@/utils/components';
-
-    import ButtonWithIcon from '../atoms/ButtonWithIcon.vue';
-    import Slider from '../atoms/Slider.vue';
-    import CheckboxToggle from '../CheckboxToggle.vue';
-    import { datasetTitles } from '../Configuration';
 
     const props = defineProps<{
         dataset: Dataset;

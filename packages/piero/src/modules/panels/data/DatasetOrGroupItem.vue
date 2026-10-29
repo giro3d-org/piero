@@ -3,9 +3,10 @@
 
     import type { Dataset, DatasetOrGroup } from '@/types/Dataset';
 
-    import DatagroupItem from '@/components/panels/DatagroupItem.vue';
-    import DatasetItem from '@/components/panels/DatasetItem.vue';
     import { Datagroup } from '@/types/Dataset';
+
+    import DatagroupItem from './DatagroupItem.vue';
+    import DatasetItem from './DatasetItem.vue';
 
     const groupRef = useTemplateRef<InstanceType<typeof DatagroupItem>>('groupRef');
     const datasetRef = useTemplateRef<InstanceType<typeof DatasetItem>>('datasetRef');

@@ -27,6 +27,8 @@ import { useWidgetStore } from '@/stores/widgets';
 import Download from '@/utils/Download';
 
 import './piero.scss';
+import { PanelApiImpl } from './api/panels';
+import { usePanelStore } from './stores/panels';
 
 async function resolveConfiguration(params: {
     configuration?: Configuration | string;
@@ -108,6 +110,7 @@ export default async function createPieroApp(params: {
         events: GLOBAL_EVENT_DISPATCHER,
         http: new HttpApiImpl(),
         notifications: new NotificationApiImpl(useNotificationStore(pinia)),
+        panels: new PanelApiImpl(usePanelStore(pinia)),
         search: new SearchApiImpl(useSearchStore(pinia)),
         widgets: new WidgetApiImpl(useWidgetStore(pinia)),
     };

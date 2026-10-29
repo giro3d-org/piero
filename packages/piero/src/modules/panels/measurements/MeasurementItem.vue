@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import type Measure from '@/types/Measure';
 
-    import VisibilityControl from '../VisibilityControl.vue';
+    import VisibilityControl from '@/components/VisibilityControl.vue';
 
     defineProps<{
         measure: Measure;

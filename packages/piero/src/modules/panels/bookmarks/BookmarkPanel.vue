@@ -5,15 +5,16 @@
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
     import ModalOverlay from '@/components/ModalOverlay.vue';
-    import BookmarkItem from '@/components/panels/BookmarkItem.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
-    import ShareBookmarkModal from '@/components/panels/ShareBookmarkModal.vue';
     import { useBookmarkStore } from '@/stores/bookmarks';
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
     import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
     import Download from '@/utils/Download';
+
+    import BookmarkItem from './BookmarkItem.vue';
+    import ShareBookmarkModal from './ShareBookmarkModal.vue';
 
     const showShareModal = ref(false);
     const shareUrl = ref<string | null>(null);

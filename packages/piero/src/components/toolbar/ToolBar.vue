@@ -1,14 +1,10 @@
 <script setup lang="ts">
+    import { usePanelStore } from '@/stores/panels';
+
     import MonochromeLogo from '../atoms/MonochromeLogo.vue';
-    import getConfigurationPanels from '../Configuration';
     import ToolbarButton from './ToolbarButton.vue';
 
-    defineProps<{
-        active: string | null;
-    }>();
-    defineEmits(['selected']);
-
-    const panels = getConfigurationPanels();
+    const panels = usePanelStore();
 </script>
 
 <template>
@@ -20,15 +16,18 @@
                 </a>
             </li>
 
-            <template v-for="panel in panels">
+            <template :key="panel.id" v-for="panel in panels.panels">
                 <ToolbarButton
-                    v-if="panel.enabled"
-                    :active="active === panel.key"
-                    :key="panel.key"
-                    :tourkey="panel.key"
+                    :active="panel.id === panels.activePanel?.id"
+                    :tourkey="panel.id"
                     :title="panel.title"
                     :icon="panel.icon"
-                    @click="$emit('selected', panel.key)"
+                    @click="
+                        () =>
+                            panels.setActivePanel(
+                                panels.activePanel?.id === panel.id ? null : panel.id,
+                            )
+                    "
                 />
             </template>
         </ul>

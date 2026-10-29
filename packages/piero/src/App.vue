@@ -11,7 +11,6 @@
     import { useGiro3dStore } from '@/stores/giro3d';
     import { useMeasurementStore } from '@/stores/measurement';
 
-    import type { PanelType } from './components/Configuration';
     import type { PieroContext } from './context';
 
     import { isLocationSearchResult, type SearchResult } from './api/search';
@@ -34,7 +33,6 @@
         getContext: () => PieroContext;
     }>();
 
-    const selectedTool = ref<PanelType | null>(null);
     const progress = ref(1);
     const coordinates = ref(new Vector3(0, 0, 0));
     const mouse = new Vector2();
@@ -197,14 +195,6 @@
         }
     }
 
-    function selectPanel(key: PanelType): void {
-        if (key === selectedTool.value) {
-            selectedTool.value = null;
-        } else {
-            selectedTool.value = key;
-        }
-    }
-
     function updateCoordinates(mouse: Vector2): void {
         if (giro3d.value != null) {
             const point = giro3d.value.picker.getMouseCoordinate(giro3d.value.mainInstance, mouse);
@@ -257,13 +247,8 @@
         :y="coordinates.y"
         :z="coordinates.z"
     />
-    <ToolBar
-        id="toolbar"
-        :active="selectedTool"
-        class="component toolbar"
-        v-on:selected="v => selectPanel(v)"
-    />
-    <PanelContainer v-if="selectedTool != null" class="component panel" :selected="selectedTool" />
+    <ToolBar id="toolbar" class="component toolbar" />
+    <PanelContainer class="component panel" />
     <ProgressBar :progress="progress" class="loading-indicator" />
     <SearchOverlay
         v-if="searchStore.searchProviderCount > 0"

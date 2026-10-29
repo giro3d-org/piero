@@ -4,7 +4,7 @@ import { createPieroApp, loadRemoteConfiguration } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
 import { OBJLoader } from '@giro3d/piero-plugin-obj';
-import { analysis, loaders, misc, search } from '@giro3d/piero/modules';
+import { analysis, loaders, misc, panels, search } from '@giro3d/piero/modules';
 // Import Giro3D CSS
 import '@giro3d/piero/piero.css';
 
@@ -57,6 +57,16 @@ async function start(): Promise<PieroApplication> {
         misc.PostProcessEntities,
         misc.OpenLayersMinimap,
         misc.Graticule,
+
+        /**
+         * Toolbar panels
+         */
+        panels.Data,
+        panels.Annotations,
+        panels.Measurements,
+        panels.Analysis,
+        panels.Bookmarks,
+        panels.About,
 
         /**
          * Data loaders

@@ -7,6 +7,7 @@ import type { BookmarkApi } from './api/bookmarks';
 import type { DatasetApi } from './api/dataset';
 import type { HttpApi } from './api/http';
 import type { NotificationApi } from './api/notifications';
+import type { PanelApi } from './api/panels';
 import type { SearchApi } from './api/search';
 import type { ViewApi } from './api/view';
 import type { WidgetApi } from './api/widgets';
@@ -71,4 +72,9 @@ export interface PieroContext {
      * Widget API.
      */
     widgets: WidgetApi;
+
+    /**
+     * Panel API.
+     */
+    panels: PanelApi;
 }

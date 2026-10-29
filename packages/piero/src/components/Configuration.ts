@@ -1,36 +1,6 @@
 import type { Component } from 'vue';
 
-type PanelDef = {
-    enabled: boolean;
-    icon: string;
-    key: PanelType;
-    title: string;
-};
-
-export type PanelType = 'about' | 'analysis' | 'annotations' | 'bookmarks' | 'data' | 'measures';
-
-let panels: PanelDef[] | null = null;
-
 type DatasetType = string;
-
-export default function getPanels(): ReadonlyArray<PanelDef> {
-    if (!panels) {
-        panels = [
-            { enabled: true, icon: 'bi-stack', key: 'data', title: 'Data' },
-            { enabled: true, icon: 'bi-vector-pen', key: 'annotations', title: 'Annotations' },
-            {
-                enabled: true,
-                icon: 'bi-rulers',
-                key: 'measures',
-                title: 'Measurements',
-            },
-            { enabled: true, icon: 'bi-graph-up', key: 'analysis', title: 'Analysis' },
-            { enabled: true, icon: 'bi-bookmarks', key: 'bookmarks', title: 'Bookmarks' },
-            { enabled: true, icon: 'bi-info-circle', key: 'about', title: 'About Piero' },
-        ] as const;
-    }
-    return panels;
-}
 
 export const propertyViews: Map<DatasetType, Component> = new Map();
 

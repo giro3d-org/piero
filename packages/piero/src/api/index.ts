@@ -3,6 +3,7 @@ export * as bookmarks from './bookmarks';
 export * as dataset from './dataset';
 export * as http from './http';
 export * as notifications from './notifications';
+export * as panels from './panels';
 export * as search from './search';
 export * as view from './view';
 export * as widgets from './widgets';
