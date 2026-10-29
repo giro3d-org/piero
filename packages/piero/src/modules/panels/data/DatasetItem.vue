@@ -6,6 +6,7 @@
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
+    import { showContextMenu } from '@/components/contextmenu/contextMenu';
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
@@ -24,7 +25,7 @@
 
     const isExpanded = computed(() => datasetPanelStore.expandedItems.has(props.dataset.uuid));
 
-    defineEmits<{
+    const emits = defineEmits<{
         showParameters: [value: Dataset];
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
@@ -56,6 +57,46 @@
     defineExpose({
         filter,
     });
+
+    function onContextMenu(e: MouseEvent): void {
+        showContextMenu({
+            e,
+            items: [
+                {
+                    condition: props.dataset.state === DatasetState.Loaded,
+                    icon: 'bi-zoom-in',
+                    label: `Zoom to ${props.dataset.name}`,
+                    onClick: (): void => emits('zoom', props.dataset),
+                },
+                {
+                    icon: props.dataset.visible ? 'bi-eye-fill' : 'bi-eye-slash',
+                    label: 'Toggle visibility',
+                    onClick: (): void =>
+                        emits('update:visible', props.dataset, !props.dataset.visible),
+                },
+                {
+                    icon: 'bi-trash',
+                    label: 'Delete dataset',
+                    onClick: deleteDataset,
+                },
+                {
+                    icon: 'bi-gear',
+                    label: 'Settings...',
+                    onClick: (): void => emits('showParameters', props.dataset),
+                },
+                ...store
+                    .getCustomActions(props.dataset, {
+                        isPreloaded: props.dataset.state === DatasetState.Loaded,
+                        isVisible: props.dataset.visibleSelf,
+                    })
+                    .map(action => ({
+                        icon: action.icon,
+                        label: action.title,
+                        onClick: (): void => action.action(props.dataset),
+                    })),
+            ],
+        });
+    }
 </script>
 
 <template>
@@ -63,6 +104,7 @@
         class="d-flex entry-row"
         v-on:mouseenter="() => (hovered = true)"
         v-on:mouseleave="() => (hovered = false)"
+        @contextmenu="onContextMenu($event)"
     >
         <IconListButton
             v-if="!propertyViews.has(dataset.type) || state !== DatasetState.Loaded"
@@ -105,51 +147,6 @@
                         class="text-secondary me-1"
                         icon="bi-exclamation-triangle-fill"
                         title="Failed to load"
-                    />
-                </div>
-
-                <!-- Action buttons -->
-                <div v-if="hovered" class="float-end">
-                    <!-- <IconListButton
-                        v-if="
-                            state === DatasetState.Loaded &&
-                            (('canMaskBasemap' in dataset.config &&
-                                dataset.config.canMaskBasemap) ||
-                                ('isMaskingBasemap' in dataset.config &&
-                                    dataset.config.isMaskingBasemap))
-                        "
-                        title="Toggle basemap masking"
-                        icon="bi-mask"
-                        @click="$emit('update:toggle-mask', dataset)"
-                    /> -->
-
-                    <IconListButton
-                        v-for="action in store.getCustomActions(dataset, {
-                            isVisible,
-                            isPreloaded: state === DatasetState.Loaded,
-                        })"
-                        :key="action.title"
-                        :title="action.title"
-                        :icon="action.icon"
-                        @click="action.action(dataset)"
-                    />
-
-                    <!-- <IconListButton
-                        v-if="state === DatasetState.Loaded"
-                        title="Toggle 3D grid"
-                        icon="bi-box"
-                        @click="$emit('update:toggle-grid', dataset)"
-                    /> -->
-                    <IconListButton
-                        title="Delete this dataset"
-                        icon="bi-trash"
-                        @click="deleteDataset"
-                    />
-                    <IconListButton
-                        v-if="state === DatasetState.Loaded"
-                        title="Parameters"
-                        icon="bi-gear"
-                        @click="$emit('showParameters', dataset)"
                     />
                 </div>
             </IconList>

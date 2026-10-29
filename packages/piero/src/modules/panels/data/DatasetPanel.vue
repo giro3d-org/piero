@@ -160,6 +160,10 @@
             instance?.removeEventListener('after-camera-update', boundOnFilterByCamera);
         }
     });
+
+    function onContextMenu(e: MouseEvent): void {
+        e.preventDefault();
+    }
 </script>
 
 <template>
@@ -224,7 +228,11 @@
         <hr />
     </div>
 
-    <div v-if="showParameters == null && datasets.count > 0" class="flex-grow-1 overflow-auto">
+    <div
+        v-if="showParameters == null && datasets.count > 0"
+        class="flex-grow-1 overflow-auto"
+        @contextmenu="onContextMenu($event)"
+    >
         <!-- The margin counteracts the indentation for the root element -->
         <CompactList class="me-3" style="margin-left: -1rem">
             <DatasetOrGroupItem
