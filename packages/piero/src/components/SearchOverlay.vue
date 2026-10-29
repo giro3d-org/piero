@@ -47,13 +47,13 @@
             placeholder="Search..."
         >
             <template #result="{ result, props }">
-                <li v-bind="props" class="autocomplete-result result overflow-hidden">
+                <li v-bind="props" class="autocomplete-result result border overflow-hidden">
                     <div class="row">
                         <span class="col-auto ms-3 my-auto text-primary"
                             ><Icon icon="fg-poi" title="Location"
                         /></span>
-                        <div class="col-auto">
-                            <span>{{ result.label }}</span>
+                        <div class="col-5">
+                            <span class="text-truncate text-sm">{{ result.label }}</span>
                             <p class="provider">{{ result.provider.name }}</p>
                         </div>
                     </div>
@@ -64,13 +64,27 @@
     </div>
 </template>
 
-<style scoped>
+<style lang="css">
+    .autocomplete-input {
+        background-color: var(--bs-body-bg) !important;
+        border: solid 1px var(--bs-secondary) !important;
+    }
+    .autocomplete-result {
+        background-color: var(--bs-body-bg) !important;
+        border: solid 1px var(--bs-secondary) !important;
+    }
+    .autocomplete-result-list {
+        background-color: var(--bs-body-bg) !important;
+        border: solid 1px var(--bs-secondary) !important;
+    }
+</style>
+
+<style scoped lang="css">
     .main {
         padding-top: 0.5rem;
     }
 
     .result {
-        border-top: 1px solid #eee;
         padding: 2pt;
         background: transparent;
     }
