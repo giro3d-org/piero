@@ -2,7 +2,7 @@ import type { NotificationStore } from '@/stores/notifications';
 
 export interface Notification {
     level: NotificationLevel;
-    text: string;
+    text?: string;
     title: string;
 }
 
