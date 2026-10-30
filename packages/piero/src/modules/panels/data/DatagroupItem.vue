@@ -37,7 +37,6 @@
     watch(leafs, newValues => {
         hasLeafPreloading.value = newValues.some(v => v.state === DatasetState.Loading);
         hasLeafPreloaded.value = newValues.some(v => v.state === DatasetState.Loaded);
-        isVisible.value = newValues.some(v => v.visibleSelf);
     });
 
     const id = MathUtils.generateUUID();
