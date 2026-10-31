@@ -34,11 +34,14 @@
         <ButtonWithIcon
             title="Show attributions and copyrights"
             icon="bi-info-lg"
-            class="btn-light button border"
+            class="btn-secondary button border"
             @click="() => (showAttributions = !showAttributions)"
         />
 
-        <div v-if="showAttributions && attributions.length > 0" class="list rounded text-muted">
+        <div
+            v-if="showAttributions && attributions.length > 0"
+            class="list bg-secondary rounded text-muted"
+        >
             <span v-bind:key="attribution" v-for="attribution in attributions">{{
                 attribution
             }}</span>
@@ -65,7 +68,6 @@
     .list {
         font-size: small;
         display: flex;
-        background-color: rgba(255, 255, 255, 0.8);
         width: auto;
         padding: 3pt;
         padding-left: 5pt;
