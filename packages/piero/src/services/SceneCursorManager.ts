@@ -8,7 +8,7 @@ function createSceneCursor(className: string, id: string): CSS2DObject {
     container.className = 'scene-cursor';
     container.id = id;
     const icon = document.createElement('i');
-    icon.className = `${className} text-dark shadow`;
+    icon.className = `${className} text-light`;
     container.append(icon);
 
     const css2DObject = new CSS2DObject(container);
@@ -26,7 +26,7 @@ export default class SceneCursorManager {
 
     private readonly _pickingCursors: Record<SceneCursorType, CSS2DObject> = {
         location: createSceneCursor('fg-location', 'cursor-location'),
-        orbit: createSceneCursor('bi bi-mouse2-fill', 'cursor-orbit'),
+        orbit: createSceneCursor('bi bi-arrow-repeat', 'cursor-orbit'),
         street: createSceneCursor('fg-position-man', 'cursor-street'),
     };
 

@@ -34,13 +34,13 @@
         <ButtonWithIcon
             title="Show attributions and copyrights"
             icon="bi-info-lg"
-            class="btn-secondary button border"
+            :class="['button', showAttributions ? 'border' : undefined]"
             @click="() => (showAttributions = !showAttributions)"
         />
 
         <div
             v-if="showAttributions && attributions.length > 0"
-            class="list bg-secondary rounded text-muted"
+            class="background ms-2 badge border text-muted"
         >
             <span v-bind:key="attribution" v-for="attribution in attributions">{{
                 attribution
@@ -50,8 +50,12 @@
 </template>
 
 <style scoped>
+    .background {
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+    }
+
     .area {
-        display: flex;
         position: absolute;
         bottom: 0;
         left: 0;
@@ -61,8 +65,13 @@
 
     .button {
         width: 20pt;
+        background-color: var(--bs-body-bg);
         height: 20pt;
         padding: 0;
+    }
+
+    .button:hover {
+        background-color: var(--bs-body-bg);
     }
 
     .list {
