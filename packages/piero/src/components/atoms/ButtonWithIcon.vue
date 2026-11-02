@@ -13,6 +13,6 @@
 <template>
     <button :title="title" class="btn" type="button" @click="$emit('click', $event)">
         <Icon v-if="icon" :icon="icon" />
-        {{ text }}
+        <span class="ms-2">{{ text }}</span>
     </button>
 </template>

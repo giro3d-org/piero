@@ -50,11 +50,11 @@
 </script>
 
 <template>
-    <PanelHeader icon="bi-rulers" title="Measures" />
-
-    <div class="alert alert-warning py-2" role="alert">
-        <i class="bi bi-cone-striped"></i> This feature is experimental
-    </div>
+    <PanelHeader icon="bi-rulers" title="Measures">
+        <div class="alert alert-warning py-0 my-0" role="alert">
+            <i class="bi bi-cone-striped"></i> experimental
+        </div>
+    </PanelHeader>
 
     <EmptyIndicator text="No measurements" class="flex-grow-1" v-if="measures.count === 0" />
 

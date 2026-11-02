@@ -186,24 +186,21 @@
     <div
         v-if="showParameters == null"
         ref="filterPanel"
-        class="collapse card mb-2"
+        class="collapse"
         :class="{ show: filterExpanded }"
         id="dataset-filter"
     >
-        <div class="d-flex flex-column card-body">
-            <h5 class="card-title">Filters</h5>
+        <div class="d-flex flex-column">
             <div class="input-group w-100">
-                <span class="input-group-text">By name</span>
                 <input
                     :value="searchText"
                     @input="e => onSearchInput((<HTMLInputElement>e.target).value)"
                     type="text"
                     class="form-control"
-                    placeholder="name..."
+                    placeholder="Filter by name..."
                 />
             </div>
-            <div class="input-group w-100 mt-2">
-                <span class="input-group-text">By type</span>
+            <div class="input-group w-100 mt-1">
                 <select
                     name="type-filter"
                     class="form-control"
@@ -224,6 +221,7 @@
                 >Filter datasets in current view</CheckboxToggle
             >
         </div>
+        <hr />
     </div>
 
     <div v-if="showParameters == null && datasets.count > 0" class="flex-grow-1 overflow-auto">
