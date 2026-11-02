@@ -26,14 +26,16 @@ import type { AnnotationType } from '@/configuration/annotation';
 import type CameraController from '@/services/CameraController';
 import type Picker from '@/services/picking';
 import type { PieroShapeUserData } from '@/types/Annotation';
+import type { ColorScheme } from '@/utils/theme';
 
 import { getConfig } from '@/configurationLoader';
-import { DEFAULT_SHAPE_COLOR, EDIT_SHAPE_COLOR, SHAPE_POINT_RADIUS } from '@/constants';
+import { SHAPE_POINT_RADIUS } from '@/constants';
 import { useAnnotationStore } from '@/stores/annotations';
 import { useNotificationStore } from '@/stores/notifications';
 import Annotation from '@/types/Annotation';
 import { toGiro3DCoordinates } from '@/utils/Configuration';
 import Measure from '@/utils/Measure';
+import { getColorScheme } from '@/utils/theme';
 
 function promptTitle(defaultValue: string): string | null {
     return window.prompt('Annotation name', defaultValue);
@@ -119,6 +121,7 @@ export default class AnnotationManager {
     private readonly _boundOnKeyDown: (e: KeyboardEvent) => void;
     private readonly _boundOnStartDrag: () => void;
     private readonly _boundUpdateLabels: () => void;
+    private readonly _colorScheme: ColorScheme = getColorScheme();
     private readonly _drawTool: DrawTool;
     private _editedShape: Shape<PieroShapeUserData> | null = null;
     private _editedShapePreviousPoints: Vector3[] | null = null;
@@ -271,7 +274,7 @@ export default class AnnotationManager {
     private createLineStringShape(points: Vector3[]): Shape<PieroShapeUserData> {
         const result = new Shape<PieroShapeUserData>({
             beforeRemovePoint: limitRemovePointHook(2),
-            color: DEFAULT_SHAPE_COLOR,
+            color: this._colorScheme.primary,
             segmentLabelFormatter: lengthFormatter(this._instance.view),
             showLine: true,
             showSegmentLabels: true,
@@ -285,7 +288,7 @@ export default class AnnotationManager {
     private createMultiPointShape(points: Vector3[]): Shape<PieroShapeUserData> {
         const result = new Shape<PieroShapeUserData>({
             beforeRemovePoint: limitRemovePointHook(1),
-            color: DEFAULT_SHAPE_COLOR,
+            color: this._colorScheme.primary,
             showLine: false,
             showVertexLabels: true,
             showVertices: true,
@@ -299,7 +302,7 @@ export default class AnnotationManager {
     private createPointShape(point: Vector3): Shape<PieroShapeUserData> {
         const result = new Shape<PieroShapeUserData>({
             beforeRemovePoint: inhibitHook,
-            color: DEFAULT_SHAPE_COLOR,
+            color: this._colorScheme.primary,
             showLine: false,
             showVertexLabels: true,
             showVertices: true,
@@ -316,7 +319,7 @@ export default class AnnotationManager {
             afterRemovePoint: afterRemovePointOfRing,
             afterUpdatePoint: afterUpdatePointOfRing,
             beforeRemovePoint: limitRemovePointHook(4), // We take into account the doubled first/last point
-            color: DEFAULT_SHAPE_COLOR,
+            color: this._colorScheme.primary,
             showLine: true,
             showSurface: true,
             showSurfaceLabel: true,
@@ -390,7 +393,7 @@ export default class AnnotationManager {
 
         annotation.isEditing = true;
 
-        shape.color = EDIT_SHAPE_COLOR;
+        shape.color = this._colorScheme.primaryLight;
         shape.userData.highlightable = false;
 
         this._instance.notifyChange(shape);
@@ -417,7 +420,7 @@ export default class AnnotationManager {
 
     private getCreationOptions(): CreationOptions {
         return {
-            color: DEFAULT_SHAPE_COLOR,
+            color: this._colorScheme.primary,
             pick: this.pick.bind(this),
         };
     }
@@ -675,7 +678,7 @@ export default class AnnotationManager {
             if (this._editedShape.userData.annotation != null) {
                 this._editedShape.userData.annotation.isEditing = false;
             }
-            this._editedShape.color = DEFAULT_SHAPE_COLOR;
+            this._editedShape.color = this._colorScheme.primary;
             this._editedShape.userData.highlightable = true;
             this._editedShape = null;
         }
