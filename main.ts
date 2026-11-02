@@ -66,6 +66,7 @@ async function start(): Promise<PieroApplication> {
         panels.Measurements,
         panels.Analysis,
         panels.Bookmarks,
+        panels.Preferences,
         panels.About,
 
         /**
