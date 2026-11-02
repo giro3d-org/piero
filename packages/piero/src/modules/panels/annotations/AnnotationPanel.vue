@@ -51,7 +51,7 @@
 </script>
 
 <template>
-    <PanelHeader title="Annotations" />
+    <PanelHeader icon="bi-vector-pen" title="Annotations" />
 
     <EmptyIndicator text="No annotations" v-if="annotations.count === 0" class="flex-grow-1" />
 

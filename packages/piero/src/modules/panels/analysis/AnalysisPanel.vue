@@ -9,7 +9,7 @@
 </script>
 
 <template>
-    <PanelHeader title="Analysis" />
+    <PanelHeader icon="bi-graph-up" title="Analysis" />
 
     <EmptyIndicator
         text="No analysis tool"

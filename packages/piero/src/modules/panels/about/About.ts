@@ -12,6 +12,7 @@ export default class About implements Module {
             component: AboutPanel,
             icon: 'bi-info-circle',
             id: 'about',
+            location: 'bottom',
             title: 'About Piero',
         });
     }

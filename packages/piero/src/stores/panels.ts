@@ -7,8 +7,10 @@ export interface PanelDef {
     component: Component;
     icon: string;
     id: string;
+    location: 'bottom' | 'top';
     title: string;
 }
+
 export const usePanelStore = defineStore('panels', () => {
     const panels = shallowRef<PanelDef[]>([]);
     const activePanel = shallowRef<PanelDef | null>(null);

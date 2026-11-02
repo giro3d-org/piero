@@ -8,15 +8,18 @@
 </script>
 
 <template>
-    <div class="toolbar">
-        <ul id="menu" class="nav nav-pills flex-column">
+    <div class="toolbar d-flex flex-column">
+        <ul id="menu" class="row-2 nav nav-pills flex-column">
             <li class="nav-item mt-2">
                 <a href="https://giro3d.org" target="_blank" title="Piero, powered by Giro3D">
                     <MonochromeLogo class="p-2 mb-2 v-100" style="width: 100%; height: 100%" />
                 </a>
             </li>
 
-            <template :key="panel.id" v-for="panel in panels.panels">
+            <template
+                :key="panel.id"
+                v-for="panel in panels.panels.filter(p => p.location === 'top')"
+            >
                 <ToolbarButton
                     :active="panel.id === panels.activePanel?.id"
                     :tourkey="panel.id"
@@ -29,6 +32,30 @@
                             )
                     "
                 />
+            </template>
+        </ul>
+
+        <div class="row flex-grow-1"></div>
+
+        <ul id="menu-bottom" class="row-8 nav nav-pills flex-column">
+            <template
+                :key="panel.id"
+                v-for="panel in panels.panels.filter(p => p.location === 'bottom')"
+            >
+                <div class="float-end">
+                    <ToolbarButton
+                        :active="panel.id === panels.activePanel?.id"
+                        :tourkey="panel.id"
+                        :title="panel.title"
+                        :icon="panel.icon"
+                        @click="
+                            () =>
+                                panels.setActivePanel(
+                                    panels.activePanel?.id === panel.id ? null : panel.id,
+                                )
+                        "
+                    />
+                </div>
             </template>
         </ul>
     </div>

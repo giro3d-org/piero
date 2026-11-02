@@ -169,7 +169,7 @@
         :dataset="showParameters"
     />
 
-    <PanelHeader v-if="showParameters == null" title="Data">
+    <PanelHeader v-if="showParameters == null" icon="bi bi-stack" title="Data">
         <button
             class="btn btn-sm float-end"
             :class="{ 'btn-primary': filterExpanded, 'btn-outline-secondary': !filterExpanded }"

@@ -14,7 +14,7 @@
 </script>
 
 <template>
-    <PanelHeader title="About Piero">
+    <PanelHeader icon="bi-question-circle" title="About Piero">
         <a
             target="_blank"
             :title="`see @giro3d/piero@${packageVersion} on npmjs.com`"

@@ -93,7 +93,7 @@
 </script>
 
 <template>
-    <PanelHeader title="Bookmarks" />
+    <PanelHeader icon="bi-bookmarks" title="Bookmarks" />
 
     <EmptyIndicator text="No bookmarks" v-if="bookmarkStore.count === 0" class="flex-grow-1" />
 
