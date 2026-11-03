@@ -1,9 +1,7 @@
 <script setup lang="ts">
-    import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-    import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
-    import { computed, ref } from 'vue';
+    import { ref } from 'vue';
 
-    import CoordinateFragment from './CoordinateFragment.vue';
+    import CoordinateTuple from './CoordinateTuple.vue';
 
     const props = defineProps<{
         crs?: string;
@@ -12,19 +10,7 @@
         z: number;
     }>();
 
-    const latlon = computed(() => {
-        const crs = props.crs != null ? CoordinateSystem.get(props.crs) : CoordinateSystem.epsg3857;
-        return new Coordinates(crs, props.x ?? 0, props.y ?? 0, props.z ?? 0).as(
-            CoordinateSystem.epsg4326,
-        );
-    });
-
     const isGeographic = ref(true);
-
-    const formatAltitude = (z: number): string => {
-        const decimals = Math.round((z + 0) * 10);
-        return (decimals / 10).toFixed(1);
-    };
 </script>
 
 <template>
@@ -39,23 +25,10 @@
             <span class="text-muted crs">{{ isGeographic ? 'lat/lon' : crs }}</span>
         </a>
 
-        <CoordinateFragment v-if="!isGeographic" :value="x.toFixed(0)" prefix="X" />
-        <CoordinateFragment v-if="!isGeographic" :value="y.toFixed(0)" prefix="Y" />
-
-        <CoordinateFragment
-            v-if="isGeographic"
-            :value="latlon.latitude.toFixed(4)"
-            prefix="Lat"
-            suffix="°"
+        <CoordinateTuple
+            :displayMode="isGeographic ? 'geographic' : 'cartesian'"
+            :coordinates="props"
         />
-        <CoordinateFragment
-            v-if="isGeographic"
-            :value="latlon.longitude.toFixed(4)"
-            prefix="Lon"
-            suffix="°"
-        />
-
-        <CoordinateFragment v-if="z != null" :value="formatAltitude(z)" prefix="Alt" suffix="m" />
     </div>
 </template>
 

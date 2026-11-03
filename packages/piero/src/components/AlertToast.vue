@@ -72,11 +72,18 @@
 
 <template>
     <div class="toast-container">
-        <div ref="alertToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <!-- Title + text  -->
+        <div
+            v-if="notification.text != null"
+            ref="alertToast"
+            class="toast"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+        >
             <div :class="['toast-header', getStyle()]">
                 <i :v-if="notification.level === 'info'" :class="['bi', getIcon()]"></i>
                 <strong class="me-auto mx-2">{{ notification.title }}</strong>
-                <!-- <small>11 mins ago</small> -->
                 <button
                     type="button"
                     class="btn-close"
@@ -85,6 +92,18 @@
                 ></button>
             </div>
             <div class="toast-body" v-html="notification.text"></div>
+        </div>
+
+        <!-- Title only  -->
+        <div
+            v-if="notification.text == null"
+            ref="alertToast"
+            class="toast"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+        >
+            <div :class="['toast-body', getStyle()]" v-html="notification.title"></div>
         </div>
     </div>
 </template>

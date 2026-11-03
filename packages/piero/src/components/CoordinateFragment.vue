@@ -9,7 +9,7 @@
 <template>
     <div class="text-secondary">
         <span
-            ><b>{{ prefix }}</b> {{ value }}{{ suffix }}</span
+            ><b>{{ prefix }}</b> {{ value }} {{ suffix }}</span
         >
     </div>
 </template>

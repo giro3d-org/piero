@@ -52,8 +52,16 @@ export default class Picker {
         const object3d = entity?.object3d ?? object;
         let name = object3d.userData?.dataset?.name;
         const parent = entity?.id ?? object3d.uuid;
+        const datasetName = entity?.userData.dataset?.name;
 
         const datasetAttributes: Array<Attribute> = [];
+
+        if (datasetName != null) {
+            datasetAttributes.push({
+                key: 'Dataset',
+                value: datasetName,
+            });
+        }
         const attributesGroups = new Map<string, Array<Attribute>>();
         attributesGroups.set('Dataset', datasetAttributes);
 
@@ -68,7 +76,11 @@ export default class Picker {
                 const featureName = this.getNameFromOLFeature(feature.feature);
                 name = featureName ?? name;
                 this.getAttributesFromOLFeature(feature.feature, attributesGroups);
-                datasetAttributes.push({ key: 'Layer', value: feature.layer.name });
+                const layer = feature.layer;
+                const dataset = layer.userData.dataset;
+                if (dataset != null) {
+                    datasetAttributes.push({ key: 'Dataset', value: dataset.name });
+                }
             } else if (isPointsPickResult(pickedObject)) {
                 this.getAttributesFromPointCloud(pickedObject, attributesGroups);
             } else if ((entity as FeatureCollection).isFeatureCollection) {
