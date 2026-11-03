@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig } from 'vitepress';
 import chokidar from 'chokidar';
-import { endsWith } from 'zod';
 import typedocSidebar from '../api/typedoc-sidebar.json';
 
 const projectRoot = path.join(__dirname, '../../../');

@@ -14,8 +14,6 @@ const XYZSchema = z.object({
     url: z.url(),
 });
 
-export const ConfigurationSchema = z
-    .union([VectorTileSchema, DefaultSchema, XYZSchema])
-    .default(DefaultSchema);
+export const ConfigurationSchema = z.union([VectorTileSchema, DefaultSchema, XYZSchema]).optional();
 
 export type Configuration = z.infer<typeof ConfigurationSchema>;

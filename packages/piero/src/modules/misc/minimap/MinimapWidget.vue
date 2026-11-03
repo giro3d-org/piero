@@ -27,7 +27,7 @@
     const store = useMinimapStore();
 
     async function createLayer(config: Configuration | null): Promise<Layer> {
-        if (config === null || config.type === 'default') {
+        if (config == null || config.type === 'default') {
             return new TileLayer({
                 source: new OSM(),
             });
