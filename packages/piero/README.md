@@ -117,6 +117,7 @@ import '@giro3d/piero/piero.css';
 
 class MyCustomModule implements Module {
     name = 'A custom module';
+    id = 'my-custom-module';
 
     initialize(context: PieroContext) {
         console.log('hello, world!');
@@ -127,7 +128,7 @@ createPieroApp({
     container: '#app',
     baseUrl: 'https://example.com/piero/',
     configuration: 'https://example.com/config.json',
-    modules: [new MyCustomModule()],
+    modules: [MyCustomModule],
 });
 ```
 
