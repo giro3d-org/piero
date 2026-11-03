@@ -472,6 +472,12 @@
             "name": "Graticule"
         }
     ],
+    "modules": {
+        "builtin-minimap-openlayers": {
+            "type": "mvt",
+            "styleUrl": "http://osm.oslandia.io/styles/positron/style.json"
+        }
+    },
     "scene": {
         "basemap": {
             "extent": {

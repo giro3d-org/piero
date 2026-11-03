@@ -1,20 +1,49 @@
 <script setup lang="ts">
+    import type { Layer } from 'ol/layer';
+
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
     import { Map, View } from 'ol';
+    import { applyStyle } from 'ol-mapbox-style';
     import TileLayer from 'ol/layer/Tile';
+    import VectorTileLayer from 'ol/layer/VectorTile';
     import { fromLonLat } from 'ol/proj';
-    import { OSM } from 'ol/source';
+    import { OSM, XYZ } from 'ol/source';
     import { Vector3 } from 'three';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
     import type { PieroContext } from '@/context';
+
+    import type { Configuration } from './config';
+
+    import { useMinimapStore } from './store';
 
     const target = ref<HTMLDivElement>();
     const map = shallowRef<Map>();
     const props = defineProps<{
         context: PieroContext;
     }>();
+
+    const store = useMinimapStore();
+
+    async function createLayer(config: Configuration | null): Promise<Layer> {
+        if (config === null || config.type === 'default') {
+            return new TileLayer({
+                source: new OSM(),
+            });
+        }
+
+        const type = config.type;
+        switch (type) {
+            case 'mvt':
+                const layer = new VectorTileLayer({ declutter: true });
+                await applyStyle(layer, config.styleUrl);
+                return layer;
+            case 'xyz':
+                const source = new XYZ({ url: config.url });
+                return new TileLayer({ source });
+        }
+    }
 
     const altitudeRanges = [
         [30_000, 12],
@@ -36,11 +65,8 @@
         return altitudeRanges[altitudeRanges.length - 1][1];
     }
 
-    onMounted(() => {
-        const layer = new TileLayer({
-            source: new OSM(),
-        });
-
+    onMounted(async () => {
+        const layer = await createLayer(store.configuration);
         map.value = new Map({
             controls: [],
             layers: [layer],
@@ -127,7 +153,7 @@
         margin: 5pt;
         width: 50px;
         height: 50px;
-        background-color: grey;
+        background-color: white;
         overflow: hidden;
         border-color: darkgray;
         border-width: 1px;
