@@ -23,28 +23,15 @@
 </script>
 
 <template>
-    <ButtonWithIcon
-        title="Back to datasets"
-        text="Back to datasets"
-        icon="bi-arrow-left"
-        class="btn-outline-secondary"
-        @click="$emit('backToDatasets')"
-    />
-    <div class="card mt-3">
+    <div class="card">
         <div class="card-header">
-            {{ dataset.name }}
+            <span class="fw-bold">{{ dataset.name }}</span>
+            <span :title="dataset.config.type" class="badge text-bg-secondary float-end">{{
+                datasetTitles[dataset.config.type]
+            }}</span>
         </div>
         <form class="card-body">
             <fieldset>
-                <div class="mb-2 row">
-                    <span class="float-start col">Type</span>
-                    <span class="badge text-bg-secondary col-auto">{{
-                        datasetTitles[dataset.config.type]
-                    }}</span>
-                </div>
-
-                <hr />
-
                 <div class="container">
                     <div class="row">
                         <CheckboxToggle
@@ -68,4 +55,14 @@
             </fieldset>
         </form>
     </div>
+
+    <div class="flex-grow-1" />
+
+    <ButtonWithIcon
+        title="Back to datasets"
+        text="Back to datasets"
+        icon="bi-arrow-left"
+        class="btn-outline-secondary mt-3"
+        @click="$emit('backToDatasets')"
+    />
 </template>

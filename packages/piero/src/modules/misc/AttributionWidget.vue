@@ -3,7 +3,6 @@
 
     import type { WidgetProps } from '@/api/widgets';
 
-    import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import { useDatasetStore } from '@/stores/datasets';
     import { type Dataset } from '@/types/Dataset';
     import { nonNull } from '@/utils/Types';
@@ -31,12 +30,13 @@
 
 <template>
     <div class="area">
-        <ButtonWithIcon
+        <button
             title="Show attributions and copyrights"
-            icon="bi-info-lg"
-            :class="['button', showAttributions ? 'border' : undefined]"
+            :class="['btn', 'button', showAttributions ? 'border' : undefined]"
             @click="() => (showAttributions = !showAttributions)"
-        />
+        >
+            <i class="bi bi-info-lg" />
+        </button>
 
         <div
             v-if="showAttributions && attributions.length > 0"
