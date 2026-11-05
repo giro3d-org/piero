@@ -41,19 +41,6 @@ body {
     opacity: 0.5;
 }
 
-// For light collapsible sections, e.g. DatasetGroup component
-a.icon[aria-expanded] i::before,
-a[aria-expanded] .icon i::before,
-.btn[aria-expanded] > i::before {
-    transition: $accordion-icon-transition;
-}
-
-a.icon[aria-expanded='true'] i::before,
-a[aria-expanded='true'] .icon i::before,
-.btn[aria-expanded='true'] > i::before {
-    transform: $accordion-icon-transform;
-}
-
 .scene-cursor {
     border-radius: 50%;
     border-width: 2px;

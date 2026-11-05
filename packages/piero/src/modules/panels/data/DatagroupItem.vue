@@ -1,7 +1,5 @@
 <script setup lang="ts">
-    import { Collapse } from 'bootstrap';
-    import { MathUtils } from 'three';
-    import { reactive, ref, useTemplateRef, watch } from 'vue';
+    import { computed, reactive, ref, useTemplateRef, watch } from 'vue';
 
     import type { Datagroup, Dataset } from '@/types/Dataset';
 
@@ -12,6 +10,7 @@
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
+    import { useDatasetPanelStore } from '@/stores/datasetPanel';
     import { DatasetState } from '@/types/Dataset';
 
     import DatasetOrGroupItem from './DatasetOrGroupItem.vue';
@@ -22,25 +21,25 @@
 
     defineEmits<{
         showParameters: [value: Dataset];
-        'update:expanded': [ds: Dataset, expanded: boolean];
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
     }>();
 
     const items = useTemplateRef<InstanceType<typeof DatasetOrGroupItem>[]>('items');
+    const store = useDatasetPanelStore();
 
     const leafs = reactive(props.group.leafs());
     const hasLeafPreloading = ref(false);
     const hasLeafPreloaded = ref(false);
     const isVisible = ref(props.group.visibleSelf);
-    const isExpanded = ref(props.group.expanded);
+    const isExpanded = computed(
+        () => store.expandedItems.has(props.group.uuid) || store.filterExpanded,
+    );
     watch(leafs, newValues => {
         hasLeafPreloading.value = newValues.some(v => v.state === DatasetState.Loading);
         hasLeafPreloaded.value = newValues.some(v => v.state === DatasetState.Loaded);
     });
 
-    const id = MathUtils.generateUUID();
-    const target = `#${id}`;
     const isEmpty = props.group.children.length === 0;
 
     function filter(query: string, type: string, uuids: string[]): boolean {
@@ -53,11 +52,7 @@
                 const childResult = item.filter(query, type, uuids);
                 showFolder = showFolder || childResult;
             });
-            if (!query && type === ALL_DATASET_TYPES_KEYWORD && uuids.length === 0) {
-                Collapse.getOrCreateInstance(target)?.hide();
-            } else {
-                Collapse.getOrCreateInstance(target)?.show();
-            }
+
             return showFolder;
         }
         return !query && type === ALL_DATASET_TYPES_KEYWORD && uuids.length === 0;
@@ -74,24 +69,16 @@
             <IconListButton
                 v-if="!isEmpty"
                 title="Expand group"
-                icon="bi-chevron-down"
-                data-bs-toggle="collapse"
+                :icon="isExpanded ? 'bi-dash-square' : 'bi-plus-square'"
                 class="me-1"
-                @click="() => $emit('update:expanded', group, !isExpanded)"
-                :data-bs-target="target"
-                :aria-controls="id"
-                :aria-expanded="isExpanded"
+                @click="() => store.setExpanded(group.uuid, !isExpanded)"
             />
             <IconListButton
                 v-if="isEmpty"
                 style="opacity: 0%"
                 title="Expand group"
-                icon="bi-chevron-down"
-                data-bs-toggle="collapse"
+                icon="bi-plus-square"
                 class="me-1"
-                :data-bs-target="target"
-                :aria-controls="id"
-                aria-expanded="false"
             />
             <VisibilityControl
                 :visible="isVisible"
@@ -112,32 +99,10 @@
             <div v-if="hasLeafPreloading" class="icon spinner d-inline-block">
                 <SpinnerControl title="Loading..." />
             </div>
-            <!-- TODO -->
-            <!-- <IconListButton
-                v-if="
-                    hasLeafPreloaded &&
-                    (group.config.canMaskBasemap || group.config.isMaskingBasemap)
-                "
-                title="Toggle basemap masking"
-                icon="bi-mask"
-                @click="$emit('update:toggle-mask', group)"
-            />
-            <IconListButton
-                v-if="hasLeafPreloaded"
-                title="Clip to"
-                icon="bi-bounding-box"
-                @click="$emit('clipTo', group)"
-            />
-            <IconListButton
-                v-if="hasLeafPreloaded"
-                title="Toggle 3D grid"
-                icon="bi-box"
-                @click="$emit('update:toggle-grid', group)"
-            /> -->
         </IconList>
     </div>
 
-    <CompactList :id="id" :class="`collapse ${isExpanded ? 'show' : ''}`">
+    <CompactList v-if="isExpanded">
         <template v-if="!isEmpty">
             <DatasetOrGroupItem
                 v-for="dataset of group.children"

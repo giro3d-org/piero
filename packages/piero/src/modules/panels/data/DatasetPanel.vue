@@ -226,7 +226,7 @@
 
     <div v-if="showParameters == null && datasets.count > 0" class="flex-grow-1 overflow-auto">
         <!-- The margin counteracts the indentation for the root element -->
-        <CompactList style="margin-left: -1rem">
+        <CompactList class="me-3" style="margin-left: -1rem">
             <DatasetOrGroupItem
                 v-for="dataset of datasets.getTree()"
                 ref="items"
@@ -235,7 +235,6 @@
                 @updated="$forceUpdate()"
                 @zoom="ds => zoomOnDataset(ds)"
                 @show-parameters="ds => showParams(ds)"
-                @update:expanded="(ds, v) => datasets.setExpanded(ds, v)"
                 @update:visible="(ds, v) => datasets.setVisible(ds, v)"
             />
         </CompactList>
