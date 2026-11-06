@@ -85,7 +85,7 @@ const appConfig = defineConfig(() => {
                     new URL('./packages/piero/dist/assets/piero.css', import.meta.url),
                 ),
                 '@giro3d/piero/piero.scss': fileURLToPath(
-                    new URL('./packages/piero/dist/assets/piero.scss', import.meta.url),
+                    new URL('./packages/piero/src/piero.scss', import.meta.url),
                 ),
                 // eslint-disable-next-line perfectionist/sort-objects
                 '@giro3d/piero': fileURLToPath(new URL('./packages/piero/src', import.meta.url)),
