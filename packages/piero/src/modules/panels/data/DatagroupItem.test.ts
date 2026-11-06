@@ -2,9 +2,10 @@ import type { Mock } from 'vitest';
 import type { Component } from 'vue';
 
 import { mount } from '@vue/test-utils';
-import { Collapse } from 'bootstrap';
+import { createPinia } from 'pinia';
 import { beforeEach, expect, it, vi } from 'vitest';
 
+import { useDatasetPanelStore } from '@/stores/datasetPanel';
 import { Datagroup } from '@/types/Dataset';
 
 import DatagroupItem from './DatagroupItem.vue';
@@ -15,8 +16,6 @@ vi.mock('@/stores/datasets', () => ({
 }));
 
 let group: Datagroup;
-let getCollapseMock;
-let collapseMock: { hide: Mock; show: Mock };
 
 beforeEach(() => {
     group = new Datagroup({
@@ -38,21 +37,19 @@ beforeEach(() => {
                 type: 'testTypeB',
             },
         ],
-        name: 'group',
+        name: 'my group',
         type: 'group',
         visible: true,
     });
-    collapseMock = {
-        hide: vi.fn(),
-        show: vi.fn(),
-    };
-    getCollapseMock = vi.spyOn(Collapse, 'getOrCreateInstance');
-    getCollapseMock.mockImplementation(_ => collapseMock as Partial<Collapse> as Collapse);
 });
 
 it.for([true, false])('filters all children if %s', value => {
     // tests that all child elements of a datagroup have filter(...) called
     const childMocks: Mock[] = [];
+
+    const pinia = createPinia();
+    const datasetPanelStore = useDatasetPanelStore(pinia);
+    datasetPanelStore.setExpanded(group.uuid, true);
 
     const datasetOrGroupItemStub: Component = {
         props: ['dataset'],

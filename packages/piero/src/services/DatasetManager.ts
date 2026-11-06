@@ -48,9 +48,6 @@ export default class DatasetManager {
                     case 'remove':
                         this.deleteDataset(args[0]);
                         break;
-                    case 'setExpanded':
-                        void this.onExpandedChanged(args[0], args[1]);
-                        break;
                     case 'setOpacity':
                         void this.onOpacityChanged(args[0], args[1]);
                         break;
@@ -255,14 +252,6 @@ export default class DatasetManager {
         }
 
         GLOBAL_EVENT_DISPATCHER.dispatchEvent({ type: 'dataset-added', value: dataset });
-    }
-
-    private onExpandedChanged(dataset: DatasetOrGroup, newExpanded: boolean): void {
-        if (Datagroup.isGroup(dataset)) {
-            if (dataset.expanded !== newExpanded) {
-                dataset.expanded = newExpanded;
-            }
-        }
     }
 
     private async onOpacityChanged(dataset: Dataset, opacity: number): Promise<void> {
