@@ -1,9 +1,11 @@
 <script setup lang="ts">
+    import type Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
+
+    import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
     // @ts-expect-error autocomplete-vue does not provide typing
     import Autocomplete from '@trevoreyre/autocomplete-vue';
 
-    import type { SearchResult } from '@/api/search';
-
+    import { isLocationSearchResult, type SearchResult } from '@/api/search';
     import Icon from '@/components/atoms/Icon.vue';
     import { useSearchStore } from '@/stores/search';
 
@@ -12,6 +14,12 @@
     }>();
 
     const store = useSearchStore();
+
+    function formatDMS(coord: Coordinates): string {
+        const wgs84 = coord.as(CoordinateSystem.epsg4326);
+
+        return `lat: ${wgs84.latitude}° lon: ${wgs84.longitude}°`;
+    }
 
     function getResultValue(result: SearchResult): string {
         return result.label;
@@ -47,14 +55,24 @@
             placeholder="Search..."
         >
             <template #result="{ result, props }">
-                <li v-bind="props" class="autocomplete-result result border overflow-hidden">
+                <li v-bind="props" class="autocomplete-result result overflow-hidden my-2">
                     <div class="row">
                         <span class="col-auto ms-3 my-auto text-primary"
                             ><Icon icon="fg-poi" title="Location"
                         /></span>
-                        <div class="col-5">
-                            <span class="text-truncate text-sm">{{ result.label }}</span>
-                            <p class="provider">{{ result.provider.name }}</p>
+                        <div
+                            :title="result.label"
+                            class="col-auto text-truncate"
+                            style="max-width: 80%"
+                        >
+                            <span class="text-sm">{{ result.label }}</span>
+                            <p
+                                class="text-muted provider fw-lighter my-0"
+                                v-if="isLocationSearchResult(result)"
+                            >
+                                {{ formatDMS(result.coordinates) }}
+                            </p>
+                            <!-- <p class="provider fw-lighter text-muted">{{ result.provider.name }}</p> -->
                         </div>
                     </div>
                     <div class="wiki-snippet" :v-html="result.snippet"></div>
@@ -68,10 +86,11 @@
     .autocomplete-input {
         background-color: var(--bs-body-bg) !important;
         border: solid 1px var(--bs-secondary) !important;
+        height: 2.5rem;
     }
     .autocomplete-result {
         background-color: var(--bs-body-bg) !important;
-        border: solid 1px var(--bs-secondary) !important;
+        border: solid 0px var(--bs-secondary) !important;
     }
     .autocomplete-result-list {
         background-color: var(--bs-body-bg) !important;
@@ -82,6 +101,7 @@
 <style scoped lang="css">
     .main {
         padding-top: 0.5rem;
+        font-size: small;
     }
 
     .result {
@@ -91,7 +111,6 @@
 
     .provider {
         font-size: 12px;
-        opacity: 60%;
         margin: 0;
     }
 
