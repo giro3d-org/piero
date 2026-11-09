@@ -78,11 +78,17 @@ it.for([true, false])('filters all children if %s', value => {
     expect(children.length).toBe(childMocks.length);
     expect(children.length).toBe(4);
 
+    // @ts-expect-error wrong typing
     wrapper.vm.filter('', 'all-types', []);
+    // @ts-expect-error wrong typing
     wrapper.vm.filter('a', 'all-types', []);
+    // @ts-expect-error wrong typing
     wrapper.vm.filter('ab', 'all-types', []);
+    // @ts-expect-error wrong typing
     wrapper.vm.filter('c', 'testType', []);
+    // @ts-expect-error wrong typing
     wrapper.vm.filter('c', 'testTypeB', []);
+    // @ts-expect-error wrong typing
     wrapper.vm.filter('', 'testTypeB', []);
 
     for (const m of childMocks) {

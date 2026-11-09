@@ -52,6 +52,7 @@ export default class Picker {
         const object3d = entity?.object3d ?? object;
         let name = object3d.userData?.dataset?.name;
         const parent = entity?.id ?? object3d.uuid;
+        // @ts-expect-error weak typing
         const datasetName = entity?.userData.dataset?.name;
 
         const datasetAttributes: Array<Attribute> = [];
@@ -79,6 +80,7 @@ export default class Picker {
                 const layer = feature.layer;
                 const dataset = layer.userData.dataset;
                 if (dataset != null) {
+                    // @ts-expect-error weak typing
                     datasetAttributes.push({ key: 'Dataset', value: dataset.name });
                 }
             } else if (isPointsPickResult(pickedObject)) {

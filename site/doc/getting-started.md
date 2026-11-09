@@ -75,7 +75,7 @@ main()
 npx vite --port 8080
 ```
 
-7. Open your browser at the following URL: <http://localhost:8080>. You should see the Piero app
+7. Open your browser at `http://localhost:8080`. You should see the Piero app
    loaded with the default (minimal) configuration.
 
 > [!tip]
