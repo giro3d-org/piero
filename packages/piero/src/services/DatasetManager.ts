@@ -76,7 +76,11 @@ export default class DatasetManager {
     }
 
     private async buildDatasetObjects(dataset: Dataset): Promise<void> {
-        const buildResult = await DatasetBuilder.build(this._instance, dataset);
+        const buildResult = await DatasetBuilder.build(
+            this._instance,
+            dataset,
+            this._layerManager.getBasemap(),
+        );
 
         const zOrder = dataset.zOrder;
 

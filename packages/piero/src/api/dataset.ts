@@ -3,6 +3,7 @@ import type ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import type ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 import type MaskLayer from '@giro3d/giro3d/core/layer/MaskLayer';
 import type Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import type Map from '@giro3d/giro3d/entities/Map';
 
 import { type Component } from 'vue';
 
@@ -65,6 +66,7 @@ export interface DatasetApi {
 }
 
 export interface DatasetBuildContext {
+    basemap: Map;
     dataset: Dataset;
     instance: Instance;
 }
