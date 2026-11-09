@@ -12,7 +12,7 @@
         "ol": "10.8.0"
     },
     "scripts": {
-        "apidoc:build": "npm run libs:build && typedoc",
+        "apidoc:build": "typedoc",
         "app:build": "npm run libs:build && npm run copy-wasm && vite build",
         "app:dev": "npm run libs:watch & npm run copy-wasm && vite --port 8080",
         "app:dev-hot-reload": "npm run copy-wasm && vite --port 8080",
