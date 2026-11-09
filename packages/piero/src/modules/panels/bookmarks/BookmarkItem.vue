@@ -1,17 +1,36 @@
 <script setup lang="ts">
+    import { showContextMenu } from '@/components/contextmenu/contextMenu';
+
     defineProps(['url', 'name']);
-    defineEmits(['delete', 'share', 'goto']);
+    const emits = defineEmits(['delete', 'share', 'goto']);
+
+    function onContextMenu(e: MouseEvent): void {
+        showContextMenu({
+            e,
+            items: [
+                {
+                    icon: 'bi-zoom-in',
+                    label: 'Go to bookmark',
+                    onClick: (): void => emits('goto'),
+                },
+                {
+                    icon: 'bi-trash',
+                    label: 'Delete',
+                    onClick: (): void => emits('delete'),
+                },
+                {
+                    icon: 'bi-share',
+                    label: 'Share...',
+                    onClick: (): void => emits('share'),
+                },
+            ],
+        });
+    }
 </script>
 
 <template>
-    <li class="list-group-item item d-flex d-flex-end">
+    <li class="list-group-item item d-flex d-flex-end" @contextmenu="onContextMenu($event)">
         <a class="bookmark" href="#" @click="$emit('goto')">{{ name }}</a>
-        <a href="#" class="icon" title="Share this bookmark" @click="$emit('share')">
-            <i class="bi bi-share"></i>
-        </a>
-        <a href="#" class="icon" title="Delete this bookmark" @click="$emit('delete')">
-            <i class="bi bi-trash"></i>
-        </a>
     </li>
 </template>
 
