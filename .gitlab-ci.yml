@@ -38,6 +38,7 @@ build:
     script:
         - npm run libs:build
         - npm run app:build
+        - npm run site:build
 
 build-docker-image:
     variables:
