@@ -30,7 +30,7 @@
         "lint:markdown": "markdownlint . --ignore-path .gitignore",
         "lint:prettier": "prettier --check .",
         "prepare": "husky",
-        "site:build": "npm run apidoc:build && vitepress build site/doc",
+        "site:build": "npm run apidoc:build && vitepress build site/doc && shx cp -fr site/doc/static site/doc/.vitepress/dist",
         "site:dev": "npm run apidoc:build && vitepress dev site/doc",
         "site:preview": "vitepress preview site/doc",
         "test": "vitest",

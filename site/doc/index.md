@@ -7,17 +7,17 @@ hero:
     text: 'Geospatial data viz'
     tagline: Fully-configurable open-source web application for 3D visualization.
     image:
-        src: /logo.webp
+        src: /static/logo.webp
         alt: Piero
     actions:
         - theme: brand
           text: Demo
           link: https://piero.giro3d.org/ 
         - theme: alt
-          text: what is Piero ?
+          text: What is Piero ?
           link: /what-is-piero
         - theme: alt
-          text: getting started
+          text: Quickstart 
           link: /getting-started
  
 

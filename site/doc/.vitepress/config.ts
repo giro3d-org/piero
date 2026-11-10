@@ -20,6 +20,16 @@ function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
         .map(generateModuleDocumentation);
 }
 
+function getBuiltinModuleRoot(parentPath: string) {
+    // The module root is the name of the directory under modules/, for example, "loaders", "misc".
+    // This is what the Piero API exports.
+    // The actual module might be in a deeply nested sub-directory, but we are really interested in
+    // getting the import path.
+    const fragments = parentPath.split('/');
+    const moduleRoot = fragments.indexOf('modules');
+    return fragments[moduleRoot + 1];
+}
+
 function formatModuleImport(
     isBuiltin: boolean,
     parentPath: string,
@@ -27,9 +37,9 @@ function formatModuleImport(
     moduleName: string,
 ): string {
     const importPath = isBuiltin ? '@giro3d/piero/modules' : `${packageName}`;
-    const importedModule = isBuiltin ? parentPath.split('/').pop() : moduleName;
+    const importedModule = isBuiltin ? getBuiltinModuleRoot(parentPath) : moduleName;
     const moduleEntry = isBuiltin
-        ? `${parentPath.split('/').pop()}.${moduleName}`
+        ? `${importedModule}.${moduleName}`
         : `${moduleName}`;
 
     return `\`\`\`js
@@ -109,10 +119,11 @@ function isModuleDocumentationFile(file: fs.Dirent): boolean {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    description: 'A VitePress Site',
-    head: [['link', { rel: 'icon', href: '/favicon.svg' }]],
+    description: 'Geospatial visualization for the web',
+    lang: 'en-US',
+    head: [['link', { rel: 'icon', href: '/static/favicon.svg' }]],
     themeConfig: {
-        logo: { alt: 'Piero Logo', src: '/favicon.svg' },
+        logo: { alt: 'Piero Logo', src: '/static/favicon.svg' },
 
         search: {
             provider: 'local',
