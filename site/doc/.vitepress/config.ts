@@ -17,6 +17,7 @@ function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
     return fs
         .readdirSync(packageRoot, { encoding: 'utf-8', recursive: true, withFileTypes: true })
         .filter(isModuleDocumentationFile)
+        .sort((a, b) => a.name.localeCompare(b.name))
         .map(generateModuleDocumentation);
 }
 
