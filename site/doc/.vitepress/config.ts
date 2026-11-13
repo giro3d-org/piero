@@ -14,11 +14,28 @@ const moduleTemplate = fs.readFileSync(path.join(__dirname, 'module-doc-template
 function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
     const packageRoot = path.join(projectRoot, 'packages');
 
-    return fs
+
+    const groups: Map<string, DefaultTheme.SidebarItem[]> = new Map();
+
+
+    fs
         .readdirSync(packageRoot, { encoding: 'utf-8', recursive: true, withFileTypes: true })
         .filter(isModuleDocumentationFile)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(generateModuleDocumentation);
+        .forEach(dirent => {
+            const item = generateModuleDocumentation(dirent);
+            const category = getBuiltinModuleRoot(dirent.parentPath);
+            if (!groups.has(category)) {
+                groups.set(category, []);
+            }
+
+            groups.get(category)?.push(item)
+        });
+
+    return [...groups.entries()].map(([category, items]) => ({
+        items: items.sort((a, b) => a.text!.localeCompare(b.text!)),
+        text: category,
+    }) as DefaultTheme.SidebarItem)
+
 }
 
 function getBuiltinModuleRoot(parentPath: string) {
