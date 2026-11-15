@@ -34,7 +34,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for [Potree](https://potree.github.io/) datasets.
  */
-export default class PotreeLoader implements Module {
+export default class Potree implements Module {
     public readonly id = 'builtin-loader-potree';
     public readonly name = 'Potree';
 

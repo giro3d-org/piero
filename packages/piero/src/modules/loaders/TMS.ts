@@ -42,7 +42,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for TMS (Tile Map Service) tilesets.
  */
-export default class TMSLoader implements Module {
+export default class TMS implements Module {
     public readonly id = 'builtin-loader-tms';
     public readonly name = 'TMS';
 

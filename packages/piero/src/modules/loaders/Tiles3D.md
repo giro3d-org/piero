@@ -32,5 +32,3 @@ For a point cloud, you can customize the coloring, based on the altitude for ins
     }
 }
 ```
-
-See [Tiles3DDataset](/api/@giro3d/piero/modules/namespaces/loaders/namespaces/Tiles3D/type-aliases/Tiles3DDataset) for all available options.
