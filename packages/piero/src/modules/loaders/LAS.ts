@@ -83,7 +83,7 @@ const loader: LoadDatasetFromFile = context => {
 /**
  * Add suport for LAS files, including COPC (Cloud-Optimized point cloud) files.
  */
-export default class LASLoader implements Module {
+export default class LAS implements Module {
     public readonly id = 'builtin-loader-las';
     public readonly name: string = 'LAS';
 

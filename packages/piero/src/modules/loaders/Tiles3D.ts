@@ -1,6 +1,6 @@
 import type { Tiles3DOptions } from '@giro3d/giro3d/entities/Tiles3D';
 
-import Tiles3D from '@giro3d/giro3d/entities/Tiles3D';
+import Tiles3DEntity from '@giro3d/giro3d/entities/Tiles3D';
 import { MODE } from '@giro3d/giro3d/renderer/PointCloudMaterial';
 import z from 'zod';
 
@@ -59,7 +59,7 @@ const builder: DatasetBuilder = context => {
         config.colorMap = toGiro3DColorMap(dataset.style.colorMap);
     }
 
-    const entity = new Tiles3D(config);
+    const entity = new Tiles3DEntity(config);
 
     return Promise.resolve({
         entities: [entity],
@@ -71,7 +71,7 @@ const builder: DatasetBuilder = context => {
  *
  * See  {@link Tiles3DDataset} for configurating 3D Tiles datasets.
  */
-export default class Tiles3DLoader implements Module {
+export default class Tiles3D implements Module {
     public readonly id = 'builtin-loader-3dtiles';
     public readonly name = '3D Tiles';
 

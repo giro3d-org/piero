@@ -2,7 +2,7 @@ import type z from 'zod';
 
 import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
-import GPX from 'ol/format/GPX';
+import GPXFormat from 'ol/format/GPX';
 import { Fill, Stroke, Style } from 'ol/style';
 
 import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
@@ -39,7 +39,7 @@ const builder: DatasetBuilder = context => {
 
     const source = new VectorSource({
         data: {
-            format: new GPX(),
+            format: new GPXFormat(),
             url: dataset.url,
         },
         dataProjection: CoordinateSystem.get(dataset.projection),
@@ -58,7 +58,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for GPX files.
  */
-export default class GPXLoader implements Module {
+export default class GPX implements Module {
     public readonly id = 'builtin-loader-gpx';
     public readonly name = 'GPX';
 

@@ -5,56 +5,54 @@
  */
 
 import BDTopoLoader from './BDTopoLoader';
-import GeoJSONLoader from './GeoJSONLoader';
-import GeoTIFFLoader from './GeoTIFFLoader';
-import GPXLoader from './GPXLoader';
-import IFCLoader from './IFCLoader';
-import KMLLoader from './KMLLoader';
-import LASLoader from './LASLoader';
-import MapboxLoader from './MapboxLoader';
-import OSMLoader from './OSMLoader';
-import PotreeLoader from './PotreeLoader';
-import Tiles3DLoader from './Tiles3DLoader';
-import * as Tiles3D from './Tiles3DLoader';
-import TMSLoader from './TMSLoader';
-import WMSLoader from './WMSLoader';
-import WMTSLoader from './WMTSLoader';
+import GeoJSON from './GeoJSON';
+import GeoTIFF from './GeoTIFF';
+import GPX from './GPX';
+import IFC from './IFC';
+import KML from './KML';
+import LAS from './LAS';
+import Mapbox from './Mapbox';
+import OSM from './OSM';
+import Potree from './Potree';
+import Tiles3D from './Tiles3D';
+import TMS from './TMS';
+import WMS from './WMS';
+import WMTS from './WMTS';
 
 /**
  * Contains all loader modules.
  */
 const all = [
-    GeoJSONLoader,
-    GeoTIFFLoader,
-    GPXLoader,
-    IFCLoader,
-    KMLLoader,
-    LASLoader,
-    OSMLoader,
-    Tiles3DLoader,
-    TMSLoader,
-    WMSLoader,
-    WMTSLoader,
-    MapboxLoader,
-    PotreeLoader,
+    GeoJSON,
+    GeoTIFF,
+    GPX,
+    IFC,
+    KML,
+    LAS,
+    OSM,
+    Tiles3D,
+    TMS,
+    WMS,
+    WMTS,
+    Mapbox,
+    Potree,
     BDTopoLoader,
 ];
 
 export {
     all,
     BDTopoLoader,
-    GeoJSONLoader,
-    GeoTIFFLoader,
-    GPXLoader,
-    IFCLoader,
-    KMLLoader,
-    LASLoader,
-    MapboxLoader,
-    OSMLoader,
-    PotreeLoader,
+    GeoJSON,
+    GeoTIFF,
+    GPX,
+    IFC,
+    KML,
+    LAS,
+    Mapbox,
+    OSM,
+    Potree,
     Tiles3D,
-    Tiles3DLoader,
-    TMSLoader,
-    WMSLoader,
-    WMTSLoader,
+    TMS,
+    WMS,
+    WMTS,
 };

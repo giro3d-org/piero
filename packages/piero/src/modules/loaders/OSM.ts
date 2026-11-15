@@ -1,6 +1,6 @@
 import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer';
 import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource';
-import { OSM } from 'ol/source';
+import { OSM as OSMSource } from 'ol/source';
 
 import type { DatasetBuilder, DatasetBuildResult } from '@/api/dataset';
 import type { PieroContext } from '@/context';
@@ -9,7 +9,7 @@ import type { Module } from '@/module';
 const builder: DatasetBuilder = () => {
     const layer = new ColorLayer({
         source: new TiledImageSource({
-            source: new OSM(),
+            source: new OSMSource(),
         }),
     });
 
@@ -23,7 +23,7 @@ const builder: DatasetBuilder = () => {
 /**
  * Add support for the OpenStreetMap basemap.
  */
-export default class OSMLoader implements Module {
+export default class OSM implements Module {
     public readonly id = 'builtin-loader-osm';
     public readonly name = 'OSM basemap';
 

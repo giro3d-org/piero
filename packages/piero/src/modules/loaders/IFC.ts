@@ -130,7 +130,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for IFC (Industry Foundation Classes) files.
  */
-export default class IFCLoader implements Module {
+export default class IFC implements Module {
     public readonly id = 'builtin-loader-ifc';
     public readonly name = 'IFC';
 
