@@ -41,7 +41,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for WMS (Web Map Service) layers.
  */
-export default class WMSLoader implements Module {
+export default class WMS implements Module {
     public readonly id = 'builtin-loader-wms';
     public readonly name = 'WMS';
 

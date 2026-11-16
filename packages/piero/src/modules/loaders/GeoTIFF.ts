@@ -35,7 +35,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for GeoTIFF files.
  */
-export default class GeoTIFFLoader implements Module {
+export default class GeoTIFF implements Module {
     public readonly id = 'builtin-loader-geotiff';
     public readonly name = 'GeoTIFF';
 

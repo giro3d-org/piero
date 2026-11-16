@@ -2,7 +2,7 @@ import type z from 'zod';
 
 import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import VectorSource from '@giro3d/giro3d/sources/VectorSource';
-import GeoJSON from 'ol/format/GeoJSON';
+import KMLFormat from 'ol/format/KML';
 
 import type { DatasetBuilder, DatasetBuildResult, LoadDatasetFromFile } from '@/api/dataset';
 import type { PieroContext } from '@/context';
@@ -14,21 +14,23 @@ import { OpenLayersFlatStyleLike } from '@/configuration/style';
 import { getStringUrl, toGiro3DLayer } from '@/utils/Configuration';
 import { toOpenLayersStyle } from '@/utils/style';
 
-const DATASET_TYPE = 'geojson';
+const DATASET_TYPE = 'kml';
 
-export const GeoJSONDataset = config.layer.Layer.extend({
+export const KMLDataset = config.layer.Layer.extend({
     projection: CrsName.optional().default('EPSG:4326'),
     style: OpenLayersFlatStyleLike.optional(),
     url: config.url.Url,
 });
-export type GeoJSONDataset = z.infer<typeof GeoJSONDataset>;
+export type KMLDataset = z.infer<typeof KMLDataset>;
 
 const builder: DatasetBuilder = context => {
-    const dataset = GeoJSONDataset.parse(context.dataset);
+    const dataset = KMLDataset.parse(context.dataset);
 
     const source = new VectorSource({
         data: {
-            format: new GeoJSON(),
+            format: new KMLFormat({
+                extractStyles: dataset.style == null,
+            }),
             url: dataset.url,
         },
         dataProjection: CoordinateSystem.get(dataset.projection),
@@ -53,28 +55,28 @@ const loader: LoadDatasetFromFile = context => {
         name: context.filename,
         projection: 'EPSG:4326',
         resolution: 1,
-        type: 'geojson',
+        type: 'kml',
         url: getStringUrl(context.file),
         visible: true,
-    } satisfies GeoJSONDataset;
+    } satisfies KMLDataset;
 
     return Promise.resolve(result);
 };
 
 /**
- * Add support for GeoJSON files.
+ * Add support for KML (Keyhole Markup Language) files.
  */
-export default class GeoJSONLoader implements Module {
-    public readonly id = 'builtin-loader-geojson';
-    public readonly name = 'GeoJSON';
+export default class KML implements Module {
+    public readonly id = 'builtin-loader-kml';
+    public readonly name = 'KML';
 
     public initialize(context: PieroContext): Promise<void> | void {
         context.datasets.registerDatasetType(DATASET_TYPE, {
             builder,
-            fileExtensions: ['geojson', 'geo.json'],
+            fileExtensions: ['kml'],
             icon: 'fg-polygon-pt',
             loader,
-            name: 'GeoJSON',
+            name: 'KML',
         });
     }
 }

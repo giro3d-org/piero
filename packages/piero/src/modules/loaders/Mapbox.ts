@@ -64,7 +64,7 @@ const builder: DatasetBuilder = context => {
 /**
  * Add support for Mapbox tilesets.
  */
-export default class MapboxLoader implements Module {
+export default class Mapbox implements Module {
     public readonly id: string = 'builtin-loader-mapbox';
     public readonly name = 'Mapbox';
 

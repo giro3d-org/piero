@@ -51,7 +51,7 @@ const builder: DatasetBuilder = async context => {
 /**
  * Add support for WMTS (Web Map Tile Service) layers.
  */
-export default class WMTSLoader implements Module {
+export default class WMTS implements Module {
     public readonly id = 'builtin-loader-wmts';
     public readonly name = 'WMTS';
 

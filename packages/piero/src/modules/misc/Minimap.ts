@@ -5,8 +5,8 @@ import { ConfigurationSchema } from './minimap/config';
 import MinimapWidget from './minimap/MinimapWidget.vue';
 import { useMinimapStore } from './minimap/store';
 
-export default class OpenLayersMinimap implements Module {
-    public readonly id: string = 'builtin-minimap-openlayers';
+export default class Minimap implements Module {
+    public readonly id: string = 'builtin-minimap';
     public readonly name: string = 'Minimap';
 
     public async initialize(context: PieroContext): Promise<void> {

@@ -55,7 +55,7 @@ async function start(): Promise<PieroApplication> {
         misc.Tour,
         misc.DownloadDataset,
         misc.PostProcessEntities,
-        misc.OpenLayersMinimap,
+        misc.Minimap,
         misc.Graticule,
 
         /**
@@ -74,20 +74,19 @@ async function start(): Promise<PieroApplication> {
 
         // Built-in
         // You can also use `...loaders.all` to load all of them
-        loaders.LASLoader,
-        loaders.KMLLoader,
-        loaders.GPXLoader,
-        loaders.GeoJSONLoader,
-        loaders.IFCLoader,
-        loaders.OSMLoader,
-        loaders.TMSLoader,
-        loaders.WMSLoader,
-        loaders.WMTSLoader,
-        loaders.GeoTIFFLoader,
-        loaders.Tiles3DLoader,
-
-        loaders.MapboxLoader,
-        loaders.PotreeLoader,
+        loaders.LAS,
+        loaders.KML,
+        loaders.GPX,
+        loaders.GeoJSON,
+        loaders.IFC,
+        loaders.OSM,
+        loaders.TMS,
+        loaders.WMS,
+        loaders.WMTS,
+        loaders.GeoTIFF,
+        loaders.Tiles3D,
+        loaders.Mapbox,
+        loaders.Potree,
         loaders.BDTopoLoader,
 
         // External plugins

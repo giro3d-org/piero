@@ -2,7 +2,7 @@ import type { Configuration } from './configuration';
 
 /**
  * A default, ultra-minimal configuration that displays the world in the Web Mercator
- * projection using an OpenStreetMap basemap (requires the OSMLoader built-in module).
+ * projection using an OpenStreetMap basemap (requires the OSM built-in module).
  */
 const config: Configuration = {
     data: [
