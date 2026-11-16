@@ -473,7 +473,7 @@
         }
     ],
     "modules": {
-        "builtin-minimap-openlayers": {
+        "builtin-minimap": {
             "type": "mvt",
             "styleUrl": "https://osm.oslandia.io/styles/positron/style.json"
         }
