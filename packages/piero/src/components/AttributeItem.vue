@@ -3,6 +3,7 @@
     import { isColor, isLink, isVector3 } from '@/utils/Types';
 
     import ColorFragment from './ColorFragment.vue';
+    import { showContextMenu } from './contextmenu/contextMenu';
     import CoordinateTuple from './CoordinateTuple.vue';
     import LinkFragment from './LinkFragment.vue';
 
@@ -42,10 +43,23 @@
 
         return '<cannot format value>';
     }
+
+    function onContextMenu(e: MouseEvent): void {
+        showContextMenu({
+            e,
+            items: [
+                {
+                    icon: 'bi-copy',
+                    label: 'Copy to clipboard',
+                    onClick: (): void => copyToClipboard(),
+                },
+            ],
+        });
+    }
 </script>
 
 <template>
-    <div class="attribute-row p-2" @click="copyToClipboard" title="Copy to clipboard">
+    <div class="attribute-row p-2" title="Copy to clipboard" @contextmenu="onContextMenu($event)">
         <div class="text-truncate fw-bold">{{ attrName }}</div>
         <div class="text-truncate">
             <template v-if="props.attrValue === undefined"

@@ -7,6 +7,7 @@
     import Icon from '@/components/atoms/Icon.vue';
     import IconList from '@/components/atoms/IconList.vue';
     import AttributeItem from '@/components/AttributeItem.vue';
+    import { showContextMenu } from '@/components/contextmenu/contextMenu';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
 
@@ -29,7 +30,14 @@
         polygon: 'Polygon',
     };
 
-    defineEmits(['edit', 'stop-edit', 'delete', 'download', 'update:visible', 'zoom']);
+    const emits = defineEmits([
+        'edit',
+        'stop-edit',
+        'delete',
+        'download',
+        'update:visible',
+        'zoom',
+    ]);
 
     const isEditing = ref(props.annotation.isEditing);
 
@@ -44,10 +52,41 @@
     onUnmounted(() => {
         props.annotation.removeEventListener('isEditing', onIsEditingChanged);
     });
+
+    function onContextMenu(e: MouseEvent): void {
+        showContextMenu({
+            e,
+            items: [
+                {
+                    icon: 'bi-zoom-in',
+                    label: 'Zoom to annotation',
+                    onClick: (): void => emits('zoom', props.annotation),
+                },
+                {
+                    icon: 'bi-trash',
+                    label: 'Delete annotation',
+                    onClick: (): void => emits('delete', props.annotation),
+                },
+                {
+                    icon: 'bi-download',
+                    label: 'Download...',
+                    onClick: (): void => emits('download', props.annotation),
+                },
+                {
+                    icon: 'bi-pencil',
+                    label: isEditing.value ? 'Exit edition mode' : 'Edit geometry',
+                    onClick: (): void =>
+                        isEditing.value
+                            ? emits('stop-edit', props.annotation)
+                            : emits('edit', props.annotation),
+                },
+            ],
+        });
+    }
 </script>
 
 <template>
-    <li class="list-group-item item">
+    <li class="list-group-item item" @contextmenu="onContextMenu($event)">
         <div class="d-flex">
             <VisibilityControl
                 :visible="visible"
@@ -73,20 +112,6 @@
                     aria-controls="`#collapse-${annotation.uuid}`"
                 >
                     <i class="bi bi-card-list"></i>
-                </a>
-                <a
-                    href="#"
-                    class="icon"
-                    title="Edit geometry (right-click to exit edition, or press Escape to cancel modifications)"
-                    @click="isEditing ? $emit('stop-edit') : $emit('edit')"
-                >
-                    <i :class="`bi bi-pencil ${isEditing ? 'text-primary' : ''}`"></i>
-                </a>
-                <a href="#" class="icon" title="Download..." @click="$emit('download')">
-                    <i class="bi bi-download"></i>
-                </a>
-                <a href="#" class="icon" title="Delete" @click="$emit('delete')">
-                    <i class="bi bi-trash"></i>
                 </a>
             </div>
         </div>

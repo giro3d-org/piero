@@ -1,3 +1,4 @@
+import ContextMenu from '@imengyu/vue3-context-menu';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
@@ -24,6 +25,8 @@ import { useModuleStore } from '@/stores/modules';
 import { useNotificationStore } from '@/stores/notifications';
 import { useSearchStore } from '@/stores/search';
 import { useWidgetStore } from '@/stores/widgets';
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
+
 import Download from '@/utils/Download';
 
 import './piero.scss';
@@ -136,6 +139,7 @@ export default async function createPieroApp(params: {
     // Mount the Piero root component in the provided element.
     const app = createApp(App, { getContext: () => context });
     app.use(pinia);
+    app.use(ContextMenu);
     app.mount(params.container);
 
     return {

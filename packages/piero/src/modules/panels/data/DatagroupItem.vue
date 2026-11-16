@@ -7,6 +7,7 @@
     import IconList from '@/components/atoms/IconList.vue';
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
+    import { showContextMenu } from '@/components/contextmenu/contextMenu';
     import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
@@ -19,7 +20,7 @@
         group: Datagroup;
     }>();
 
-    defineEmits<{
+    const emits = defineEmits<{
         showParameters: [value: Dataset];
         'update:visible': [ds: Dataset, visible: boolean];
         zoom: [value: Dataset];
@@ -61,10 +62,30 @@
     defineExpose({
         filter,
     });
+    function onContextMenu(e: MouseEvent): void {
+        showContextMenu({
+            e,
+            items: [
+                {
+                    icon: 'bi-zoom-in',
+                    label: `Zoom to ${props.group.name}`,
+                    onClick: (): void => emits('zoom', props.group),
+                },
+                {
+                    icon: props.group.visibleSelf ? 'bi-eye-fill' : 'bi-eye-slash',
+                    label: 'Toggle visibility',
+                    onClick: (): void => {
+                        isVisible.value = !isVisible.value;
+                        emits('update:visible', props.group, isVisible.value);
+                    },
+                },
+            ],
+        });
+    }
 </script>
 
 <template>
-    <div class="d-flex">
+    <div class="d-flex" @contextmenu="onContextMenu($event)">
         <IconList class="me-1">
             <IconListButton
                 v-if="!isEmpty"
@@ -92,8 +113,7 @@
             class="label"
             :disabled="!isVisible || !hasLeafPreloaded"
             :text="group.name"
-            :title="`Zoom to ${group.name}`"
-            @click="$emit('zoom', group)"
+            :title="group.name"
         />
         <IconList class="ms-1">
             <div v-if="hasLeafPreloading" class="icon spinner d-inline-block">
