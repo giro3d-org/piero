@@ -70,9 +70,9 @@ pages:
         url: $DEPLOY_URL
     artifacts:
         paths:
-            - dist
+            - ./site/.vitepress/dist
         name: $ENVIRONMENT_NAME
-    publish: dist
+    publish: ./site/.vitepress/dist
     script:
         - npm run site:build
 
