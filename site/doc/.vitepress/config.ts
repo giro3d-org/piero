@@ -10,32 +10,117 @@ import typedocSidebar from '../api/typedoc-sidebar.json';
 const projectRoot = path.join(__dirname, '../../../');
 const moduleDocOutputDir = path.join(__dirname, '../module-reference');
 const moduleTemplate = fs.readFileSync(path.join(__dirname, 'module-doc-template.md'), 'utf-8');
+const moduleReferenceTemplate = fs.readFileSync(path.join(__dirname, 'module-reference-template.md'), 'utf-8');
 
-function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
-    const packageRoot = path.join(projectRoot, 'packages');
+interface PackageMetadata {
+    name: string; // @giro3d/piero*
+    items: ModuleMetadata[];
+}
 
+interface ModuleMetadata {
+    name: string;
+    package: string;
+    category?: string;
+    documentationFile: string;
+    path: string;
+}
 
-    const groups: Map<string, DefaultTheme.SidebarItem[]> = new Map();
+function groupBy<T, K extends keyof T>(items: T[], key: K): Map<T[K], T[]> {
+const result: Map<T[K], T[]> = new Map();
 
+items.forEach(item => {
+    const keyValue = item[key];
+    if (!result.has(keyValue)) {
+        result.set(keyValue, []);
+    }
 
-    fs
-        .readdirSync(packageRoot, { encoding: 'utf-8', recursive: true, withFileTypes: true })
-        .filter(isModuleDocumentationFile)
-        .forEach(dirent => {
-            const item = generateModuleDocumentation(dirent);
-            const category = getBuiltinModuleRoot(dirent.parentPath);
-            if (!groups.has(category)) {
-                groups.set(category, []);
-            }
+    result.get(keyValue)!.push(item);
+})
 
-            groups.get(category)?.push(item)
+return result;
+}
+
+function generateModuleReferenceIndex(packages: PackageMetadata[]) {
+    const content = moduleReferenceTemplate;
+
+    const sortedPackages = packages.sort((a, b) => a.name.localeCompare(b.name));
+
+    const sections: string[] = []
+
+    for (const pkg of sortedPackages) {
+        const title = `## \`${pkg.name}\``;
+
+        const categories = [...groupBy(pkg.items, 'category')].map(([cat, modules]) => {
+            const entries = modules.map(md => `- [${md.name}](./${md.name}.md)`);
+            return `### ${cat}\n${entries.join('\n')}`
         });
 
-    return [...groups.entries()].map(([category, items]) => ({
-        items: items.sort((a, b) => a.text!.localeCompare(b.text!)),
-        text: category,
-    }) as DefaultTheme.SidebarItem)
+        const groupMarkdown = `${title}\n\n${categories.join('\n')}`
 
+        sections.push(groupMarkdown);
+    }
+
+    const result = content.replace('%content%', sections.join('\n'));
+
+    fs.writeFileSync(path.join(moduleDocOutputDir, 'index.md'), result);
+}
+
+function collectModuleMetadata(packageName: string, packagePath: string): ModuleMetadata[] {
+    return fs
+        .readdirSync(packagePath, { encoding: 'utf-8', recursive: true, withFileTypes: true })
+        .filter(isModuleDocumentationFile)
+        .map(dirent => ({
+                package: packageName,
+                documentationFile: dirent.name,
+                category: getBuiltinModuleRoot(dirent.parentPath),
+                name: dirent.name.replace('.md', ''),
+                path: path.join(dirent.parentPath, dirent.name)
+        }));
+}
+
+function collectPackageMetadata(): PackageMetadata[] {
+    const packageRoot = path.join(projectRoot, 'packages');
+
+    return fs
+        .readdirSync(packageRoot, { encoding: 'utf-8', recursive: false, withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => {
+            const packageName =`@giro3d/${dirent.name}`;
+            return {
+                name: packageName,
+                items: collectModuleMetadata(packageName, path.join(dirent.parentPath, dirent.name))
+            }
+        })
+        .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
+    if (!fs.existsSync(moduleDocOutputDir)) {
+        fs.mkdirSync(moduleDocOutputDir);
+    }
+
+    const packages = collectPackageMetadata();
+
+    generateModuleReferenceIndex(packages);
+
+    // const groups: Map<string, DefaultTheme.SidebarItem[]> = new Map();
+
+    const sidebarItems: DefaultTheme.SidebarItem[] = packages.map(pkg => {
+        const categories = [...groupBy(pkg.items, 'category')];
+
+
+
+        return {
+            text: pkg.name,
+            items: categories.map(([cat, items]) => ({
+                text: cat,
+                items: items.map(generateModuleDocumentation)
+            }))
+        }
+
+    })
+
+    return sidebarItems;
 }
 
 function getBuiltinModuleRoot(parentPath: string) {
@@ -101,21 +186,22 @@ function generateModulePage(moduleName: string, absPath: string, outputFilename:
     fs.writeFileSync(outputFilename, outputContent);
 }
 
-function generateModuleDocumentation(dirent: fs.Dirent<string>): DefaultTheme.SidebarItem {
-    const outputFilename = path.join(moduleDocOutputDir, dirent.name);
-    const name = dirent.name.replace('.md', '');
-    const absPath = path.join(dirent.parentPath, dirent.name);
+function generateModuleDocumentation(moduleMetadata: ModuleMetadata): DefaultTheme.SidebarItem {
+    const outputFilename = path.join(moduleDocOutputDir, moduleMetadata.name + '.md');
+    const name = moduleMetadata.name;
+    const absPath = moduleMetadata.path;
+    const parentPath = path.dirname(absPath);
 
     if (process.env.NODE_ENV === 'development') {
         chokidar.watch(absPath).on("change", () => {
-            generateModulePage(name, absPath, outputFilename, dirent.parentPath);
+            generateModulePage(name, absPath, outputFilename, parentPath);
         });
     }
 
-    generateModulePage(name, absPath, outputFilename, dirent.parentPath);
+    generateModulePage(name, absPath, outputFilename, parentPath);
 
     return {
-        link: `/module-reference/${dirent.name}`,
+        link: `/module-reference/${moduleMetadata.name}`,
         text: name,
     };
 }
@@ -168,7 +254,7 @@ export default defineConfig({
             },
             {
                 items: collectModuleDocumentationFiles(),
-                text: 'Module reference',
+                text: 'Modules',
             },
             {
                 text: 'API',
