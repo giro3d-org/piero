@@ -9,6 +9,7 @@ import type { FragmentIdMap } from 'openbim-components';
 import type { Box3, Material, Vector2 } from 'three';
 
 import Entity3D from '@giro3d/giro3d/entities/Entity3D';
+import { Fetcher, fillObject3DUserData } from '@giro3d/piero';
 import {
     Components,
     FragmentBoundingBox,
@@ -24,9 +25,9 @@ import {
 } from 'openbim-components';
 import { Group, Matrix4, MeshBasicMaterial, Vector3 } from 'three';
 
-import { fillObject3DUserData } from '@/loaders/userData';
-import Fetcher from '@/utils/Fetcher';
-import { isObject } from '@/utils/Types';
+// import { fillObject3DUserData } from '@/loaders/userData';
+// import Fetcher from '@/utils/Fetcher';
+// import { isObject } from '@/utils/Types';
 
 // Copied/extract quite a lot from openbim-components library:
 // - src/fragments/FragmentHighlighter/index.ts for highlighting
@@ -125,8 +126,10 @@ export interface IFCProperty {
     value: number | null;
 }
 
+const isObject = (obj: unknown): obj is object => obj != null && typeof obj === 'object';
+
 export const isIFCPickResult = (obj: unknown): obj is IFCPickResult =>
-    isObject(obj) && (obj as IFCPickResult).isIFCPickResult;
+    isObject(obj) && (obj as IFCPickResult).isIFCPickResult === true;
 
 /** Source interface for {@link IfcEntity} */
 export interface IfcSource {

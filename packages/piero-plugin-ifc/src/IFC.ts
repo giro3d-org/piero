@@ -1,30 +1,30 @@
 import type PickResult from '@giro3d/giro3d/core/picking/PickResult';
+import type {
+    api,
+    Attribute,
+    AttributeExtractorFn,
+    AttributesGroups,
+    Module,
+    PieroContext,
+} from '@giro3d/piero';
 import type z from 'zod';
 
 import EntityPanel from '@giro3d/giro3d/gui/EntityPanel';
+import { Fetcher } from '@giro3d/piero';
+import { configuration } from '@giro3d/piero';
 import { IfcCategoryMap } from 'openbim-components';
 
-import type { DatasetBuilder, LoadDatasetFromFile } from '@/api/dataset';
-import type { PieroContext } from '@/context';
-import type { Module } from '@/module';
-import type { HighlightFn } from '@/services/Highlighter';
-import type { AttributeExtractorFn } from '@/services/picking';
-import type { Attribute, AttributesGroups } from '@/types/Feature';
-
-import * as config from '@/configuration';
-import { Coordinate } from '@/configuration/coordinate';
 import { toGiro3DCoordinates } from '@/utils/Configuration';
-import Fetcher from '@/utils/Fetcher';
 
 import IfcEntity, { isIFCPickResult } from './ifc/IfcEntity';
 import IfcEntityInspector from './ifc/IfcEntityInspector';
 import IfcPropertyView from './ifc/IfcPropertyView.vue';
 
-const IFCDataset = config.dataset.Dataset.extend({
-    position: Coordinate.optional(),
-    url: config.url.UrlOrFile,
+export const IFCDataset = configuration.dataset.Dataset.extend({
+    position: configuration.coordinate.Coordinate.optional(),
+    url: configuration.url.UrlOrFile,
 });
-type IFCDataset = z.infer<typeof IFCDataset>;
+export type IFCDataset = z.infer<typeof IFCDataset>;
 
 const highlight: HighlightFn = (pick: PickResult) => {
     if (isIFCPickResult(pick)) {
@@ -43,7 +43,7 @@ const highlight: HighlightFn = (pick: PickResult) => {
     return null;
 };
 
-const loader: LoadDatasetFromFile = context => {
+const loader: api.dataset.LoadDatasetFromFile = context => {
     const result = {
         name: context.filename,
         type: 'ifc',
@@ -106,7 +106,7 @@ const attributeExtractor: AttributeExtractorFn = (
     }
 };
 
-const builder: DatasetBuilder = context => {
+const builder: api.dataset.DatasetBuilder = context => {
     const { dataset, instance } = context;
     const ifcDataset = IFCDataset.parse(dataset);
 

@@ -3,6 +3,7 @@ import type { ModuleConstructor, PieroApplication } from '@giro3d/piero';
 import { createPieroApp, loadRemoteConfiguration } from '@giro3d/piero';
 import { CityJSONLoader } from '@giro3d/piero-plugin-cityjson';
 import { GeohashGeocoder } from '@giro3d/piero-plugin-geohash';
+import { IFC } from '@giro3d/piero-plugin-ifc';
 import { OBJLoader } from '@giro3d/piero-plugin-obj';
 import { analysis, loaders, misc, panels, search } from '@giro3d/piero/modules';
 // Import Giro3D CSS
@@ -78,7 +79,6 @@ async function start(): Promise<PieroApplication> {
         loaders.KML,
         loaders.GPX,
         loaders.GeoJSON,
-        loaders.IFC,
         loaders.OSM,
         loaders.TMS,
         loaders.WMS,
@@ -92,6 +92,7 @@ async function start(): Promise<PieroApplication> {
         // External plugins
         CityJSONLoader,
         OBJLoader,
+        IFC,
 
         /**
          * Analysis tools

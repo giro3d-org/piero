@@ -8,7 +8,6 @@ import BDTopoLoader from './BDTopoLoader';
 import GeoJSON from './GeoJSON';
 import GeoTIFF from './GeoTIFF';
 import GPX from './GPX';
-import IFC from './IFC';
 import KML from './KML';
 import LAS from './LAS';
 import Mapbox from './Mapbox';
@@ -26,7 +25,6 @@ const all = [
     GeoJSON,
     GeoTIFF,
     GPX,
-    IFC,
     KML,
     LAS,
     OSM,
@@ -45,7 +43,6 @@ export {
     GeoJSON,
     GeoTIFF,
     GPX,
-    IFC,
     KML,
     LAS,
     Mapbox,
