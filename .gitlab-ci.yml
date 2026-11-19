@@ -63,7 +63,7 @@ pages:
               ENVIRONMENT_NAME: $CI_COMMIT_BRANCH
     variables:
         DEPLOY_URL: https://piero.giro3d.org
-        OUTPUT: ./dist
+        OUTPUT: ./site/.vitepress/dist
     environment:
         name: pages/$ENVIRONMENT_NAME
         action: start
@@ -74,7 +74,7 @@ pages:
         name: $ENVIRONMENT_NAME
     publish: dist
     script:
-        - VITE_BASE_URL="$DEPLOY_URL" npm run app:build -- --out-dir $OUTPUT
+        - npm run site:build
 
 publish_packages:
     stage: publish

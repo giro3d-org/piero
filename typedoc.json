@@ -5,7 +5,7 @@
     "entryPoints": ["packages/*"],
     "tsconfig": "tsconfig.json",
     "readme": "none",
-    "out": "site/doc/api",
-    "docsRoot": "site/doc",
+    "out": "site/api",
+    "docsRoot": "site",
     "excludeInternal": true
 }
