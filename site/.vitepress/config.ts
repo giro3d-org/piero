@@ -7,7 +7,7 @@ import { defineConfig } from 'vitepress';
 import chokidar from 'chokidar';
 import typedocSidebar from '../api/typedoc-sidebar.json';
 
-const projectRoot = path.join(__dirname, '../../../');
+const projectRoot = path.join(__dirname, '../../');
 const moduleDocOutputDir = path.join(__dirname, '../module-reference');
 const moduleTemplate = fs.readFileSync(path.join(__dirname, 'module-doc-template.md'), 'utf-8');
 const moduleReferenceTemplate = fs.readFileSync(path.join(__dirname, 'module-reference-template.md'), 'utf-8');
@@ -103,12 +103,8 @@ function collectModuleDocumentationFiles(): DefaultTheme.SidebarItem[] {
 
     generateModuleReferenceIndex(packages);
 
-    // const groups: Map<string, DefaultTheme.SidebarItem[]> = new Map();
-
     const sidebarItems: DefaultTheme.SidebarItem[] = packages.map(pkg => {
         const categories = [...groupBy(pkg.items, 'category')];
-
-
 
         return {
             text: pkg.name,
@@ -236,6 +232,7 @@ export default defineConfig({
         // https://vitepress.dev/reference/default-theme-config
         nav: [
             { link: '/', text: 'Home' },
+            { link: 'https://piero.giro3d.org/demo/', text: 'Demo', target: '_blank', rel: 'demo' },
             { link: '/getting-started', text: 'Guide' },
             { link: '/module-reference', text: 'Modules' },
             { text: 'API', link: '/api/' },
