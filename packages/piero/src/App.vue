@@ -23,7 +23,6 @@
     import PanelContainer from './components/PanelContainer.vue';
     import ProgressBar from './components/ProgressBar.vue';
     import SearchOverlay from './components/SearchOverlay.vue';
-    import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
     import { useSearchStore } from './stores/search';
@@ -204,6 +203,8 @@
                 coordinates.value.y = point.y;
                 coordinates.value.z = point.z;
             }
+
+            giro3dStore.setMouseCoordinates(point);
         }
     }
 
@@ -239,13 +240,6 @@
         :parent="pickedFeature.parent"
         :point="pickedFeature.point"
         class="component attribute-panel"
-    />
-    <StatusBar
-        class="component statusbar"
-        :crs="giro3dStore.getMainView()?.coordinateSystem.id"
-        :x="coordinates.x"
-        :y="coordinates.y"
-        :z="coordinates.z"
     />
     <ToolBar id="toolbar" class="component toolbar" />
     <PanelContainer class="component panel" />
@@ -292,17 +286,6 @@
         max-height: 60%;
         margin-right: 1rem;
         margin-bottom: 5rem;
-    }
-
-    .statusbar {
-        padding: 0.2rem;
-        text-align: center;
-        border-top-left-radius: 0.5rem;
-        box-shadow: -1px -1px 5px rgba(0, 0, 0, 0.1);
-        height: 1.5rem;
-        position: absolute;
-        bottom: 0;
-        right: 0;
     }
 
     .search {
