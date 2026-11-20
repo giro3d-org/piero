@@ -19,7 +19,6 @@
     import AttributePanel from './components/AttributePanel.vue';
     import LoadingScreen from './components/LoadingScreen.vue';
     import MainView from './components/MainView.vue';
-    import NavigationButtons from './components/NavigationButtons.vue';
     import PanelContainer from './components/PanelContainer.vue';
     import ProgressBar from './components/ProgressBar.vue';
     import SearchOverlay from './components/SearchOverlay.vue';
@@ -250,7 +249,6 @@
         class="search"
         @result-selected="onSearchResultSelected"
     />
-    <NavigationButtons class="navigation-buttons" />
     <AlertToast />
 
     <div class="widgets">
@@ -267,13 +265,6 @@
 <style scoped>
     .component {
         background-color: var(--bs-body-bg);
-    }
-
-    .navigation-buttons {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        margin-bottom: 2rem;
     }
 
     .attribute-panel {
