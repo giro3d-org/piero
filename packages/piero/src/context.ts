@@ -24,6 +24,11 @@ export interface PieroContext {
     baseURL: string;
 
     /**
+     * The element that serves as a container for the Piero app.
+     */
+    rootElement: HTMLElement;
+
+    /**
      * The configuration of the Piero app.
      */
     configuration: Readonly<Configuration>;
