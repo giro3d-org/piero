@@ -1,9 +1,9 @@
 import type { PieroContext } from '@/context';
 import type { Module } from '@/module';
 
-import { ConfigurationSchema } from './minimap/config';
-import MinimapWidget from './minimap/MinimapWidget.vue';
-import { useMinimapStore } from './minimap/store';
+import { ConfigurationSchema } from './config';
+import MinimapWidget from './MinimapWidget.vue';
+import { useMinimapStore } from './store';
 
 export default class Minimap implements Module {
     public readonly id: string = 'builtin-minimap';
