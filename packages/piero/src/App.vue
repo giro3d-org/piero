@@ -19,11 +19,9 @@
     import AttributePanel from './components/AttributePanel.vue';
     import LoadingScreen from './components/LoadingScreen.vue';
     import MainView from './components/MainView.vue';
-    import NavigationButtons from './components/NavigationButtons.vue';
     import PanelContainer from './components/PanelContainer.vue';
     import ProgressBar from './components/ProgressBar.vue';
     import SearchOverlay from './components/SearchOverlay.vue';
-    import StatusBar from './components/StatusBar.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
     import { useSearchStore } from './stores/search';
@@ -204,6 +202,8 @@
                 coordinates.value.y = point.y;
                 coordinates.value.z = point.z;
             }
+
+            giro3dStore.setMouseCoordinates(point);
         }
     }
 
@@ -240,13 +240,6 @@
         :point="pickedFeature.point"
         class="component attribute-panel"
     />
-    <StatusBar
-        class="component statusbar"
-        :crs="giro3dStore.getMainView()?.coordinateSystem.id"
-        :x="coordinates.x"
-        :y="coordinates.y"
-        :z="coordinates.z"
-    />
     <ToolBar id="toolbar" class="component toolbar" />
     <PanelContainer class="component panel" />
     <ProgressBar :progress="progress" class="loading-indicator" />
@@ -256,7 +249,6 @@
         class="search"
         @result-selected="onSearchResultSelected"
     />
-    <NavigationButtons class="navigation-buttons" />
     <AlertToast />
 
     <div class="widgets">
@@ -275,13 +267,6 @@
         background-color: var(--bs-body-bg);
     }
 
-    .navigation-buttons {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        margin-bottom: 2rem;
-    }
-
     .attribute-panel {
         position: absolute;
         box-shadow: -1px -1px 5px rgba(0, 0, 0, 0.5);
@@ -292,17 +277,6 @@
         max-height: 60%;
         margin-right: 1rem;
         margin-bottom: 5rem;
-    }
-
-    .statusbar {
-        padding: 0.2rem;
-        text-align: center;
-        border-top-left-radius: 0.5rem;
-        box-shadow: -1px -1px 5px rgba(0, 0, 0, 0.1);
-        height: 1.5rem;
-        position: absolute;
-        bottom: 0;
-        right: 0;
     }
 
     .search {

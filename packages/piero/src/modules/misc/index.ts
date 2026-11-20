@@ -4,16 +4,14 @@
  * @packageDocumentation
  */
 
-import Attribution from './Attribution';
 import DownloadDataset from './DownloadDataset';
 import Graticule from './Graticule';
-import Minimap from './Minimap';
 import PostProcessEntities from './PostProcessEntities';
 import Tour from './Tour';
 
 /**
  * Contains all miscellaneous modules.
  */
-const all = [Attribution, DownloadDataset, Graticule, Minimap, PostProcessEntities, Tour];
+const all = [DownloadDataset, Graticule, PostProcessEntities, Tour];
 
-export { all, Attribution, DownloadDataset, Graticule, Minimap, PostProcessEntities, Tour };
+export { all, DownloadDataset, Graticule, PostProcessEntities, Tour };

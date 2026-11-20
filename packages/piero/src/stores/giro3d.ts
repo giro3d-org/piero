@@ -2,12 +2,13 @@ import type Extent from '@giro3d/giro3d/core/geographic/Extent';
 import type Instance from '@giro3d/giro3d/core/Instance';
 import type { MapOptions } from '@giro3d/giro3d/entities/Map';
 import type Inspector from '@giro3d/giro3d/gui/Inspector';
+import type { Vector3 } from 'three';
 
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
 import { defineStore } from 'pinia';
 import { DoubleSide, FrontSide } from 'three';
-import { shallowRef } from 'vue';
+import { ref, shallowRef } from 'vue';
 
 import type { LookAt } from '@/configuration/lookAt';
 
@@ -17,6 +18,7 @@ import { toGiro3DExtent } from '@/utils/Configuration';
 export const useGiro3dStore = defineStore('giro3d', () => {
     const mainView = shallowRef<Instance | null>(null);
     const inspector = shallowRef<Inspector | null>(null);
+    const mouseCoordinates = ref<Vector3 | null>(null);
 
     function getMainView(): Instance | null {
         return mainView.value;
@@ -94,6 +96,10 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         mainView.value?.notifyChange();
     }
 
+    function setMouseCoordinates(v: Vector3 | null): void {
+        mouseCoordinates.value = v;
+    }
+
     return {
         getCRS,
         getDefaultBasemapExtent,
@@ -102,8 +108,10 @@ export const useGiro3dStore = defineStore('giro3d', () => {
         getDefaultLookAt,
         getInspector,
         getMainView,
+        mouseCoordinates,
         notifyChange,
         setInspector,
         setMainView,
+        setMouseCoordinates,
     };
 });

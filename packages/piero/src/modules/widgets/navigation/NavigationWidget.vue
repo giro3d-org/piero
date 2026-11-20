@@ -5,10 +5,9 @@
 
     import type NavigationMode from '@/types/NavigationMode';
 
+    import SwitchToggle from '@/components/SwitchToggle.vue';
     import { useCameraStore } from '@/stores/camera';
     import { useNotificationStore } from '@/stores/notifications';
-
-    import SwitchToggle from './SwitchToggle.vue';
 
     const camera = useCameraStore();
     const notificationStore = useNotificationStore();
@@ -76,7 +75,9 @@
             <i title="Free navigation" class="mx-2 bi bi-camera-reels-fill"></i>
             <SwitchToggle
                 :model-value="navigationMode === 'first-person'"
-                @update:model-value="v => (navigationMode = v ? 'first-person' : 'orbit')"
+                @update:model-value="
+                    (v: boolean) => (navigationMode = v ? 'first-person' : 'orbit')
+                "
             />
             <i title="First person view" class="bi bi-universal-access"></i>
             <div class="vr mx-2"></div>
@@ -100,5 +101,9 @@
         padding-left: 0.5rem;
         padding-right: 0.5rem;
         margin: 1rem;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        margin-bottom: 2rem;
     }
 </style>
