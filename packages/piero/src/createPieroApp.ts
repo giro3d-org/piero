@@ -75,7 +75,7 @@ export default async function createPieroApp(params: {
     /**
      * Where to attach the piero root DOM element. Can be either the `id` of an existing element, or a reference to a DOM element.
      */
-    container: Element | string;
+    container: HTMLElement | string;
 
     /**
      * The list of modules to load.
@@ -101,6 +101,15 @@ export default async function createPieroApp(params: {
 
     const analysisStore = useAnalysisStore(pinia);
 
+    const rootElement =
+        typeof params.container === 'string'
+            ? document.getElementById(params.container)
+            : params.container;
+
+    if (!rootElement) {
+        throw new Error('params.container is not a valid DOM element');
+    }
+
     // Here we create a context that will be used by modules
     // to interact with the Piero application, without having
     // to import individual services.
@@ -114,6 +123,7 @@ export default async function createPieroApp(params: {
         http: new HttpApiImpl(),
         notifications: new NotificationApiImpl(useNotificationStore(pinia)),
         panels: new PanelApiImpl(usePanelStore(pinia)),
+        rootElement,
         search: new SearchApiImpl(useSearchStore(pinia)),
         widgets: new WidgetApiImpl(useWidgetStore(pinia)),
     };
