@@ -3,7 +3,6 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import type { Configuration } from '@/configuration/configuration';
-import type { PieroContext } from '@/context';
 import type { ModuleConstructor } from '@/module';
 import type { PieroApplication } from '@/PieroApplication';
 
@@ -17,6 +16,7 @@ import { WidgetApiImpl } from '@/api/widgets';
 import App from '@/App.vue';
 import defaultConfig from '@/configuration/defaultConfig';
 import { loadRemoteConfiguration, setConfiguration } from '@/configurationLoader';
+import { type PieroContext, setGlobalContext } from '@/context';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import { useAnalysisStore } from '@/stores/analysis';
 import { useBookmarkStore } from '@/stores/bookmarks';
@@ -32,6 +32,11 @@ import Download from '@/utils/Download';
 import './piero.scss';
 import { PanelApiImpl } from './api/panels';
 import { usePanelStore } from './stores/panels';
+import { useSettingsStore } from './stores/settings';
+
+function applyTheme(theme: 'dark' | 'light', element: HTMLElement): void {
+    element.setAttribute('data-bs-theme', theme);
+}
 
 async function resolveConfiguration(params: {
     configuration?: Configuration | string;
@@ -103,12 +108,26 @@ export default async function createPieroApp(params: {
 
     const rootElement =
         typeof params.container === 'string'
-            ? document.getElementById(params.container)
+            ? document.getElementById(params.container.replace('#', ''))
             : params.container;
 
     if (!rootElement) {
         throw new Error('params.container is not a valid DOM element');
     }
+
+    const settings = useSettingsStore(pinia);
+
+    const theme = settings.getTheme();
+    applyTheme(theme, rootElement);
+    settings.$onAction(({ after, name }) => {
+        after(() => {
+            switch (name) {
+                case 'setUserTheme':
+                    applyTheme(settings.getTheme(), rootElement);
+                    break;
+            }
+        });
+    });
 
     // Here we create a context that will be used by modules
     // to interact with the Piero application, without having

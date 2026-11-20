@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import PanelHeader from '@/components/panels/PanelHeader.vue';
 
-    import { ThemeSchema, usePreferenceStore } from './store';
+    import { ThemeSchema, useSettingsStore } from '@/stores/settings';
 
-    const store = usePreferenceStore();
+    const store = useSettingsStore();
     const theme = store.getUserTheme();
 
     function onThemeChange(e: InputEvent): void {

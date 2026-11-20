@@ -5,37 +5,37 @@ import z from 'zod';
 export const ThemeSchema = z.union([z.literal('light'), z.literal('dark'), z.literal('system')]);
 export type Theme = z.infer<typeof ThemeSchema>;
 
-export const PreferencesSchema = z.object({
+export const SettingsSchema = z.object({
     theme: ThemeSchema,
 });
-export type Preferences = z.infer<typeof PreferencesSchema>;
+export type Settings = z.infer<typeof SettingsSchema>;
 
-const LOCAL_STORAGE_KEY = 'preferences';
+const LOCAL_STORAGE_KEY = 'settings';
 
-const defaultPreferences: Preferences = {
+const defaultSettings: Settings = {
     theme: 'light',
 };
 
-function loadPreferencesFromLocalStorage(): Preferences {
+function loadSettingsFromLocalStorage(): Settings {
     const local = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (local == null) {
-        return defaultPreferences;
+        return defaultSettings;
     }
 
     try {
-        return PreferencesSchema.parse(JSON.parse(local));
+        return SettingsSchema.parse(JSON.parse(local));
     } catch (e) {
-        console.warn('Could not load preferences', e);
-        return defaultPreferences;
+        console.warn('Could not load Piero settings', e);
+        return defaultSettings;
     }
 }
 
-export const usePreferenceStore = defineStore('preferences', () => {
+export const useSettingsStore = defineStore('settings', () => {
     const systemTheme: 'dark' | 'light' = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
 
-    const preferences = ref<Preferences>(loadPreferencesFromLocalStorage());
+    const preferences = ref<Settings>(loadSettingsFromLocalStorage());
 
     function saveToLocalStorage(): void {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(preferences.value));
@@ -60,6 +60,7 @@ export const usePreferenceStore = defineStore('preferences', () => {
 
     function setUserTheme(theme: Theme): void {
         preferences.value.theme = theme;
+
         saveToLocalStorage();
     }
 
@@ -70,4 +71,4 @@ export const usePreferenceStore = defineStore('preferences', () => {
     };
 });
 
-export type PreferencesStore = ReturnType<typeof usePreferenceStore>;
+export type SettingsStore = ReturnType<typeof useSettingsStore>;
