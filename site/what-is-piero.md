@@ -9,7 +9,7 @@ It is both **an app** and a **library** (`@giro3d/piero`).
 > use the app version. If you want to specify your own modules and theme, use the library.
 
 > [!note]
-> The demo application is available at <https://piero.giro3d.org/>.
+> The demo application is available at <https://piero.giro3d.org/demo/>.
 
 ## Capabilities
 
