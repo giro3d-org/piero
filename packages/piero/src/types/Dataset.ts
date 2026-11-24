@@ -93,13 +93,6 @@ export abstract class DatasetBase<
         if (this._visibleSelf !== v) {
             this._visibleSelf = v;
 
-            // Make sure that when activating a dataset contained
-            // in a non-visible folder, the folder becomes visible,
-            // and recursively to the root folder.
-            if (this.parent && v) {
-                this.parent.visibleSelf = true;
-            }
-
             if (this.visible) {
                 this.dispatchEvent({ type: 'visible' });
             }
