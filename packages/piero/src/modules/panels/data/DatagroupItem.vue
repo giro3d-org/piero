@@ -32,7 +32,6 @@
     const leafs = reactive(props.group.leafs());
     const hasLeafPreloading = ref(false);
     const hasLeafPreloaded = ref(false);
-    const isVisible = ref(props.group.visibleSelf);
     const isExpanded = computed(
         () => store.expandedItems.has(props.group.uuid) || store.filterExpanded,
     );
@@ -75,8 +74,7 @@
                     icon: props.group.visibleSelf ? 'bi-eye-fill' : 'bi-eye-slash',
                     label: 'Toggle visibility',
                     onClick: (): void => {
-                        isVisible.value = !isVisible.value;
-                        emits('update:visible', props.group, isVisible.value);
+                        emits('update:visible', props.group, !props.group.visibleSelf);
                     },
                 },
             ],
@@ -102,7 +100,7 @@
                 class="me-1"
             />
             <VisibilityControl
-                :visible="isVisible"
+                :visible="props.group.visibleSelf"
                 @update:visible="v => $emit('update:visible', group, v)"
             />
             <IconList class="text-body-tertiary">
