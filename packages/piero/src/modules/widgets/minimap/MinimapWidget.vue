@@ -27,6 +27,8 @@
     import { useMinimapStore } from './store';
 
     const target = ref<HTMLDivElement>();
+    const container = ref<HTMLDivElement>();
+    const collapsed = ref<boolean>(false);
     const map = shallowRef<Map>();
     const props = defineProps<{
         context: PieroContext;
@@ -127,11 +129,9 @@
             view?.fit(groundPolygon, { padding: [30, 50, 30, 50] });
         };
 
-        let collapsed = false;
-
         const updateViewAfterDelay = (): void => {
             clearTimeout(interval);
-            if (!collapsed) {
+            if (!collapsed.value) {
                 interval = setTimeout(updateView, 40);
             }
         };
@@ -141,16 +141,18 @@
 
         updateView();
 
-        if (target.value) {
-            target.value.onclick = (): void => {
-                collapsed = !collapsed;
-                if (collapsed) {
-                    target.value?.classList.add('collapsed');
-                    target.value?.classList.remove('expanded');
+        if (container.value) {
+            container.value.onclick = (): void => {
+                collapsed.value = !collapsed.value;
+                if (collapsed.value) {
+                    container.value?.classList.add('collapsed');
+                    container.value?.classList.remove('expanded');
                 } else {
-                    target.value?.classList.remove('collapsed');
-                    target.value?.classList.add('expanded');
+                    container.value?.classList.remove('collapsed');
+                    container.value?.classList.add('expanded');
                 }
+
+                setTimeout(updateView, 200);
             };
         }
     });
@@ -162,7 +164,12 @@
 </script>
 
 <template>
-    <div ref="target" title="Toggle minimap" class="minimap expanded"></div>
+    <div ref="container" title="Toggle minimap" class="minimap expanded border rounded shadow">
+        <div ref="target" class="w-100 h-100" :class="collapsed ? 'd-none' : ''" />
+        <div v-if="collapsed" class="d-flex justify-content-center align-items-center w-100 h-100">
+            <i class="bi bi-map-fill text-primary fs-4" />
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -175,20 +182,9 @@
         height: 50px;
         background-color: white;
         overflow: hidden;
-        border-color: darkgray;
-        border-width: 1px;
-        border-style: solid;
-
-        border-radius: 5px;
-        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
         transition:
             width 200ms ease-out,
             height 200ms ease-out;
-    }
-
-    .crosshair {
-        z-index: 999;
-        opacity: 50%;
     }
 
     .minimap:hover {
@@ -203,6 +199,7 @@
         animation-name: expand;
         animation-duration: 0.3s;
         animation-direction: reverse;
+        background-color: var(--bs-body-bg);
     }
 
     .expanded {
