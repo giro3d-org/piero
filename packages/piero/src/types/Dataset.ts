@@ -52,6 +52,14 @@ export abstract class DatasetBase<
         return 0;
     }
 
+    public get loading(): boolean {
+        return this._loading;
+    }
+
+    public set loading(v: boolean) {
+        this._loading = v;
+    }
+
     public get opacity(): number {
         return this._opacity;
     }
@@ -124,6 +132,7 @@ export abstract class DatasetBase<
     protected _parent: Datagroup | null;
 
     protected _visibleSelf: boolean;
+    private _loading = false;
 
     private _state: DatasetState = DatasetState.Unloaded;
     private _zOrder = 0;

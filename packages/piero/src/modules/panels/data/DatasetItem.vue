@@ -7,7 +7,6 @@
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import { datasetIcons, datasetTitles, propertyViews } from '@/components/Configuration';
     import { showContextMenu } from '@/components/contextmenu/contextMenu';
-    import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { useDatasetPanelStore } from '@/stores/datasetPanel';
@@ -15,6 +14,8 @@
     import { type Dataset, DatasetState } from '@/types/Dataset';
     import { refAndWatch } from '@/utils/components';
     import { formatForSearch } from '@/utils/NameFiltering';
+
+    import DatasetLoadingIndicator from './DatasetLoadingIndicator.vue';
 
     const store = useDatasetStore();
     const datasetPanelStore = useDatasetPanelStore();
@@ -139,9 +140,6 @@
                 @click="$emit('zoom', dataset)"
             />
             <IconList class="ms-1">
-                <div v-if="state === DatasetState.Loading" class="icon spinner d-inline-block me-1">
-                    <SpinnerControl title="Loading..." />
-                </div>
                 <div v-if="state === DatasetState.Failed" class="d-inline-block">
                     <Icon
                         class="text-secondary me-1"
@@ -150,6 +148,8 @@
                     />
                 </div>
             </IconList>
+
+            <DatasetLoadingIndicator :item="props.dataset" />
         </div>
     </div>
     <!-- Property view -->
