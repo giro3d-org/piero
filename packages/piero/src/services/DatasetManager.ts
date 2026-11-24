@@ -294,14 +294,14 @@ export default class DatasetManager {
     ): Promise<void> {
         try {
             dataset.visibleSelf = newVisibility;
-            if (dataset.state !== DatasetState.Loaded && newVisibility) {
+            if (dataset.state !== DatasetState.Loaded && dataset.visible) {
                 await this.preloadDataset(dataset);
             }
             await this.updateDataset(dataset);
             if (Datagroup.isGroup(dataset)) {
                 dataset.children.forEach(ds => void this.onVisibilityChanged(ds, ds.visibleSelf));
             }
-        } catch (_e) {
+        } catch {
             dataset.visibleSelf = false;
         }
 
