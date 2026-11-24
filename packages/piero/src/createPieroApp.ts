@@ -3,7 +3,6 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import type { Configuration } from '@/configuration/configuration';
-import type { PieroContext } from '@/context';
 import type { ModuleConstructor } from '@/module';
 import type { PieroApplication } from '@/PieroApplication';
 
@@ -17,6 +16,7 @@ import { WidgetApiImpl } from '@/api/widgets';
 import App from '@/App.vue';
 import defaultConfig from '@/configuration/defaultConfig';
 import { loadRemoteConfiguration, setConfiguration } from '@/configurationLoader';
+import { type PieroContext } from '@/context';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import { useAnalysisStore } from '@/stores/analysis';
 import { useBookmarkStore } from '@/stores/bookmarks';
@@ -32,6 +32,7 @@ import Download from '@/utils/Download';
 import './piero.scss';
 import { PanelApiImpl } from './api/panels';
 import { usePanelStore } from './stores/panels';
+import { useSettingsStore } from './stores/settings';
 
 async function resolveConfiguration(params: {
     configuration?: Configuration | string;
@@ -75,7 +76,7 @@ export default async function createPieroApp(params: {
     /**
      * Where to attach the piero root DOM element. Can be either the `id` of an existing element, or a reference to a DOM element.
      */
-    container: Element | string;
+    container: HTMLElement | string;
 
     /**
      * The list of modules to load.
@@ -101,6 +102,18 @@ export default async function createPieroApp(params: {
 
     const analysisStore = useAnalysisStore(pinia);
 
+    const rootElement =
+        typeof params.container === 'string'
+            ? document.getElementById(params.container.replace('#', ''))
+            : params.container;
+
+    if (!rootElement) {
+        throw new Error('params.container is not a valid DOM element');
+    }
+
+    const settings = useSettingsStore(pinia);
+    settings.setRootElement(rootElement);
+
     // Here we create a context that will be used by modules
     // to interact with the Piero application, without having
     // to import individual services.
@@ -114,6 +127,7 @@ export default async function createPieroApp(params: {
         http: new HttpApiImpl(),
         notifications: new NotificationApiImpl(useNotificationStore(pinia)),
         panels: new PanelApiImpl(usePanelStore(pinia)),
+        rootElement,
         search: new SearchApiImpl(useSearchStore(pinia)),
         widgets: new WidgetApiImpl(useWidgetStore(pinia)),
     };

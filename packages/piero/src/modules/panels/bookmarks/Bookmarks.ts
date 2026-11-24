@@ -10,7 +10,7 @@ export default class Bookmarks implements Module {
     public initialize(context: PieroContext): Promise<void> | void {
         context.panels.register({
             component: BookmarkPanel,
-            icon: 'bi-bookmarks',
+            icon: 'bi-bookmarks-fill',
             id: 'bookmarks',
             title: 'Bookmarks',
         });

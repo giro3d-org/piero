@@ -160,7 +160,11 @@ function generateModulePage(moduleName: string, absPath: string, outputFilename:
     const isBuiltin = data.type === 'builtin';
     const packageName = isBuiltin ? '@giro3d/piero' : data.package;
 
-    const packageBadge = `<Badge type="${isBuiltin ? 'info' : 'warning'}"><a href="/api/${packageName}">${packageName}</a></Badge>`;
+    const badgeTitle = isBuiltin
+        ? 'This module is available in the base package'
+        : `This module requires the ${packageName} package`;
+
+    const packageBadge = `<Badge title="${badgeTitle}" type="${isBuiltin ? 'info' : 'warning'}"><a href="/api/${packageName}">${packageName}</a></Badge>`;
 
     const preamble = isBuiltin
         ? ''
@@ -188,7 +192,8 @@ function generateModuleDocumentation(moduleMetadata: ModuleMetadata): DefaultThe
     const absPath = moduleMetadata.path;
     const parentPath = path.dirname(absPath);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
+        console.info(`Watching changes on ${name}.md`);
         chokidar.watch(absPath).on("change", () => {
             generateModulePage(name, absPath, outputFilename, parentPath);
         });

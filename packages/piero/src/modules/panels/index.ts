@@ -10,7 +10,8 @@ import Annotations from './annotations/Annotations';
 import Bookmarks from './bookmarks/Bookmarks';
 import Data from './data/Data';
 import Measurements from './measurements/Measurements';
+import Settings from './settings/Settings';
 
-const all = [About, Data, Bookmarks, Annotations, Analysis, Measurements];
+const all = [About, Data, Bookmarks, Annotations, Analysis, Measurements, Settings];
 
-export { About, all, Analysis, Annotations, Bookmarks, Data, Measurements };
+export { About, all, Analysis, Annotations, Bookmarks, Data, Measurements, Settings };

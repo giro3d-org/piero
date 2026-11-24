@@ -25,6 +25,7 @@
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
     import { useSearchStore } from './stores/search';
+    import { useSettingsStore } from './stores/settings';
     import { useWidgetStore } from './stores/widgets';
 
     const { getContext } = defineProps<{
@@ -221,43 +222,50 @@
             giro3d.value.mainInstance.domElement.style.cursor = picked ? 'pointer' : 'auto';
         }
     }
+
+    const settings = useSettingsStore();
 </script>
 
 <template>
-    <LoadingScreen v-if="showLoadingScreen" />
-    <MainView
-        id="main-view"
-        @click="(evt: MouseEvent) => pick(evt, true)"
-        @mousemove="onMouseMove"
-        class="mainview"
-    />
-    <AttributePanel
-        v-if="pickedFeature != null"
-        @close="pickedFeature = null"
-        :attributes="pickedFeature.attributes"
-        :name="pickedFeature.name"
-        :parent="pickedFeature.parent"
-        :point="pickedFeature.point"
-        class="component attribute-panel"
-    />
-    <ToolBar id="toolbar" class="component toolbar" />
-    <PanelContainer class="component panel" />
-    <ProgressBar :progress="progress" class="loading-indicator" />
-    <SearchOverlay
-        v-if="searchStore.searchProviderCount > 0"
-        id="address-search"
-        class="search"
-        @result-selected="onSearchResultSelected"
-    />
-    <AlertToast />
+    <!-- Note: the bg-body and text-body classes are there to ensure that
+        switching the color mode (dark/light) on any DOM element works properly.
+        Otherwise, some elements don't catch up properly, such as <p> for example.  -->
+    <div :data-bs-theme="settings.getTheme()" class="text-body bg-body">
+        <LoadingScreen v-if="showLoadingScreen" />
+        <MainView
+            id="main-view"
+            @click="(evt: MouseEvent) => pick(evt, true)"
+            @mousemove="onMouseMove"
+            class="mainview"
+        />
+        <AttributePanel
+            v-if="pickedFeature != null"
+            @close="pickedFeature = null"
+            :attributes="pickedFeature.attributes"
+            :name="pickedFeature.name"
+            :parent="pickedFeature.parent"
+            :point="pickedFeature.point"
+            class="component attribute-panel"
+        />
+        <ToolBar id="toolbar" class="component toolbar" />
+        <PanelContainer class="component panel" />
+        <ProgressBar :progress="progress" class="loading-indicator" />
+        <SearchOverlay
+            v-if="searchStore.searchProviderCount > 0"
+            id="address-search"
+            class="search"
+            @result-selected="onSearchResultSelected"
+        />
+        <AlertToast />
 
-    <div class="widgets">
-        <div
-            v-for="(widget, index) in widgetStore.getWidgets()"
-            :key="index"
-            :id="`widget-${widget.id}`"
-        >
-            <component :context="getContext()" :is="widget.component"></component>
+        <div class="widgets">
+            <div
+                v-for="(widget, index) in widgetStore.getWidgets()"
+                :key="index"
+                :id="`widget-${widget.id}`"
+            >
+                <component :context="getContext()" :is="widget.component"></component>
+            </div>
         </div>
     </div>
 </template>
