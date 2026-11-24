@@ -1,10 +1,9 @@
 import chroma from 'chroma-js';
-import { type ColorRepresentation } from 'three';
 
 export interface ColorScheme {
-    primary: ColorRepresentation;
-    primaryDark: ColorRepresentation;
-    primaryLight: ColorRepresentation;
+    primary: string;
+    primaryDark: string;
+    primaryLight: string;
 }
 
 export function getColorScheme(): ColorScheme {

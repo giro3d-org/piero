@@ -1,18 +1,26 @@
 <script setup lang="ts">
+    import type { Coordinate } from 'ol/coordinate';
     import type { Layer } from 'ol/layer';
 
     import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
     import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
-    import { Map, View } from 'ol';
+    import chroma from 'chroma-js';
+    import { Feature, Map, View } from 'ol';
     import { applyStyle } from 'ol-mapbox-style';
+    import { Polygon } from 'ol/geom';
     import TileLayer from 'ol/layer/Tile';
+    import VectorLayer from 'ol/layer/Vector';
     import VectorTileLayer from 'ol/layer/VectorTile';
     import { fromLonLat } from 'ol/proj';
     import { OSM, XYZ } from 'ol/source';
-    import { Vector3 } from 'three';
+    import VectorSource from 'ol/source/Vector';
+    import { Fill, Stroke, Style } from 'ol/style';
+    import { Plane, Raycaster, Vector2, Vector3 } from 'three';
     import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
     import type { PieroContext } from '@/context';
+
+    import { getColorScheme } from '@/utils/theme';
 
     import type { Configuration } from './config';
 
@@ -25,6 +33,13 @@
     }>();
 
     const store = useMinimapStore();
+
+    const NDC_TL = new Vector2(-1, +1);
+    const NDC_TR = new Vector2(+1, +1);
+    const NDC_BR = new Vector2(+1, -1);
+    const NDC_BL = new Vector2(-1, -1);
+    const NDC_CORNERS = [NDC_TL, NDC_TR, NDC_BR, NDC_BL];
+    const groundPolygon = new Polygon([], 'XY');
 
     async function createLayer(config: Configuration | null): Promise<Layer> {
         if (config == null || config.type === 'default') {
@@ -45,31 +60,25 @@
         }
     }
 
-    const altitudeRanges = [
-        [30_000, 12],
-        [50_000, 10],
-        [100_000, 8],
-        [400_000, 6],
-        [800_000, 4],
-        [1_600_000, 3],
-        [3_000_000, 1],
-    ];
-
-    function getZoomFromAltitude(altitude: number): number {
-        for (const [alt, zoom] of altitudeRanges) {
-            if (altitude < alt) {
-                return zoom;
-            }
-        }
-
-        return altitudeRanges[altitudeRanges.length - 1][1];
-    }
-
     onMounted(async () => {
-        const layer = await createLayer(store.configuration);
+        const background = await createLayer(store.configuration);
+        const vectorSource = new VectorSource({ features: [new Feature(groundPolygon)] });
+        const scheme = getColorScheme();
+        const vectorLayer = new VectorLayer({
+            source: vectorSource,
+            style: new Style({
+                fill: new Fill({
+                    color: chroma.hex(scheme.primary).alpha(0.1).hex('rgba'),
+                }),
+                stroke: new Stroke({
+                    color: scheme.primaryLight,
+                    width: 2,
+                }),
+            }),
+        });
         map.value = new Map({
             controls: [],
-            layers: [layer],
+            layers: [background, vectorLayer],
             target: target.value,
             view: new View({
                 center: fromLonLat([4, 44]),
@@ -78,32 +87,44 @@
             }),
         });
 
-        let lastPosition = new Vector3();
-
         let interval: NodeJS.Timeout | undefined = undefined;
+
+        const ground = new Plane(new Vector3(0, 0, 1));
+        const raycaster = new Raycaster();
+        const vec3 = new Vector3();
+        const groundPoints: Coordinate[] = [
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+        ];
 
         const updateView = (): void => {
             const instance = props.context.view.getInstance();
-            const camera = props.context.view.getCameraController();
-            const position = camera.getCameraPosition();
+            const crs = instance.coordinateSystem;
+            const camera = instance.view.camera;
 
-            const altitude = position.camera.z;
+            NDC_CORNERS.forEach((ndc, idx) => {
+                raycaster.setFromCamera(ndc, camera);
+                raycaster.ray.intersectPlane(ground, vec3);
 
-            if (!position.camera.equals(lastPosition)) {
-                lastPosition = position.camera.clone();
+                const { x, y } = new Coordinates(crs, vec3.x, vec3.y, 0).as(
+                    CoordinateSystem.epsg3857,
+                );
 
-                const latlon = new Coordinates(
-                    instance.coordinateSystem,
-                    lastPosition.x,
-                    lastPosition.y,
-                ).as(CoordinateSystem.epsg4326);
+                groundPoints[idx] = [x, y];
+            });
 
-                const zoom = getZoomFromAltitude(altitude);
+            // close the ring
+            groundPoints[groundPoints.length - 1] = groundPoints[0];
 
-                const view = map.value?.getView();
-                view?.setCenter(fromLonLat([latlon.longitude, latlon.latitude]));
-                view?.setZoom(zoom);
-            }
+            groundPolygon.setCoordinates([groundPoints]);
+            vectorSource.changed();
+            vectorLayer.changed();
+
+            const view = map.value?.getView();
+            view?.fit(groundPolygon, { padding: [30, 50, 30, 50] });
         };
 
         let collapsed = false;
@@ -111,11 +132,14 @@
         const updateViewAfterDelay = (): void => {
             clearTimeout(interval);
             if (!collapsed) {
-                interval = setTimeout(updateView, 200);
+                interval = setTimeout(updateView, 40);
             }
         };
 
         props.context.events.addEventListener('updated', updateViewAfterDelay);
+        props.context.events.addEventListener('ready', updateView);
+
+        updateView();
 
         if (target.value) {
             target.value.onclick = (): void => {
@@ -138,11 +162,7 @@
 </script>
 
 <template>
-    <div ref="target" title="Toggle minimap" class="minimap expanded">
-        <div class="crosshair position-absolute top-50 start-50 translate-middle">
-            <i class="bi bi-crosshair"></i>
-        </div>
-    </div>
+    <div ref="target" title="Toggle minimap" class="minimap expanded"></div>
 </template>
 
 <style scoped>
