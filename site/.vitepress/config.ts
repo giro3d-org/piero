@@ -188,7 +188,8 @@ function generateModuleDocumentation(moduleMetadata: ModuleMetadata): DefaultThe
     const absPath = moduleMetadata.path;
     const parentPath = path.dirname(absPath);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
+        console.info(`Watching changes on ${name}.md`);
         chokidar.watch(absPath).on("change", () => {
             generateModulePage(name, absPath, outputFilename, parentPath);
         });
