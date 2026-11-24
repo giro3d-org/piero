@@ -61,6 +61,8 @@ async function start(): Promise<PieroApplication> {
          */
         widgets.Attribution,
         widgets.Minimap,
+        widgets.Coordinates,
+        widgets.Navigation,
 
         /**
          * Toolbar panels
