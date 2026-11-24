@@ -160,7 +160,11 @@ function generateModulePage(moduleName: string, absPath: string, outputFilename:
     const isBuiltin = data.type === 'builtin';
     const packageName = isBuiltin ? '@giro3d/piero' : data.package;
 
-    const packageBadge = `<Badge type="${isBuiltin ? 'info' : 'warning'}"><a href="/api/${packageName}">${packageName}</a></Badge>`;
+    const badgeTitle = isBuiltin
+        ? 'This module is available in the base package'
+        : `This module requires the ${packageName} package`;
+
+    const packageBadge = `<Badge title="${badgeTitle}" type="${isBuiltin ? 'info' : 'warning'}"><a href="/api/${packageName}">${packageName}</a></Badge>`;
 
     const preamble = isBuiltin
         ? ''
