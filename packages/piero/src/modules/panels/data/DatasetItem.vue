@@ -72,7 +72,7 @@
                     icon: props.dataset.visible ? 'bi-eye-fill' : 'bi-eye-slash',
                     label: 'Toggle visibility',
                     onClick: (): void =>
-                        emits('update:visible', props.dataset, !props.dataset.visible),
+                        emits('update:visible', props.dataset, !props.dataset.visibleSelf),
                 },
                 {
                     icon: 'bi-trash',
