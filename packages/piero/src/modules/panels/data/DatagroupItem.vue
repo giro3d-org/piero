@@ -8,12 +8,12 @@
     import IconListButton from '@/components/atoms/IconListButton.vue';
     import ListLabelButton from '@/components/atoms/ListLabelButton.vue';
     import { showContextMenu } from '@/components/contextmenu/contextMenu';
-    import SpinnerControl from '@/components/SpinnerControl.vue';
     import VisibilityControl from '@/components/VisibilityControl.vue';
     import { ALL_DATASET_TYPES_KEYWORD } from '@/constants';
     import { useDatasetPanelStore } from '@/stores/datasetPanel';
     import { DatasetState } from '@/types/Dataset';
 
+    import DatasetLoadingIndicator from './DatasetLoadingIndicator.vue';
     import DatasetOrGroupItem from './DatasetOrGroupItem.vue';
 
     const props = defineProps<{
@@ -109,15 +109,12 @@
         </IconList>
         <ListLabelButton
             class="label"
-            :disabled="!isVisible || !hasLeafPreloaded"
+            :disabled="!props.group.visible || !hasLeafPreloaded"
             :text="group.name"
             :title="group.name"
         />
-        <IconList class="ms-1">
-            <div v-if="hasLeafPreloading" class="icon spinner d-inline-block">
-                <SpinnerControl title="Loading..." />
-            </div>
-        </IconList>
+
+        <DatasetLoadingIndicator :item="props.group" />
     </div>
 
     <CompactList v-if="isExpanded">

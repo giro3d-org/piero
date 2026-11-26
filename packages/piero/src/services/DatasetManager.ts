@@ -18,6 +18,7 @@ import type { Dataset } from '@/types/Dataset';
 import { getConfig } from '@/configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
 import DatasetBuilder from '@/giro3d/DatasetBuilder';
+import ProgressWatcher from '@/giro3d/ProgressWatcher';
 import loader from '@/loaders/loader';
 import { useDatasetStore } from '@/stores/datasets';
 import { useNotificationStore } from '@/stores/notifications';
@@ -33,11 +34,13 @@ export default class DatasetManager {
     private readonly _layers: Map<string, Layer[]> = new Map();
     private readonly _masks: Map<string, MaskLayer> = new Map();
     private readonly _notifications = useNotificationStore();
+    private readonly _progressWatcher: ProgressWatcher;
     private readonly _store = useDatasetStore();
 
     public constructor(instance: Instance, layerManager: LayerManager) {
         this._instance = instance;
         this._layerManager = layerManager;
+        this._progressWatcher = new ProgressWatcher(instance);
 
         this._store.$onAction(({ after, args, name }) => {
             after(() => {
@@ -81,6 +84,11 @@ export default class DatasetManager {
             dataset,
             this._layerManager.getBasemap(),
         );
+
+        this._progressWatcher.add(dataset, [
+            ...(buildResult.entities ?? []),
+            ...(buildResult.layers ?? []),
+        ]);
 
         const zOrder = dataset.zOrder;
 
