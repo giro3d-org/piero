@@ -12,7 +12,7 @@
 <style scoped>
     .panel {
         border-color: var(--bs-border-color);
-        border-width: 0 2px 0 2px;
+        border-width: 0 1px 0 1px;
         border-style: solid;
         height: 100%;
         overflow: auto;

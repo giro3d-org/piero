@@ -19,14 +19,12 @@
     import AttributePanel from './components/AttributePanel.vue';
     import LoadingScreen from './components/LoadingScreen.vue';
     import MainView from './components/MainView.vue';
-    import PanelContainer from './components/PanelContainer.vue';
     import ProgressBar from './components/ProgressBar.vue';
     import SearchOverlay from './components/SearchOverlay.vue';
     import ToolBar from './components/toolbar/ToolBar.vue';
     import { GLOBAL_EVENT_DISPATCHER } from './events';
     import { useSearchStore } from './stores/search';
     import { useSettingsStore } from './stores/settings';
-    import { useWidgetStore } from './stores/widgets';
 
     const { getContext } = defineProps<{
         getContext: () => PieroContext;
@@ -45,7 +43,6 @@
     const cameraStore = useCameraStore();
     const annotationStore = useAnnotationStore();
     const measurementStore = useMeasurementStore();
-    const widgetStore = useWidgetStore();
     const searchStore = useSearchStore();
 
     const giro3d = shallowRef<Giro3DManager | null>(null);
@@ -232,12 +229,7 @@
         Otherwise, some elements don't catch up properly, such as <p> for example.  -->
     <div :data-bs-theme="settings.getTheme()" class="text-body bg-body">
         <LoadingScreen v-if="showLoadingScreen" />
-        <MainView
-            id="main-view"
-            @click="(evt: MouseEvent) => pick(evt, true)"
-            @mousemove="onMouseMove"
-            class="mainview"
-        />
+
         <AttributePanel
             v-if="pickedFeature != null"
             @close="pickedFeature = null"
@@ -247,26 +239,28 @@
             :point="pickedFeature.point"
             class="component attribute-panel"
         />
-        <ToolBar id="toolbar" class="component toolbar" />
-        <PanelContainer class="component panel" />
+
+        <div class="d-flex flex-shrink-0 vh-100 vw-100">
+            <ToolBar id="toolbar" class="flex-shrink-0" />
+            <MainView
+                :context="getContext()"
+                id="main-view"
+                @click="(evt: MouseEvent) => pick(evt, true)"
+                @mousemove="onMouseMove"
+                class="w-100 h-100"
+            />
+        </div>
+
         <ProgressBar :progress="progress" class="loading-indicator" />
+
         <SearchOverlay
             v-if="searchStore.searchProviderCount > 0"
             id="address-search"
             class="search"
             @result-selected="onSearchResultSelected"
         />
-        <AlertToast />
 
-        <div class="widgets">
-            <div
-                v-for="(widget, index) in widgetStore.getWidgets()"
-                :key="index"
-                :id="`widget-${widget.id}`"
-            >
-                <component :context="getContext()" :is="widget.component"></component>
-            </div>
-        </div>
+        <AlertToast />
     </div>
 </template>
 
@@ -302,44 +296,5 @@
         height: 3px;
         z-index: 1;
         background-color: transparent;
-    }
-
-    .panel {
-        position: absolute;
-        height: 100vh;
-        left: 3.5rem;
-        max-width: 30rem;
-        min-width: 20rem;
-        z-index: 1;
-    }
-
-    .widgets {
-        pointer-events: none;
-        position: absolute;
-        left: 3.5rem;
-        top: 0;
-        height: 100vh;
-        width: calc(100% - 3.5rem);
-    }
-
-    .widgets > div {
-        pointer-events: all;
-    }
-
-    .mainview {
-        position: absolute;
-        /* background-color: cadetblue; */
-        height: 100vh;
-        left: 3.5rem;
-        width: calc(100% - 3.5rem);
-        z-index: 0;
-    }
-
-    .toolbar {
-        width: 3.5rem;
-        height: 100vh;
-        position: absolute;
-        top: 0;
-        left: 0;
     }
 </style>
