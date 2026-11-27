@@ -1,8 +1,8 @@
 <script setup lang="ts">
     import { showContextMenu } from '@/components/contextmenu/contextMenu';
 
-    defineProps(['url', 'name']);
-    const emits = defineEmits(['delete', 'share', 'goto']);
+    defineProps<{ name: string }>();
+    const emits = defineEmits(['delete', 'goto']);
 
     function onContextMenu(e: MouseEvent): void {
         showContextMenu({
@@ -17,11 +17,6 @@
                     icon: 'bi-trash',
                     label: 'Delete',
                     onClick: (): void => emits('delete'),
-                },
-                {
-                    icon: 'bi-share',
-                    label: 'Share...',
-                    onClick: (): void => emits('share'),
                 },
             ],
         });

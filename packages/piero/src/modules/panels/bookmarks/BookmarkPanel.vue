@@ -1,50 +1,48 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import type geojson from 'geojson';
+
+    import type { Bookmark } from '@/configuration/bookmark';
 
     import ButtonArea from '@/components/atoms/ButtonArea.vue';
     import ButtonWithIcon from '@/components/atoms/ButtonWithIcon.vue';
     import ImportButton from '@/components/atoms/ImportButton.vue';
-    import ModalOverlay from '@/components/ModalOverlay.vue';
     import EmptyIndicator from '@/components/panels/EmptyIndicator.vue';
     import PanelHeader from '@/components/panels/PanelHeader.vue';
+    import { fromGeojsonFeature } from '@/configuration/bookmark';
     import { useBookmarkStore } from '@/stores/bookmarks';
     import { useCameraStore } from '@/stores/camera';
+    import { useGiro3dStore } from '@/stores/giro3d';
     import { useNotificationStore } from '@/stores/notifications';
-    import Bookmark, { type SerializedBookmark } from '@/types/Bookmark';
+    import CameraPosition from '@/types/CameraPosition';
     import Download from '@/utils/Download';
 
     import BookmarkItem from './BookmarkItem.vue';
-    import ShareBookmarkModal from './ShareBookmarkModal.vue';
-
-    const showShareModal = ref(false);
-    const shareUrl = ref<string | null>(null);
-    const modalTitle = ref<string | null>(null);
 
     const notificationStore = useNotificationStore();
     const bookmarkStore = useBookmarkStore();
     const cameraStore = useCameraStore();
+    const giro3d = useGiro3dStore();
 
     function addBookmark(): void {
         const name = window.prompt('Bookmark name', 'New bookmark');
         if (name != null) {
-            const bookmark = new Bookmark(name, cameraStore.getCameraPosition());
+            const lookAt = cameraStore.getCameraPosition().toLookAt(giro3d.getCRS());
+
+            const bookmark: Bookmark = {
+                lookAt,
+                title: name,
+            };
+
             bookmarkStore.add(bookmark);
         }
     }
 
     function exportBookmarks(): void {
-        const json = [];
-        for (const bookmark of bookmarkStore.getBookmarks()) {
-            json.push({
-                title: bookmark.name,
-                url: bookmark.getUrl().toString(),
-            });
-        }
-        Download.downloadAsJson(json, 'bookmarks.json');
+        Download.downloadAsJson(bookmarkStore.exportAsFeatureCollection(), 'bookmarks.json');
     }
 
     function goTo(bookmark: Bookmark): void {
-        cameraStore.setCameraPosition(bookmark.camera);
+        cameraStore.setCameraPosition(CameraPosition.fromLookAt(giro3d.getCRS(), bookmark.lookAt));
     }
 
     function importBookmarkFile(files: File[]): void {
@@ -55,16 +53,17 @@
 
     async function importBookmarks(file: Blob): Promise<void> {
         const str = await file.text();
-        const serializedBookmarks: SerializedBookmark[] = JSON.parse(str);
+        const featureCollection: geojson.FeatureCollection = JSON.parse(str);
+        const bookmarks = featureCollection.features.map(fromGeojsonFeature);
 
-        const existingBookmarks = new Set(bookmarkStore.getBookmarks().map(b => b.name));
+        const existingBookmarks = new Set(bookmarkStore.getBookmarks().map(b => b.title));
 
         let nbImported = 0;
         let nbSkipped = 0;
 
-        serializedBookmarks.forEach((bookmark: SerializedBookmark) => {
+        bookmarks.forEach((bookmark: Bookmark) => {
             if (!existingBookmarks.has(bookmark.title)) {
-                bookmarkStore.add(Bookmark.new(bookmark.title, bookmark.url));
+                bookmarkStore.add(bookmark);
                 nbImported++;
             } else {
                 nbSkipped++;
@@ -77,19 +76,6 @@
             title: 'Bookmarks',
         });
     }
-
-    function shareBookmark(bookmark: Bookmark): void {
-        shareUrl.value = bookmark.getUrl().toString();
-        modalTitle.value = 'Share bookmark';
-        showShareModal.value = true;
-    }
-
-    function shareCurrentView(): void {
-        const temp = new Bookmark('temp', cameraStore.getCameraPosition());
-        shareUrl.value = temp.getUrl().toString();
-        modalTitle.value = 'Share current view';
-        showShareModal.value = true;
-    }
 </script>
 
 <template>
@@ -100,9 +86,8 @@
     <ul class="list-group list-group-flush flex-grow-1 overflow-auto">
         <BookmarkItem
             v-for="bookmark in bookmarkStore.getBookmarks()"
-            :key="bookmark.name"
-            :name="bookmark.name"
-            v-on:share="shareBookmark(bookmark)"
+            :key="bookmark.title"
+            :name="bookmark.title"
             v-on:delete="bookmarkStore.remove(bookmark)"
             v-on:goto="goTo(bookmark)"
         />
@@ -122,13 +107,6 @@
             "
         />
         <ButtonWithIcon
-            text="Share view"
-            icon="bi-share"
-            title="Share current view"
-            class="btn-outline-secondary my-1"
-            @click="shareCurrentView"
-        />
-        <ButtonWithIcon
             title="Export bookmarks to GeoJSON"
             class="btn-outline-secondary my-1"
             @click="exportBookmarks"
@@ -142,14 +120,4 @@
             @import="importBookmarkFile"
         />
     </ButtonArea>
-
-    <!-- FIXME the modal popup background does not take the entire screen -->
-    <!-- FIXME the modal popup slightly changes the layout of the page when it appears -->
-    <ModalOverlay
-        :show="showShareModal"
-        :title="modalTitle as string"
-        v-on:close="() => (showShareModal = false)"
-    >
-        <ShareBookmarkModal :url="shareUrl as string" />
-    </ModalOverlay>
 </template>

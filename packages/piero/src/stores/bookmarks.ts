@@ -1,53 +1,16 @@
-import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
-import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
+import type geojson from 'geojson';
+
 import { defineStore } from 'pinia';
-import { Vector3 } from 'three';
 import { computed, ref } from 'vue';
 
-import { getLookAtTarget } from '@/configuration/lookAt';
+import type { Bookmark } from '@/configuration/bookmark';
+
+import { toGeojsonFeature } from '@/configuration/bookmark';
 import { getConfig } from '@/configurationLoader';
 import { GLOBAL_EVENT_DISPATCHER } from '@/events';
-import Bookmark from '@/types/Bookmark';
-import CameraPosition from '@/types/CameraPosition';
-
-function buildInitialList(): Bookmark[] {
-    const config = getConfig();
-
-    if (config.bookmarks == null) {
-        return [];
-    }
-
-    const result: Bookmark[] = [];
-
-    for (const conf of config.bookmarks) {
-        const lookAt = conf.lookAt;
-        const pos = new Coordinates(
-            CoordinateSystem.epsg4326,
-            lookAt.longitude,
-            lookAt.latitude,
-            lookAt.altitude,
-        )
-            .as(CoordinateSystem.get(config.scene.crs))
-            .toVector3();
-
-        const target = getLookAtTarget(pos, lookAt);
-
-        const title = conf.title;
-
-        const cameraPosition = new CameraPosition(
-            new Vector3(pos.x, pos.y, pos.z),
-            new Vector3(target.x, target.y, target.z),
-            new Vector3(0, 0, 0),
-        );
-
-        result.push(new Bookmark(title, cameraPosition));
-    }
-
-    return result;
-}
 
 export const useBookmarkStore = defineStore('bookmarks', () => {
-    const bookmarks = ref<Set<Bookmark>>(new Set(buildInitialList()));
+    const bookmarks = ref<Set<Bookmark>>(new Set(getConfig().bookmarks ?? []));
     const count = computed(() => bookmarks.value.size);
 
     function add(bookmark: Bookmark): void {
@@ -68,7 +31,14 @@ export const useBookmarkStore = defineStore('bookmarks', () => {
         return [...bookmarks.value];
     }
 
-    return { add, clear, count, getBookmarks, remove };
+    function exportAsFeatureCollection(): geojson.FeatureCollection {
+        return {
+            features: [...bookmarks.value].map(toGeojsonFeature),
+            type: 'FeatureCollection',
+        };
+    }
+
+    return { add, clear, count, exportAsFeatureCollection, getBookmarks, remove };
 });
 
 export type BookmarkStore = ReturnType<typeof useBookmarkStore>;

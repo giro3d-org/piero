@@ -1,10 +1,10 @@
-import type { Vector3 } from 'three';
-
 import Coordinates from '@giro3d/giro3d/core/geographic/Coordinates';
 import CoordinateSystem from '@giro3d/giro3d/core/geographic/CoordinateSystem';
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three';
 
 import type { CrsName } from '@/configuration/crs';
-import type { LookAt } from '@/configuration/lookAt';
+
+import { getLookAtTarget, type LookAt } from '@/configuration/lookAt';
 
 export default class CameraPosition {
     public readonly camera: Vector3;
@@ -17,21 +17,41 @@ export default class CameraPosition {
         this.focalOffset = focalOffset;
     }
 
-    public toLookAt(crs: CrsName): LookAt {
+    public static fromLookAt(crs: CoordinateSystem | CrsName, lookAt: LookAt): CameraPosition {
+        const pos = new Coordinates(
+            CoordinateSystem.epsg4326,
+            lookAt.longitude,
+            lookAt.latitude,
+            lookAt.altitude,
+        )
+            .as(typeof crs === 'string' ? CoordinateSystem.get(crs) : crs)
+            .toVector3();
+
+        const target = getLookAtTarget(pos, lookAt);
+
+        return new CameraPosition(
+            new Vector3(pos.x, pos.y, pos.z),
+            new Vector3(target.x, target.y, target.z),
+            new Vector3(0, 0, 0),
+        );
+    }
+
+    public toLookAt(crs: CoordinateSystem | CrsName): LookAt {
         const altitude = this.camera.z;
         const { latitude, longitude } = new Coordinates(
-            CoordinateSystem.get(crs),
+            typeof crs === 'string' ? CoordinateSystem.get(crs) : crs,
             this.camera.x,
             this.camera.y,
             altitude,
         ).as(CoordinateSystem.epsg4326);
 
-        // TODO check formulas
-        const heading = Math.atan2(this.target.x - this.camera.x, this.target.y - this.camera.y);
-        const tilt = Math.atan2(
-            Math.sqrt((this.target.x - this.camera.x) ** 2 + (this.target.y - this.camera.y) ** 2),
-            this.target.z - this.camera.z,
-        );
+        const direction = new Vector3().subVectors(this.target, this.camera).normalize();
+        const quaternion = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction);
+        const euler = new Euler(0, 0, 0, 'ZXY').setFromQuaternion(quaternion, 'ZXY');
+
+        // Note that heading rotates clockwise, so we have to invert the rotation
+        const heading = MathUtils.radToDeg(-euler.z);
+        const tilt = MathUtils.radToDeg(euler.x);
 
         return { altitude, heading, latitude, longitude, tilt };
     }

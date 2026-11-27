@@ -1,6 +1,6 @@
 import { EventDispatcher } from 'three';
 
-import type Bookmark from './types/Bookmark';
+import type { Bookmark } from './configuration/bookmark';
 import type { Dataset, DatasetOrGroup } from './types/Dataset';
 
 export interface BookmarkEvents {
