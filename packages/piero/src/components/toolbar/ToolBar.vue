@@ -2,13 +2,14 @@
     import { usePanelStore } from '@/stores/panels';
 
     import MonochromeLogo from '../atoms/MonochromeLogo.vue';
+    import PanelContainer from './PanelContainer.vue';
     import ToolbarButton from './ToolbarButton.vue';
 
-    const panels = usePanelStore();
+    const store = usePanelStore();
 </script>
 
 <template>
-    <div class="toolbar d-flex flex-column">
+    <div v-if="store.panels.length > 0" class="toolbar base flex-shrink-0 d-flex flex-column">
         <ul id="menu" class="row-2 nav nav-pills flex-column">
             <li class="nav-item mt-2">
                 <a href="https://giro3d.org" target="_blank" title="Piero, powered by Giro3D">
@@ -18,17 +19,17 @@
 
             <template
                 :key="panel.id"
-                v-for="panel in panels.panels.filter(p => p.location === 'top')"
+                v-for="panel in store.panels.filter(p => p.location === 'top')"
             >
                 <ToolbarButton
-                    :active="panel.id === panels.activePanel?.id"
+                    :active="panel.id === store.activePanel?.id"
                     :tourkey="panel.id"
                     :title="panel.title"
                     :icon="panel.icon"
                     @click="
                         () =>
-                            panels.setActivePanel(
-                                panels.activePanel?.id === panel.id ? null : panel.id,
+                            store.setActivePanel(
+                                store.activePanel?.id === panel.id ? null : panel.id,
                             )
                     "
                 />
@@ -40,18 +41,18 @@
         <ul id="menu-bottom" class="row-8 nav nav-pills flex-column">
             <template
                 :key="panel.id"
-                v-for="panel in panels.panels.filter(p => p.location === 'bottom')"
+                v-for="panel in store.panels.filter(p => p.location === 'bottom')"
             >
                 <div class="float-end">
                     <ToolbarButton
-                        :active="panel.id === panels.activePanel?.id"
+                        :active="panel.id === store.activePanel?.id"
                         :tourkey="panel.id"
                         :title="panel.title"
                         :icon="panel.icon"
                         @click="
                             () =>
-                                panels.setActivePanel(
-                                    panels.activePanel?.id === panel.id ? null : panel.id,
+                                store.setActivePanel(
+                                    store.activePanel?.id === panel.id ? null : panel.id,
                                 )
                         "
                     />
@@ -59,10 +60,30 @@
             </template>
         </ul>
     </div>
+
+    <PanelContainer class="panel base" />
 </template>
 
 <style scoped>
     li {
         margin: 0.2rem;
+    }
+
+    .base {
+        background-color: var(--bs-body-bg);
+    }
+
+    .toolbar {
+        width: 3.5rem;
+        height: 100%;
+    }
+
+    .panel {
+        position: absolute;
+        height: 100vh;
+        left: 3.5rem;
+        max-width: 30rem;
+        min-width: 20rem;
+        z-index: 1;
     }
 </style>
